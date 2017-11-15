@@ -42,28 +42,19 @@ import java.util.stream.Collectors;
 public class PosUserServiceImpl implements PosUserService {
 
     @Resource
-    private AuthorityDao authorityDao;
-
-    @Resource
     private CustomerService customerService;
-
-    @Resource
-    private PosUserChannelDao posUserChannelDao;
-
-    @Resource
-    private PosUserJuniorDao posUserJuniorDao;
-
-    @Resource
-    private PosUserTransactionRecordDao posUserTransactionRecordDao;
 
     @Resource
     private SecurityService securityService;
 
     @Resource
-    private PosConstants posConstants;
+    private PosUserTransactionRecordDao posUserTransactionRecordDao;
 
     @Resource
-    private SmsService smsService;
+    private AuthorityDao authorityDao;
+
+    @Resource
+    private PosConstants posConstants;
 
     @Override
     public Pagination<PosUserIntegrateDto> queryPosUsers(PosUserCondition condition, OrderHelper orderHelper, LimitHelper limitHelper) {

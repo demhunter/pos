@@ -9,7 +9,7 @@ import com.pos.common.util.mvc.support.LimitHelper;
 import com.pos.common.util.mvc.support.Pagination;
 import com.pos.pos.dto.spread.SpreadCustomerDto;
 import com.pos.pos.dto.spread.SpreadGeneralInfoDto;
-import com.pos.pos.service_v.TwitterService;
+import com.pos.pos.service.TwitterService;
 import com.pos.user.session.UserInfo;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;

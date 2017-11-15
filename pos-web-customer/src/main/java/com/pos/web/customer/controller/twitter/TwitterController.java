@@ -9,7 +9,7 @@ import com.pos.common.util.mvc.support.LimitHelper;
 import com.pos.pos.dto.BrokerageHandledRecordDto;
 import com.pos.pos.dto.twitter.TwitterDailyStatisticsDto;
 import com.pos.pos.dto.twitter.TwitterGeneralInfoDto;
-import com.pos.pos.service_v.TwitterService;
+import com.pos.pos.service.TwitterService;
 import com.pos.user.session.UserInfo;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;

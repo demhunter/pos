@@ -9,8 +9,8 @@ import com.pos.pos.constants.AuthStatusEnum;
 import com.pos.pos.constants.PosTwitterStatus;
 import com.pos.pos.constants.UserAuditStatus;
 import com.pos.pos.dto.auth.AuthorityDetailDto;
-import com.pos.pos.service.PosUserTransactionRecordService;
-import com.pos.pos.service_v.AuthorityService;
+import com.pos.pos.service.PosTransactionService;
+import com.pos.pos.service.AuthorityService;
 import com.pos.user.dto.customer.CustomerDto;
 import com.pos.user.exception.UserErrorCode;
 import com.pos.user.service.CustomerService;
@@ -42,7 +42,7 @@ public class CustomerController {
     private AuthorityService authorityService;
 
     @Resource
-    private PosUserTransactionRecordService posUserTransactionRecordService;
+    private PosTransactionService posTransactionService;
 
     @RequestMapping(value = "", method = RequestMethod.GET)
     @ApiOperation(value = "v1.0.0 * 获取用户信息，用以展示首页内容", notes = "获取用户信息，用以展示首页内容")
@@ -78,7 +78,7 @@ public class CustomerController {
                 result.setShowDevelop(PosTwitterStatus.ENABLE.equals(twitterStatus) && AuthStatusEnum.ENABLE.equals(authDetail.parseDevelopAuth()));
             }
             // 没有交易记录的用户需要在快捷收款处显示小红点，引导用户点击
-            result.setShowGetRedDot(posUserTransactionRecordService.queryUserTransactionCount(customer.getId()) <= 0);
+            result.setShowGetRedDot(posTransactionService.queryUserTransactionCount(customer.getId()) <= 0);
             result.setCanGet(AuthStatusEnum.ENABLE.equals(authDetail.parseGetAuth()));
         }
 

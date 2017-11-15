@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2016 ywmj.com. All Rights Reserved.
  */
-package com.pos.pos.service_v.impl;
+package com.pos.pos.service.impl;
 
 import com.pos.basic.dto.UserIdentifier;
 import com.pos.common.sms.service.SmsService;
@@ -17,8 +17,8 @@ import com.pos.pos.domain.TwitterCustomer;
 import com.pos.pos.dto.auth.AuthorityDto;
 import com.pos.pos.dto.auth.BaseAuthDto;
 import com.pos.pos.dto.auth.AuthorityDetailDto;
-import com.pos.pos.service_v.AuthorityService;
-import com.pos.pos.service_v.TwitterService;
+import com.pos.pos.service.AuthorityService;
+import com.pos.pos.service.TwitterService;
 import com.pos.user.dto.customer.CustomerDto;
 import com.pos.user.dto.login.RegisterRecommendDto;
 import com.pos.user.exception.UserErrorCode;

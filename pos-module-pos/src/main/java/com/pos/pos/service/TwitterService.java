@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2016 ywmj.com. All Rights Reserved.
  */
-package com.pos.pos.service_v;
+package com.pos.pos.service;
 
 import com.pos.basic.dto.UserIdentifier;
 import com.pos.common.util.mvc.support.ApiResult;
@@ -67,6 +67,15 @@ public interface TwitterService {
      * @return 申请提现金额
      */
     ApiResult<BigDecimal> applyWithdrawBrokerage(UserIdentifier user);
+
+    /**
+     * 保存快捷收款佣金处理记录
+     *
+     * @param record 快捷收款佣金处理记录
+     * @param user   操作人
+     * @return 操作结果
+     */
+    ApiResult<NullObject> saveBrokerageRecord(BrokerageHandledRecordDto record, UserIdentifier user);
 
     /**
      * 查询用户提现记录

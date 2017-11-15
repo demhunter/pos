@@ -1,10 +1,11 @@
 /*
  * Copyright (c) 2016 ywmj.com. All Rights Reserved.
  */
-package com.pos.pos.service_v.impl;
+package com.pos.pos.service.impl;
 
 import com.pos.basic.dto.UserIdentifier;
 import com.pos.basic.service.SecurityService;
+import com.pos.common.sms.service.SmsService;
 import com.pos.common.util.date.SimpleDateUtils;
 import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.common.util.mvc.support.LimitHelper;
@@ -31,10 +32,12 @@ import com.pos.pos.dto.spread.SpreadGeneralInfoDto;
 import com.pos.pos.dto.twitter.TwitterDailyStatisticsDto;
 import com.pos.pos.dto.twitter.TwitterGeneralInfoDto;
 import com.pos.pos.exception.PosUserErrorCode;
-import com.pos.pos.service_v.TwitterService;
+import com.pos.pos.service.TwitterService;
 import com.pos.user.dto.customer.CustomerDto;
 import com.pos.user.exception.UserErrorCode;
 import com.pos.user.service.CustomerService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -57,11 +60,16 @@ import java.util.stream.Collectors;
 @Transactional(rollbackFor = Exception.class)
 public class TwitterServiceImpl implements TwitterService {
 
+    private final static Logger LOG = LoggerFactory.getLogger(TwitterServiceImpl.class);
+
     @Resource
     private CustomerService customerService;
 
     @Resource
     private SecurityService securityService;
+
+    @Resource
+    private SmsService smsService;
 
     @Resource
     private PosTwitterDao posTwitterDao;
@@ -189,6 +197,41 @@ public class TwitterServiceImpl implements TwitterService {
         posTwitterDao.update(twitter);
 
         return ApiResult.succ(currentApplyMoney);
+    }
+
+    @Override
+    public ApiResult<NullObject> saveBrokerageRecord(BrokerageHandledRecordDto record, UserIdentifier user) {
+        FieldChecker.checkEmpty(record, "record");
+        FieldChecker.checkEmpty(user, "user");
+        record.check("record");
+
+        Twitter channel = posTwitterDao.getTwitterByUserId(record.getUserId());
+        if (channel == null) {
+            return ApiResult.fail(PosUserErrorCode.CHANNEL_NOT_EXISTED);
+        }
+        if (!channel.getApplyMoney().equals(record.getAmount())) {
+            LOG.error("data apply money:{}; handled apply money:{}", channel.getApplyMoney(), record.getAmount());
+            return ApiResult.fail(PosUserErrorCode.CHANNEL_APPLY_MONEY_ERROR);
+        }
+        // 保存处理记录
+        twitterBrokerageHandledDao.save(record);
+        // 累计提现总金额，清空当前提现申请金额
+        BigDecimal totalMoney = channel.getTotalMoney() == null ? BigDecimal.ZERO : channel.getTotalMoney();
+        channel.setTotalMoney(totalMoney.add(record.getAmount()));
+        channel.setApplyMoney(BigDecimal.ZERO);
+        posTwitterDao.update(channel);
+        // 标记已提现的收款
+        twitterBrokerageDao.markTwitterStatus(channel.getUserId(),
+                GetAgentEnum.APPLY.getCode(), GetAgentEnum.GET.getCode(), null);
+        twitterBrokerageDao.markParentStatus(user.getUserId(),
+                GetAgentEnum.NOT_GET.getCode(), GetAgentEnum.APPLY.getCode(), null);
+        // 发送申请已处理短信
+        CustomerDto customer = customerService.findById(record.getUserId(), true);
+        if (customer != null) {
+            String message = String.format(posConstants.getPosTwitterBrokerageHandledTemplate(), record.getAmount());
+            smsService.sendMessage(customer.getPhone(), message);
+        }
+        return ApiResult.succ();
     }
 
     @Override

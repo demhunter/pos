@@ -3,10 +3,6 @@
  */
 package com.pos.web.customer.controller.twitter;
 
-import com.pos.pos.service_v.TwitterService;
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
 import com.pos.common.util.mvc.resolver.FromSession;
 import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.common.util.mvc.support.LimitHelper;
@@ -14,8 +10,11 @@ import com.pos.common.util.mvc.support.NullObject;
 import com.pos.common.util.mvc.support.Pagination;
 import com.pos.pos.dto.develop.DevelopGeneralInfoDto;
 import com.pos.pos.dto.develop.PosUserChildChannelDto;
-import com.pos.pos.service.PosUserChannelInfoService;
+import com.pos.pos.service.TwitterService;
 import com.pos.user.session.UserInfo;
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -30,9 +29,6 @@ import javax.annotation.Resource;
 @RequestMapping(value = "/twitter/develop")
 @Api(value = "/twitter/develop", description = "* 发展下级推客相关接口")
 public class DevelopController {
-
-    @Resource
-    private PosUserChannelInfoService posUserChannelInfoService;
 
     @Resource
     private TwitterService twitterService;

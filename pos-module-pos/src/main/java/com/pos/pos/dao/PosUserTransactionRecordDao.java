@@ -47,17 +47,6 @@ public interface PosUserTransactionRecordDao {
     SpreadGeneralInfoDto querySpreadGeneralInfo(@Param("user") UserIdentifier user);
 
     /**
-     * 查询每日记录数据统计
-     *
-     * @param user        用户标识
-     * @param limitHelper 分页参数
-     * @return 查询结果
-     */
-    List<TwitterDailyStatisticsDto> queryDailyStatistics(
-            @Param("user") UserIdentifier user,
-            @Param("limitHelper") LimitHelper limitHelper);
-
-    /**
      * 查询到截止时间用户可提现的金额
      *
      * @param user     用户标识

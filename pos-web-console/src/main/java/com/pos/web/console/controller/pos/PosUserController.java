@@ -22,9 +22,9 @@ import com.pos.pos.dto.auth.BaseAuthDto;
 import com.pos.pos.dto.identity.IdentifyInfoDto;
 import com.pos.pos.dto.user.PosUserIntegrateDto;
 import com.pos.pos.service.PosService;
-import com.pos.pos.service.PosUserBrokerageRecordService;
 import com.pos.pos.service.PosUserService;
-import com.pos.pos.service_v.AuthorityService;
+import com.pos.pos.service.AuthorityService;
+import com.pos.pos.service.TwitterService;
 import com.pos.user.service.UserService;
 import com.pos.user.session.UserInfo;
 import com.pos.web.console.converter.PosConverter;
@@ -60,13 +60,13 @@ public class PosUserController {
     private PosUserService posUserService;
 
     @Resource
-    private PosUserBrokerageRecordService posUserBrokerageRecordService;
-
-    @Resource
     private PosService posService;
 
     @Resource
     private AuthorityService authorityService;
+
+    @Resource
+    private TwitterService twitterService;
 
     @RequestMapping(value = "enum", method = RequestMethod.GET)
     @ApiOperation(value = "wb 获取快捷收款相关枚举信息", notes = "获取快捷收款相关枚举信息")
@@ -149,7 +149,7 @@ public class PosUserController {
             @ApiParam(name = "brokerage", value = "提现申请处理记录")
             @RequestBody BrokerageHandledRecordDto brokerageRecord,
             @FromSession UserInfo userInfo) {
-        return posUserBrokerageRecordService.saveBrokerageRecord(brokerageRecord, userInfo.buildUserIdentifier());
+        return twitterService.saveBrokerageRecord(brokerageRecord, userInfo.buildUserIdentifier());
     }
 
     @RequestMapping(value = "{posId}/audit", method = RequestMethod.GET)

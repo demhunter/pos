@@ -20,7 +20,7 @@ import com.pos.pos.condition.query.PosTransactionCondition;
 import com.pos.pos.dto.transaction.TransactionHandledInfoDto;
 import com.pos.pos.dto.transaction.TransactionRecordDto;
 import com.pos.pos.service.PosService;
-import com.pos.pos.service.PosUserTransactionRecordService;
+import com.pos.pos.service.PosTransactionService;
 import com.pos.user.session.UserInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
@@ -43,7 +43,7 @@ import java.util.List;
 public class PosTransactionController {
 
     @Resource
-    private PosUserTransactionRecordService posUserTransactionRecordService;
+    private PosTransactionService posTransactionService;
 
     @Resource
     private UserService userService;
@@ -79,7 +79,7 @@ public class PosTransactionController {
             condition.setIncludeUserIds(includeUserIds);
         }
 
-        return posUserTransactionRecordService.queryUserTransactionRecord(
+        return posTransactionService.queryUserTransactionRecord(
                 condition, PosTransactionOrderField.getDefaultOrderHelper(), limitHelper);
     }
 
@@ -110,7 +110,7 @@ public class PosTransactionController {
             }
             condition.setIncludeUserIds(includeUserIds);
         }
-        List<TransactionRecordDto> result = posUserTransactionRecordService.queryUserTransactionRecord(
+        List<TransactionRecordDto> result = posTransactionService.queryUserTransactionRecord(
                 condition, PosTransactionOrderField.getDefaultOrderHelper(), limitHelper).getData().getResult();
         xlsView = new XlsView(CollectionUtils.isEmpty(result) ? 0 : result.size(), new String[]
                 {"ID", "订单号", "收款人", "手机号码", "收款银行卡信息", "收款金额",

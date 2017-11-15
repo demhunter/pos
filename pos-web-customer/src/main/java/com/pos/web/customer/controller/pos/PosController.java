@@ -21,19 +21,15 @@ import com.pos.pos.condition.orderby.PosTransactionOrderField;
 import com.pos.pos.condition.query.PosTransactionCondition;
 import com.pos.pos.constants.TransactionStatusType;
 import com.pos.pos.dto.CreateOrderDto;
-import com.pos.pos.dto.GetSignDto;
 import com.pos.pos.dto.get.QuickGetMoneyDto;
-import com.pos.pos.dto.request.BindCardDto;
 import com.pos.pos.dto.request.GetMoneyDto;
 import com.pos.pos.dto.transaction.SelectCardRequestDto;
 import com.pos.pos.dto.transaction.TransactionRecordDto;
-import com.pos.pos.dto.user.PosUserIdentityDto;
 import com.pos.pos.helipay.vo.ConfirmPayResponseVo;
 import com.pos.pos.service.PosCardService;
 import com.pos.pos.service.PosService;
-import com.pos.pos.service.PosUserTransactionRecordService;
+import com.pos.pos.service.PosTransactionService;
 import com.pos.user.session.UserInfo;
-import com.pos.web.customer.vo.request.GetSignRequestDto;
 import com.pos.web.customer.vo.response.OnlyStringVo;
 import com.pos.web.customer.vo.response.RecordVo;
 import org.slf4j.Logger;
@@ -44,7 +40,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -76,7 +71,7 @@ public class PosController {
     private PosCardService posCardService;
 
     @Resource
-    private PosUserTransactionRecordService posUserTransactionRecordService;
+    private PosTransactionService posTransactionService;
 
 
     @RequestMapping(value = "explain", method = RequestMethod.GET)
@@ -203,7 +198,7 @@ public class PosController {
         condition.setUserId(userInfo.getId());
         condition.setExcludedStatuses(Lists.newArrayList(TransactionStatusType.PREDICT_TRANSACTION.getCode()));
 
-        List<TransactionRecordDto> records = posUserTransactionRecordService.queryUserTransactionRecord(
+        List<TransactionRecordDto> records = posTransactionService.queryUserTransactionRecord(
                 condition, PosTransactionOrderField.getPayTimeOrderHelper(), limitHelper).getData().getResult();
         if (CollectionUtils.isEmpty(records)) {
             return ApiResult.succ();

@@ -4,7 +4,6 @@
 package com.pos.pos.service.impl;
 
 import com.google.common.collect.Lists;
-import com.pos.basic.dto.UserIdentifier;
 import com.pos.basic.service.SecurityService;
 import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.common.util.mvc.support.LimitHelper;
@@ -18,9 +17,8 @@ import com.pos.pos.dao.PosCardDao;
 import com.pos.pos.dao.PosUserTransactionRecordDao;
 import com.pos.pos.domain.PosTransaction;
 import com.pos.pos.dto.card.PosCardDto;
-import com.pos.pos.dto.twitter.TwitterDailyStatisticsDto;
 import com.pos.pos.dto.transaction.TransactionRecordDto;
-import com.pos.pos.service.PosUserTransactionRecordService;
+import com.pos.pos.service.PosTransactionService;
 import com.pos.user.dto.customer.CustomerDto;
 import com.pos.user.service.CustomerService;
 import org.springframework.stereotype.Service;
@@ -39,13 +37,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class PosUserTransactionRecordServiceImpl implements PosUserTransactionRecordService {
-
-    @Resource
-    private PosUserTransactionRecordDao posUserTransactionRecordDao;
-
-    @Resource
-    private PosCardDao posCardDao;
+public class PosTransactionServiceImpl implements PosTransactionService {
 
     @Resource
     private CustomerService customerService;
@@ -53,13 +45,11 @@ public class PosUserTransactionRecordServiceImpl implements PosUserTransactionRe
     @Resource
     private SecurityService securityService;
 
-    @Override
-    public List<TwitterDailyStatisticsDto> queryDailyStatistics(UserIdentifier user, LimitHelper limitHelper) {
-        FieldChecker.checkEmpty(user, "user");
-        FieldChecker.checkEmpty(limitHelper, "limitHelper");
+    @Resource
+    private PosUserTransactionRecordDao posUserTransactionRecordDao;
 
-        return posUserTransactionRecordDao.queryDailyStatistics(user, limitHelper);
-    }
+    @Resource
+    private PosCardDao posCardDao;
 
     @Override
     public Integer queryUserTransactionCount(Long userId) {

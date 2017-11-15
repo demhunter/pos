@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2016 ywmj.com. All Rights Reserved.
  */
-package com.pos.pos.service_v;
+package com.pos.pos.service;
 
 import com.pos.basic.dto.UserIdentifier;
 import com.pos.common.util.mvc.support.ApiResult;
