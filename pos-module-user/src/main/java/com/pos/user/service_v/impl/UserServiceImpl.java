@@ -3,14 +3,17 @@
  */
 package com.pos.user.service_v.impl;
 
+import com.google.common.base.Strings;
 import com.pos.common.sms.constant.MemcachedPrefixType;
 import com.pos.common.sms.service.SmsService;
+import com.pos.common.util.basic.SimpleRegexUtils;
 import com.pos.common.util.exception.CommonErrorCode;
 import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.common.util.mvc.support.NullObject;
 import com.pos.common.util.security.MD5Utils;
 import com.pos.common.util.validation.FieldChecker;
 import com.pos.common.util.validation.Validator;
+import com.pos.user.condition.query.UserListCondition;
 import com.pos.user.constant.UserType;
 import com.pos.user.dao.v1_0_0.UserDao;
 import com.pos.user.domain.v1_0_0.User;
@@ -20,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * 用户基础服务接口类实现
@@ -66,5 +70,25 @@ public class UserServiceImpl implements UserService {
             userDao.update(user);
         }
         return ApiResult.succ();
+    }
+
+    /**
+     * 查询符合queryKey的用户id列表
+     *
+     * @param searchKey 搜索关键字
+     * @return 用户ID列表
+     */
+    @Override
+    public List<Long> queryCustomerUserIds(String searchKey) {
+        UserListCondition condition = new UserListCondition();
+        if (!Strings.isNullOrEmpty(searchKey)) {
+            if (SimpleRegexUtils.isMobile(searchKey)) {
+                // 输入的搜索关键字是手机号
+                condition.setUserPhone(searchKey);
+            } else {
+                condition.setSearchKey(searchKey);
+            }
+        }
+        return userDao.queryCustomerUserIds(condition);
     }
 }

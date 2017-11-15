@@ -64,6 +64,21 @@
 
     </select>
 
+    <select id="queryCustomerUserIds" resultType="java.lang.Long">
+        SELECT u.id AS id
+        FROM `user` u
+        JOIN user_customer_personal AS ucp ON ucp.user_id = u.id
+        <where>
+            u.user_type = 'c'
+            <if test="condition.userPhone != null">
+                AND u.phone = #{condition.userPhone}
+            </if>
+            <if test="condition.searchKey != null">
+                AND ucp.real_name LIKE CONCAT('%',#{condition.searchKey},'%')
+            </if>
+        </where>
+    </select>
+
     <sql id="userColumns">
         u.`id` AS `id`,
         u.login_name AS loginName,

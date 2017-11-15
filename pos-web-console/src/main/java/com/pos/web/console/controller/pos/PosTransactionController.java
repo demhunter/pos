@@ -3,6 +3,7 @@
  */
 package com.pos.web.console.controller.pos;
 
+import com.pos.user.service_v.UserService;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
@@ -20,7 +21,6 @@ import com.pos.pos.dto.transaction.TransactionHandledInfoDto;
 import com.pos.pos.dto.transaction.TransactionRecordDto;
 import com.pos.pos.service.PosService;
 import com.pos.pos.service.PosUserTransactionRecordService;
-import com.pos.user.service.UserService;
 import com.pos.user.session.UserInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
@@ -71,7 +71,7 @@ public class PosTransactionController {
         condition.setStatus(transactionStatus);
         condition.parseBeginAndEndTime(beginTime, endTime);
         if (StringUtils.isNotEmpty(searchKey)) {
-            List<Long> includeUserIds = userService.queryUserIds(searchKey);
+            List<Long> includeUserIds = userService.queryCustomerUserIds(searchKey);
             if (CollectionUtils.isEmpty(includeUserIds)) {
                 Pagination<TransactionRecordDto> pagination = Pagination.newInstance(limitHelper, 0);
                 return ApiResult.succ(pagination);
@@ -100,7 +100,7 @@ public class PosTransactionController {
         condition.setStatus(transactionStatus);
         condition.parseBeginAndEndTime(beginTime, endTime);
         if (StringUtils.isNotEmpty(searchKey)) {
-            List<Long> includeUserIds = userService.queryUserIds(searchKey);
+            List<Long> includeUserIds = userService.queryCustomerUserIds(searchKey);
             if (CollectionUtils.isEmpty(includeUserIds)) {
                 xlsView = new XlsView(0, new String[]
                         {"ID", "订单号", "收款人", "手机号码", "收款银行卡信息", "收款金额",

@@ -7,6 +7,8 @@ import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.common.util.mvc.support.NullObject;
 import com.pos.user.constant.UserType;
 
+import java.util.List;
+
 /**
  * 用户基础服务接口
  *
@@ -25,4 +27,12 @@ public interface UserService {
      */
     ApiResult<NullObject> updatePwdByPhone(
             String userPhone, String newPwd, String verifyCode, UserType userType);
+
+    /**
+     * 查询符合searchKey的C端用户id列表
+     *
+     * @param searchKey 搜索关键字
+     * @return C端用户ID列表
+     */
+    List<Long> queryCustomerUserIds(String searchKey);
 }

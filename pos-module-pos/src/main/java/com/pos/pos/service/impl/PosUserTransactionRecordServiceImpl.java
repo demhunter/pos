@@ -21,8 +21,8 @@ import com.pos.pos.dto.card.PosCardDto;
 import com.pos.pos.dto.twitter.TwitterDailyStatisticsDto;
 import com.pos.pos.dto.transaction.TransactionRecordDto;
 import com.pos.pos.service.PosUserTransactionRecordService;
-import com.pos.user.dto.customer.CustomerDto;
-import com.pos.user.service.CustomerService;
+import com.pos.user.dto.v1_0_0.CustomerDto;
+import com.pos.user.service_v.CustomerService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -103,8 +103,8 @@ public class PosUserTransactionRecordServiceImpl implements PosUserTransactionRe
                     e.setInCardInfo(cardMap.get(e.getInCardId()));
                     CustomerDto customer = userMap.get(e.getUserId());
                     if (customer != null) {
-                        e.setUserName(customer.getName());
-                        e.setUserPhone(customer.getUserPhone());
+                        e.setUserName(customer.getRealName());
+                        e.setUserPhone(customer.getPhone());
                     }
                 });
                 pagination.setResult(result);

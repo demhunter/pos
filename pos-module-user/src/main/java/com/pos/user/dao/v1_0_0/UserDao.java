@@ -3,9 +3,12 @@
  */
 package com.pos.user.dao.v1_0_0;
 
+import com.pos.user.condition.query.UserListCondition;
 import com.pos.user.domain.v1_0_0.User;
 import com.pos.user.domain.v1_0_0.UserExtension;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * 用户相关DAO
@@ -76,4 +79,12 @@ public interface UserDao {
      * @return 用户账号信息
      */
     User getByPhoneAndType(@Param("phone") String phone, @Param("userType") String userType);
+
+    /**
+     * 根据查询条件查询用户列表
+     *
+     * @param condition 查询条件
+     * @return 用户ID列表
+     */
+    List<Long> queryCustomerUserIds(@Param("condition") UserListCondition condition);
 }

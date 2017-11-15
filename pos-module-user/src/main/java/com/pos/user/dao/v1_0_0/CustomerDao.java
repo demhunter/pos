@@ -8,6 +8,8 @@ import com.pos.user.dto.v1_0_0.CustomerDto;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 /**
  * C端用户相关DAO
  *
@@ -42,4 +44,8 @@ public interface CustomerDao {
     CustomerDto findByUserIdAndEnable(
             @Param("userId") Long userId,
             @Param("enable") Boolean enable);
+
+    List<CustomerDto> findCustomersInUserIds(
+            @Param("userIds") List<Long> userIds,
+            @Param("deleted") Boolean deleted, @Param("available") Boolean available);
 }

@@ -3,11 +3,6 @@
  */
 package com.pos.web.console.controller.pos;
 
-import com.pos.pos.service_v.AuthorityService;
-import com.pos.web.console.vo.pos.PosUserSimpleInfoVo;
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
 import com.pos.common.util.date.SimpleDateUtils;
 import com.pos.common.util.mvc.resolver.FromSession;
 import com.pos.common.util.mvc.support.ApiResult;
@@ -20,18 +15,23 @@ import com.pos.pos.condition.orderby.PosUserOrderField;
 import com.pos.pos.condition.query.PosUserCondition;
 import com.pos.pos.constants.AuthStatusEnum;
 import com.pos.pos.constants.PosTwitterStatus;
+import com.pos.pos.dto.BrokerageHandledRecordDto;
 import com.pos.pos.dto.PosEnumsDto;
 import com.pos.pos.dto.PosUserAuditInfoDto;
-import com.pos.pos.dto.BrokerageHandledRecordDto;
 import com.pos.pos.dto.auth.BaseAuthDto;
 import com.pos.pos.dto.identity.IdentifyInfoDto;
 import com.pos.pos.dto.user.PosUserIntegrateDto;
 import com.pos.pos.service.PosService;
 import com.pos.pos.service.PosUserBrokerageRecordService;
 import com.pos.pos.service.PosUserService;
-import com.pos.user.service.UserService;
+import com.pos.pos.service_v.AuthorityService;
+import com.pos.user.service_v.UserService;
 import com.pos.user.session.UserInfo;
 import com.pos.web.console.converter.PosConverter;
+import com.pos.web.console.vo.pos.PosUserSimpleInfoVo;
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
@@ -107,7 +107,7 @@ public class PosUserController {
         condition.setBeginTime(beginTime);
         condition.setEndTime(endTime);
         if (!StringUtils.isEmpty(searchKey)) {
-            List<Long> includeUserIds = userService.queryUserIds(searchKey);
+            List<Long> includeUserIds = userService.queryCustomerUserIds(searchKey);
             if (CollectionUtils.isEmpty(includeUserIds)) {
                 return ApiResult.succ(Pagination.newInstance(limitHelper, 0));
             }
@@ -212,7 +212,7 @@ public class PosUserController {
         condition.setEndTime(endTime);
         XlsView xlsView;
         if (!StringUtils.isEmpty(searchKey)) {
-            List<Long> includeUserIds = userService.queryUserIds(searchKey);
+            List<Long> includeUserIds = userService.queryCustomerUserIds(searchKey);
             if (CollectionUtils.isEmpty(includeUserIds)) {
                 xlsView = new XlsView(0, new String[]
                         {"手机号", "姓名", "注册快捷收款时间", "身份认证信息", "收款银行卡",
