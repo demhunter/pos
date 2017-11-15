@@ -19,10 +19,6 @@
             <artifactId>pos-common-sms</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.pos</groupId>
-            <artifactId>pos-module-im</artifactId>
-        </dependency>
         <!-- module end -->
 
         <!-- mq start -->

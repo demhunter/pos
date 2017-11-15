@@ -12,7 +12,6 @@
         <module>pos-common-sms</module>
         <module>pos-common-util</module>
         <module>pos-module-basic</module>
-        <module>pos-module-im</module>
         <module>pos-module-user</module>
         <module>pos-module-pos</module>
         <module>pos-module-data-repair</module>
@@ -25,7 +24,6 @@
         <pos-common-sms.version>1.0.0-SNAPSHOT</pos-common-sms.version>
         <pos-common-util.version>1.0.0-SNAPSHOT</pos-common-util.version>
         <pos-module-basic.version>1.0.0-SNAPSHOT</pos-module-basic.version>
-        <pos-module-im.version>1.0.0-SNAPSHOT</pos-module-im.version>
         <pos-module-user.version>1.0.0-SNAPSHOT</pos-module-user.version>
         <pos-module-pos.version>1.0.0-SNAPSHOT</pos-module-pos.version>
         <pos-web-customer.version>1.0.0-SNAPSHOT</pos-web-customer.version>
