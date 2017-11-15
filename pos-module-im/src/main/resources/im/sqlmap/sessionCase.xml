@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.im.dao.SessionCaseDao">
+
+    <select id="get" resultType="com.pos.im.domain.SessionCase">
+        SELECT
+        <include refid="sessionCaseColumns"/>
+        FROM im_session_case sc WHERE sc.id = #{id}
+    </select>
+
+    <insert id="save" parameterType="com.pos.im.domain.SessionCase">
+        INSERT INTO im_session_case (session_id, case_id, case_name)
+        VALUES (#{sc.sessionId}, #{sc.caseId}, #{sc.caseName});
+    </insert>
+
+    <select id="findBySessionId" resultType="com.pos.im.domain.SessionCase">
+        SELECT
+        <include refid="sessionCaseColumns" />
+        FROM im_session_case sc
+        WHERE sc.session_id = #{sessionId}
+    </select>
+
+    <select id="findUserCaseSession" resultType="com.pos.im.domain.SessionCase">
+        SELECT
+        <include refid="sessionCaseColumns" />
+        , se.group_id AS groupId
+        FROM im_session se INNER JOIN im_session_case sc ON sc.session_id = se.id
+        WHERE se.user_id = #{userId} AND se.user_type = #{userType}
+        AND se.available = #{available} AND sc.case_id = #{caseId}
+    </select>
+
+    <sql id="sessionCaseColumns">
+        sc.id as id,
+        sc.session_id as sessionId,
+        sc.case_id as caseId,
+        sc.case_name as caseName
+    </sql>
+
+</mapper>

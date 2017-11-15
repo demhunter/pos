@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.basic.dao.PayAreaDao">
+
+    <select id="queryPayAreas" resultType="com.pos.basic.domain.PayArea">
+        SELECT
+        id,
+        province_name AS provinceName,
+        province_code AS provinceCode,
+        city_name AS cityName,
+        city_code AS cityCode
+        FROM pay_area
+    </select>
+</mapper>

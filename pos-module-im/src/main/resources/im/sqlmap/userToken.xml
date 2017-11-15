@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.im.dao.UserTokenDao">
+
+    <select id="findUserToken" resultType="com.pos.im.domain.UserToken">
+        SELECT
+        <include refid="imUserTokenColumns" />
+        FROM im_user_token ut WHERE ut.user_id = #{userId} AND ut.user_type = #{userType}
+    </select>
+
+    <select id="hasUserToken" resultType="int">
+        SELECT COUNT(*)
+        FROM im_user_token ut WHERE ut.user_id = #{userId} AND ut.user_type = #{userType}
+    </select>
+
+    <update id="update" parameterType="com.pos.im.domain.UserToken">
+        UPDATE im_user_token
+        SET token = #{ut.token}, create_time = #{ut.createTime}, available = #{ut.available}
+        WHERE id = #{ut.id}
+    </update>
+
+    <insert id="save" parameterType="com.pos.im.domain.UserToken">
+        INSERT INTO im_user_token (user_id, user_type, token, create_time, available)
+        VALUES (#{ut.userId}, #{ut.userType}, #{ut.token}, #{ut.createTime}, #{ut.available});
+    </insert>
+
+    <sql id="imUserTokenColumns">
+        ut.id as id,
+        ut.user_id as userId,
+        ut.user_type as userType,
+        ut.token as token,
+        ut.create_time as createTime,
+        ut.available as available
+    </sql>
+
+    <select id="findTokenAndUid" resultType="com.pos.im.dto.session.SessionUserTokenDto">
+        SELECT
+            iut.token as token,
+            iui.im_uid as uid
+        FROM
+            im_user_token iut
+        JOIN im_user_info iui ON iut.user_id = iui.user_id
+        WHERE
+            iut.user_id = (
+                SELECT
+                    user_id
+                FROM
+                    im_session_member
+                WHERE
+                    user_join_type = 1
+                AND session_id = #{sessionId}
+            )
+    </select>
+
+</mapper>

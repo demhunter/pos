@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.user.dao.UserDao">
+
+    <select id="getById" resultType="com.pos.user.domain.User">
+        SELECT
+        <include refid="userColumns" />
+        FROM user u WHERE id = #{userId}
+    </select>
+
+    <select id="getByUserName" resultType="com.pos.user.domain.User">
+        SELECT
+        <include refid="userColumns" />
+        FROM user u WHERE user_name = #{userName}
+    </select>
+
+    <select id="getByUserPhone" resultType="com.pos.user.domain.User">
+        SELECT
+        <include refid="userColumns" />
+        FROM user u WHERE user_phone = #{userPhone}
+    </select>
+
+    <update id="update" parameterType="com.pos.user.domain.User">
+        UPDATE `user`
+        <set>
+            <if test="user.userName != null">
+                user_name = #{user.userName},
+            </if>
+            <if test="user.userPhone != null">
+                user_phone = #{user.userPhone},
+            </if>
+            <if test="user.password != null">
+                password = #{user.password},
+            </if>
+            <if test="user.deleted != null">
+                deleted = #{user.deleted},
+            </if>
+            <if test="user.mail != null">
+                mail = #{user.mail},
+            </if>
+            <if test="user.name != null">
+                `name` = #{user.name},
+            </if>
+            <if test="user.gender != null">
+                gender = #{user.gender},
+            </if>
+            <if test="user.age != null">
+                age = #{user.age},
+            </if>
+            <if test="user.idCard != null">
+                id_card = #{user.idCard},
+            </if>
+            <if test="user.idImageA != null">
+                id_image_a = #{user.idImageA},
+            </if>
+            <if test="user.idImageB != null">
+                id_image_b = #{user.idImageB},
+            </if>
+            <if test="user.idHoldImage != null">
+                id_hold_image = #{user.idHoldImage},
+            </if>
+            <if test="user.idHoldImageB != null">
+                id_hold_image_b = #{user.idHoldImageB}
+            </if>
+        </set>
+        WHERE id = #{user.id}
+    </update>
+
+    <insert id="save" parameterType="com.pos.user.domain.User" useGeneratedKeys="true" keyProperty="user.id">
+        INSERT INTO `user`
+        (user_name, user_phone, password, mail, `name`, age,
+        id_card, id_image_a, id_image_b, id_hold_image, id_hold_image_b)
+        VALUES
+        (#{user.userName}, #{user.userPhone}, #{user.password}, #{user.mail},
+        #{user.name}, #{user.age}, #{user.idCard},
+        #{user.idImageA}, #{user.idImageB}, #{user.idHoldImage}, #{user.idHoldImageB});
+    </insert>
+
+    <select id="countIdNumber" resultType="int">
+        SELECT COUNT(*)
+        FROM `user`
+        WHERE id_card = #{idNumber}
+    </select>
+
+    <select id="queryUserIds" resultType="java.lang.Long">
+        SELECT u.id AS id
+        FROM `user` u
+        <where>
+            <if test="condition.userPhone != null">
+                u.user_phone = #{condition.userPhone}
+            </if>
+            <if test="condition.searchKey != null">
+                AND u.`name` LIKE CONCAT('%',#{condition.searchKey},'%')
+            </if>
+        </where>
+    </select>
+
+    <sql id="userColumns">
+        u.id as id,
+        u.user_name as userName,
+        u.password as password,
+        u.user_phone as userPhone,
+        u.deleted as deleted,
+        u.mail as mail,
+        u.name as `name`,
+        u.gender as gender,
+        u.age as age,
+        u.id_card as idCard,
+        u.id_image_a as idImageA,
+        u.id_image_b as idImageB,
+        u.id_hold_image as idHoldImage,
+        u.id_hold_image_b as idHoldImageB
+    </sql>
+
+</mapper>

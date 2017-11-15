@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd"
+       default-autowire="byName">
+
+    <bean id="requestDebugFilter" class="com.pos.common.util.web.http.RequestDebugFilter">
+        <property name="enable" value="${logback.http.debug}"/>
+    </bean>
+
+    <bean id="corsFilter" class="com.pos.common.util.web.http.CorsGlobalFilter">
+        <property name="configurer">
+            <bean class="com.pos.common.util.web.http.CorsConfigurer">
+                <property name="allowedOrigins" value="${cors.allowd.origins}"/>
+                <property name="allowedHeaders" value="${cors.allowd.headers}"/>
+                <property name="allowedMethods" value="${cors.allowd.methods}"/>
+                <property name="allowCredentials" value="${cors.allow.credentials}"/>
+                <property name="maxAge" value="${cors.max.age}"/>
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="loginFilter" class="com.pos.common.util.web.access.AccessControlFilter">
+        <property name="validator">
+            <bean class="com.pos.common.util.web.access.validator.SessionAttrValidator">
+                <property name="key" value="com.pos.user.session.UserInfo"/>
+                <property name="type" value="com.pos.user.session.UserInfo"/>
+            </bean>
+        </property>
+        <property name="rejectedHandler">
+            <bean class="com.pos.common.util.web.access.handler.ApiErrorHandler">
+                <property name="error">
+                    <bean class="com.pos.user.exception.UserNotLoginError"/>
+                </property>
+            </bean>
+        </property>
+        <property name="basePath" value="${web.posconsole.basePath}"/>
+        <property name="forbiddenUrls" value="${web.forbidden.paths}"/>
+        <property name="excludeMethods" value="OPTIONS"/> <!-- 如果允许AJAX跨域调用，则排除验证OPTIONS请求 -->
+        <property name="excludeUrls" value=".+\.ico,.+\.xml,.+\.jpg,.+\.gif,.+\.htm,.+\.html,/,/druid.*,/help.*,/api-docs.*,/user/login,/user/loginTest,/repair.*"/>
+    </bean>
+
+</beans>

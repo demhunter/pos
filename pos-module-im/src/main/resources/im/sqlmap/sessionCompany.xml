@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.im.dao.SessionCompanyDao">
+
+    <insert id="save" parameterType="com.pos.im.domain.SessionCompany">
+        INSERT INTO im_session_company (session_id, company_id, call_total, available)
+        VALUES (#{sc.sessionId}, #{sc.companyId}, #{sc.callTotal}, #{sc.available});
+    </insert>
+
+    <insert id="saveBatch" parameterType="java.util.List">
+        INSERT INTO
+        im_session_company (session_id, company_id, call_total, available)
+        VALUES
+        <foreach collection="list" item="sc" index="index" separator=",">
+            (#{sc.sessionId}, #{sc.companyId}, #{sc.callTotal}, #{sc.available})
+        </foreach>
+    </insert>
+
+    <select id="find" resultType="com.pos.im.domain.SessionCompany">
+        SELECT
+        <include refid="companyColumns"/>
+        FROM im_session_company sc
+        WHERE sc.session_id = #{sessionId} AND sc.company_id = #{companyId}
+    </select>
+
+    <select id="findCompanies" resultType="com.pos.im.domain.SessionCompany">
+        SELECT
+        <include refid="companyColumns"/>
+        FROM im_session_company sc
+        WHERE sc.session_id = #{sessionId} AND sc.company_id IN
+        <foreach collection="companiesId" item="companyId" index="index" open="(" separator="," close=")">
+            #{companyId}
+        </foreach>
+    </select>
+
+    <update id="incrementCallTotal">
+        UPDATE im_session_company SET call_total = call_total + 1
+        WHERE session_id = #{sessionId} AND company_id = #{companyId}
+    </update>
+
+    <sql id="companyColumns">
+        sc.id as id,
+        sc.session_id as sessionId,
+        sc.company_id as companyId,
+        sc.call_total as callTotal,
+        sc.available as available
+    </sql>
+
+</mapper>

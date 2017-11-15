@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.im.dao.NeteaseMessageDao">
+
+    <insert id="addMsg" useGeneratedKeys="true" keyProperty="msg.id">
+        INSERT INTO im_netease_msg
+        (
+        event_type,
+        conv_type,
+        `to`,
+        from_account,
+        send_time,
+        msg_type,
+        attach,
+        body,
+        msg_client_id,
+        msg_server_id,
+        custom_apns_text,
+        t_members,
+        ext
+        )
+        VALUES
+        (
+        #{msg.eventType},
+        #{msg.convType},
+        #{msg.to},
+        #{msg.fromAccount},
+        #{msg.sendTime},
+        #{msg.msgType},
+        #{msg.attach},
+        #{msg.body},
+        #{msg.msgClientId},
+        #{msg.msgServerId},
+        #{msg.customApnsText},
+        #{msg.tMembers},
+        #{msg.ext}
+        )
+
+    </insert>
+
+    <select id="findByMsgServerId" resultType="long">
+        select id from im_netease_msg where msg_server_id = #{msgServerId}
+    </select>
+
+</mapper>

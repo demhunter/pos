@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.im.dao.StatisticsDao">
+
+    <select id="queryCompanyChatCount" parameterType="java.util.List" resultType="java.util.HashMap">
+        SELECT
+        `c`.company_id AS companyId,
+        COUNT(*) AS chatTotal,
+        COUNT(IF(s.available = 1, true, null)) AS chatCurrent
+        FROM im_session_company `c`
+        INNER JOIN im_session s ON s.id = `c`.session_id
+        WHERE `c`.company_id IN
+        <foreach collection="companyIds" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        AND `c`.available = 1
+        GROUP BY `c`.company_id
+    </select>
+
+    <select id="queryCaseCurrentChatCount" parameterType="java.util.List" resultType="java.util.HashMap">
+        SELECT
+        `c`.case_id AS identifier,
+        COUNT(*) AS currentCount
+        FROM im_session s
+        JOIN im_session_case `c` ON `c`.session_id = s.id
+        WHERE `c`.case_id IN
+        <foreach collection="caseIds" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        <if test="companyId != null">
+            AND EXISTS (
+            SELECT sc.id
+            FROM im_session_company sc
+            WHERE sc.session_id = s.id
+            AND sc.company_id = #{companyId}
+            AND sc.available = 1
+            )
+        </if>
+        AND s.available = 1
+        GROUP BY `c`.case_id
+    </select>
+
+    <select id="queryCaseContactAndChatTotal" parameterType="java.util.List" resultType="java.util.HashMap">
+        SELECT
+        `c`.case_id AS identifier,
+        COUNT(*) AS totalCount,
+        <choose>
+            <when test="companyId != null">
+                SUM(sc.call_total) AS contactCount
+            </when>
+            <otherwise>
+                SUM(se.call_total) AS contactCount
+            </otherwise>
+        </choose>
+        FROM im_session se
+        JOIN im_session_case `c` ON `c`.session_id = se.id
+        <if test="companyId != null">
+            JOIN im_session_company sc
+            ON sc.session_id = se.id
+            AND sc.company_id = #{companyId}
+            AND sc.available = 1
+        </if>
+        WHERE `c`.case_id IN
+        <foreach collection="caseIds" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        GROUP BY `c`.case_id
+    </select>
+
+    <select id="queryEmployeeContactAndChatTotalByCase" parameterType="java.util.List" resultType="java.util.HashMap">
+        SELECT
+        `c`.case_id AS identifier,
+        COUNT(*) AS totalCount,
+        SUM(m.call_total) AS contactCount
+        FROM im_session_case AS `c`
+        JOIN im_session_member AS m ON m.session_id = `c`.session_id
+        WHERE `c`.case_id IN
+        <foreach collection="caseIds" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        AND m.user_id = #{userId}
+        AND m.user_type = 'e'
+        GROUP BY `c`.case_id
+    </select>
+
+    <select id="queryUserContactAndChatTotal" parameterType="java.util.List" resultType="java.util.HashMap">
+        SELECT
+        m.user_id AS identifier,
+        COUNT(*) AS totalCount,
+        <choose>
+            <when test='userType == "e"'>
+                SUM(m.call_total) AS contactCount
+            </when>
+            <otherwise>
+                SUM(s.call_total) AS contactCount
+            </otherwise>
+        </choose>
+        FROM im_session AS s
+        JOIN im_session_member AS m ON s.id = m.session_id
+        <if test="companyId != null">
+            JOIN im_session_company AS `c` ON s.id = `c`.session_id
+        </if>
+        WHERE m.user_id IN
+        <foreach collection="userIds" item="uid" index="index" open="(" separator="," close=")">
+            #{uid}
+        </foreach>
+        AND m.user_type = #{userType}
+        <if test="companyId != null">
+            AND `c`.company_id = #{companyId}
+        </if>
+        GROUP BY m.user_id
+    </select>
+
+    <select id="queryUserCurrentChatCount" parameterType="java.util.List" resultType="java.util.HashMap">
+        SELECT
+        m.user_id AS identifier,
+        COUNT(*) AS currentCount
+        FROM im_session AS s
+        JOIN im_session_member AS m ON s.id = m.session_id
+        <if test="companyId != null">
+            JOIN im_session_company AS `c` ON s.id = `c`.session_id
+        </if>
+        WHERE m.user_id IN
+        <foreach collection="userIds" item="uid" index="index" open="(" separator="," close=")">
+            #{uid}
+        </foreach>
+        AND m.user_type = #{userType}
+        AND s.available = 1
+        AND m.available = 1
+        <if test="companyId != null">
+            AND `c`.company_id = #{companyId}
+        </if>
+        GROUP BY m.user_id
+    </select>
+
+    <select id="querySessionCount" resultType="int">
+        SELECT COUNT(*)
+        FROM im_session s
+        <where>
+            <if test="available != null">
+                s.available = #{available}
+            </if>
+        </where>
+    </select>
+
+</mapper>

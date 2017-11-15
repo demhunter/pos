@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.im.dao.CommonLanguageDao">
+
+    <select id="get" resultType="com.pos.im.domain.CommonLanguage">
+        SELECT
+        <include refid="commonLanguageColumns"/>
+        FROM im_common_language cl WHERE cl.id = #{id}
+    </select>
+
+    <insert id="save" parameterType="com.pos.im.domain.CommonLanguage" useGeneratedKeys="true" keyProperty="cl.id">
+        INSERT INTO im_common_language
+        (user_id, user_type, content, create_time, update_time, available)
+        VALUES
+        (#{cl.userId}, #{cl.userType}, #{cl.content},
+        #{cl.createTime}, #{cl.updateTime}, #{cl.available});
+    </insert>
+
+    <update id="update" parameterType="com.pos.im.domain.CommonLanguage">
+        UPDATE im_common_language
+        <set>
+            <if test="cl.content != null">
+                content = #{cl.content},
+            </if>
+            <if test="cl.updateTime != null">
+                update_time = #{cl.updateTime},
+            </if>
+            <if test="cl.available != null">
+                available = #{cl.available}
+            </if>
+        </set>
+        WHERE id = #{cl.id}
+    </update>
+
+    <select id="findLanguagesByUser" resultType="com.pos.im.domain.CommonLanguage">
+        SELECT
+        <include refid="commonLanguageColumns"/>
+        FROM im_common_language cl
+        WHERE cl.user_id = #{user.userId} AND cl.user_type = #{user.userType}
+        ORDER BY cl.update_time
+    </select>
+
+    <sql id="commonLanguageColumns">
+        cl.id as id,
+        cl.user_id as userId,
+        cl.user_type as userType,
+        cl.content as content,
+        cl.create_time as createTime,
+        cl.update_time as updateTime,
+        cl.available as available
+    </sql>
+
+</mapper>

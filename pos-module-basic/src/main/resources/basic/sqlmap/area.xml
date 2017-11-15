@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.basic.dao.AreaDao">
+
+    <select id="getTotal" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM area WHERE available = 1
+    </select>
+
+    <select id="findAreaListByLevel" resultType="com.pos.basic.domain.Area">
+        SELECT
+        <include refid="areaColumns"/>
+        FROM area WHERE level = #{level} AND available = 1 ORDER BY id, order_num
+    </select>
+
+    <select id="getById" resultType="com.pos.basic.domain.Area">
+        SELECT
+        <include refid="areaColumns"/>
+        FROM area WHERE id= #{id} and available=1
+    </select>
+
+    <select id="getCityInfo" resultType="com.pos.basic.domain.Area">
+        SELECT
+        <include refid="areaColumns"/>
+        FROM area
+        WHERE `name`LIKE CONCAT('%', #{cityName}, '%')
+        AND (`level` = 2 OR `level` = 1)
+        AND available=1
+    </select>
+
+    <!--v1.8.0-->
+    <select id="getCityList" resultType="com.pos.basic.dto.area.CitySupportDto">
+       SELECT
+          id as id,
+          `name` as `name`,
+          short_name as shortName
+        FROM area
+        WHERE id IN
+        <foreach collection="caseCityIds" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <insert id="saveBatchArea" parameterType="java.util.List">
+        INSERT INTO area (id, name, short_name, parent_id, level, order_num, available)
+        VALUES
+        <foreach collection="list" item="area" index="index" separator=",">
+            (#{area.id}, #{area.name}, #{area.shortName}, #{area.parentId}, #{area.level},
+            #{area.orderNum}, #{area.available})
+        </foreach>
+    </insert>
+
+    <sql id="areaColumns">
+        area.id as id,
+        area.name as name,
+        area.short_name as shortName,
+        area.parent_id as parentId,
+        area.level as level,
+        area.order_num as orderNum,
+        area.available as available
+    </sql>
+
+</mapper>

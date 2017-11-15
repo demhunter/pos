@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+               http://www.springframework.org/schema/beans
+               http://www.springframework.org/schema/beans/spring-beans.xsd
+               http://www.springframework.org/schema/context
+               http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:component-scan base-package="com.pos"/>
+
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="ignoreUnresolvablePlaceholders" value="true" />
+        <property name="locations">
+            <array>
+                <value>classpath:cors.properties</value>
+                <value>classpath:error.properties</value>
+                <value>classpath:logback.properties</value>
+                <value>classpath:redis.properties</value>
+                <value>classpath:sms-config.properties</value>
+                <value>classpath:sms-template.properties</value>
+                <value>classpath:basic-config.properties</value>
+                <value>classpath:user-config.properties</value>
+                <value>classpath:im-config.properties</value>
+                <value>classpath:im-template.properties</value>
+                <value>classpath:pos.properties</value>
+            </array>
+        </property>
+        <property name="fileEncoding" value="UTF-8"/>
+    </bean>
+
+    <import resource="classpath:spring/applicationContext-db.xml"/>
+    <import resource="classpath:spring/applicationContext-cache.xml"/>
+    <import resource="classpath:spring/applicationContext-filter.xml"/>
+    <import resource="classpath:mq/rabbit-basic.xml"/>
+</beans>

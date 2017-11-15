@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.basic.dao.BuildingLayoutDao">
+
+    <insert id="saveBuildingLayout">
+        INSERT INTO building_layout
+        (
+            `name`,
+            building_id,
+            bedroom,
+            living_room,
+            toilet,
+            house_area,
+            layout_image,
+            create_time,
+            update_time,
+            create_user,
+            update_user
+        ) VALUES
+        (
+            #{layout.name},
+            #{layout.buildingId},
+            #{layout.bedroom},
+            #{layout.livingRoom},
+            #{layout.toilet},
+            #{layout.houseArea},
+            #{layout.layoutImage},
+            #{layout.createTime},
+            #{layout.updateTime},
+            #{layout.createUserId},
+            #{layout.updateUserId}
+        )
+    </insert>
+
+    <update id="updateBuildingLayout">
+        UPDATE building_layout
+        <set>
+            bedroom = #{layout.bedroom},
+            living_room = #{layout.livingRoom},
+            toilet = #{layout.toilet},
+            layout_image = #{layout.layoutImage},
+            <if test="layout.name != null">
+                `name` = #{layout.name},
+            </if>
+            <if test="layout.houseArea != null">
+                house_area = #{layout.houseArea},
+            </if>
+            <if test="layout.available != null">
+                available = #{layout.available},
+            </if>
+            <if test="layout.updateUserId != null">
+                update_user = #{layout.updateUserId},
+            </if>
+            <if test="layout.updateTime != null">
+                update_time = #{layout.updateTime},
+            </if>
+        </set>
+        WHERE id = #{layout.id}
+    </update>
+
+    <select id="queryBuildingLayouts" resultType="com.pos.basic.dto.building.BuildingLayoutDto">
+        SELECT
+        <include refid="buildingLayoutDto"/>
+        FROM building_layout bl
+        WHERE bl.building_id = #{buildingId}
+        AND bl.available = 1
+    </select>
+
+    <select id="getBuildingLayoutDto" resultType="com.pos.basic.dto.building.BuildingLayoutDto">
+        SELECT
+        <include refid="buildingLayoutDto"/>
+        FROM building_layout bl
+        WHERE bl.id = #{layoutId}
+        AND bl.available = 1
+    </select>
+
+    <select id="getBuildingLayout" resultType="com.pos.basic.domain.BuildingLayout">
+        SELECT
+        <include refid="buildingLayout"/>
+        FROM building_layout bl
+        WHERE bl.id = #{layoutId}
+    </select>
+
+    <update id="deleteBuildingLatoutByBuildingId">
+        UPDATE building_layout bl
+        SET bl.available = 0, bl.update_user = #{user.userId}, bl.update_time = NOW()
+        WHERE bl.building_id = #{buildingId}
+    </update>
+
+    <sql id="buildingLayoutDto">
+        bl.id AS id,
+        bl.`name` AS `name`,
+        bl.bedroom AS bedroom,
+        bl.living_room AS livingRoom,
+        bl.toilet AS toilet,
+        bl.house_area AS houseArea,
+        bl.layout_image AS layoutImage
+    </sql>
+
+    <sql id="buildingLayout">
+        bl.id AS id,
+        bl.`name` AS `name`,
+        bl.building_id AS buildingId,
+        bl.bedroom AS bedroom,
+        bl.living_room AS livingRoom,
+        bl.toilet AS toilet,
+        bl.house_area AS houseArea,
+        bl.layout_image AS layoutImage,
+        bl.available AS available,
+        bl.create_time AS createTime,
+        bl.update_time AS updateTime,
+        bl.create_user AS createUserId,
+        bl.update_user AS updateUserId
+    </sql>
+</mapper>

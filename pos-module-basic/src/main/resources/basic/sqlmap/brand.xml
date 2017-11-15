@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.basic.dao.BrandDao">
+
+    <insert id="save" useGeneratedKeys="true" keyProperty="brand.id">
+        INSERT INTO brand
+        (`name`, logo, website, available, create_time, create_user)
+        VALUES
+        (#{brand.name}, #{brand.logo}, #{brand.website}, #{brand.available}, #{brand.createTime}, #{brand.createUserId})
+    </insert>
+
+    <update id="update">
+        UPDATE brand
+        SET `name` = #{brand.name}, logo = #{brand.logo}, website = #{brand.website},
+        update_user = #{brand.updateUserId}, update_time = #{brand.updateTime}
+        WHERE id = #{brand.id}
+    </update>
+
+    <select id="get" resultType="com.pos.basic.domain.Brand">
+        SELECT
+        <include refid="brandColumns"/>
+        FROM brand b
+        WHERE b.id = #{brandId}
+    </select>
+
+    <select id="getByName" resultType="com.pos.basic.domain.Brand">
+        SELECT
+        <include refid="brandColumns"/>
+        FROM brand b
+        WHERE b.name = #{name}
+    </select>
+
+    <select id="findByIds" resultType="com.pos.basic.domain.Brand">
+        SELECT
+        <include refid="brandColumns"/>
+        FROM brand b
+        WHERE b.id IN
+        <foreach item="id" index="index" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="findByTypes" resultType="com.pos.basic.domain.Brand">
+        SELECT
+        <include refid="brandColumns"/>
+        FROM brand b
+        INNER JOIN brand_class bc ON b.id = bc.brand_id
+        WHERE bc.`type` = #{typeId}
+        <if test="subTypeId != null">
+            AND bc.sub_type = #{subTypeId}
+        </if>
+        <if test="available != null">
+            AND b.available = #{available}
+        </if>
+    </select>
+
+    <select id="findBrandUnits" resultType="com.pos.basic.dto.brand.BrandUnitDto">
+        SELECT
+        b.id as id,
+        b.name as `name`,
+        b.logo as logo,
+        b.website as website,
+        b.available as available,
+        bc.sub_type as subType
+        FROM brand b
+        INNER JOIN brand_class bc ON b.id = bc.brand_id
+        WHERE bc.`type` = #{typeId} AND b.available = 1
+        <if test="queryKey != null">
+            AND b.name LIKE CONCAT('%',#{queryKey},'%')
+        </if>
+    </select>
+
+    <select id="getBrandsTotal" resultType="int">
+        SELECT COUNT(*) FROM brand b
+        <where>
+            <if test="likeName != null">
+                b.name LIKE CONCAT('%','${likeName}','%')
+            </if>
+            <if test="available != null">
+                AND b.available = #{available}
+            </if>
+        </where>
+    </select>
+
+    <select id="findBrands" resultType="com.pos.basic.domain.Brand">
+        SELECT
+        <include refid="brandColumns"/>
+        FROM brand b
+        <where>
+            <if test="likeName != null">
+                b.name LIKE CONCAT('%','${likeName}','%')
+            </if>
+            <if test="available != null">
+                AND b.available = #{available}
+            </if>
+        </where>
+        <if test="orderHelper != null">
+            ORDER BY ${orderHelper.fieldName} ${orderHelper.ordination}
+        </if>
+        LIMIT #{limitHelper.offset}, #{limitHelper.pageSize}
+    </select>
+
+    <insert id="saveBrandClasses" parameterType="java.util.List">
+        INSERT INTO
+        brand_class (brand_id, `type`, sub_type, create_time, create_user)
+        VALUES
+        <foreach collection="list" item="bc" index="index" separator=",">
+            (#{bc.brandId}, #{bc.type}, #{bc.subType}, #{bc.createTime}, #{bc.createUserId})
+        </foreach>
+    </insert>
+
+    <select id="findBrandClasses" resultType="com.pos.basic.domain.BrandClass">
+        SELECT
+        <include refid="brandClassColumns"/>
+        FROM brand_class bc
+        WHERE bc.brand_id = #{brandId}
+    </select>
+
+    <sql id="brandColumns">
+        b.id as id,
+        b.name as `name`,
+        b.logo as logo,
+        b.website as website,
+        b.available as available,
+        b.create_time as createTime,
+        b.update_time as updateTime,
+        b.create_user as createUserId,
+        b.update_user as updateUserId
+    </sql>
+
+    <sql id="brandClassColumns">
+        bc.id as id,
+        bc.brand_id as brandId,
+        bc.type as `type`,
+        bc.sub_type as subType,
+        bc.create_time as createTime,
+        bc.create_user as createUserId
+    </sql>
+
+</mapper>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    有限状态机说明：
+    STATE fromState="XXX"为迁移前的状态，MESSAGE action="XXX"为动作（消息），
+    toState="XXX"为迁移后的状态，handler为动作相关的处理逻辑。
+    所有的状态都需要配置成STATE节点，以保持整个状态机的完整性，不然会抛出异常。
+-->
+<FSM>
+    <STATE fromState="PREDICT_TRANSACTION">
+        <!-- 客户提交短信验证码确认支付 -->
+        <MESSAGE action="confirmPayTransaction" toState="TRANSACTION_IN_PROGRESS" handler="posTransactionConfirmPayHandler"/>
+    </STATE>
+
+    <STATE fromState="TRANSACTION_IN_PROGRESS">
+        <!-- 提现到客户收款银行卡失败 -->
+        <MESSAGE action="withdrawFailed" toState="TRANSACTION_FAILED" handler="posTransactionWithdrawFailedHandler"/>
+        <!-- 提现到客户收款银行卡成功 -->
+        <MESSAGE action="withdrawSuccess" toState="TRANSACTION_SUCCESS" handler="posTransactionWithdrawSuccessHandler"/>
+    </STATE>
+
+    <STATE fromState="TRANSACTION_FAILED">
+        <!-- 管理员重发提现处理请求 -->
+        <MESSAGE action="platRepeatWithdraw" toState="TRANSACTION_IN_PROGRESS" handler="posTransactionRepeatWithdrawHandler"/>
+        <!-- 管理员手动处理 -->
+        <MESSAGE action="platHandledSuccess" toState="TRANSACTION_HANDLED_SUCCESS" handler="posTransactionHandledSuccessHandler"/>
+    </STATE>
+
+    <STATE fromState="TRANSACTION_SUCCESS"/>
+
+    <STATE fromState="TRANSACTION_HANDLED_SUCCESS"/>
+</FSM>

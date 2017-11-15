@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.basic.dao.DemoEnumDao">
+
+    <sql id="demoSql">
+        , typeHandler = com.pos.basic.enumHandler.EnumByteTypeHandler
+    </sql>
+
+    <insert id="demoSave" >
+        INSERT INTO demo_enum (id, demo) VALUES (#{demo.id}, #{demo.hiDemo})
+    </insert>
+
+    <resultMap id="demoResultParent" type="com.pos.basic.domain.DomainPartParent">
+        <id column="id" property="id"/>
+    </resultMap>
+
+    <resultMap id="demoResultChild" type="com.pos.basic.domain.DomainPartChild" extends="demoResultParent">
+        <result column="demo" property="hiDemo"/>
+    </resultMap>
+
+    <resultMap id="demoResultMap" type="com.pos.basic.domain.DemoDomain">
+        <id column="id" property="id"/>
+        <result column="demo" property="hiDemo" typeHandler="com.pos.basic.enumHandler.EnumByteTypeHandler"/>
+    </resultMap>
+
+    <select id="demoQuery" resultType="com.pos.basic.domain.DemoDomain">
+        SELECT id, demo AS hiDemo
+        FROM demo_enum
+        WHERE id = #{id}
+    </select>
+</mapper>

@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.pos.dao.AuthorityDao">
+
+    <insert id="saveAuthority" useGeneratedKeys="true" keyProperty="posAuth.id">
+        INSERT INTO customer_authority (
+            user_id,
+            `get`,
+            get_rate,
+            twitter_status,
+            spread,
+            develop,
+            audit_status,
+            create_time
+        ) VALUES (
+            #{posAuth.userId},
+            #{posAuth.get},
+            #{posAuth.getRate},
+            #{posAuth.twitterStatus},
+            #{posAuth.spread},
+            #{posAuth.develop},
+            #{posAuth.auditStatus},
+            NOW()
+        )
+    </insert>
+
+    <select id="findAuthDetail" resultType="com.pos.pos.dto.auth.AuthorityDetailDto">
+        SELECT
+        <include refid="authDetailDtoColumns"/>
+        FROM customer_authority ca
+        LEFT JOIN user_customer_personal ucp ON ucp.user_id = ca.user_id
+        LEFT JOIN bank_card AS bc ON bc.id = ca.bank_card_id
+        LEFT JOIN bank_logo AS bl ON bc.bank_code = bl.bank_code
+        WHERE upa.user_id = #{userId}
+    </select>
+
+    <select id="findAuthDetailById" resultType="com.pos.pos.dto.auth.AuthorityDetailDto">
+        SELECT
+        <include refid="authDetailDtoColumns"/>
+        FROM customer_authority ca
+        LEFT JOIN user_customer_personal ucp ON ucp.user_id = ca.user_id
+        LEFT JOIN bank_card AS bc ON bc.id = ca.bank_card_id
+        LEFT JOIN bank_logo AS bl ON bc.bank_code = bl.bank_code
+        WHERE upa.id = #{authId}
+    </select>
+
+    <select id="findAuthByUserId" resultType="com.pos.pos.dto.auth.AuthorityDto">
+        SELECT
+        <include refid="authDtoColumns"/>
+        FROM customer_authority ca
+        LEFt JOIN user_customer_personal ucp ON ucp.user_id = ca.user_id
+        WHERE ca.user_id = #{userId}
+    </select>
+
+    <select id="findBaseAuthById" resultType="com.pos.pos.dto.auth.BaseAuthDto">
+        SELECT
+        <include refid="baseAuthDtoColumns"/>
+        FROM customer_authority ca
+        WHERE ca.id = #{authId}
+    </select>
+
+    <sql id="baseAuthDtoColumns">
+        ca.get AS `get`,
+        ca.get_rate AS getRate,
+        ca.twitter_status AS twitterStatus,
+        ca.spread AS spread,
+        ca.develop AS develop
+    </sql>
+
+    <sql id="authDtoColumns">
+        ca.id AS `id`,
+        ca.user_id AS userId,
+        <include refid="baseAuthDtoColumns"/>
+        , ca.audit_status AS auditStatus,
+        ca.reject_reason AS rejectReason,
+        ucp.real_name AS idCardName,
+        ucp.id_card_no AS idCardNo,
+        ucp.id_image_a AS idImageA,
+        ucp.id_image_b AS idImageB,
+        ucp.id_hold_image AS idHoldImage,
+        ca.bank_card_id AS bankCardId,
+        ca.bank_card_image AS bankCardImage,
+        ca.create_date AS createTime,
+        ca.update_date AS updateTime,
+        ca.update_user_id AS updateUserId
+    </sql>
+
+    <sql id="authDetailDtoColumns">
+        <include refid="authDtoColumns"/>
+        , bc.card_no AS bankCardNo,
+        bc.holder_name AS holderName,
+        bc.id_card_no AS holderIdCardNo,
+        bc.mobile_phone AS mobilePhone,
+        bc.bank_name AS bankName,
+        bc.bank_code AS bankCode,
+        bc.card_type AS cardType,
+        bc.card_usage AS cardUsage,
+        bl.logo AS bankLogo,
+        bl.logo_gray AS bankGrayLogo,
+        bc.last_use_date AS lastUserDate
+    </sql>
+
+    <update id="updateIdentityInfo" parameterType="com.pos.pos.dto.auth.AuthorityDto">
+        UPDATE user_customer_personal ucp
+        <set>
+            <if test="identity.idCardName != null">
+                ucp.real_name = #{identity.idCardName},
+            </if>
+            <if test="identity.idCardNo != null">
+                ucp.id_card_no = #{identity.idCardNo},
+            </if>
+            <if test="identity.idImageA != null">
+                ucp.id_image_a = #{identity.idImageA},
+            </if>
+            <if test="identity.idImageB != null">
+                ucp.id_image_b = #{identity.idImageB},
+            </if>
+            <if test="identity.idHoldImage != null">
+                ucp.id_hold_image = #{identity.idHoldImage},
+            </if>
+            ucp.update_time = NOW()
+        </set>
+        WHERE ucp.user_id = #{identity.userId}
+    </update>
+
+    <update id="updatePosCardInfo" parameterType="com.pos.pos.dto.auth.AuthorityDto">
+        UPDATE user_pos_auth upa
+        <set>
+            <if test="posCardInfo.posCardId != null">
+                upa.pos_card_id = #{posCardInfo.posCardId},
+            </if>
+            <if test="posCardInfo.posCardImage != null">
+                upa.pos_card_image = #{posCardInfo.posCardImage},
+            </if>
+            upa.update_user_id = #{posCardInfo.updateUserId},
+            upa.update_date = NOW()
+        </set>
+        WHERE upa.id = #{posCardInfo.id}
+    </update>
+
+    <update id="updateAuditStatus">
+        UPDATE customer_authority ca
+        SET
+        ca.audit_status = #{status},
+        <if test="rejectReason != null and status == 3">
+            ca.reject_reason = #{rejectReason},
+        </if>
+        ca.update_user_id = #{updateUserId},
+        ca.update_date = NOW()
+        WHERE ca.id = #{posAuthId}
+    </update>
+
+    <select id="getPosUserCount" resultType="int">
+        SELECT COUNT(*) FROM (
+            SELECT COUNT(DISTINCT upa.user_id)
+            FROM user_pos_auth AS upa
+            LEFT JOIN user_pos_channel_info AS upci ON upci.channel_user_id = upa.user_id
+            LEFT JOIN user_pos_card AS upc ON upc.id = upa.pos_card_id
+            <include refid="conditionColumn"/>
+            GROUP BY upa.user_id
+        ) T
+    </select>
+
+    <select id="queryPosUsers" resultType="com.pos.pos.dto.user.PosUserIntegrateDto">
+        SELECT
+            upa.id AS id,
+            upa.user_id AS userId,
+            upa.`get` AS `get`,
+            upa.get_rate AS getRate,
+            upa.twitter_status AS twitterStatus,
+            upa.spread AS spread,
+            upa.develop AS develop,
+            upa.create_date AS createTime,
+            upa.audit_status AS auditStatus,
+            upa.pos_card_id AS cardId,
+            upc.card_no AS bankCardNO,
+            upc.name AS bankCardName,
+            upc.id_card_no AS bankCardIdCardNO,
+            upc.mobile_phone AS mobilePhone,
+            upc.bank AS bankName,
+            upc.bank_code AS bankCode,
+            upc.card_type AS cardType,
+            upci.parent_user_id AS parentUserId,
+            upci.channel_user_id AS userId,
+            upci.channel_phone AS channelPhone,
+            upci.channel_remark AS remark,
+            upci.create_date AS relationTime,
+            upci.total_money AS totalWithdrawDeposit,
+            upci.apply_money AS currentWithdrawDeposit
+        FROM user_pos_auth AS upa
+        LEFT JOIN user_pos_channel_info AS upci ON upci.channel_user_id = upa.user_id
+        LEFT JOIN user_pos_card AS upc ON upc.id = upa.pos_card_id
+        <include refid="conditionColumn"/>
+        <if test="orderHelper != null">
+            ORDER BY  ${orderHelper.fieldName} ${orderHelper.ordination}
+        </if>
+        <if test="limitHelper != null">
+            LIMIT #{limitHelper.offset}, #{limitHelper.pageSize}
+        </if>
+    </select>
+
+    <update id="updateAuth">
+        UPDATE user_pos_auth
+        SET `get` = #{baseAuth.get},
+        get_rate = #{baseAuth.getRate},
+        twitter_status = #{baseAuth.twitterStatus},
+        spread = #{baseAuth.spread},
+        develop = #{baseAuth.develop},
+        update_user_id = #{updateUserId},
+        update_date = NOW()
+        WHERE id = #{posId}
+    </update>
+
+    <sql id="conditionColumn">
+        <if test="condition != null">
+            <where>
+                <if test="condition.id != null">
+                    upa.id = #{condition.id}
+                </if>
+                <if test="condition.userId != null">
+                    AND upa.user_id = #{condition.userId}
+                </if>
+                <if test="condition.userAuditStatus != null">
+                    AND upa.audit_status = #{condition.userAuditStatus}
+                </if>
+                <if test="condition.getPermission != null">
+                    <if test="condition.getPermission">
+                        AND upa.get = 2
+                    </if>
+                    <if test="!condition.getPermission">
+                        AND (upa.get = 1 OR upa.get = 3)
+                    </if>
+                </if>
+                <if test="condition.twitterPermission != null">
+                    <if test="condition.twitterPermission">
+                        AND upa.twitter_status = 2
+                    </if>
+                    <if test="!condition.twitterPermission">
+                        AND (upa.twitter_status = 1 OR upa.twitter_status = 3)
+                    </if>
+                </if>
+                <if test="condition.bindingCard != null">
+                    <if test="condition.bindingCard">
+                        AND upa.pos_card_id IS NOT NULL
+                    </if>
+                    <if test="!condition.bindingCard">
+                        AND upa.pos_card_id IS NULL
+                    </if>
+                </if>
+                <if test="condition.withdrawDeposit != null">
+                    <if test="condition.withdrawDeposit">
+                        AND upci.apply_money &gt; 0
+                    </if>
+                    <if test="!condition.withdrawDeposit">
+                        AND (upci.apply_money IS NULL OR upci.apply_money = 0)
+                    </if>
+                </if>
+                <if test="condition.beginTime != null">
+                    AND upa.create_date &gt;= #{condition.beginTime}
+                </if>
+                <if test="condition.endTime != null">
+                    AND upa.create_date &lt;= #{condition.endTime}
+                </if>
+                <if test="condition.includeUserIds != null and condition.includeUserIds.size() > 0">
+                    AND upa.user_id IN
+                    <foreach collection="condition.includeUserIds" index="index" item="item" open="(" separator="," close=")">
+                        #{item}
+                    </foreach>
+                </if>
+            </where>
+        </if>
+    </sql>
+</mapper>

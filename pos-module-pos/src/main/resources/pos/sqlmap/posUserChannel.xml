@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.pos.dao.PosUserChannelDao">
+
+    <select id="get" resultType="com.pos.pos.domain.Twitter">
+        SELECT
+        <include refid="channelColumn"/>
+        FROM user_pos_channel_info upci
+        WHERE upci.channel_user_id = #{userId}
+    </select>
+
+    <select id="getById" resultType="com.pos.pos.domain.Twitter">
+        SELECT
+        <include refid="channelColumn"/>
+        FROM user_pos_channel_info upci
+        WHERE upci.id = #{id}
+    </select>
+
+    <update id="update">
+        UPDATE user_pos_channel_info
+        <set>
+            <if test="channel.relationAvailable != null">
+                relation_available = #{channel.relationAvailable},
+            </if>
+            <if test="channel.channelPhone != null">
+                channel_phone = #{channel.channelPhone},
+            </if>
+            <if test="channel.remark != null">
+                channel_remark = #{channel.remark},
+            </if>
+            <if test="channel.totalMoney != null">
+                total_money = #{channel.totalMoney},
+            </if>
+            apply_money = #{channel.applyMoney},
+            update_user_id = #{channel.updateUserId},
+            update_date = NOW()
+        </set>
+        WHERE id = #{channel.id}
+    </update>
+
+    <select id="getUserDevelopCount" resultType="int">
+        SELECT COUNT(*)
+        FROM user_pos_channel_info upci
+        WHERE upci.parent_user_id = #{parentUserId}
+        AND upci.relation_available = 1
+    </select>
+
+    <select id="queryDevelopChildChannels" resultType="com.pos.pos.dto.develop.PosUserChildChannelDto">
+        SELECT
+        <include refid="childChannelDtoColumn"/>
+        FROM user_pos_channel_info upci
+        JOIN user_pos_auth upa ON upa.user_id = upci.channel_user_id
+        WHERE upci.parent_user_id = #{parentUserId}
+        AND upci.relation_available = 1
+        ORDER BY upci.create_date DESC
+        LIMIT #{limitHelper.offset}, #{limitHelper.pageSize}
+    </select>
+
+    <sql id="channelColumn">
+        upci.`id` AS `id`,
+        upci.parent_user_id AS parentUserId,
+        upci.relation_available AS relationAvailable,
+        upci.channel_user_id AS chennelUserId,
+        upci.channel_phone AS channelPhone,
+        upci.channel_remark AS remark,
+        upci.create_date AS createTime,
+        upci.total_money AS totalMoney,
+        upci.apply_money AS applyMoney,
+        upci.update_user_id AS updateUserId,
+        upci.update_date AS updateTime
+    </sql>
+
+    <sql id="channelDtoColumn">
+        upci.`id` AS `id`,
+        upci.parent_user_id AS parentUserId,
+        upci.relation_available AS relationAvailable,
+        upci.channel_user_id AS userId,
+        upci.channel_phone AS channelPhone,
+        upci.channel_remark AS remark,
+        upci.create_date AS relationTime,
+        upci.total_money AS totalWithdrawDeposit,
+        upci.apply_money AS currentWithdrawDeposit
+    </sql>
+
+    <sql id="simpleChannelDtoColumn">
+        upci.`id` AS `id`,
+        upci.parent_user_id AS parentUserId,
+        upci.channel_user_id AS userId,
+        upci.channel_phone AS channelPhone,
+        upci.create_date AS relationTime,
+        upci.relation_available AS relationAvailable
+    </sql>
+
+    <sql id="childChannelDtoColumn">
+        <include refid="simpleChannelDtoColumn"/>
+        , upci.channel_remark AS remark,
+        upa.audit_status AS identityAuditStatus,
+        upa.id_card_name AS childChannelName
+    </sql>
+</mapper>

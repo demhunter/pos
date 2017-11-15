@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.pos.dao.PosCardDao">
+
+    <insert id="save" useGeneratedKeys="true" keyProperty="cardInfo.id">
+        INSERT INTO bank_card (
+            user_id,
+            bank_card_no,
+            holder_name,
+            id_card_no,
+            mobile_phone,
+            bank_name,
+            bank_code,
+            card_type,
+            card_usage,
+            create_time
+        ) VALUES (
+            #{cardInfo.userId},
+            #{cardInfo.bankCardNo},
+            #{cardInfo.holderName},
+            #{cardInfo.idCardNo},
+            #{cardInfo.mobilePhone},
+            #{cardInfo.bankName},
+            #{cardInfo.bankCode},
+            #{cardInfo.cardType},
+            #{cardInfo.cardUsage},
+            NOW()
+        )
+    </insert>
+
+    <select id="queryUserPosCard" resultType="com.pos.pos.dto.card.PosCardDto">
+        SELECT
+        <include refid="posCardDtoColumns"/>
+        FROM bank_card bc
+        LEFT JOIN bank_logo bl ON bl.bank_code = bc.bank_code
+        WHERE bc.user_id = #{userId}
+        <if test="cardUsage != null">
+            AND bc.card_usage = #{cardUsage}
+            <if test="cardUsage == 2">
+                AND bc.last_use_time IS NOT NULL
+            </if>
+        </if>
+        ORDER BY bc.last_use_time DESC
+    </select>
+
+    <select id="queryPosCardByIds" resultType="com.pos.pos.dto.card.PosCardDto">
+        SELECT
+        <include refid="posCardDtoColumns"/>
+        FROM user_pos_card pc
+        LEFT JOIN bank_logo bl ON bl.bank_code = pc.bank_code
+        WHERE pc.id IN
+        <foreach collection="cardIds" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="getUserPosCard" resultType="com.pos.pos.dto.card.PosCardDto">
+        SELECT
+        <include refid="posCardDtoColumns"/>
+        FROM bank_card bc
+        LEFT JOIN bank_logo bl ON bl.bank_code = bc.bank_code
+        WHERE bc.id = #{cardId}
+    </select>
+
+    <delete id="delete" parameterType="Long">
+        DELETE FROM user_pos_card
+        WHERE id = #{cardId}
+    </delete>
+
+    <update id="update" parameterType="com.pos.pos.domain.PosBankCard">
+        UPDATE user_pos_card
+        <set>
+            <if test="card.bank != null">
+                bank = #{card.bank},
+            </if>
+            <if test="card.bankCode != null">
+                bank_code = #{card.bankCode},
+            </if>
+            <if test="card.cardType != null">
+                card_type = #{card.cardType},
+            </if>
+            <if test="card.lastUseDate != null">
+                last_use_date = #{card.lastUseDate},
+            </if>
+        </set>
+        WHERE id = #{card.id}
+    </update>
+
+    <sql id="posCardDtoColumns">
+        pc.id AS id,
+        pc.user_id AS userId,
+        pc.bank_card_no AS bankCardNo,
+        pc.holder_name AS holderName,
+        pc.id_card_no AS idCardNo,
+        pc.mobile_phone AS mobilePhone,
+        pc.bank_name AS bankName,
+        pc.bank_code AS bankCode,
+        bl.logo AS logo,
+        pc.card_type AS cardType,
+        pc.card_usage AS cardUsage,
+        pc.last_use_time AS lastUseTime
+    </sql>
+</mapper>

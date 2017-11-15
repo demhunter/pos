@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.pos.dao.PosDao">
+
+    <sql id="posCard">
+        pc.id AS id,
+        pc.user_id AS userId,
+        pc.card_no AS cardNO,
+        pc.name AS `name`,
+        pc.id_card_no AS idCardNO,
+        pc.mobile_phone AS mobilePhone,
+        pc.CVV2 AS cvv2,
+        pc.valid_year AS validYear,
+        pc.valid_month AS validMonth,
+        pc.bank AS bank,
+        pc.bank_code AS bankCode,
+        pc.card_type AS cardType,
+        pc.last_use_date AS lastUseDate
+    </sql>
+
+    <select id="getCompanyIds" resultType="LONG">
+        SELECT id FROM company
+    </select>
+
+    <select id="queryRecordByUserIdAndCostType" resultType="com.pos.pos.domain.PosTransaction">
+        SELECT
+        <include refid="posRecord"/>
+        FROM
+        user_pos_transaction_record
+        WHERE
+        user_id = #{userId}
+        AND
+        status = 1
+        <if test="costType!=0">
+            AND cost_type=#{costType}
+        </if>
+        ORDER BY create_date
+    </select>
+
+    <select id="queryRecordById" resultType="com.pos.pos.domain.PosTransaction">
+        SELECT
+        <include refid="posRecord"/>
+        FROM
+        user_pos_transaction_record
+        WHERE
+        id = #{id}
+    </select>
+
+    <select id="queryRecordByRecordNum" resultType="com.pos.pos.domain.PosTransaction">
+        SELECT
+        <include refid="posRecord"/>
+        FROM
+        user_pos_transaction_record
+        WHERE
+        record_num = #{recordNum}
+    </select>
+
+    <sql id="posRecord">
+            id AS id,
+            record_num AS recordNum,
+            in_card AS inCardId,
+            out_card_info AS outCardInfo,
+            user_id AS userId,
+            amount AS amount,
+            service_charge AS serviceCharge,
+            arrival_amount AS arrivalAmount,
+            pay_charge AS payCharge,
+            pos_charge AS posCharge,
+            company_id AS companyId,
+            cost_type AS costType,
+            status AS status,
+            create_date AS createTime,
+            complete_date AS completeDate,
+            helibao_zhifu_num AS helibaoZhifuNum,
+            helibao_tixian_num AS helibaoTixianNum
+    </sql>
+
+    <insert id="addUserPosRecord" useGeneratedKeys="true" keyProperty="record.id">
+        INSERT INTO user_pos_transaction_record
+        (
+            record_num,
+            in_card,
+            out_card_info,
+            user_id,
+            company_id,
+            amount,
+            cost_type,
+            status,
+            create_date
+        )
+        VALUES
+        (
+          #{record.recordNum},
+          #{record.inCardId},
+          #{record.outCardInfo},
+          #{record.userId},
+          #{record.companyId},
+          #{record.amount},
+          #{record.costType},
+          #{record.status},
+          NOW()
+        )
+    </insert>
+
+    <update id="updatePosRecord">
+        UPDATE user_pos_transaction_record
+        <set>
+            <if test="record.amount != null">
+                amount = #{record.amount},
+            </if>
+            <if test="record.serviceCharge != null">
+                service_charge = #{record.serviceCharge},
+            </if>
+            <if test="record.arrivalAmount != null">
+                arrival_amount = #{record.arrivalAmount},
+            </if>
+            <if test="record.payCharge != null">
+                pay_charge = #{record.payCharge},
+            </if>
+            <if test="record.posCharge != null">
+                pos_charge = #{record.posCharge},
+            </if>
+            <if test="record.status != null and record.status!=0">
+                status = #{record.status},
+            </if>
+            <if test="record.helibaoZhifuNum!=null">
+                helibao_zhifu_num=#{record.helibaoZhifuNum},
+            </if>
+            <if test="record.helibaoTixianNum!=null">
+                helibao_tixian_num=#{record.helibaoTixianNum},
+            </if>
+            <if test="record.payDate!=null">
+                pay_date=#{record.payDate},
+            </if>
+            <if test="record.completeDate!=null">
+                complete_date=#{record.completeDate},
+            </if>
+            <if test="record.outCardInfo != null">
+                out_card_info = #{record.outCardInfo},
+            </if>
+        </set>
+        WHERE id = #{record.id}
+    </update>
+
+    <select id="queryBankLogo" resultType="com.pos.pos.dto.BankLogoDto">
+        SELECT
+            id AS id,
+            bank_name AS bankName,
+            logo AS bankLogo,
+            bank_code AS bankCode
+        FROM bank_logo
+        WHERE bank_code IS NOT NULL
+    </select>
+
+    <update id="updateRemark">
+        UPDATE user_pos_channel_info
+        SET channel_remark = #{remark}
+        WHERE channel_id = #{channelId}
+    </update>
+
+</mapper>

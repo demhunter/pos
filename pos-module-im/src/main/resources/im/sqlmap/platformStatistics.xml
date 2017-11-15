@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pos.im.dao.IMPlatformStatisticsDao">
+
+    <select id="queryIMSessionInfo" resultType="com.pos.im.domain.Session">
+        SELECT
+        <include refid="sessionColumns"/>
+        FROM im_session se
+        <where>
+            <if test="condition.beginTime != null">
+                se.create_time <![CDATA[>=]]> #{condition.beginTime}
+            </if>
+            <if test="condition.endTime != null">
+                AND se.create_time <![CDATA[<]]> #{condition.endTime}
+            </if>
+        </where>
+    </select>
+
+    <select id="queryIMSessionInfoAboutCase" resultType="com.pos.im.dto.session.SessionDto">
+        SELECT
+        <include refid="sessionDtoColumns"/>
+        , sc.case_id as relatedCaseId
+        FROM im_session se
+        LEFT JOIN im_session_case sc ON sc.session_id = se.id
+        <where>
+            <if test="condition.beginTime != null">
+                se.create_time <![CDATA[>=]]> #{condition.beginTime}
+            </if>
+            <if test="condition.endTime != null">
+                AND se.create_time <![CDATA[<]]> #{condition.endTime}
+            </if>
+        </where>
+    </select>
+
+    <select id="queryIMCount" resultType="Integer">
+        SELECT COUNT(*)
+        FROM im_session se
+        <where>
+            <if test="condition.beginTime != null">
+                se.create_time <![CDATA[>=]]> #{condition.beginTime}
+            </if>
+            <if test="condition.endTime != null">
+                AND se.create_time <![CDATA[<]]> #{condition.endTime}
+            </if>
+        </where>
+    </select>
+
+    <sql id="sessionColumns">
+        se.id as id,
+        se.user_id as userId,
+        se.user_type as userType,
+        se.name as `name`,
+        se.call_total as callTotal,
+        se.warning as warning,
+        se.available as available,
+        se.closed_user as closedUserId,
+        se.closed_reason as closedReason,
+        se.create_time as createTime,
+        se.update_time as updateTime,
+        se.update_user as updateUserId,
+        se.first_msg_user as firstMsgUserId,
+        se.exclusive_twitter as exclusiveTwitter
+    </sql>
+
+    <sql id="sessionDtoColumns">
+        se.id as id,
+        se.user_id as userId,
+        se.user_type as userType,
+        se.name as `name`,
+        se.call_total as callTotal,
+        se.warning as warning,
+        se.available as available,
+        se.closed_user as closedUserId,
+        se.closed_reason as closedReason,
+        se.create_time as createTime,
+        se.update_time as updateTime
+    </sql>
+
+</mapper>

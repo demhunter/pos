@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>pos</artifactId>
+        <groupId>com.pos</groupId>
+        <version>${pos-parent.version}</version>
+    </parent>
+
+    <artifactId>pos-common-sms</artifactId>
+    <version>${pos-common-sms.version}</version>
+    <modelVersion>4.0.0</modelVersion>
+
+    <dependencies>
+        <!-- module start -->
+        <dependency>
+            <groupId>com.pos</groupId>
+            <artifactId>pos-common-util</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.pos</groupId>
+            <artifactId>pos-module-basic</artifactId>
+        </dependency>
+        <!-- module end -->
+
+        <!-- servlet start -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jsp-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!-- servlet end -->
+
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+
+        <!-- cache start -->
+        <dependency>
+            <groupId>com.googlecode.xmemcached</groupId>
+            <artifactId>xmemcached</artifactId>
+        </dependency>
+        <!-- cache end -->
+    </dependencies>
+
+</project>

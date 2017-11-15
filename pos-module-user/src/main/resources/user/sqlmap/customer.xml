@@ -1,0 +1,361 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.user.dao.CustomerDao">
+
+    <insert id="save" parameterType="com.pos.user.domain.Customer">
+        INSERT INTO
+        customer (user_id, nick_name, head_image, customer_type)
+        VALUES
+        (#{c.userId}, #{c.nickName}, #{c.headImage}, #{c.customerType});
+    </insert>
+
+    <update id="update" parameterType="com.pos.user.domain.Customer">
+        UPDATE customer
+        SET
+        nick_name = #{c.nickName},
+        <if test="c.customerType != null">
+            customer_type = #{c.customerType},
+        </if>
+        <if test="c.intention != null">
+            intention = #{c.intention},
+        </if>
+        remarks = #{c.remarks},
+        head_image = #{c.headImage}
+        WHERE id = #{c.id}
+    </update>
+
+    <select id="getByUserId" resultType="com.pos.user.domain.Customer">
+        SELECT
+        <include refid="customerColumns"/>
+        FROM customer c WHERE c.user_id = #{userId}
+    </select>
+
+    <select id="findCustomerByUserId" resultType="com.pos.user.dto.customer.CustomerDto">
+        SELECT
+        <include refid="customerDtoColumns"/>
+        FROM `user` u
+        INNER JOIN user_class uc ON u.id = uc.user_id
+        INNER JOIN customer c ON u.id = c.user_id
+        WHERE u.id = #{userId}
+        <if test="deleted != null">
+            AND u.deleted = #{deleted}
+        </if>
+        AND uc.user_type = 'c'
+        <if test="available != null">
+            AND uc.available = #{available}
+        </if>
+    </select>
+
+    <select id="findCustomerByUserName" resultType="com.pos.user.dto.customer.CustomerDto">
+        SELECT
+        <include refid="customerDtoColumns"/>
+        FROM `user` u
+        INNER JOIN user_class uc ON u.id = uc.user_id
+        INNER JOIN customer c ON u.id = c.user_id
+        WHERE u.user_name = #{userName}
+        <if test="deleted != null">
+            AND u.deleted = #{deleted}
+        </if>
+        AND uc.user_type = 'c'
+        <if test="available != null">
+            AND uc.available = #{available}
+        </if>
+    </select>
+
+    <select id="findCustomerByUserPhone" resultType="com.pos.user.dto.customer.CustomerDto">
+        SELECT
+        <include refid="customerDtoColumns"/>
+        FROM `user` u
+        INNER JOIN user_class uc ON u.id = uc.user_id
+        INNER JOIN customer c ON u.id = c.user_id
+        WHERE u.user_phone = #{userPhone}
+        <if test="deleted != null">
+            AND u.deleted = #{deleted}
+        </if>
+        AND uc.user_type = 'c'
+        <if test="available != null">
+            AND uc.available = #{available}
+        </if>
+    </select>
+
+    <select id="findCustomersInUserIds" resultType="com.pos.user.dto.customer.CustomerDto">
+        SELECT
+        <include refid="customerDtoColumns"/>
+        FROM `user` u
+        INNER JOIN user_class uc ON u.id = uc.user_id
+        INNER JOIN customer c ON u.id = c.user_id
+        WHERE u.id IN
+        <foreach item="uid" index="index" collection="userIds" open="(" separator="," close=")">
+            #{uid}
+        </foreach>
+        <if test="deleted != null">
+            AND u.deleted = #{deleted}
+        </if>
+        AND uc.user_type = 'c'
+        <if test="available != null">
+            AND uc.available = #{available}
+        </if>
+    </select>
+
+    <select id="getCustomers" resultType="com.pos.user.dto.customer.CustomerDto">
+        SELECT
+        u.id AS id,
+        u.user_name AS userName,
+        u.deleted AS deleted,
+        u.user_phone AS userPhone,
+        u.gender AS gender,
+        uc.id AS userTypeId,
+        uc.user_type AS userType,
+        uc.update_time AS updateTime,
+        uc.create_user AS createUserId,
+        uc.create_time AS createTime,
+        uc.available AS available,
+        uc.last_login_time AS lastLoginTime,
+        uc.register_ip AS registerIp,
+        uc.register_address AS registerAddress,
+        uc.last_login_ip AS loginIp,
+        uc.login_address AS loginAddress,
+        `c`.id AS entityId,
+        `c`.nick_name AS nickName,
+        `c`.intention AS intention,
+        `c`.customer_type AS customerType,
+        `c`.remarks AS remarks
+        FROM `user` AS u
+        JOIN customer AS `c` ON u.id = `c`.user_id
+        JOIN user_class AS uc ON u.id = uc.user_id
+        WHERE u.deleted = 0
+        AND uc.user_type = 'c'
+        <if test="condition.nikeName != null">
+            AND `c`.nick_name LIKE CONCAT('%',#{condition.nikeName},'%')
+        </if>
+        <if test="condition.customerType != null and condition.customerType != 0">
+            AND `c`.customer_type = #{condition.customerType}
+        </if>
+        <if test="condition.intention != null">
+            AND `c`.intention = #{condition.intention}
+        </if>
+        <if test="condition.login != null">
+            <choose>
+                <when test="condition.login">
+                   AND uc.last_login_time IS NOT NULL
+                </when>
+                <otherwise>
+                   AND uc.last_login_time IS NULL
+                </otherwise>
+            </choose>
+        </if>
+        <if test="condition.userIds != null">
+            AND `c`.user_id IN
+            <foreach collection="condition.userIds" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="condition.userPhone != null">
+            AND u.user_phone LIKE CONCAT('%',#{condition.userPhone},'%')
+        </if>
+        <if test="condition.registerStartTime!=null">
+            AND uc.create_time <![CDATA[>=]]> #{condition.registerStartTime}
+        </if>
+        <if test="condition.registerEndTime!=null">
+            AND uc.create_time <![CDATA[<=]]> #{condition.registerEndTime}
+        </if>
+        <choose>
+            <when test="orderHelper != null">
+                ORDER BY ${orderHelper.fieldName} ${orderHelper.ordination}
+            </when>
+            <when test="orderHelper == null">
+                ORDER BY uc.create_time DESC
+            </when>
+        </choose>
+        limit #{limitHelper.offset}, #{limitHelper.pageSize}
+    </select>
+
+    <select id="getCustomerCount" resultType="int">
+        SELECT COUNT(*)
+        FROM `user` AS u
+        JOIN customer AS `c` ON u.id = `c`.user_id
+        JOIN user_class AS uc ON u.id = uc.user_id
+        <where>
+            uc.user_type = 'c'
+            <if test="available != null">
+                AND uc.available = #{available}
+            </if>
+            <if test="condition.nikeName != null">
+                AND `c`.nick_name LIKE CONCAT('%',#{condition.nikeName},'%')
+            </if>
+            <if test="condition.customerType != null and condition.customerType != 0">
+                AND `c`.customer_type = #{condition.customerType}
+            </if>
+            <if test="condition.intention != null">
+                AND `c`.intention = #{condition.intention}
+            </if>
+            <if test="condition.login != null">
+                <choose>
+                    <when test="condition.login">
+                        AND uc.last_login_time IS NOT NULL
+                    </when>
+                    <otherwise>
+                        AND uc.last_login_time IS NULL
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="condition.userIds != null">
+                AND `c`.user_id IN
+                <foreach collection="condition.userIds" index="index" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="condition.userPhone != null">
+                AND u.user_phone LIKE CONCAT('%',#{condition.userPhone},'%')
+            </if>
+            <if test="condition.registerStartTime!=null">
+                AND uc.create_time <![CDATA[>=]]> #{condition.registerStartTime}
+            </if>
+            <if test="condition.registerEndTime!=null">
+                AND uc.create_time <![CDATA[<=]]> #{condition.registerEndTime}
+            </if>
+            AND u.deleted = 0
+        </where>
+    </select>
+
+    <select id="getCustomersByCompany" resultType="com.pos.user.dto.customer.CustomerDto">
+        SELECT
+        u.id AS id,
+        u.user_phone AS userPhone,
+        `c`.nick_name AS nickName,
+        `c`.head_image AS headImage,
+        uc.create_time AS createTime,
+        MAX(se.update_time) AS updateTime
+        FROM `user` AS u
+        JOIN customer AS `c` ON u.id = `c`.user_id
+        JOIN user_class AS uc ON u.id = uc.user_id
+        LEFT JOIN im_session AS se ON u.id = se.user_id
+        LEFT JOIN im_session_company sc ON sc.session_id = se.id
+        LEFT JOIN `order` o ON u.id = o.customer_user_id
+        <where>
+            (sc.company_id = #{condition.companyId} OR o.company_id = #{condition.companyId})
+            <if test="condition.queryKey != null">
+                AND (u.user_phone LIKE CONCAT('%',#{condition.queryKey},'%')
+                OR `c`.nick_name LIKE CONCAT('%',#{condition.queryKey},'%'))
+            </if>
+        </where>
+        GROUP BY u.id
+        <if test="condition.orderBy != null">
+            ORDER BY ${condition.orderBy}
+        </if>
+        <if test="condition.orderBy != null and condition.asc == false">
+            DESC
+        </if>
+        limit #{limitHelper.offset}, #{limitHelper.pageSize}
+    </select>
+
+    <select id="getCustomerCountByCompany" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM (
+        SELECT COUNT(*)
+        FROM `user` AS u
+        JOIN customer AS `c` ON u.id = `c`.user_id
+        LEFT JOIN im_session AS se ON u.id = se.user_id
+        LEFT JOIN im_session_company sc ON sc.session_id = se.id
+        LEFT JOIN `order` o ON u.id = o.customer_user_id
+        <where>
+            (sc.company_id = #{condition.companyId} OR o.company_id = #{condition.companyId})
+            <if test="condition.queryKey != null">
+                AND (u.user_phone LIKE CONCAT('%',#{condition.queryKey},'%')
+                OR `c`.nick_name LIKE CONCAT('%',#{condition.queryKey},'%'))
+            </if>
+        </where>
+        GROUP BY u.id
+        ) result
+    </select>
+
+    <select id="findUserIdInfo" resultType="java.lang.Long">
+        SELECT u.id AS id
+        FROM `user` u
+        LEFT JOIN  customer AS `c` ON u.id = `c`.user_id
+        <where>
+            <if test="userListCondition.userPhone != null">
+                u.user_phone = #{userListCondition.userPhone}
+            </if>
+            <if test="userListCondition.searchKey != null">
+               AND `c`.nick_name = #{userListCondition.searchKey}
+            </if>
+        </where>
+    </select>
+
+    <select id="findCustomerById" resultType="com.pos.user.domain.Customer">
+        SELECT
+        <include refid="customerColumns"/>
+        FROM  customer `c`
+        WHERE
+            `c`.user_id = #{userId}
+    </select>
+
+    <select id="queryCustomers" resultType="com.pos.user.dto.customer.CustomerDto">
+        SELECT
+        <include refid="customerDtoColumns"/>
+        FROM `user` u
+        INNER JOIN user_class uc ON u.id = uc.user_id
+        INNER JOIN customer c ON u.id = c.user_id
+        WHERE uc.user_type = 'c'
+        <if test="deleted != null">
+            AND u.deleted = #{deleted}
+        </if>
+        <if test="available != null">
+            AND uc.available = #{available}
+        </if>
+        LIMIT #{limitHelper.offset}, #{limitHelper.pageSize}
+    </select>
+
+    <sql id="customerColumns">
+        `c`.id AS id,
+        `c`.user_id AS userId,
+        `c`.nick_name AS nickName,
+        `c`.head_image AS headImage,
+        `c`.customer_type AS customerType,
+        `c`.intention AS intention,
+        `c`.remarks AS remarks
+    </sql>
+
+    <sql id="customerDtoColumns">
+        u.id AS id,
+        u.user_name AS userName,
+        u.user_phone AS userPhone,
+        u.deleted AS deleted,
+        u.mail AS mail,
+        u.name AS `name`,
+        u.gender AS gender,
+        u.id_card AS idCard,
+        u.id_image_a AS idImageA,
+        u.id_image_b AS idImageB,
+        u.id_hold_image AS idHoldImage,
+        uc.id AS userTypeId,
+        uc.user_type AS userType,
+        uc.available as available,
+        uc.create_user AS createUserId,
+        uc.create_time AS createTime,
+        uc.update_time AS updateTime,
+        uc.last_login_time AS lastLoginTime,
+        uc.register_ip AS registerIp,
+        uc.register_address AS registerAddress,
+        uc.last_login_ip AS loginIp,
+        uc.login_address As loginAddress,
+        `c`.id AS entityId,
+        `c`.nick_name AS nickName,
+        `c`.head_image AS headImage,
+        `c`.customer_type AS customerType,
+        `c`.intention AS intention,
+        `c`.remarks AS remarks
+    </sql>
+
+    <sql id="customerAccountDtoColumns">
+        id AS id,
+        user_id AS userId,
+        request_no AS requestNo,
+        member_no AS memberNo,
+        frozen_capital AS frozenCapital,
+        status AS status
+    </sql>
+
+</mapper>

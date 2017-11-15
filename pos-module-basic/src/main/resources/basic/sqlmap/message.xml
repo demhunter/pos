@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.basic.dao.MQMessageDao">
+
+    <insert id="saveMessage">
+        INSERT INTO mq_message (
+            `type`,
+            exchange,
+            route_key,
+            serial_number,
+            `data`,
+            create_time,
+            handle_class,
+            handled_success,
+            existed_exception
+        ) VALUES (
+            #{msg.type},
+            #{msg.exchange},
+            #{msg.routeKey},
+            #{msg.serialNumber},
+            #{msg.data},
+            #{msg.createTime},
+            #{msg.handleClass},
+            #{msg.handledSuccess},
+            #{msg.existedException}
+        )
+    </insert>
+</mapper>

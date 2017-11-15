@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>pos</artifactId>
+        <groupId>com.pos</groupId>
+        <version>${pos-parent.version}</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>pos-module-im</artifactId>
+    <version>${pos-module-im.version}</version>
+
+    <dependencies>
+        <!-- module start -->
+        <dependency>
+            <groupId>com.pos</groupId>
+            <artifactId>pos-common-util</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.pos</groupId>
+            <artifactId>pos-common-sms</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.pos</groupId>
+            <artifactId>pos-module-basic</artifactId>
+        </dependency>
+        <!-- module end -->
+
+        <!-- mq start -->
+        <dependency>
+            <groupId>com.rabbitmq</groupId>
+            <artifactId>amqp-client</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.amqp</groupId>
+            <artifactId>spring-rabbit</artifactId>
+        </dependency>
+        <!-- mq end -->
+
+        <!-- 融云IM SDK及依赖包，版本号固定 *Begin* -->
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.2.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.rong</groupId>
+            <artifactId>rongcloud-sdk</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <!-- 融云IM SDK及依赖包，版本号固定 *End* -->
+
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20140107</version>
+        </dependency>
+
+    </dependencies>
+
+</project>

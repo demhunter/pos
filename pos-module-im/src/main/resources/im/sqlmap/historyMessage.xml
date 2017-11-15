@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.im.dao.HistoryMessageDao">
+
+    <insert id="save" parameterType="com.pos.im.domain.HistoryMessage">
+        INSERT INTO
+        im_history_message (hist_url, hist_date, status, retry_count, failed_reason, create_time, update_time)
+        VALUES
+        (#{histMsg.histUrl}, #{histMsg.histDate}, #{histMsg.status}, #{histMsg.retryCount},
+        #{histMsg.failedReason}, #{histMsg.createTime}, #{histMsg.updateTime})
+    </insert>
+
+    <update id="update" parameterType="com.pos.im.domain.HistoryMessage">
+        UPDATE im_history_message
+        SET
+        hist_url = #{histMsg.histUrl},
+        status = #{histMsg.status},
+        retry_count = #{histMsg.retryCount},
+        failed_reason = #{histMsg.failedReason},
+        update_time = #{histMsg.updateTime}
+        WHERE id = #{histMsg.id}
+    </update>
+
+    <select id="get" resultType="com.pos.im.domain.HistoryMessage">
+        SELECT
+        <include refid="histMsgColumns"/>
+        FROM im_history_message hm
+        WHERE hm.id = #{id}
+    </select>
+
+    <select id="findLast" resultType="com.pos.im.domain.HistoryMessage">
+        SELECT
+        <include refid="histMsgColumns"/>
+        FROM im_history_message hm
+        ORDER BY hm.hist_date DESC
+        LIMIT 0, 1
+    </select>
+
+    <select id="findByHistDate" resultType="com.pos.im.domain.HistoryMessage">
+        SELECT
+        <include refid="histMsgColumns"/>
+        FROM im_history_message hm
+        WHERE hm.hist_date = #{histDate}
+    </select>
+
+    <select id="findListByStatus" resultType="com.pos.im.domain.HistoryMessage">
+        SELECT
+        <include refid="histMsgColumns"/>
+        FROM im_history_message hm
+        WHERE hm.status IN
+        <foreach item="st" index="index" collection="status" open="(" separator="," close=")">
+            #{st}
+        </foreach>
+        LIMIT 0, #{maxSize}
+    </select>
+
+    <sql id="histMsgColumns">
+        hm.id as id,
+        hm.hist_url as histUrl,
+        hm.hist_date as histDate,
+        hm.status as status,
+        hm.retry_count as retryCount,
+        hm.failed_reason as failedReason,
+        hm.create_time as createTime,
+        hm.update_time as updateTime
+    </sql>
+
+</mapper>

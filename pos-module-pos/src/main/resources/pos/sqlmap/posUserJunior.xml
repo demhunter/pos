@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.pos.dao.PosUserJuniorDao">
+
+    <insert id="addJuniorInfo" useGeneratedKeys="true" keyProperty="juniorInfo.id">
+        INSERT INTO user_pos_junior_info
+        (
+        channel_user_id,
+        junior_user_id,
+        junior_phone,
+        create_date
+        )
+        VALUES
+        (
+        #{juniorInfo.userId},
+        #{juniorInfo.juniorUserId},
+        #{juniorInfo.juniorPhone},
+        NOW()
+        )
+    </insert>
+
+    <select id="getJuniorByJuniorUserId" resultType="com.pos.pos.domain.TwitterCustomer">
+        SELECT
+            upji.`id` AS `id`,
+            upji.channel_user_id AS userId,
+            upji.junior_user_id AS juniorUserId,
+            upji.junior_phone AS juniorPhone,
+            upji.junior_remark AS juniorRemark,
+            upji.relation_available AS relationAvailable,
+            upji.create_date AS createTime,
+            upji.update_user_id AS updateUserId,
+            upji.update_date AS updateTime
+        FROM user_pos_junior_info upji
+        WHERE upji.junior_user_id = #{juniorUserId}
+    </select>
+
+    <select id="queryJuniorsByChannelUserId" resultType="com.pos.pos.domain.TwitterCustomer">
+        SELECT
+            upji.`id` AS `id`,
+            upji.channel_user_id AS userId,
+            upji.junior_user_id AS juniorUserId,
+            upji.junior_phone AS juniorPhone,
+            upji.junior_remark AS juniorRemark,
+            upji.relation_available AS relationAvailable,
+            upji.create_date AS createTime,
+            upji.update_user_id AS updateUserId,
+            upji.update_date AS updateTime
+        FROM user_pos_junior_info upji
+        WHERE upji.channel_user_id = #{userId}
+    </select>
+
+    <update id="updateJunior" parameterType="com.pos.pos.domain.TwitterCustomer">
+        UPDATE user_pos_junior_info
+        <set>
+            <if test="juniorInfo.userId != null">
+                channel_user_id = #{juniorInfo.userId},
+            </if>
+            <if test="juniorInfo.juniorUserId != null">
+                junior_user_id = #{juniorInfo.juniorUserId},
+            </if>
+            <if test="juniorInfo.juniorPhone != null">
+                junior_phone = #{juniorInfo.juniorPhone},
+            </if>
+            <if test="juniorInfo.juniorRemark != null">
+                junior_remark = #{juniorInfo.juniorRemark},
+            </if>
+            <if test="juniorInfo.relationAvailable != null">
+                relation_available = #{juniorInfo.relationAvailable},
+            </if>
+            update_user_id = #{juniorInfo.updateUserId},
+            update_date = NOW()
+        </set>
+        WHERE id = #{juniorInfo.id}
+    </update>
+
+</mapper>

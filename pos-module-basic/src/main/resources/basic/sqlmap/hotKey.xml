@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.basic.dao.HotKeyDao">
+
+    <insert id="saveHotKey">
+        INSERT INTO hot_key
+        (
+            key_name,
+            key_type,
+            total_count,
+            create_time
+        ) VALUES
+        (
+            #{hotKey.keyName},
+            #{hotKey.keyType},
+            #{hotKey.totalCount},
+            #{hotKey.createTime}
+        )
+    </insert>
+
+    <select id="queryHotKeyByName" resultType="com.pos.basic.dto.HotKeyDto">
+        SELECT
+        hk.id AS id,
+        hk.key_name AS keyName,
+        hk.key_type AS keyType,
+        hk.total_count AS totalCount,
+        hk.status AS status,
+        hk.create_time AS createTime
+        FROM hot_key hk
+        WHERE hk.key_name = #{keyName}
+    </select>
+
+    <insert id="updateHotKeys">
+        INSERT InTO hot_key
+        (
+            id,
+            key_name,
+            key_type,
+            total_count,
+            create_time
+        ) VALUES
+        <foreach collection="hotKeys" item="item" index="index" open="" separator="," close="">
+            (
+                #{item.id},
+                #{item.keyName},
+                #{item.keyType},
+                #{item.totalCount},
+                #{item.createTime}
+            )
+        </foreach>
+        ON DUPLICATE KEY UPDATE total_count = VALUES(total_count)
+    </insert>
+</mapper>

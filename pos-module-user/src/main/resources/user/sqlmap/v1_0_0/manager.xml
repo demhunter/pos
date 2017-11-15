@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.user.dao.v1_0_0.ManagerDao">
+    <select id="getByUserId" resultType="com.pos.user.dto.v1_0_0.ManagerDto">
+
+    </select>
+
+    <sql id="managerColumns">
+        m.id as id,
+        m.user_id as userId,
+        m.user_detail_type as userDetailType,
+        m.head_image as headImage,
+        m.quit_jobs as quitJobs
+    </sql>
+
+    <sql id="managerDtoColumns">
+
+    </sql>
+
+</mapper>

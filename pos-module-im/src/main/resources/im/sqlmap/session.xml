@@ -1,0 +1,441 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.im.dao.SessionDao">
+
+    <select id="get" resultType="com.pos.im.domain.Session">
+        SELECT
+        <include refid="sessionColumns"/>
+        FROM im_session se WHERE se.id = #{id}
+    </select>
+
+    <select id="getByGroupId" resultType="com.pos.im.domain.Session">
+        SELECT
+        <include refid="sessionColumns"/>
+        FROM im_session se WHERE se.group_id = #{groupId}
+    </select>
+
+    <insert id="save" parameterType="com.pos.im.domain.Session" useGeneratedKeys="true" keyProperty="se.id">
+        INSERT INTO im_session
+        (user_id, user_type, `name`, warning, available, create_time, update_time, exclusive_twitter)
+        VALUES
+        (#{se.userId}, #{se.userType}, #{se.name}, #{se.warning},
+        #{se.available}, #{se.createTime}, #{se.updateTime}, #{se.exclusiveTwitter});
+    </insert>
+
+    <select id="update">
+        UPDATE im_session se
+        SET
+        se.warning = #{se.warning}, se.available = #{se.available}
+        <if test="se.name != null">
+            , se.name = #{se.name}
+        </if>
+        <if test="se.updateTime != null">
+            , se.update_time = #{se.updateTime}
+        </if>
+        <if test="se.updateUserId != null">
+            , se.update_user = #{se.updateUserId}
+        </if>
+        <if test="se.firstMsgUserId != null">
+            , se.first_msg_user = #{se.firstMsgUserId}
+        </if>
+        <if test="se.closedUserId != null">
+            , se.closed_user = #{se.closedUserId}
+        </if>
+        <if test="se.closedReason != null">
+            , se.closed_reason = #{se.closedReason}
+        </if>
+        <if test="se.groupId != null">
+            , se.group_id = #{se.groupId}
+        </if>
+        WHERE se.id = #{se.id}
+    </select>
+
+    <update id="incrementCallTotal">
+        UPDATE im_session SET call_total = call_total + 1 WHERE id = #{id}
+    </update>
+
+    <select id="getTotalByUserJoined" resultType="int">
+        SELECT COUNT(*)
+        FROM im_session_member sm
+        INNER JOIN im_session se ON se.id = sm.session_id
+        WHERE sm.user_id = #{userId} AND sm.user_type = #{userType}
+        AND sm.available = 1 AND se.available = 1
+    </select>
+
+    <select id="getTotalByMultiUserJoined" resultType="java.util.HashMap">
+        SELECT
+        sm.user_id AS userId, COUNT(*) AS sessionTotal
+        FROM im_session_member sm
+        INNER JOIN im_session se ON se.id = sm.session_id
+        WHERE sm.user_id IN
+        <foreach collection="userIdList" item="userId" index="index" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+        AND sm.user_type = #{userType} AND sm.available = 1 AND se.available = 1
+        GROUP BY sm.user_id
+    </select>
+
+    <select id="find" resultType="com.pos.im.dto.session.SessionDto">
+        SELECT
+        <include refid="sessionDtoColumns"/>
+        , sc.case_id as relatedCaseId
+        FROM im_session se
+        LEFT JOIN im_session_case sc ON sc.session_id = se.id
+        WHERE se.id = #{id}
+        <if test="available != null">
+            AND se.available = #{available}
+        </if>
+        <if test="warning != null">
+            AND se.warning = #{warning}
+        </if>
+    </select>
+
+    <select id="findByGroupId" resultType="com.pos.im.dto.session.SessionDto">
+        SELECT
+        <include refid="sessionDtoColumns"/>
+        , sc.case_id as relatedCaseId
+        FROM im_session se
+        LEFT JOIN im_session_case sc ON sc.session_id = se.id
+        WHERE se.group_id = #{groupId}
+        <if test="available != null">
+            AND se.available = #{available}
+        </if>
+        <if test="warning != null">
+            AND se.warning = #{warning}
+        </if>
+    </select>
+
+    <select id="getClosedTotal" resultType="int">
+        SELECT COUNT(*)
+        FROM im_session se
+        <if test="companyId != null">
+            INNER JOIN im_session_company sco ON sco.session_id = se.id AND sco.company_id = #{companyId}
+        </if>
+        WHERE se.available = 0
+        <if test="warning != null">
+            AND se.warning = #{warning}
+        </if>
+        <if test="reason != null">
+            AND se.closed_reason = #{reason}
+        </if>
+    </select>
+
+    <select id="findClosedList" resultType="com.pos.im.dto.session.SessionDto">
+        SELECT
+        <include refid="sessionDtoColumns" />
+        FROM im_session se
+        <if test="companyId != null">
+            INNER JOIN im_session_company sco ON sco.session_id = se.id AND sco.company_id = #{companyId}
+        </if>
+        WHERE se.available = 0
+        <if test="warning != null">
+            AND se.warning = #{warning}
+        </if>
+        <if test="reason != null">
+            AND se.closed_reason = #{reason}
+        </if>
+        <if test="orderHelper != null">
+            ORDER BY ${orderHelper.fieldName} ${orderHelper.ordination}
+        </if>
+        LIMIT #{limitHelper.offset}, #{limitHelper.pageSize}
+    </select>
+
+    <select id="getSessionCount" resultType="int">
+        SELECT COUNT(*)
+        FROM im_session se
+        <where>
+            <if test="condition.available != null">
+                se.available = #{condition.available}
+            </if>
+            <if test="condition.warning != null">
+                AND se.warning = #{condition.warning}
+            </if>
+        </where>
+    </select>
+
+    <select id="querySessions" resultType="com.pos.im.dto.session.SessionDto">
+        SELECT
+        <include refid="sessionDtoColumns" />
+        FROM im_session se
+        <where>
+            <if test="condition.available != null">
+                se.available = #{condition.available}
+            </if>
+            <if test="condition.warning != null">
+                AND se.warning = #{condition.warning}
+            </if>
+        </where>
+        <if test="orderHelper != null">
+            ORDER BY ${orderHelper.fieldName} ${orderHelper.ordination}
+        </if>
+        LIMIT #{limitHelper.offset}, #{limitHelper.pageSize}
+    </select>
+
+    <select id="getTotalByUser" resultType="int">
+        SELECT COUNT(*)
+        FROM im_session se
+        <if test="companyId != null">
+            INNER JOIN im_session_company sco ON sco.session_id = se.id AND sco.company_id = #{companyId}
+        </if>
+        WHERE se.user_id = #{user.userId} AND se.user_type = #{user.userType}
+        <if test="condition.available != null">
+            AND se.available = #{condition.available}
+        </if>
+        <if test="condition.warning != null">
+            AND se.warning = #{condition.warning}
+        </if>
+    </select>
+
+    <select id="findListByUser" resultType="com.pos.im.dto.session.SessionDto">
+        SELECT
+        <include refid="sessionDtoColumns" />
+        FROM im_session se
+        <if test="companyId != null">
+            INNER JOIN im_session_company sco ON sco.session_id = se.id AND sco.company_id = #{companyId}
+        </if>
+        WHERE se.user_id = #{user.userId} AND se.user_type = #{user.userType}
+        <if test="condition.available != null">
+            AND se.available = #{condition.available}
+        </if>
+        <if test="condition.warning != null">
+            AND se.warning = #{condition.warning}
+        </if>
+        <if test="orderHelper != null">
+            ORDER BY ${orderHelper.fieldName} ${orderHelper.ordination}
+        </if>
+        LIMIT #{limitHelper.offset}, #{limitHelper.pageSize}
+    </select>
+
+    <select id="getTotalByMember" resultType="int">
+        SELECT COUNT(*)
+        FROM im_session_member sm
+        INNER JOIN im_session se ON se.id = sm.session_id
+        WHERE sm.user_id = #{user.userId} AND sm.user_type = #{user.userType} AND sm.available = 1
+        <if test="userJoinType != null">
+            AND sm.user_join_type = #{userJoinType}
+        </if>
+        <if test="condition.available != null">
+            AND se.available = #{condition.available}
+        </if>
+        <if test="condition.warning != null">
+            AND se.warning = #{condition.warning}
+        </if>
+    </select>
+
+    <select id="findListByMember" resultType="com.pos.im.dto.session.SessionDto">
+        SELECT
+        <include refid="sessionDtoColumns" />
+        FROM im_session_member sm
+        INNER JOIN im_session se ON se.id = sm.session_id
+        WHERE sm.user_id = #{user.userId} AND sm.user_type = #{user.userType} AND sm.available = 1
+        <if test="userJoinType != null">
+            AND sm.user_join_type = #{userJoinType}
+        </if>
+        <if test="condition.available != null">
+            AND se.available = #{condition.available}
+        </if>
+        <if test="condition.warning != null">
+            AND se.warning = #{condition.warning}
+        </if>
+        <if test="orderHelper != null">
+            ORDER BY ${orderHelper.fieldName} ${orderHelper.ordination}
+        </if>
+        LIMIT #{limitHelper.offset}, #{limitHelper.pageSize}
+    </select>
+
+    <select id="getTotalByNotServant" resultType="int">
+        SELECT COUNT(*)
+        FROM im_session se,
+        (SELECT session_id FROM im_session_member
+        WHERE available = 1
+        GROUP BY session_id HAVING SUM(DISTINCT user_join_type) = 4) sm
+        WHERE se.id = sm.session_id AND se.available = 1
+        <if test="warning != null">
+            AND se.warning = #{warning}
+        </if>
+    </select>
+
+    <select id="findListNotServant" resultType="com.pos.im.dto.session.SessionDto">
+        SELECT
+        <include refid="sessionDtoColumns" />
+        FROM im_session se,
+        (SELECT session_id FROM im_session_member
+        WHERE available = 1
+        GROUP BY session_id HAVING SUM(DISTINCT user_join_type) = 4) sm
+        WHERE se.id = sm.session_id AND se.available = 1
+        <if test="warning != null">
+            AND se.warning = #{warning}
+        </if>
+        <if test="orderHelper != null">
+            ORDER BY ${orderHelper.fieldName} ${orderHelper.ordination}
+        </if>
+        LIMIT #{limitHelper.offset}, #{limitHelper.pageSize}
+    </select>
+
+    <select id="findTempSessionIds" resultType="java.lang.Long">
+        SELECT t.sessionId FROM (
+        SELECT se.id AS sessionId, COUNT(msg.id) AS sessionTotal
+        FROM im_session se
+        LEFT JOIN im_session_message msg ON msg.session_id = se.id
+        WHERE se.available = 1 AND se.first_msg_user IS NULL
+        AND TIMESTAMPDIFF(HOUR, se.create_time, NOW()) &gt;= 4
+        AND TIMESTAMPDIFF(HOUR, se.create_time, NOW()) &lt;= 24
+        GROUP BY sessionId
+        ) t WHERE t.sessionTotal &lt;= 1
+    </select>
+
+    <select id="findInactiveSessionIds" resultType="java.lang.Long">
+        SELECT t.sessionId FROM (
+        SELECT se.id AS sessionId,
+        COUNT(IF (TO_DAYS(NOW()) - TO_DAYS(msg.send_time) &lt;= #{day}, 1, null)) AS sessionTotal
+        FROM im_session se
+        LEFT JOIN im_session_message msg ON msg.session_id = se.id
+        WHERE se.available = 1 AND TO_DAYS(NOW()) - TO_DAYS(se.create_time) &gt;= #{day}
+        GROUP BY sessionId
+        ) t WHERE t.sessionTotal = 0
+    </select>
+
+    <sql id="sessionColumns">
+        se.id as id,
+        se.group_id as groupId,
+        se.user_id as userId,
+        se.user_type as userType,
+        se.name as `name`,
+        se.call_total as callTotal,
+        se.warning as warning,
+        se.available as available,
+        se.closed_user as closedUserId,
+        se.closed_reason as closedReason,
+        se.create_time as createTime,
+        se.update_time as updateTime,
+        se.update_user as updateUserId,
+        se.first_msg_user as firstMsgUserId,
+        se.exclusive_twitter as exclusiveTwitter
+    </sql>
+
+    <sql id="sessionDtoColumns">
+        se.id as id,
+        se.group_id AS groupId,
+        se.user_id as userId,
+        se.user_type as userType,
+        se.name as `name`,
+        se.call_total as callTotal,
+        se.warning as warning,
+        se.available as available,
+        se.closed_user as closedUserId,
+        se.closed_reason as closedReason,
+        se.create_time as createTime,
+        se.update_time as updateTime
+    </sql>
+
+
+    <select id="findListConsoleCount" resultType="int">
+        SELECT
+        count(*)
+        FROM
+        im_session se
+        LEFT JOIN im_session_case isc ON se.id = isc.session_id
+        LEFT JOIN im_netease_msg inm ON se.group_id = inm.`to`
+        LEFT JOIN im_session_company iscom ON se.id = iscom.session_id
+        LEFT JOIN im_company_info ici ON iscom.company_id = ici.company_id
+        LEFT JOIN case_detail cd ON isc.case_id = cd.case_id
+        WHERE se.group_id is NOT NULL
+            <if test="condition.state != null">
+                AND se.available = #{condition.state}
+            </if>
+            <if test="condition.groupState != null">
+                AND se.warning = #{condition.groupState}
+            </if>
+            <if test="condition.createTimeStart != null">
+                AND se.create_time <![CDATA[>=]]> #{condition.createTimeStart}
+            </if>
+            <if test="condition.createTimeEnd != null">
+                AND se.create_time <![CDATA[<]]> #{condition.createTimeEnd}
+            </if>
+            <if test="condition.employeePhone != null">
+                AND se.id in (select session_id from im_session_member ism LEFT JOIN `user` u on u.user_phone = #{condition.employeePhone} )
+            </if>
+            <if test="condition.employeeName != null">
+                AND se.id in (select session_id from im_session_member ism LEFT JOIN `user` u on u.name = #{condition.employeeName} )
+            </if>
+            <if test="condition.customerPhone != null">
+                AND se.id in (select session_id from im_session_member ism LEFT JOIN `user` u on u.user_phone = #{condition.customerPhone} )
+            </if>
+    </select>
+
+    <select id="findListConsole" resultType="com.pos.im.dto.session.SessionConsoleListDto">
+        SELECT
+            se.id AS id,
+            cd.case_cover AS headImage,
+            se. NAME AS `name`,
+            se.group_id AS groupId,
+            se.call_total AS callTotal,
+            se.create_time AS createTime,
+            isc.case_name AS caseName,
+            inm.send_time AS lastTalkTime,
+            ici. NAME AS companyName,
+            se.available AS state,
+            se.warning AS groupState
+        FROM
+            im_session se
+        LEFT JOIN im_session_case isc ON se.id = isc.session_id
+        LEFT JOIN im_netease_msg inm ON se.group_id = inm.`to`
+        LEFT JOIN im_session_company iscom ON se.id = iscom.session_id
+        LEFT JOIN im_company_info ici ON iscom.company_id = ici.company_id
+        LEFT JOIN case_detail cd ON isc.case_id = cd.case_id
+        WHERE se.group_id is NOT NULL
+            <if test="condition.state != null">
+                AND se.available = #{condition.state}
+            </if>
+            <if test="condition.groupState != null">
+                AND se.warning = #{condition.groupState}
+            </if>
+            <if test="condition.createTimeStart != null">
+                AND se.create_time <![CDATA[>=]]> #{condition.createTimeStart}
+            </if>
+            <if test="condition.createTimeEnd != null">
+                AND se.create_time <![CDATA[<]]> #{condition.createTimeEnd}
+            </if>
+            <if test="condition.employeePhone != null">
+                AND se.id in (select session_id from im_session_member ism LEFT JOIN `user` u on u.user_phone = #{condition.employeePhone} )
+            </if>
+            <if test="condition.employeeName != null">
+                AND se.id in (select session_id from im_session_member ism LEFT JOIN `user` u on u.name = #{condition.employeeName} )
+            </if>
+            <if test="condition.customerPhone != null">
+                AND se.id in (select session_id from im_session_member ism LEFT JOIN `user` u on u.user_phone = #{condition.customerPhone} )
+            </if>
+
+        <if test="orderHelper != null">
+            ORDER BY ${orderHelper.fieldName} ${orderHelper.ordination}
+        </if>
+        LIMIT #{limitHelper.offset}, #{limitHelper.pageSize}
+    </select>
+
+    <select id="querySessionInfo" resultType="com.pos.im.dto.session.SessionConsoleListDto">
+        SELECT
+        se.id AS id,
+        cd.case_cover AS headImage,
+        se. NAME AS `name`,
+        se.group_id AS groupId,
+        se.call_total AS callTotal,
+        se.create_time AS createTime,
+        isc.case_name AS caseName,
+        inm.send_time AS lastTalkTime,
+        ici. NAME AS companyName,
+        se.available AS state,
+        se.warning AS groupState
+        FROM
+        im_session se
+        LEFT JOIN im_session_case isc ON se.id = isc.session_id
+        LEFT JOIN im_netease_msg inm ON se.group_id = inm.`to`
+        LEFT JOIN im_session_company iscom ON se.id = iscom.session_id
+        LEFT JOIN im_company_info ici ON iscom.company_id = ici.company_id
+        LEFT JOIN case_detail cd ON isc.case_id = cd.case_id
+        WHERE se.group_id is NOT NULL
+        AND se.id = #{sessionId}
+    </select>
+
+</mapper>

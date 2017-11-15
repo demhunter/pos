@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.im.dao.UserTokenErrorDao">
+
+    <insert id="save" parameterType="com.pos.im.domain.UserTokenError">
+        INSERT INTO im_user_token_error
+        (user_id, user_type, im_key, im_user_id, im_token, message, create_time)
+        VALUES
+        (#{ute.userId}, #{ute.userType}, #{ute.imKey}, #{ute.imUserId}, #{ute.imToken}, #{ute.message}, #{ute.createTime});
+    </insert>
+
+</mapper>

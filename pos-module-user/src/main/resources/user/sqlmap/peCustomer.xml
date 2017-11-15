@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.user.dao.PECustomerDao">
+
+    <select id="queryCustomerRelation" resultType="com.pos.user.domain.PECustomers">
+        SELECT
+        <include refid="peCustomersColumns"/>
+        FROM pe_customers pec
+        WHERE pec.pe_user_id = #{peUserId}
+        <if test="status != null">
+            AND pec.`status` = #{status}
+        </if>
+    </select>
+
+    <select id="queryCustomerDetail" resultType="com.pos.user.dto.platformEmployee.PECustomerDetailDto">
+        SELECT
+        <include refid="peCustomerDetailDtoColumns"/>
+        FROM pe_customers pec
+        INNER JOIN `user` u ON u.`id` = pec.c_user_id
+        INNER JOIN customer c ON c.user_id = u.id
+        WHERE pec.pe_user_id = #{peUserId}
+        <if test="orderHelper != null">
+            ORDER BY ${orderHelper.fieldName} ${orderHelper.ordination}
+        </if>
+        <if test="limitHelper != null">
+            LIMIT #{limitHelper.offset}, #{limitHelper.pageSize}
+        </if>
+    </select>
+
+    <select id="queryCustomerCount" resultType="int">
+        SELECT COUNT(*)
+        FROM pe_customers pec
+        WHERE pec.pe_user_id = #{peUserId}
+    </select>
+
+    <select id="queryCustomerCountByUserIds" resultType="com.pos.user.dto.platformEmployee.PECustomerStatisticsDto">
+        SELECT
+        pec.pe_user_id AS peUserId,
+        COUNT(IF(pec.status = 1, TRUE, NULL)) AS talkingCount,
+        COUNT(IF(pec.status = 2, TRUE, NULL)) AS completeCount,
+        COUNT(IF(pec.status = 3, TRUE, NULL)) AS refuseCount,
+        COUNT(IF(pec.status = 4, TRUE, NULL)) AS finishCount
+        FROM pe_customers pec
+        WHERE pec.pe_user_id IN
+        <foreach collection="userIds" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        GROUP BY pec.pe_user_id
+    </select>
+
+    <select id="getCustomer" resultType="com.pos.user.domain.PECustomers">
+        SELECT
+        <include refid="peCustomersColumns"/>
+        FROM pe_customers pec
+        WHERE pec.pe_user_id = #{peUserId}
+        AND pec.c_user_id = #{cUserId}
+    </select>
+
+    <!--v1.9.0-->
+    <select id="queryCustomerUserIds" resultType="com.pos.user.domain.PECustomers">
+        SELECT
+        <include refid="peCustomersColumns"/>
+        FROM pe_customers pec
+        WHERE pec.pe_user_id IN
+        <foreach collection="condition.peUserIds" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="getByCUserId" resultType="com.pos.user.domain.PECustomers">
+        SELECT
+        <include refid="peCustomersColumns"/>
+        FROM pe_customers pec
+        WHERE pec.c_user_id = #{cUserId}
+        AND pec.area_id = #{areaId}
+    </select>
+
+    <update id="updateCustomer">
+        UPDATE pe_customers
+        <set>
+            <if test="peCustomers.peUserId != null">
+                pe_user_id = #{peCustomers.peUserId},
+            </if>
+            <if test="peCustomers.cUserId != null">
+                c_user_id = #{peCustomers.cUserId},
+            </if>
+            <if test="peCustomers.areaId != null">
+                area_id = #{peCustomers.areaId},
+            </if>
+            <if test="peCustomers.status != null">
+                status = #{peCustomers.status},
+            </if>
+            <if test="peCustomers.relationType != null">
+                relation_type = #{peCustomers.relationType},
+            </if>
+            remark = #{peCustomers.remark}
+        </set>
+        WHERE id = #{peCustomers.id}
+    </update>
+
+    <insert id="save">
+        INSERT INTO pe_customers
+        (
+            pe_user_id,
+            c_user_id,
+            area_id,
+            remark,
+            status,
+            relation_type
+        )
+        VALUES
+        (
+            #{peCustomers.peUserId},
+            #{peCustomers.cUserId},
+            #{peCustomers.areaId},
+            #{peCustomers.remark},
+            #{peCustomers.status},
+            #{peCustomers.relationType}
+        )
+    </insert>
+
+    <sql id="peCustomersColumns">
+        pec.`id` AS `id`,
+        pec.pe_user_id AS peUserId,
+        pec.c_user_id AS cUserId,
+        pec.remark AS remark,
+        pec.status AS status,
+        pec.relation_type AS relationType
+    </sql>
+
+    <sql id="peCustomerDetailDtoColumns">
+        u.id AS id,
+        u.user_name AS userName,
+        u.user_phone AS userPhone,
+        u.deleted AS deleted,
+        u.mail AS mail,
+        u.name AS `name`,
+        u.gender AS gender,
+        `c`.id AS entityId,
+        `c`.nick_name AS nickName,
+        `c`.head_image AS headImage,
+        pec.`id` AS relationId,
+        pec.pe_user_id AS peUserId,
+        pec.remark AS remark,
+        pec.status AS status,
+        pec.relation_type AS relationType
+    </sql>
+</mapper>

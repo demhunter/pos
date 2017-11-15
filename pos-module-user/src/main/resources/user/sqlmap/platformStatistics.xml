@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.user.dao.PlatformStatisticsDao">
+
+    <insert id="addPlatformEmployeeStatistics" useGeneratedKeys="true" keyProperty="pe.id">
+        INSERT INTO
+        platform_employee_statistics (user_id, customer_talking, customer_complete,customer_refuse,
+        im_session_available,im_session_closed,order_unpaid,order_going,order_finished,order_terminated,twitter,create_date)
+        VALUES
+        (#{pe.userId}, #{pe.customerTalking}, #{pe.customerComplete},
+        #{pe.customerRefuse},#{pe.imSessionAvailable},#{pe.imSessionClosed},#{pe.orderUnpaid},
+        #{pe.orderGoing},#{pe.orderFinished},#{pe.orderTerminated},#{pe.twitter},NOW());
+    </insert>
+
+    <update id="updatePlatformEmployeeStatistics">
+        UPDATE platform_employee_statistics
+        <set>
+            <if test="pe.customerTalking != null">
+                customer_talking = #{pe.customerTalking},
+            </if>
+            <if test="pe.customerComplete != null">
+                customer_complete = #{pe.customerComplete},
+            </if>
+            <if test="pe.customerRefuse != null">
+                customer_refuse = #{pe.customerRefuse},
+            </if>
+            <if test="pe.imSessionAvailable != null">
+                im_session_available = #{pe.imSessionAvailable},
+            </if>
+            <if test="pe.imSessionClosed!=null">
+                im_session_closed=#{pe.imSessionClosed},
+            </if>
+            <if test="pe.orderUnpaid != null">
+                order_unpaid = #{pe.orderUnpaid},
+            </if>
+            <if test="pe.orderGoing!=null">
+                order_going=#{pe.orderGoing},
+            </if>
+            <if test="pe.orderFinished!=null">
+                order_finished=#{pe.orderFinished},
+            </if>
+            <if test="pe.orderTerminated!=null">
+                order_terminated = #{pe.orderTerminated},
+            </if>
+            <if test="pe.twitter!=null">
+                twitter=#{pe.twitter},
+            </if>
+            update_date = NOW()
+        </set>
+        WHERE user_id = #{pe.userId}
+    </update>
+
+    <select id="getPlatformEmployeeStatisticsByUserId" resultType="com.pos.user.dto.statistics.PlatformEmployeeStatisticsDto">
+        SELECT
+          id AS id,
+          user_id AS userId,
+          customer_talking AS customerTalking,
+          customer_complete AS customerComplete,
+          customer_refuse AS customerRefuse,
+          im_session_available AS imSessionAvailable,
+          im_session_closed AS imSessionClosed,
+          order_unpaid AS orderUnpaid,
+          order_going AS orderGoing,
+          order_finished AS orderFinished,
+          order_terminated AS orderTermainated,
+          twitter AS twitter
+        FROM
+          platform_employee_statistics
+        WHERE user_id=#{userId}
+    </select>
+
+    <insert id="addPlatformCustomerStatistics" useGeneratedKeys="true" keyProperty="pc.id">
+        INSERT INTO
+        platform_customer_statistics (user_id, im_session_available,im_session_closed,order_unpaid,
+        order_going,order_finished,order_terminated,create_date)
+        VALUES
+        (#{pc.userId}, #{pc.imSessionAvailable},#{pc.imSessionClosed},#{pc.orderUnpaid},
+        #{pc.orderGoing},#{pc.orderFinished},#{pc.orderTerminated},NOW());
+    </insert>
+
+    <update id="updatePlatformCustomerStatistics">
+        UPDATE platform_customer_statistics
+        <set>
+            <if test="pc.imSessionAvailable != null">
+                im_session_available = #{pc.imSessionAvailable},
+            </if>
+            <if test="pc.imSessionClosed!=null">
+                im_session_closed=#{pc.imSessionClosed},
+            </if>
+            <if test="pc.orderUnpaid != null">
+                order_unpaid = #{pc.orderUnpaid},
+            </if>
+            <if test="pc.orderGoing!=null">
+                order_going=#{pc.orderGoing},
+            </if>
+            <if test="pc.orderFinished!=null">
+                order_finished=#{pc.orderFinished},
+            </if>
+            <if test="pc.orderTerminated!=null">
+                order_terminated = #{pc.orderTerminated},
+            </if>
+            update_date = NOW()
+        </set>
+        WHERE user_id = #{pc.userId}
+    </update>
+
+    <select id="getPlatformCustomerStatisticsByUserId" resultType="com.pos.user.dto.statistics.PlatformCustomerStatisticsDto">
+        SELECT
+          id AS id,
+          user_id AS userId,
+          im_session_available AS imSessionAvailable,
+          im_session_closed AS imSessionClosed,
+          order_unpaid AS orderUnpaid,
+          order_going AS orderGoing,
+          order_finished AS orderFinished,
+          order_terminated AS orderTerminated
+        FROM platform_customer_statistics
+        WHERE user_id = #{userId}
+    </select>
+
+
+    <select id="queryCustomerCount" resultType="com.pos.user.dto.statistics.CountDto">
+        SELECT
+            `status` AS `status`,
+            COUNT(*) AS `count`
+        FROM
+            pe_customers
+        <where>
+            pe_user_id=#{userId}
+        </where>
+        GROUP BY
+            `status`
+    </select>
+
+    <select id="querySessionCount" resultType="com.pos.user.dto.statistics.CountDto">
+        SELECT
+            available AS `status`,
+            COUNT(*) AS `count`
+        FROM
+            im_session
+        WHERE
+            id IN (
+                SELECT
+                    session_id
+                FROM
+                    im_session_member
+                WHERE
+                    user_id = #{userId}
+                    AND available = 1
+            )
+        GROUP BY
+            available
+
+    </select>
+
+    <select id="queryOrderCount" resultType="com.pos.user.dto.statistics.CountDto">
+        SELECT
+            `status` AS `status`,
+            COUNT(*) AS `count`
+        FROM
+            `order`
+        WHERE
+            pe_user_id = #{userId}
+        GROUP BY
+            `status`
+    </select>
+
+    <select id="queryCustomerOrderCount" resultType="com.pos.user.dto.statistics.CountDto">
+        SELECT
+        `status` AS `status`,
+        COUNT(*) AS `count`
+        FROM
+        `order`
+        WHERE
+        customer_user_id = #{userId}
+        GROUP BY
+        `status`
+    </select>
+
+    <select id="queryTwitterCount" resultType="int">
+        SELECT
+            COUNT(*)
+        FROM
+            twitter
+        WHERE
+            hc_id = #{userId}
+    </select>
+
+</mapper>

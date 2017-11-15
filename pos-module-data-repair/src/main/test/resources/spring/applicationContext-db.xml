@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <!-- Druid 数据源 -->
+    <bean id="customerDataSource" class="com.alibaba.druid.pool.DruidDataSource"
+          init-method="init" destroy-method="close">
+        <property name="name" value="ywmj"/>
+        <property name="url" value="${druid.url}"/>
+        <property name="username" value="${druid.user}"/>
+        <property name="password" value="${druid.pwd}"/>
+        <property name="initialSize" value="${druid.initialPoolSize}"/>
+        <property name="minIdle" value="${druid.minPoolSize}"/>
+        <property name="maxActive" value="${druid.maxPoolSize}"/>
+        <property name="validationQuery" value="select count(1)"/>
+        <property name="testWhileIdle" value="true"/>
+        <property name="testOnBorrow" value="false"/>
+        <property name="testOnReturn" value="false"/>
+    </bean>
+
+    <!-- 事务管理器 -->
+    <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="customerDataSource"/>
+    </bean>
+
+    <!-- 开启事务配置 -->
+    <tx:annotation-driven transaction-manager="txManager"/>
+
+    <!-- MyBatis MySQL SqlSessionFactory -->
+    <bean id="mySqlSqlSessionFactory" name="mySqlSqlSessionFactory"
+          class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="customerDataSource"/>
+        <property name="mapperLocations">
+            <list>
+                <value>classpath:account/sqlmap/*.xml</value>
+            </list>
+        </property>
+        <property name="configLocation" value="classpath:mybatis/mybatis-config.xml"/>
+    </bean>
+
+    <!-- MyBatis MySQL MapperScannerConfigurer -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.pos"/>
+        <property name="annotationClass" value="org.springframework.stereotype.Repository"/>
+        <property name="sqlSessionFactoryBeanName" value="mySqlSqlSessionFactory"/>
+    </bean>
+
+</beans>
