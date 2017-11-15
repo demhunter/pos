@@ -3,17 +3,17 @@
  */
 package com.pos.web.customer.controller.twitter;
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
 import com.pos.common.util.mvc.resolver.FromSession;
 import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.common.util.mvc.support.LimitHelper;
 import com.pos.common.util.mvc.support.Pagination;
 import com.pos.pos.dto.spread.SpreadCustomerDto;
 import com.pos.pos.dto.spread.SpreadGeneralInfoDto;
-import com.pos.pos.service.PosUserChannelInfoService;
+import com.pos.pos.service_v.TwitterService;
 import com.pos.user.session.UserInfo;
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -33,13 +33,13 @@ import javax.annotation.Resource;
 public class SpreadController {
 
     @Resource
-    private PosUserChannelInfoService posUserChannelInfoService;
+    private TwitterService twitterService;
 
     @RequestMapping(value = "general", method = RequestMethod.GET)
     @ApiOperation(value = "wb 发展收款客户概要信息", notes = "发展收款客户概要信息")
     public ApiResult<SpreadGeneralInfoDto> getSpreadGeneralInfo(
             @FromSession UserInfo userInfo) {
-        return posUserChannelInfoService.getSpreadGeneralInfo(userInfo.buildUserIdentifier());
+        return twitterService.getSpreadGeneralInfo(userInfo.buildUserIdentifier());
     }
 
     @RequestMapping(value = "", method = RequestMethod.GET)
@@ -50,7 +50,7 @@ public class SpreadController {
             @ApiParam(name = "pageSize", value = "每页显示的记录数量")
             @RequestParam("pageSize") int pageSize,
             @FromSession UserInfo userInfo) {
-        return posUserChannelInfoService.querySpreadCustomers(
+        return twitterService.querySpreadCustomers(
                 userInfo.getId(), LimitHelper.create(pageNum, pageSize));
     }
 }

@@ -3,19 +3,13 @@
  */
 package com.pos.user.service_v.impl;
 
-import com.pos.common.sms.constant.MemcachedPrefixType;
-import com.pos.common.util.basic.IpAddressUtils;
 import com.pos.common.util.basic.JsonUtils;
-import com.pos.common.util.cache.MemcachedClientUtils;
+import com.pos.common.util.exception.ValidationException;
 import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.common.util.security.MD5Utils;
 import com.pos.common.util.validation.FieldChecker;
 import com.pos.common.util.validation.Validator;
-import com.pos.common.util.exception.ErrorCode;
-import com.pos.common.util.exception.ValidationException;
-import com.pos.user.constant.UserLoginType;
 import com.pos.user.constant.UserType;
-import com.pos.user.dao.UserClassDao;
 import com.pos.user.dao.v1_0_0.CustomerDao;
 import com.pos.user.dao.v1_0_0.ManagerDao;
 import com.pos.user.dao.v1_0_0.UserDao;
@@ -27,8 +21,6 @@ import com.pos.user.dto.v1_0_0.LoginInfoDto;
 import com.pos.user.dto.v1_0_0.UserDto;
 import com.pos.user.exception.UserErrorCode;
 import com.pos.user.service_v.LoginService;
-import com.pos.user.service.support.UserServiceSupport;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -59,12 +51,6 @@ public class LoginServiceImpl implements LoginService {
 
     @Resource
     private ManagerDao managerDao;
-
-    @Resource
-    private UserServiceSupport userServiceSupport;
-
-    @Resource
-    private MemcachedClientUtils memcachedClientUtils;
 
     @Value("${random.token.size}")
     private String randTokenSize;

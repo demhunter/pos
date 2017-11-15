@@ -7,6 +7,7 @@ import com.pos.common.util.mvc.support.LimitHelper;
 import com.pos.pos.domain.Twitter;
 import com.pos.pos.domain.TwitterCustomer;
 import com.pos.pos.domain.TwitterRelation;
+import com.pos.pos.dto.develop.PosUserChildChannelDto;
 import com.pos.pos.dto.spread.SpreadCustomerDto;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -21,23 +22,6 @@ import java.util.List;
  */
 @Repository
 public interface PosTwitterDao {
-
-    /**
-     * 查询推客发展的有效客户数
-     *
-     * @param channelUserId 推客用户userId
-     * @return 发展的客户数
-     */
-    int queryChannelJuniorCount(@Param("channelUserId") Long channelUserId);
-
-    /**
-     * 查询推客用户发展的客户列表
-     *
-     * @param channelUserId 推客用户userId
-     * @param limitHelper   分页参数
-     * @return 推客用户发展的客户列表
-     */
-    List<SpreadCustomerDto> queryChannelJuniors(@Param("channelUserId") Long channelUserId, @Param("limitHelper") LimitHelper limitHelper);
 
     /**
      * 根据userId获取推客信息
@@ -135,4 +119,43 @@ public interface PosTwitterDao {
     void updateTwitterCustomerAvailableByTwitter(
             @Param("twitterId") Long twitterId,
             @Param("available") boolean available);
+
+    /**
+     * 查询用户发展的下级推客数量
+     *
+     * @param parentUserId 推客userId
+     * @return 下级推客数量
+     */
+    int getDevelopCount(@Param("parentUserId") Long parentUserId);
+
+    /**
+     * 查询用户发展的下级推客列表 TODO
+     *
+     * @param parentUserId 用户id
+     * @param limitHelper  分页参数
+     * @return 查询结果
+     */
+    List<PosUserChildChannelDto> queryDevelopChildTwitter(
+            @Param("parentUserId") Long parentUserId,
+            @Param("limitHelper") LimitHelper limitHelper);
+
+    /**
+     * 查询推客发展的有效客户数
+     *
+     * @param twitterUserId 推客用户userId
+     * @return 发展的客户数
+     */
+    int queryCustomerCountByTwitterUserId(@Param("twitterUserId") Long twitterUserId);
+
+    /**
+     * 查询推客用户发展的客户列表 TODO 待完善
+     *
+     * @param twitterUserId 推客用户userId
+     * @param limitHelper   分页参数
+     * @return 推客用户发展的客户列表
+     */
+    List<SpreadCustomerDto> queryCustomersByTwitterUserId(
+            @Param("twitterUserId") Long twitterUserId,
+            @Param("limitHelper") LimitHelper limitHelper);
+
 }

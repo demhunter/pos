@@ -4,11 +4,16 @@
 package com.pos.pos.service_v.impl;
 
 import com.pos.basic.dto.UserIdentifier;
+import com.pos.basic.service.SecurityService;
 import com.pos.common.util.date.SimpleDateUtils;
 import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.common.util.mvc.support.LimitHelper;
+import com.pos.common.util.mvc.support.NullObject;
+import com.pos.common.util.mvc.support.Pagination;
 import com.pos.common.util.validation.FieldChecker;
+import com.pos.pos.constants.AuthStatusEnum;
 import com.pos.pos.constants.GetAgentEnum;
+import com.pos.pos.constants.PosConstants;
 import com.pos.pos.constants.PosTwitterStatus;
 import com.pos.pos.dao.AuthorityDao;
 import com.pos.pos.dao.TwitterBrokerageHandledDao;
@@ -19,18 +24,28 @@ import com.pos.pos.domain.TwitterCustomer;
 import com.pos.pos.domain.TwitterRelation;
 import com.pos.pos.dto.BrokerageHandledRecordDto;
 import com.pos.pos.dto.auth.AuthorityDto;
+import com.pos.pos.dto.develop.DevelopGeneralInfoDto;
+import com.pos.pos.dto.develop.PosUserChildChannelDto;
+import com.pos.pos.dto.spread.SpreadCustomerDto;
+import com.pos.pos.dto.spread.SpreadGeneralInfoDto;
 import com.pos.pos.dto.twitter.TwitterDailyStatisticsDto;
 import com.pos.pos.dto.twitter.TwitterGeneralInfoDto;
 import com.pos.pos.exception.PosUserErrorCode;
 import com.pos.pos.service_v.TwitterService;
+import com.pos.user.dto.v1_0_0.CustomerDto;
 import com.pos.user.exception.UserErrorCode;
+import com.pos.user.service_v.CustomerService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 推客相关Service实现类
@@ -43,6 +58,12 @@ import java.util.List;
 public class TwitterServiceImpl implements TwitterService {
 
     @Resource
+    private CustomerService customerService;
+
+    @Resource
+    private SecurityService securityService;
+
+    @Resource
     private PosTwitterDao posTwitterDao;
 
     @Resource
@@ -53,6 +74,9 @@ public class TwitterServiceImpl implements TwitterService {
 
     @Resource
     private TwitterBrokerageHandledDao twitterBrokerageHandledDao;
+
+    @Resource
+    private PosConstants posConstants;
 
     @Override
     public void initializeTwitter(Long userId, Long leaderUserId) {
@@ -172,5 +196,173 @@ public class TwitterServiceImpl implements TwitterService {
         FieldChecker.checkEmpty(user, "user");
 
         return twitterBrokerageHandledDao.queryHandledRecords(user, limitHelper);
+    }
+
+    @Override
+    public ApiResult<DevelopGeneralInfoDto> getDevelopGeneralInfo(Long twitterUserId) {
+        FieldChecker.checkEmpty(twitterUserId, "channelUserId");
+
+        // 校验推客权限
+        AuthorityDto auth = authorityDao.findAuthByUserId(twitterUserId);
+        if (auth == null) {
+            return ApiResult.fail(UserErrorCode.USER_NOT_EXISTED);
+        }
+        if (PosTwitterStatus.DISABLE.equals(auth.parseTwitterStatus())
+                || PosTwitterStatus.CLOSED.equals(auth.parseTwitterStatus())
+                || !AuthStatusEnum.ENABLE.equals(auth.parseDevelopAuth())) {
+            return ApiResult.fail(PosUserErrorCode.TWITTER_PERMISSION_ERROR_FOR_DEVELOP);
+        }
+
+        Twitter channel = posTwitterDao.getTwitterByUserId(twitterUserId);
+        DevelopGeneralInfoDto general = new DevelopGeneralInfoDto();
+        general.setRate(posConstants.getPosParentTwitterBrokerageRate());
+        general.setDevelopCount(posTwitterDao.getDevelopCount(twitterUserId));
+        general.setExistedParent(channel.getRelationAvailable());
+        if (general.getExistedParent()) {
+            general.setParentUserId(channel.getParentUserId());
+            CustomerDto parent = customerService.findById(channel.getParentUserId(), true);
+            if (parent != null) {
+                String parentName = parent.getRealName();
+                if (StringUtils.isEmpty(parentName)) {
+                    parentName = parent.getPhone();
+                }
+                general.setParentName(parentName);
+                general.setParentPhone(parent.getPhone());
+            }
+        }
+
+        return ApiResult.succ(general);
+    }
+
+    @Override
+    public ApiResult<Pagination<PosUserChildChannelDto>> queryDevelopTwitters(Long channelUserId, LimitHelper limitHelper) {
+        FieldChecker.checkEmpty(channelUserId, "channelUserId");
+        FieldChecker.checkEmpty(limitHelper, "limitHelper");
+
+        // 校验推客权限
+        AuthorityDto auth = authorityDao.findAuthByUserId(channelUserId);
+        if (auth == null) {
+            return ApiResult.fail(UserErrorCode.USER_NOT_EXISTED);
+        }
+        if (PosTwitterStatus.DISABLE.equals(auth.parseTwitterStatus())
+                || PosTwitterStatus.CLOSED.equals(auth.parseTwitterStatus())
+                || !AuthStatusEnum.ENABLE.equals(auth.parseDevelopAuth())) {
+            return ApiResult.fail(PosUserErrorCode.TWITTER_PERMISSION_ERROR_FOR_DEVELOP);
+        }
+
+        int totalCount = posTwitterDao.getDevelopCount(channelUserId);
+        Pagination<PosUserChildChannelDto> pagination = Pagination.newInstance(limitHelper, totalCount);
+        if (totalCount > 0) {
+            List<PosUserChildChannelDto> result = posTwitterDao.queryDevelopChildTwitter(channelUserId, limitHelper);
+            if (!CollectionUtils.isEmpty(result)) {
+                List<Long> userIds = result.stream().map(PosUserChildChannelDto::getChannelUserId).collect(Collectors.toList());
+                Map<Long, BigDecimal> brokerageMap = twitterBrokerageDao.queryParentAgentBrokerageMap(userIds);
+                result.forEach(e -> {
+                    if (!StringUtils.isEmpty(e.getChildChannelName())) {
+                        e.setChildChannelName(securityService.decryptData(e.getChildChannelName()));
+                    }
+                    if (!CollectionUtils.isEmpty(brokerageMap)) {
+                        e.setBrokerage(brokerageMap.get(e.getChannelUserId()) == null ? BigDecimal.ZERO : brokerageMap.get(e.getChannelUserId()));
+                    } else {
+                        e.setBrokerage(BigDecimal.ZERO);
+                    }
+                });
+                pagination.setResult(result);
+            }
+        }
+        return ApiResult.succ(pagination);
+    }
+
+    @Override
+    public ApiResult<NullObject> updateChildTwitterRemark(Long developId, String remark, Long operatorUserId) {
+        FieldChecker.checkEmpty(developId, "developId");
+        FieldChecker.checkMaxLength(remark, 30, "remark");
+        FieldChecker.checkEmpty(operatorUserId, "operatorUserId");
+
+        // 校验推客权限
+        AuthorityDto auth = authorityDao.findAuthByUserId(operatorUserId);
+        if (auth == null) {
+            return ApiResult.fail(UserErrorCode.USER_NOT_EXISTED);
+        }
+        if (PosTwitterStatus.DISABLE.equals(auth.parseTwitterStatus())
+                || PosTwitterStatus.CLOSED.equals(auth.parseTwitterStatus())
+                || !AuthStatusEnum.ENABLE.equals(auth.parseDevelopAuth())) {
+            return ApiResult.fail(PosUserErrorCode.TWITTER_PERMISSION_ERROR_FOR_DEVELOP);
+        }
+
+        Twitter channel = posTwitterDao.getTwitterById(developId);
+        if (channel == null
+                || !channel.getRelationAvailable()
+                || !channel.getParentUserId().equals(operatorUserId)) {
+            return ApiResult.fail(UserErrorCode.USER_NOT_EXISTED);
+        }
+
+        channel.setRemark(remark);
+        channel.setUpdateUserId(operatorUserId);
+        posTwitterDao.update(channel);
+
+        return ApiResult.succ();
+    }
+
+    @Override
+    public ApiResult<SpreadGeneralInfoDto> getSpreadGeneralInfo(UserIdentifier user) {
+        FieldChecker.checkEmpty(user, "user");
+
+        // 校验推客权限
+        AuthorityDto auth = authorityDao.findAuthByUserId(user.getUserId());
+        if (auth == null) {
+            return ApiResult.fail(UserErrorCode.USER_NOT_EXISTED);
+        }
+        if (PosTwitterStatus.DISABLE.equals(auth.parseTwitterStatus())
+                || PosTwitterStatus.CLOSED.equals(auth.parseTwitterStatus())
+                || !AuthStatusEnum.ENABLE.equals(auth.parseSpreadAuth())) {
+            return ApiResult.fail(PosUserErrorCode.TWITTER_PERMISSION_ERROR_FOR_SPREAD);
+        }
+        SpreadGeneralInfoDto general = new SpreadGeneralInfoDto(user.getUserId());
+        general.setRate(posConstants.getPosPoundageRate().subtract(auth.getGetRate()));
+        general.setSpreadCount(posTwitterDao.queryCustomerCountByTwitterUserId(user.getUserId()));
+
+        return ApiResult.succ(general);
+    }
+
+    @Override
+    public ApiResult<Pagination<SpreadCustomerDto>> querySpreadCustomers(Long twitterUserId, LimitHelper limitHelper) {
+        FieldChecker.checkEmpty(twitterUserId, "twitterUserId");
+        FieldChecker.checkEmpty(limitHelper, "limitHelper");
+
+        // 校验推客权限
+        AuthorityDto auth = authorityDao.findAuthByUserId(twitterUserId);
+        if (auth == null) {
+            return ApiResult.fail(UserErrorCode.USER_NOT_EXISTED);
+        }
+        if (PosTwitterStatus.DISABLE.equals(auth.parseTwitterStatus())
+                || PosTwitterStatus.CLOSED.equals(auth.parseTwitterStatus())
+                || !AuthStatusEnum.ENABLE.equals(auth.parseSpreadAuth())) {
+            return ApiResult.fail(PosUserErrorCode.TWITTER_PERMISSION_ERROR_FOR_SPREAD);
+        }
+
+        int totalCount = posTwitterDao.queryCustomerCountByTwitterUserId(twitterUserId);
+        Pagination<SpreadCustomerDto> pagination = Pagination.newInstance(limitHelper, totalCount);
+        if (totalCount > 0) {
+            List<SpreadCustomerDto> result = posTwitterDao.queryCustomersByTwitterUserId(twitterUserId, limitHelper);
+            if (!CollectionUtils.isEmpty(result)) {
+                List<Long> userIds = result.stream().map(SpreadCustomerDto::getJuniorUserId)
+                        .collect(Collectors.toList());
+                Map<Long, BigDecimal> brokerageMap = twitterBrokerageDao.queryAgentBrokerageMap(userIds);
+                result.forEach(e -> {
+                    if (!StringUtils.isEmpty(e.getJuniorName())) {
+                        e.setJuniorName(securityService.decryptData(e.getJuniorName()));
+                    }
+                    if (!CollectionUtils.isEmpty(brokerageMap)) {
+                        e.setBrokerage(brokerageMap.get(e.getJuniorUserId()) == null ? BigDecimal.ZERO : brokerageMap.get(e.getJuniorUserId()));
+                    } else {
+                        e.setBrokerage(BigDecimal.ZERO);
+                    }
+                });
+                pagination.setResult(result);
+            }
+        }
+
+        return ApiResult.succ(pagination);
     }
 }

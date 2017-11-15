@@ -3,6 +3,7 @@
  */
 package com.pos.web.customer.controller.twitter;
 
+import com.pos.pos.service_v.TwitterService;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
@@ -33,11 +34,14 @@ public class DevelopController {
     @Resource
     private PosUserChannelInfoService posUserChannelInfoService;
 
+    @Resource
+    private TwitterService twitterService;
+
     @RequestMapping(value = "general", method = RequestMethod.GET)
     @ApiOperation(value = "wb * 获取发展下级推客概要信息", notes = "获取发展下级推客概要信息")
     public ApiResult<DevelopGeneralInfoDto> getDevelopGeneralInfo(
             @FromSession UserInfo userInfo) {
-        return posUserChannelInfoService.getDevelopGeneralInfo(userInfo.getId());
+        return twitterService.getDevelopGeneralInfo(userInfo.getId());
     }
 
     @RequestMapping(value = "", method = RequestMethod.GET)
@@ -48,7 +52,7 @@ public class DevelopController {
             @ApiParam(name = "pageSize", value = "每页显示的记录数量")
             @RequestParam("pageSize") int pageSize,
             @FromSession UserInfo userInfo) {
-        return posUserChannelInfoService.queryDevelopTwitters(
+        return twitterService.queryDevelopTwitters(
                 userInfo.getId(), LimitHelper.create(pageNum, pageSize));
     }
 
@@ -60,6 +64,6 @@ public class DevelopController {
             @ApiParam(name = "remark", value = "下级推客备注")
             @RequestParam("remark") String remark,
             @FromSession UserInfo userInfo) {
-        return posUserChannelInfoService.updateTwitterRemark(developId, remark, userInfo.getId());
+        return twitterService.updateChildTwitterRemark(developId, remark, userInfo.getId());
     }
 }

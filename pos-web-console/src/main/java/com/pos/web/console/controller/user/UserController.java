@@ -3,24 +3,28 @@
  */
 package com.pos.web.console.controller.user;
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
 import com.pos.basic.service.SecurityService;
 import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.common.util.mvc.support.NullObject;
-import com.pos.pos.service.support.PosAdminSupport;
+import com.pos.common.util.web.http.HttpRequestUtils;
 import com.pos.user.constant.UserType;
-import com.pos.user.dto.UserLoginDto;
-import com.pos.user.dto.manager.ManagerDto;
+import com.pos.user.dto.IdentityInfoDto;
+import com.pos.user.dto.UserExtensionInfoDto;
+import com.pos.user.dto.v1_0_0.LoginInfoDto;
+import com.pos.user.dto.v1_0_0.ManagerDto;
+import com.pos.user.service_v.LoginService;
 import com.pos.user.session.SessionUtils;
 import com.pos.web.console.vo.user.UserForm;
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 
@@ -36,18 +40,18 @@ import javax.servlet.http.HttpSession;
 public class UserController {
 
     @Resource
-    private PosAdminSupport posAdminSupport;
+    private SecurityService securityService;
 
     @Resource
-    private SecurityService securityService;
+    private LoginService loginService;
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     @ApiOperation(value = "管理员登录接口", notes = "管理员登录接口")
     public ApiResult<ManagerDto> login(
             @ApiParam(name = "userForm", value = "用户名,用户密码,验证码")
             @RequestBody UserForm userForm,
-            HttpSession httpSession) {
-        return doLogin(userForm, httpSession, true);
+            HttpSession httpSession, HttpServletRequest request) {
+        return doLogin(userForm, httpSession, request, true);
     }
 
     @RequestMapping(value = "/loginTest", method = RequestMethod.POST)
@@ -55,8 +59,8 @@ public class UserController {
     public ApiResult<ManagerDto> loginTest(
             @ApiParam(name = "userForm", value = "用户名,用户密码,验证码")
             @RequestBody UserForm userForm,
-            HttpSession httpSession) {
-        return doLogin(userForm, httpSession, false);
+            HttpSession httpSession, HttpServletRequest request) {
+        return doLogin(userForm, httpSession, request, false);
     }
 
     @RequestMapping(value = "/logout", method = RequestMethod.POST)
@@ -67,21 +71,32 @@ public class UserController {
     }
 
     @SuppressWarnings("all")
-    private ApiResult<ManagerDto> doLogin(UserForm userForm, HttpSession httpSession, boolean encrypt) {
+    private ApiResult<ManagerDto> doLogin(UserForm userForm, HttpSession httpSession, HttpServletRequest request, boolean encrypt) {
+        String password;
         if (encrypt) {
-            userForm.setPassword(securityService.decryptData(userForm.getPassword()));
+            password = securityService.decryptData(userForm.getPassword());
+        } else {
+            password = userForm.getPassword();
         }
 
-        UserLoginDto userLoginDto = new UserLoginDto();
-        userLoginDto.setLoginName(userForm.getUserName());
-        userLoginDto.setPassword(userForm.getPassword());
-        userLoginDto.setUserType(UserType.MANAGER);
+        LoginInfoDto loginInfo = new LoginInfoDto();
 
-        ApiResult<ManagerDto> apiResult = posAdminSupport.posAdminLogin(userLoginDto);
+        IdentityInfoDto identity = new IdentityInfoDto();
+        identity.setUserType(UserType.MANAGER.getValue());
+        identity.setLoginName(userForm.getUserName());
+        identity.setPassword(password);
+        identity.setSmsCode(userForm.getSmsCode());
+
+        UserExtensionInfoDto userExtensionInfo = new UserExtensionInfoDto();
+        userExtensionInfo.setIp(HttpRequestUtils.getRealRemoteAddr(request));
+
+        loginInfo.setIdentityInfoDto(identity);
+        loginInfo.setUserExtensionInfo(userExtensionInfo);
+
+        ApiResult<ManagerDto> apiResult = (ApiResult<ManagerDto>) loginService.login(loginInfo);
 
         if (apiResult.isSucc()) {
-            // TODO
-            // SessionUtils.addUserInfo(httpSession, apiResult.getData());
+            SessionUtils.addUserInfo(httpSession, apiResult.getData());
         }
         return apiResult;
     }

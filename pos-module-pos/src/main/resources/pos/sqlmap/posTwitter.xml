@@ -4,25 +4,25 @@
 
 <mapper namespace="com.pos.pos.dao.PosTwitterDao">
 
-    <select id="queryChannelJuniorCount" resultType="int">
+    <select id="queryCustomerCountByTwitterUserId" resultType="int">
         SELECT COUNT(*)
-        FROM user_pos_junior_info
-        WHERE channel_user_id = #{userId}
+        FROM twitter_customer tc
+        JOIN twitter AS t ON t.id = tc.twitter_id
+        WHERE t.user_id = #{twitterUserId}
         AND relation_available = 1
     </select>
 
-    <select id="queryChannelJuniors" resultType="com.pos.pos.dto.spread.SpreadCustomerDto">
+    <select id="queryCustomersByTwitterUserId" resultType="com.pos.pos.dto.spread.SpreadCustomerDto">
         SELECT
-            upji.id AS `id`,
-            upji.channel_user_id AS userId,
-            upji.junior_user_id AS juniorUserId,
-            upji.junior_phone AS juniorPhone,
-            upji.junior_remark AS juniorRemark,
-            upji.relation_available AS relationAvailable,
-            upji.create_date AS createTime,
+            tc.id AS `id`,
+            t.user_id AS userId,
+            tc.user_id AS userId,
+            tc.remark AS remark,
+            tc.available AS available,
+            tc.create_time AS createTime,
             upa.audit_status AS auditStatus,
             upa.id_card_name AS juniorName
-        FROM user_pos_junior_info upji
+        FROM twitter_customer tc
         JOIN user_pos_auth upa ON upji.junior_user_id = upa.user_id
         WHERE upji.channel_user_id = #{userId}
         AND upji.relation_available = 1
@@ -130,6 +130,27 @@
 
     </update>
 
+    <select id="getDevelopCount" resultType="int">
+        SELECT COUNT(tr.child_twitter_id)
+        FROM twitter t
+        LEFT JOIN twitter_relation AS tr ON tr.parent_twitter_id = t.id
+        WHERE t.user_id = #{parentUserId}
+        AND tr.available = 1
+    </select>
+
+    <select id="queryDevelopChildTwitter" resultType="com.pos.pos.dto.develop.PosUserChildChannelDto">
+        SELECT
+        <include refid="childChannelDtoColumn"/>
+        FROM twitter parent
+        JOIN twitter_relation AS tr ON tr.parent_twitter_id = parent.id
+        JOIN twitter AS child ON tr.child_twitter_id = child.id
+        JOIN authority AS auth ON auth.user_id = child.user_id
+        WHERE parent.user_id = #{parentUserId}
+        AND tr.available = 1
+        ORDER BY tr.create_time DESC
+        LIMIT #{limitHelper.offset}, #{limitHelper.pageSize}
+    </select>
+
     <sql id="twitterColumns">
         t.`id` AS `id`,
         t.user_id AS userId,
@@ -149,5 +170,21 @@
         tc.create_time AS createTime,
         tc.update_time AS updateTime,
         tc.update_user_id AS updateUserId
+    </sql>
+
+    <sql id="simpleChannelDtoColumn">
+        upci.`id` AS `id`,
+        upci.parent_user_id AS parentUserId,
+        upci.channel_user_id AS userId,
+        upci.channel_phone AS channelPhone,
+        upci.create_date AS relationTime,
+        upci.relation_available AS relationAvailable
+    </sql>
+
+    <sql id="childChannelDtoColumn">
+        <include refid="simpleChannelDtoColumn"/>
+        , upci.channel_remark AS remark,
+        upa.audit_status AS identityAuditStatus,
+        upa.id_card_name AS childChannelName
     </sql>
 </mapper>
