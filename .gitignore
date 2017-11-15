@@ -1,0 +1,50 @@
+# kdiff3 ignore
+*.orig
+
+# maven ignore
+target/
+
+# local config ignore
+local
+
+# jdk8 example ignore
+ywmj-common-util/src/main/java/com/ywmj/common/util/jdk8
+
+# eclipse ignore
+.settings/
+.project
+.classpath
+
+# idea ignore
+.idea/
+*.ipr
+*.iml
+*.iws
+#*.ver
+
+# temp ignore
+*.log
+*.cache
+*.diff
+*.patch
+*.tmp
+*.cache.lock
+ver/
+versions.mapping
+
+
+# system ignore
+.DS_Store
+Thumbs.db
+*.ver
+
+# package ignore (optional)
+# *.jar
+# *.war
+# *.zip
+# *.tar
+# *.tar.gz
+
+# JRebel
+rebel.xml
+*rebel.xml.bak
