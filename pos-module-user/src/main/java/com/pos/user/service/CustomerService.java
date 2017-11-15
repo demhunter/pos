@@ -19,10 +19,10 @@ public interface CustomerService {
     /**
      * 根据用户ID查询客户信息.
      *
-     * @param userId  用户ID
-     * @param disable 是否返回被禁用的账号(true：需要返回被禁用的账号，false：不限)
+     * @param userId 用户ID
+     * @param enable 账号状态(true：启用，false：禁用，null：不限)
      */
-    CustomerDto findById(Long userId, boolean disable);
+    CustomerDto findById(Long userId, Boolean enable);
 
     /**
      * 查询客户信息 TODO

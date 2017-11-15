@@ -102,12 +102,12 @@
 
     <insert id="saveTwitterCustomer" parameterType="com.pos.pos.domain.TwitterCustomer">
         INSERT INTO twitter_customer(
-            twitter_id,
+            twitter_user_id,
             user_id,
             available,
             create_time
         ) VALUE (
-            #{junior.twitterId},
+            #{junior.twitterUserId},
             #{junior.userId},
             #{junior.available},
             NOW()

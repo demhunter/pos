@@ -17,7 +17,7 @@ import java.util.Date;
 public abstract class UserDto implements Serializable {
 
     // 默认用户头像
-    public static final String DEFAULT_HEAD_IMAGE = "http://o8nljewkg.bkt.clouddn.com/o_1btehjls1153n17t9rrkgl1e9ir.png?width=138&height=138";
+    protected static final String DEFAULT_HEAD_IMAGE = "http://o8nljewkg.bkt.clouddn.com/o_1btehjls1153n17t9rrkgl1e9ir.png?width=138&height=138";
 
     @ApiModelProperty("用户编号")
     private Long id;

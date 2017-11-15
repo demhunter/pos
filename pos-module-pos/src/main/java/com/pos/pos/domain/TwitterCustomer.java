@@ -18,7 +18,10 @@ public class TwitterCustomer implements Serializable {
 
     private Long id;
 
+    @Deprecated
     private Long twitterId; // 上线推客id
+
+    private Long twitterUserId; // 上线推客userId
 
     private Long userId; // 下级客户的userId
 
@@ -40,12 +43,22 @@ public class TwitterCustomer implements Serializable {
         this.id = id;
     }
 
+    @Deprecated
     public Long getTwitterId() {
         return twitterId;
     }
 
+    @Deprecated
     public void setTwitterId(Long twitterId) {
         this.twitterId = twitterId;
+    }
+
+    public Long getTwitterUserId() {
+        return twitterUserId;
+    }
+
+    public void setTwitterUserId(Long twitterUserId) {
+        this.twitterUserId = twitterUserId;
     }
 
     public Long getUserId() {

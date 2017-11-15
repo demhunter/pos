@@ -48,7 +48,7 @@ public class CustomerController {
     @ApiOperation(value = "v1.0.0 * 获取用户信息，用以展示首页内容", notes = "获取用户信息，用以展示首页内容")
     public ApiResult<CustomerVo> getPosUserInfo(
             @FromSession UserInfo userInfo) {
-        CustomerDto customer = customerService.findById(userInfo.getId(), true);
+        CustomerDto customer = customerService.findById(userInfo.getId(), null);
         if (customer == null) {
             return ApiResult.fail(UserErrorCode.USER_NOT_EXISTED);
         }

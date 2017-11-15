@@ -21,14 +21,14 @@
             phone,
             enable_status,
             user_type,
-            NOW()
+            update_time
         ) VALUE (
             #{user.loginName},
             #{user.password},
             #{user.phone},
             #{user.enable_status},
             #{user.user_type},
-            #{user.updateTime}
+            NOW()
         )
     </insert>
 

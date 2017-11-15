@@ -99,9 +99,9 @@ public interface PosTwitterDao {
     /**
      * 保存推客客户关系
      *
-     * @param junior 推客客户信息
+     * @param customer 推客客户关系
      */
-    void saveTwitterCustomer(@Param("junior") TwitterCustomer junior);
+    void saveTwitterCustomer(@Param("junior") TwitterCustomer customer);
 
     /**
      * 更新推客客户关系 todo

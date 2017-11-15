@@ -28,20 +28,20 @@ import java.util.List;
 public interface TwitterService {
 
     /**
-     * 初始化存在上级的推客
+     * 初始化推客信息
      *
-     * @param userId       用户id
-     * @param leaderUserId 上级推客userId
+     * @param userId        用户id
+     * @param twitterUserId 上级推客userId(可空，表示初始化成种子推客)
      */
-    void initializeTwitter(Long userId, Long leaderUserId);
+    void initializeTwitter(Long userId, Long twitterUserId);
 
     /**
-     * 初始化推客客户
+     * 初始化推客客户关系
      *
-     * @param userId       用户id
-     * @param leaderUserId 上级推客userId
+     * @param userId        用户id
+     * @param twitterUserId 上级推客userId
      */
-    void initializeTwitterCustomer(Long userId, Long leaderUserId);
+    void initializeTwitterCustomer(Long userId, Long twitterUserId);
 
     /**
      * 查询推客用户的概要信息

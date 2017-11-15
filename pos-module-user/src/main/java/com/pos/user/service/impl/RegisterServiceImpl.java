@@ -69,15 +69,16 @@ public class RegisterServiceImpl implements RegisterService {
     @Override
     public ApiResult<CustomerDto> addCustomer(RegisterInfoDto registerInfo, boolean setLoginInfo) {
         IdentityInfoDto identity = registerInfo.getIdentityInfoDto();
+        // 注册信息校验
         ErrorCode err = checkAddCustomer(identity.getLoginName(), identity.getPassword(), identity.getSmsCode());
         if (err != null) {
             return ApiResult.fail(err);
         }
 
-        // 用户不存在的情况
         User existingUser = userDao.getByUserPhone(identity.getLoginName());
         if (existingUser == null) {
-            User user = addUser(identity.getLoginName(), identity.getPassword(), UserType.CUSTOMER);
+            // 用户不存在，注册一个新用户
+            User user = addUser(identity.getLoginName(), identity.getPassword(), UserType.CUSTOMER, identity.getLoginName());
             Customer customer = saveCustomerBase(user);
             UserExtension extension = saveExtension(user, setLoginInfo, registerInfo.getUserExtensionInfo());
             CustomerDto customerDto = buildCustomerDto(user, customer, extension);
@@ -87,6 +88,7 @@ public class RegisterServiceImpl implements RegisterService {
 
             return ApiResult.succ(customerDto);
         } else {
+            // 用户已存在
             if (!existingUser.isEnable()) {
                 return ApiResult.fail(UserErrorCode.ACCOUNT_DELETED);
             }
@@ -94,6 +96,14 @@ public class RegisterServiceImpl implements RegisterService {
         }
     }
 
+    /**
+     * 客户注册信息校验
+     *
+     * @param userPhone  注册电话号码
+     * @param password   注册密码
+     * @param verifyCode 注册短信验证码
+     * @return 校验结果
+     */
     private ErrorCode checkAddCustomer(String userPhone, String password, String verifyCode) {
         Validator.checkMobileNumber(userPhone);
         Validator.checkPassword(password);
@@ -109,19 +119,34 @@ public class RegisterServiceImpl implements RegisterService {
         return null;
     }
 
-    private User addUser(String loginName, String password, UserType type) {
+    /**
+     * 添加一个用户账号
+     *
+     * @param loginName 登录账号名
+     * @param password  登录密码
+     * @param type      用户账号类型
+     * @param phone     账号绑定的电话号码
+     * @return 添加成功的用户账号信息
+     */
+    private User addUser(String loginName, String password, UserType type, String phone) {
         User user = new User();
 
         user.setLoginName(loginName);
         user.setPassword(MD5Utils.getMD5Code(password));
         user.setUserType(type.getValue());
         user.setEnableStatus(Boolean.TRUE);
-        user.setPhone(loginName);
+        user.setPhone(phone);
         userDao.save(user);
 
         return user;
     }
 
+    /**
+     * 为用户账号补充C端客户信息
+     *
+     * @param user 用户账号信息
+     * @return 成功添加的客户信息
+     */
     private Customer saveCustomerBase(User user) {
 
         Customer customer = new Customer();
@@ -140,7 +165,7 @@ public class RegisterServiceImpl implements RegisterService {
      * @param user          用户信息
      * @param setLoginInfo  是否记录登录信息
      * @param extensionInfo 拓展信息
-     * @return 用户类型信息
+     * @return 用户拓展信息
      */
     private UserExtension saveExtension(User user, boolean setLoginInfo, UserExtensionInfoDto extensionInfo) {
         Date now = Calendar.getInstance().getTime();
@@ -164,6 +189,14 @@ public class RegisterServiceImpl implements RegisterService {
         return extension;
     }
 
+    /**
+     * 构建CustomerDto客户信息
+     *
+     * @param user      用户账号信息
+     * @param customer  客户基本信息
+     * @param extension 账号拓展信息
+     * @return CustomerDto客户信息
+     */
     private CustomerDto buildCustomerDto(User user, Customer customer, UserExtension extension) {
         CustomerDto customerDto = new CustomerDto();
 

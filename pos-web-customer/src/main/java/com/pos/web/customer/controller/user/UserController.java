@@ -33,6 +33,9 @@ import javax.servlet.http.HttpSession;
 
 /**
  * 基本用户相关Controller
+ *
+ * @author wangbing
+ * @version 1.0, 2017/11/14
  */
 @RestController
 @RequestMapping("/user")

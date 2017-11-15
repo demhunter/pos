@@ -87,9 +87,8 @@ public class TwitterServiceImpl implements TwitterService {
     private PosConstants posConstants;
 
     @Override
-    public void initializeTwitter(Long userId, Long leaderUserId) {
+    public void initializeTwitter(Long userId, Long twitterUserId) {
         FieldChecker.checkEmpty(userId, "userId");
-        FieldChecker.checkEmpty(leaderUserId, "leaderUserId");
 
         // 保存推客信息
         Twitter child = new Twitter();
@@ -98,33 +97,29 @@ public class TwitterServiceImpl implements TwitterService {
         child.setApplyMoney(BigDecimal.ZERO);
         posTwitterDao.saveTwitter(child);
 
-        // 保存推客上下级关联关系
-        Twitter parent = posTwitterDao.getTwitterByUserId(leaderUserId);
-        if (parent != null) {
-            TwitterRelation relation = new TwitterRelation();
-            relation.setParentTwitterId(parent.getId());
-            relation.setTwitterId(child.getId());
-            relation.setAvailable(Boolean.TRUE);
-            posTwitterDao.saveTwitterRelation(relation);
+        if (twitterUserId != null) {
+            // 保存推客上下级关联关系
+            Twitter parent = posTwitterDao.getTwitterByUserId(twitterUserId);
+            if (parent != null) {
+                TwitterRelation relation = new TwitterRelation();
+                relation.setParentTwitterId(parent.getId());
+                relation.setTwitterId(child.getId());
+                relation.setAvailable(Boolean.TRUE);
+                posTwitterDao.saveTwitterRelation(relation);
+            }
         }
-
     }
 
     @Override
-    public void initializeTwitterCustomer(Long userId, Long leaderUserId) {
+    public void initializeTwitterCustomer(Long userId, Long twitterUserId) {
         FieldChecker.checkEmpty(userId, "userId");
-        FieldChecker.checkEmpty(leaderUserId, "leaderUserId");
+        FieldChecker.checkEmpty(twitterUserId, "leaderUserId");
 
-        Twitter parent = posTwitterDao.getTwitterByUserId(leaderUserId);
-        if (parent != null) {
-            // 推客发展下级客户链接进入，且上级推客的发展下级客户权限处于启用状态
-            // 则绑定推客客户上下级关系
-            TwitterCustomer junior = new TwitterCustomer();
-            junior.setTwitterId(parent.getId());
-            junior.setUserId(userId);
-            junior.setAvailable(Boolean.TRUE);
-            posTwitterDao.saveTwitterCustomer(junior);
-        }
+        TwitterCustomer twitterCustomer = new TwitterCustomer();
+        twitterCustomer.setTwitterUserId(twitterUserId);
+        twitterCustomer.setUserId(userId);
+        twitterCustomer.setAvailable(Boolean.TRUE);
+        posTwitterDao.saveTwitterCustomer(twitterCustomer);
 
     }
 
@@ -226,7 +221,7 @@ public class TwitterServiceImpl implements TwitterService {
         twitterBrokerageDao.markParentStatus(user.getUserId(),
                 GetAgentEnum.NOT_GET.getCode(), GetAgentEnum.APPLY.getCode(), null);
         // 发送申请已处理短信
-        CustomerDto customer = customerService.findById(record.getUserId(), true);
+        CustomerDto customer = customerService.findById(record.getUserId(), null);
         if (customer != null) {
             String message = String.format(posConstants.getPosTwitterBrokerageHandledTemplate(), record.getAmount());
             smsService.sendMessage(customer.getPhone(), message);
@@ -263,7 +258,7 @@ public class TwitterServiceImpl implements TwitterService {
         general.setExistedParent(channel.getRelationAvailable());
         if (general.getExistedParent()) {
             general.setParentUserId(channel.getParentUserId());
-            CustomerDto parent = customerService.findById(channel.getParentUserId(), true);
+            CustomerDto parent = customerService.findById(channel.getParentUserId(), null);
             if (parent != null) {
                 String parentName = parent.getRealName();
                 if (StringUtils.isEmpty(parentName)) {

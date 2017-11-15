@@ -35,7 +35,7 @@
         WHERE u.`id` = #{userId}
     </select>
 
-    <select id="findByUserIdAndEnable" resultType="com.pos.user.dto.CustomerDto">
+    <select id="findByUserIdAndEnable" resultType="com.pos.user.dto.customer.CustomerDto">
         SELECT
         <include refid="customerDtoColumns"/>
         FROM `user` u

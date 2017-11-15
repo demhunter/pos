@@ -45,7 +45,13 @@ public class AuthorityServiceImpl implements AuthorityService {
     private final static Logger LOG = LoggerFactory.getLogger(AuthorityServiceImpl.class);
 
     @Resource
-    private PosConstants posConstants;
+    private SmsService smsService;
+
+    @Resource
+    private TwitterService twitterService;
+
+    @Resource
+    private CustomerService customerService;
 
     @Resource
     private AuthorityDao authorityDao;
@@ -54,19 +60,13 @@ public class AuthorityServiceImpl implements AuthorityService {
     private PosTwitterDao posTwitterDao;
 
     @Resource
-    private CustomerService customerService;
-
-    @Resource
-    private SmsService smsService;
-
-    @Resource
-    private TwitterService twitterService;
+    private PosConstants posConstants;
 
     @Override
     public void initializeAuthority(Long userId, RegisterRecommendDto recommend) {
         FieldChecker.checkEmpty(userId, "userId");
 
-        CustomerDto customer = customerService.findById(userId, true);
+        CustomerDto customer = customerService.findById(userId, null);
         if (customer == null) {
             LOG.error("用户信息不存在，无法初始化权限信息!");
         } else {
@@ -74,14 +74,18 @@ public class AuthorityServiceImpl implements AuthorityService {
             AuthorityDto leaderUserPosAuth = getLeaderAuthority(recommend);
             LoginTypeEnum loginType = parsePosLoginType(recommend);
             // 初始化权限和收款费率
-            initializeAuthority(customer.getId(), loginType, leaderUserPosAuth);
+            initializeAuthority(userId, loginType, leaderUserPosAuth);
             // 初始关系类型
-            if (loginType != null && leaderUserPosAuth != null) {
-                initializeRelation(userId, loginType, leaderUserPosAuth);
-            }
+            initializeRelation(userId, loginType, leaderUserPosAuth);
         }
     }
 
+    /**
+     * 获取推荐人权限信息
+     *
+     * @param recommend 推荐信息
+     * @return 推荐人权限
+     */
     private AuthorityDto getLeaderAuthority(RegisterRecommendDto recommend) {
         AuthorityDto leaderAuthority = null;
         if (recommend != null && recommend.getRecommendType() != null && recommend.getRecommendUserId() != null) {
@@ -90,6 +94,12 @@ public class AuthorityServiceImpl implements AuthorityService {
         return leaderAuthority;
     }
 
+    /**
+     * 解析注册用户的注册渠道
+     *
+     * @param recommend 推荐信息
+     * @return 注册渠道
+     */
     private LoginTypeEnum parsePosLoginType(RegisterRecommendDto recommend) {
         LoginTypeEnum loginType = null;
         if (recommend != null && recommend.getRecommendType() != null && recommend.getRecommendUserId() != null) {
@@ -98,13 +108,20 @@ public class AuthorityServiceImpl implements AuthorityService {
         return loginType;
     }
 
-    // 首次登录，初始化权限信息
-    private void initializeAuthority(Long userId, LoginTypeEnum type, AuthorityDto leaderUserPosAuth) {
+
+    /**
+     * 初始化权限信息
+     *
+     * @param userId          用户id
+     * @param type            注册渠道
+     * @param leaderAuthority 推荐人权限
+     */
+    private void initializeAuthority(Long userId, LoginTypeEnum type, AuthorityDto leaderAuthority) {
         boolean isTwitter = false;
-        if (type != null && LoginTypeEnum.DEVELOP.equals(type) && leaderUserPosAuth != null) {
+        if (type != null && LoginTypeEnum.DEVELOP.equals(type) && leaderAuthority != null) {
             // 用户是通过发展下级推客链接登录，判断上级权限，绑定上下级推客关系
-            PosTwitterStatus twitterStatus = PosTwitterStatus.getEnum(leaderUserPosAuth.getTwitterStatus());
-            AuthStatusEnum developStatus = AuthStatusEnum.getEnum(leaderUserPosAuth.getDevelop().byteValue());
+            PosTwitterStatus twitterStatus = PosTwitterStatus.getEnum(leaderAuthority.getTwitterStatus());
+            AuthStatusEnum developStatus = AuthStatusEnum.getEnum(leaderAuthority.getDevelop().byteValue());
             // 上级推客的推客权限和子权限发展下级推客权限都处于启用状态，则下级也处于相同的状态
             if (PosTwitterStatus.ENABLE.equals(twitterStatus) && AuthStatusEnum.ENABLE.equals(developStatus)) {
                 isTwitter = true;
@@ -114,12 +131,14 @@ public class AuthorityServiceImpl implements AuthorityService {
         initializeAuthority(userId, isTwitter);
     }
 
+    // 权限初始化
     private void initializeAuthority(Long userId, boolean isTwitter) {
         Authority authority = new Authority();
         authority.setUserId(userId);
         authority.setGet(AuthStatusEnum.ENABLE.getCode()); // 默认开启收款功能
 
         if (isTwitter) {
+            // 开通推客权限
             authority.setGetRate(posConstants.getPosTwitterPoundageRate()); // 设置推客的收款功能权限默认费率
             authority.setTwitterStatus(PosTwitterStatus.ENABLE.getCode()); // 默认推客权限启用，限制发展下级客户和下级推客
             authority.setSpread(AuthStatusEnum.ENABLE.getCode()); // 默认发展下级客户权限启用
@@ -134,15 +153,26 @@ public class AuthorityServiceImpl implements AuthorityService {
         authorityDao.saveAuthority(authority);
     }
 
-    private void initializeRelation(Long userId, LoginTypeEnum loginType, AuthorityDto leaderUserPosAuth) {
-        PosTwitterStatus leaderTwitterStatus = PosTwitterStatus.getEnum(leaderUserPosAuth.getTwitterStatus());
-        if (PosTwitterStatus.ENABLE.equals(leaderTwitterStatus)) {
-            AuthStatusEnum spreadStatus = AuthStatusEnum.getEnum(leaderUserPosAuth.getSpread().byteValue());
-            AuthStatusEnum developStatus = AuthStatusEnum.getEnum(leaderUserPosAuth.getDevelop().byteValue());
-            if (LoginTypeEnum.SPREAD.equals(loginType) && AuthStatusEnum.ENABLE.equals(spreadStatus)) {
-                twitterService.initializeTwitterCustomer(userId, leaderUserPosAuth.getUserId());
-            } else if (LoginTypeEnum.DEVELOP.equals(loginType) && AuthStatusEnum.ENABLE.equals(developStatus)) {
-                twitterService.initializeTwitter(userId, leaderUserPosAuth.getUserId());
+    /**
+     * 初始化与推荐人的关系
+     *
+     * @param userId          用户id
+     * @param loginType       注册渠道
+     * @param leaderAuthority 推荐人权限
+     */
+    private void initializeRelation(Long userId, LoginTypeEnum loginType, AuthorityDto leaderAuthority) {
+        if (loginType != null && leaderAuthority != null) {
+            PosTwitterStatus leaderTwitterStatus = PosTwitterStatus.getEnum(leaderAuthority.getTwitterStatus());
+            if (PosTwitterStatus.ENABLE.equals(leaderTwitterStatus)) {
+                AuthStatusEnum spreadStatus = AuthStatusEnum.getEnum(leaderAuthority.getSpread().byteValue());
+                AuthStatusEnum developStatus = AuthStatusEnum.getEnum(leaderAuthority.getDevelop().byteValue());
+                if (LoginTypeEnum.SPREAD.equals(loginType) && AuthStatusEnum.ENABLE.equals(spreadStatus)) {
+                    // 允许发展下线客户，则初始化成推客客户关系
+                    twitterService.initializeTwitterCustomer(userId, leaderAuthority.getUserId());
+                } else if (LoginTypeEnum.DEVELOP.equals(loginType) && AuthStatusEnum.ENABLE.equals(developStatus)) {
+                    // 允许发展下线推客，则初始化成推客客户关系
+                    twitterService.initializeTwitter(userId, leaderAuthority.getUserId());
+                }
             }
         }
     }
@@ -191,7 +221,7 @@ public class AuthorityServiceImpl implements AuthorityService {
             }
         }
         // 判断推客权限和收款费率是否变更，发送变更短信
-        CustomerDto customer = customerService.findById(oldAuth.getUserId(), true);
+        CustomerDto customer = customerService.findById(oldAuth.getUserId(), null);
         if (customer != null) {
             if (!oldAuth.parseTwitterStatus().equals(baseAuth.parseTwitterStatus())) {
                 if (PosTwitterStatus.CLOSED.equals(baseAuth.parseTwitterStatus())) {

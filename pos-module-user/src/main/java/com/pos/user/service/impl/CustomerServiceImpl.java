@@ -30,10 +30,10 @@ public class CustomerServiceImpl implements CustomerService {
     private CustomerDao customerDao;
 
     @Override
-    public CustomerDto findById(Long userId, boolean disable) {
+    public CustomerDto findById(Long userId, Boolean enable) {
         FieldChecker.checkEmpty(userId, "userId");
 
-        return customerDao.findByUserIdAndEnable(userId, disable ? null : true);
+        return customerDao.findByUserIdAndEnable(userId, enable);
     }
 
     @Override
