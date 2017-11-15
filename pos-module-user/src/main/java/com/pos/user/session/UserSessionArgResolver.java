@@ -16,8 +16,8 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 
 import javax.servlet.http.HttpServletRequest;
 
-import static com.pos.user.session.UserSessionComponent.ACCESS_TOKEN_KEY;
-import static com.pos.user.session.UserSessionComponent.SESSION_ID_KEY;
+import static com.pos.user.session.UserSessionPosComponent.ACCESS_TOKEN_KEY;
+import static com.pos.user.session.UserSessionPosComponent.SESSION_ID_KEY;
 
 /**
  * Controller的方法参数如果有@FromSession注解, 则根据HTTP请求头获取自定义的用户Session, 并在SpringMVC解析后自动为该参数赋值.

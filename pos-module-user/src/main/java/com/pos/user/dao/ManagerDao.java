@@ -20,7 +20,8 @@ public interface ManagerDao {
      * 根据用户id获取管理员信息
      *
      * @param userId 管理员userId
+     * @param enable true：只返回启用，false：只返回禁用，null：不限
      * @return 管理员信息
      */
-    ManagerDto getByUserId(@Param("userId") Long userId);
+    ManagerDto findByUserIdAndEnable(@Param("userId") Long userId, @Param("enable") Boolean enable);
 }

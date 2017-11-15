@@ -3,20 +3,33 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.pos.user.dao.ManagerDao">
-    <select id="getByUserId" resultType="com.pos.user.dto.ManagerDto">
 
+    <select id="findByUserIdAndEnable" resultType="com.pos.user.dto.manager.ManagerDto">
+        SELECT
+        <include refid="managerDtoColumns"/>
+        FROM `user` u
+        JOIN user_manager AS um ON um.user_id = u.`id`
+        LEFT JOIN user_extension AS ue ON ue.user_id = um.user_id
+        WHERE u.`id` = #{userId}
+        AND u.user_type = 'm'
+        <if test="enable != null">
+            AND u.enable_status = #{enable}
+        </if>
     </select>
 
-    <sql id="managerColumns">
-        m.id as id,
-        m.user_id as userId,
-        m.user_detail_type as userDetailType,
-        m.head_image as headImage,
-        m.quit_jobs as quitJobs
-    </sql>
-
     <sql id="managerDtoColumns">
-
+        u.`id` AS `id`,
+        u.login_name AS loginName,
+        u.phone AS phone,
+        u.enable_status AS enableStatus,
+        u.user_type AS userType,
+        ue.register_time AS registerTime,
+        ue.last_login_time AS lastLoginTime,
+        um.manager_type AS managerType,
+        um.`name` AS `name`,
+        um.head_image AS headImage,
+        um.dismission AS dismission,
+        um.update_time AS updateTime
     </sql>
 
 </mapper>

@@ -3,6 +3,7 @@
  */
 package com.pos.user.service.impl;
 
+import com.pos.common.util.basic.IpAddressUtils;
 import com.pos.common.util.basic.JsonUtils;
 import com.pos.common.util.exception.ValidationException;
 import com.pos.common.util.mvc.support.ApiResult;
@@ -21,9 +22,9 @@ import com.pos.user.dto.login.LoginInfoDto;
 import com.pos.user.dto.UserDto;
 import com.pos.user.exception.UserErrorCode;
 import com.pos.user.service.LoginService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,12 +52,6 @@ public class LoginServiceImpl implements LoginService {
 
     @Resource
     private ManagerDao managerDao;
-
-    @Value("${random.token.size}")
-    private String randTokenSize;
-
-    @Value("${cache.expire.token.seconds}")
-    private String tokenExpireSeconds;
 
     @Override
     public ApiResult<? extends UserDto> login(LoginInfoDto loginInfo) {
@@ -105,9 +100,9 @@ public class LoginServiceImpl implements LoginService {
         UserDto userDto = null;
 
         if (UserType.CUSTOMER.equals(userType)) {
-            userDto = customerDao.getByUserId(user.getId());
+            userDto = customerDao.findByUserIdAndEnable(user.getId(), null);
         } else if (UserType.MANAGER.equals(userType)) {
-            userDto = managerDao.getByUserId(user.getId());
+            userDto = managerDao.findByUserIdAndEnable(user.getId(), null);
         }
 
         return userDto;
@@ -120,13 +115,28 @@ public class LoginServiceImpl implements LoginService {
      * @param extensionInfo 用户拓展信息
      */
     private void updateLastLogin(User user, UserExtensionInfoDto extensionInfo, Date lastLoginTime) {
-
         UserExtension extension = userDao.getExtension(user.getId());
-        extension.setLastLoginTime(lastLoginTime);
+        String extensionStr = null;
         if (extensionInfo != null) {
-            extension.setLastLoginInfo(JsonUtils.objectToJson(extensionInfo));
+            if (StringUtils.isNotEmpty(extensionInfo.getIp())) {
+                extensionInfo.setIpAddress(IpAddressUtils.getAddresses(extensionInfo.getIp()));
+            }
+            extensionStr = JsonUtils.objectToJson(extensionInfo);
         }
-
-        userDao.updateExtension(extension);
+        if (extension == null) {
+            extension = new UserExtension();
+            extension.setUserId(user.getId());
+            extension.setRegisterTime(lastLoginTime);
+            extension.setRegisterInfo(extensionStr);
+            extension.setLastLoginTime(lastLoginTime);
+            extension.setLastLoginInfo(extensionStr);
+            userDao.saveExtension(extension);
+        } else {
+            extension.setLastLoginTime(lastLoginTime);
+            if (extensionStr != null) {
+                extension.setLastLoginInfo(JsonUtils.objectToJson(extensionInfo));
+            }
+            userDao.updateExtension(extension);
+        }
     }
 }

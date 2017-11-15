@@ -19,9 +19,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 import java.util.Calendar;
 
-import static com.pos.user.session.UserSessionComponent.ACCESS_TOKEN_KEY;
-import static com.pos.user.session.UserSessionComponent.SESSION_ID_KEY;
-
 /**
  * POS 快捷收款自定义用户Session的管理组件
  *
@@ -29,10 +26,13 @@ import static com.pos.user.session.UserSessionComponent.SESSION_ID_KEY;
  * @version 1.0, 2017/10/20
  */
 @Component
-@SuppressWarnings("all")
 public class UserSessionPosComponent {
 
     private static final Logger LOG = LoggerFactory.getLogger(UserSessionPosComponent.class);
+
+    public static final String SESSION_ID_KEY = "session-id";
+
+    public static final String ACCESS_TOKEN_KEY = "access-token";
 
     @Resource
     private RedisTemplate<String, UserSession> defaultRedis;

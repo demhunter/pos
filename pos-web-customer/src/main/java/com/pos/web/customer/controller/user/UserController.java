@@ -151,7 +151,7 @@ public class UserController {
         } else {
             password = loginInfo.getIdentityInfoDto().getPassword();
         }
-
+        // 设置登录信息
         loginInfo.getIdentityInfoDto().setPassword(password);
         loginInfo.getIdentityInfoDto().setUserType(UserType.CUSTOMER.getValue());
 

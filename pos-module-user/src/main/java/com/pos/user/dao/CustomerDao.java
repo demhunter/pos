@@ -27,23 +27,13 @@ public interface CustomerDao {
     void saveCustomerBase(@Param("customer") Customer customer);
 
     /**
-     * 根据UserId获取用户信息
-     *
-     * @param userId 用户UserId
-     * @return 用户信息
-     */
-    CustomerDto getByUserId(@Param("userId") Long userId);
-
-    /**
      * 根据UserId和启禁用状态获取用户信息
      *
      * @param userId 用户id
      * @param enable true：只返回启用，false：只返回禁用，null：不限
      * @return 用户信息
      */
-    CustomerDto findByUserIdAndEnable(
-            @Param("userId") Long userId,
-            @Param("enable") Boolean enable);
+    CustomerDto findByUserIdAndEnable(@Param("userId") Long userId, @Param("enable") Boolean enable);
 
     List<CustomerDto> findCustomersInUserIds(
             @Param("userIds") List<Long> userIds,

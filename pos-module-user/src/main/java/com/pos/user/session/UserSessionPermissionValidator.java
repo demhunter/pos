@@ -14,8 +14,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 
 import javax.servlet.http.HttpServletRequest;
 
-import static com.pos.user.session.UserSessionComponent.ACCESS_TOKEN_KEY;
-import static com.pos.user.session.UserSessionComponent.SESSION_ID_KEY;
+import static com.pos.user.session.UserSessionPosComponent.ACCESS_TOKEN_KEY;
+import static com.pos.user.session.UserSessionPosComponent.SESSION_ID_KEY;
 
 /**
  * 对自定义用户Session进行访问验证的Validator.
@@ -25,7 +25,7 @@ import static com.pos.user.session.UserSessionComponent.SESSION_ID_KEY;
  */
 public class UserSessionPermissionValidator implements PermissionValidator {
 
-    static final Logger LOG = LoggerFactory.getLogger(UserSessionPermissionValidator.class);
+    private static final Logger LOG = LoggerFactory.getLogger(UserSessionPermissionValidator.class);
 
     private RedisTemplate<String, UserSession> redisTemplate;
 
