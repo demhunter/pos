@@ -5,7 +5,7 @@ package com.pos.user.session;
 
 import com.pos.common.util.cache.MemcachedClientUtils;
 import com.pos.user.constant.UserTicket;
-import com.pos.user.dto.v1_0_0.UserDto;
+import com.pos.user.dto.UserDto;
 
 import javax.servlet.http.HttpSession;
 import java.util.UUID;

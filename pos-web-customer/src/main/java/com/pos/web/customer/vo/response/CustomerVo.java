@@ -3,7 +3,7 @@
  */
 package com.pos.web.customer.vo.response;
 
-import com.pos.user.dto.v1_0_0.CustomerDto;
+import com.pos.user.dto.customer.CustomerDto;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 
 import java.io.Serializable;

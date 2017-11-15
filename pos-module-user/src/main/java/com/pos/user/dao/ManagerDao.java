@@ -3,7 +3,7 @@
  */
 package com.pos.user.dao;
 
-import com.pos.user.dto.v1_0_0.ManagerDto;
+import com.pos.user.dto.manager.ManagerDto;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 

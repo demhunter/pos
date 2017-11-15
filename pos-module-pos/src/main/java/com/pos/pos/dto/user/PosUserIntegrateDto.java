@@ -4,7 +4,7 @@
 package com.pos.pos.dto.user;
 
 import com.pos.pos.constants.CardTypeEnum;
-import com.pos.user.dto.v1_0_0.CustomerDto;
+import com.pos.user.dto.customer.CustomerDto;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 import com.pos.pos.constants.UserAuditStatus;
 import com.pos.pos.dto.auth.BaseAuthDto;

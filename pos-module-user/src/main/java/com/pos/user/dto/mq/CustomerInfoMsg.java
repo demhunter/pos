@@ -3,7 +3,7 @@
  */
 package com.pos.user.dto.mq;
 
-import com.pos.user.dto.v1_0_0.RegisterRecommendDto;
+import com.pos.user.dto.login.RegisterRecommendDto;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;

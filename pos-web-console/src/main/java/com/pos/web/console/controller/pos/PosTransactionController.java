@@ -3,7 +3,7 @@
  */
 package com.pos.web.console.controller.pos;
 
-import com.pos.user.service_v.UserService;
+import com.pos.user.service.UserService;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;

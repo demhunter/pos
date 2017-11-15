@@ -8,7 +8,7 @@ import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.common.util.mvc.support.NullObject;
 import com.pos.pos.dto.auth.AuthorityDetailDto;
 import com.pos.pos.dto.auth.BaseAuthDto;
-import com.pos.user.dto.v1_0_0.RegisterRecommendDto;
+import com.pos.user.dto.login.RegisterRecommendDto;
 
 /**
  * POS权限控制Service

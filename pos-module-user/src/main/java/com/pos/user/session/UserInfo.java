@@ -5,7 +5,7 @@ package com.pos.user.session;
 
 import com.pos.basic.dto.UserIdentifier;
 import com.pos.common.util.basic.PrintableBeanUtils;
-import com.pos.user.dto.v1_0_0.UserDto;
+import com.pos.user.dto.UserDto;
 
 import java.io.Serializable;
 

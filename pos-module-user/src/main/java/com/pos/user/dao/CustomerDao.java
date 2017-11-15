@@ -4,7 +4,7 @@
 package com.pos.user.dao;
 
 import com.pos.user.domain.Customer;
-import com.pos.user.dto.v1_0_0.CustomerDto;
+import com.pos.user.dto.customer.CustomerDto;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 

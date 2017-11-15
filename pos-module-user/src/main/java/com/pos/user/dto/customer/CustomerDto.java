@@ -3,108 +3,82 @@
  */
 package com.pos.user.dto.customer;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.common.base.Strings;
-import com.pos.user.constant.UserType;
+import com.pos.user.dto.UserDto;
 import com.pos.user.session.UserSession;
 import com.wordnik.swagger.annotations.ApiModelProperty;
-import com.pos.common.util.basic.Copyable;
-import com.pos.common.util.basic.PrintableBeanUtils;
-import com.pos.common.util.basic.SimpleRegexUtils;
-import com.pos.common.util.validation.FieldChecker;
-import com.pos.common.util.validation.Validator;
-import com.pos.user.dto.UserDto;
-import org.springframework.beans.BeanUtils;
+import org.apache.commons.lang3.StringUtils;
 
-import java.io.Serializable;
+import java.util.Date;
 
 /**
- * C端用户DTO.
+ * 客户信息DTO
  *
- * @author wayne
- * @version 1.0, 2016/8/1
+ * @author wangbing
+ * @version 1.0, 2017/11/13
  */
-public class CustomerDto extends UserDto implements Serializable, Copyable<CustomerDto> {
+public class CustomerDto extends UserDto {
 
-    private static final long serialVersionUID = 5897963366243976312L;
+    /* ----------------------customer_base--------------------------*/
+    @ApiModelProperty("用户绑定的电子邮箱")
+    private String mail;
 
-    /**
-     * 账号实体的UID（区分于用户ID），对象转换时需要该属性
-     */
-    @JsonIgnore
-    private Long entityId;
-
-    @ApiModelProperty("昵称")
+    @ApiModelProperty("用户昵称")
     private String nickName;
 
-    @ApiModelProperty("头像")
+    @ApiModelProperty("用户头像")
     private String headImage;
 
+    @ApiModelProperty("性别(int)：0 = 保密，1 = 男，2 = 女")
+    private Integer gender;
+
+    @ApiModelProperty("年龄(int)")
+    private Integer age;
+
+    @ApiModelProperty("用户来源类型体系")
+    private Integer sourceType;
+
+    @ApiModelProperty("更新时间")
+    private Date updateTime;
+
+    /* ----------------------customer_personal--------------------------*/
+    @ApiModelProperty("用户真实姓名")
+    private String realName;
+
+    @ApiModelProperty("身份证号")
+    private String idCardNo;
+
+    @ApiModelProperty("身份证正面照")
+    private String idImageA;
+
+    @ApiModelProperty("身份证反面照")
+    private String idImageB;
+
+    @ApiModelProperty("身份证本人持证照")
+    private String idHoldImage;
+
+    /* ----------------------User Session--------------------------*/
     @ApiModelProperty("用户会话信息")
     private UserSession userSession;
 
-    @ApiModelProperty("用户分类")
-    private Byte customerType;
-
-    @ApiModelProperty("用户分类名")
-    private String customerTypeDesc;
-
-    @ApiModelProperty("是否为意向客户")
-    private Boolean intention;
-
-    @ApiModelProperty("备注信息")
-    private String remarks;
-
-    /**
-     * 所属推客
-     */
-    @ApiModelProperty("客户推客的关系id")
-    private Long customerTwitterId;
-
-    @ApiModelProperty("所属推客姓名")
-    private String twitterName;
-
-    @ApiModelProperty("所属推客电话")
-    private String twitterPhone;
-
-    @Override
-    public CustomerDto copy() {
-        CustomerDto newObj = new CustomerDto();
-        BeanUtils.copyProperties(this, newObj);
-        return newObj;
-    }
-
-    @Override
-    public void check(String fieldPrefix) {
-        super.check(fieldPrefix);
-        fieldPrefix = fieldPrefix == null ? "" : fieldPrefix + ".";
-        FieldChecker.checkEmpty(entityId, fieldPrefix + "entityId");
-        if (!Strings.isNullOrEmpty(nickName)) {
-            Validator.checkNickName(nickName);
-        }
+    public CustomerDto() {
     }
 
     @Override
     public String getShowName() {
-        return !Strings.isNullOrEmpty(nickName) ? nickName : SimpleRegexUtils.hiddenMobile(getUserPhone());
+        return StringUtils.isEmpty(nickName) ? realName : nickName;
     }
 
     @Override
-    public String getUserType() {
-        return Strings.isNullOrEmpty(super.getUserType()) ? UserType.CUSTOMER.getValue() : super.getUserType();
+    public String getShowHead() {
+        return StringUtils.isEmpty(headImage) ? DEFAULT_HEAD_IMAGE : headImage;
     }
 
-    @Override
-    public String toString() {
-        return PrintableBeanUtils.toString(this);
+    public String getMail() {
+        return mail;
     }
 
-    public Long getEntityId() {
-        return entityId;
-    }
-
-    public void setEntityId(Long entityId) {
-        this.entityId = entityId;
+    public void setMail(String mail) {
+        this.mail = mail;
     }
 
     public String getNickName() {
@@ -123,67 +97,83 @@ public class CustomerDto extends UserDto implements Serializable, Copyable<Custo
         this.headImage = headImage;
     }
 
+    public Integer getGender() {
+        return gender;
+    }
+
+    public void setGender(Integer gender) {
+        this.gender = gender;
+    }
+
+    public Integer getAge() {
+        return age;
+    }
+
+    public void setAge(Integer age) {
+        this.age = age;
+    }
+
+    public Integer getSourceType() {
+        return sourceType;
+    }
+
+    public void setSourceType(Integer sourceType) {
+        this.sourceType = sourceType;
+    }
+
+    public Date getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
+    }
+
+    public String getRealName() {
+        return realName;
+    }
+
+    public void setRealName(String realName) {
+        this.realName = realName;
+    }
+
+    public String getIdCardNo() {
+        return idCardNo;
+    }
+
+    public void setIdCardNo(String idCardNo) {
+        this.idCardNo = idCardNo;
+    }
+
+    public String getIdImageA() {
+        return idImageA;
+    }
+
+    public void setIdImageA(String idImageA) {
+        this.idImageA = idImageA;
+    }
+
+    public String getIdImageB() {
+        return idImageB;
+    }
+
+    public void setIdImageB(String idImageB) {
+        this.idImageB = idImageB;
+    }
+
+    public String getIdHoldImage() {
+        return idHoldImage;
+    }
+
+    public void setIdHoldImage(String idHoldImage) {
+        this.idHoldImage = idHoldImage;
+    }
+
     public UserSession getUserSession() {
         return userSession;
     }
 
     public void setUserSession(UserSession userSession) {
         this.userSession = userSession;
-    }
-
-    public Byte getCustomerType() {
-        return customerType;
-    }
-
-    public void setCustomerType(Byte customerType) {
-        this.customerType = customerType;
-    }
-
-    public Boolean getIntention() {
-        return intention;
-    }
-
-    public void setIntention(Boolean intention) {
-        this.intention = intention;
-    }
-
-    public String getRemarks() {
-        return remarks;
-    }
-
-    public void setRemarks(String remarks) {
-        this.remarks = remarks;
-    }
-
-    public Long getCustomerTwitterId() {
-        return customerTwitterId;
-    }
-
-    public void setCustomerTwitterId(Long customerTwitterId) {
-        this.customerTwitterId = customerTwitterId;
-    }
-
-    public String getTwitterName() {
-        return twitterName;
-    }
-
-    public void setTwitterName(String twitterName) {
-        this.twitterName = twitterName;
-    }
-
-    public String getTwitterPhone() {
-        return twitterPhone;
-    }
-
-    public void setTwitterPhone(String twitterPhone) {
-        this.twitterPhone = twitterPhone;
-    }
-
-    public String getCustomerTypeDesc() {
-        return customerTypeDesc;
-    }
-
-    public void setCustomerTypeDesc(String customerTypeDesc) {
-        this.customerTypeDesc = customerTypeDesc;
     }
 }

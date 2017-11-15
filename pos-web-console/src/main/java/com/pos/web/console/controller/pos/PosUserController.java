@@ -25,7 +25,7 @@ import com.pos.pos.service.PosService;
 import com.pos.pos.service.PosUserBrokerageRecordService;
 import com.pos.pos.service.PosUserService;
 import com.pos.pos.service_v.AuthorityService;
-import com.pos.user.service_v.UserService;
+import com.pos.user.service.UserService;
 import com.pos.user.session.UserInfo;
 import com.pos.web.console.converter.PosConverter;
 import com.pos.web.console.vo.pos.PosUserSimpleInfoVo;

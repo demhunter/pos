@@ -12,7 +12,7 @@ import com.pos.pos.dao.PosUserJuniorDao;
 import com.pos.pos.service_v.AuthorityService;
 import com.pos.pos.service_v.PosService;
 import com.pos.pos.service_v.TwitterService;
-import com.pos.user.service_v.CustomerService;
+import com.pos.user.service.CustomerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
