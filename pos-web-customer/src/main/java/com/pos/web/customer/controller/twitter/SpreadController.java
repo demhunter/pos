@@ -29,7 +29,7 @@ import javax.annotation.Resource;
  */
 @RestController
 @RequestMapping(value = "/twitter/spread")
-@Api(value = "/twitter/spread", description = "* 发展收款客户相关接口")
+@Api(value = "/twitter/spread", description = "v1.0.0 * 发展收款客户相关接口")
 public class SpreadController {
 
     @Resource

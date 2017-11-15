@@ -53,7 +53,7 @@ public interface PosService {
     /**
      * 获取用户身份认证信息-1
      *
-     * @param userId 用户id
+     * @param userId    用户id
      * @param decrypted 是否需要解密（true：需要解密返回，false：不需要解密返回）
      * @return 用户身份认证信息，从未提交过身份认证信息则返回空
      */
@@ -71,7 +71,7 @@ public interface PosService {
     /**
      * 获取用户绑定的收款银行卡信息
      *
-     * @param userId 用户userId
+     * @param userId    用户userId
      * @param decrypted 是否需要解密（true：需要解密返回，false：不需要解密返回）
      * @return 用户绑卡信息，，从未绑定过收款银行卡则返回空
      */

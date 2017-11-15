@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2016 ywmj.com. All Rights Reserved.
  */
-package com.pos.web.customer.controller.common;
+package com.pos.web.customer.controller.customer;
 
 import com.pos.common.util.mvc.resolver.FromSession;
 import com.pos.common.util.mvc.support.ApiResult;
@@ -48,7 +48,7 @@ public class CustomerController {
     @ApiOperation(value = "v1.0.0 * 获取用户信息，用以展示首页内容", notes = "获取用户信息，用以展示首页内容")
     public ApiResult<CustomerVo> getPosUserInfo(
             @FromSession UserInfo userInfo) {
-        CustomerDto customer = customerService.findById(userInfo.getId(), null);
+        CustomerDto customer = customerService.findById(userInfo.getId(), Boolean.TRUE);
         if (customer == null) {
             return ApiResult.fail(UserErrorCode.USER_NOT_EXISTED);
         }

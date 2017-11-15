@@ -23,14 +23,14 @@ public interface PosCardDao {
     /**
      * 保存银行卡信息
      *
-     * @param posBankCard 银行卡信息
+     * @param cardInfo 银行卡信息
      */
-    void save(@Param("cardInfo") PosBankCard posBankCard);
+    void save(@Param("cardInfo") PosBankCard cardInfo);
 
     /**
      * 查询用户的银行卡信息
      *
-     * @param userId 用户userId
+     * @param userId    用户userId
      * @param cardUsage 银行卡的使用类型 {@link CardUsageEnum#code}
      * @return 银行卡信息列表
      */

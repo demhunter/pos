@@ -25,7 +25,7 @@ import javax.annotation.Resource;
  */
 @RestController
 @RequestMapping("/images")
-@Api(value = "/images", description = "图片接口")
+@Api(value = "/images", description = "v1.0.0 * 图片接口")
 public class PosImagesController {
 
     private final static Logger logger = LoggerFactory.getLogger(PosImagesController.class);

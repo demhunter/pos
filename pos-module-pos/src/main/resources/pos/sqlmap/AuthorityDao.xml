@@ -43,7 +43,7 @@
         LEFT JOIN user_customer_personal ucp ON ucp.user_id = ca.user_id
         LEFT JOIN bank_card AS bc ON bc.id = ca.bank_card_id
         LEFT JOIN bank_logo AS bl ON bc.bank_code = bl.bank_code
-        WHERE upa.id = #{authId}
+        WHERE ca.id = #{authId}
     </select>
 
     <select id="findAuthByUserId" resultType="com.pos.pos.dto.auth.AuthorityDto">

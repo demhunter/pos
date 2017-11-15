@@ -33,10 +33,10 @@ public interface AuthorityDao {
     void saveAuthority(@Param("posAuth") Authority authority);
 
     /**
-     * 获取快捷收款用户详细信息
+     * 获取用户权限详细信息
      *
      * @param userId 用户userId
-     * @return 快捷收款用户详细信息
+     * @return 用户权限详细信息
      */
     AuthorityDetailDto findAuthDetail(@Param("userId") Long userId);
 

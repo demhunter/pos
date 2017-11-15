@@ -3,19 +3,14 @@
  */
 package com.pos.pos.dao;
 
-import com.pos.basic.dto.UserIdentifier;
 import com.pos.common.util.mvc.support.LimitHelper;
 import com.pos.common.util.mvc.support.OrderHelper;
-import com.pos.pos.domain.PosTransaction;
-import com.pos.pos.dto.twitter.TwitterDailyStatisticsDto;
 import com.pos.pos.condition.query.PosTransactionCondition;
+import com.pos.pos.domain.PosTransaction;
 import com.pos.pos.dto.transaction.TransactionSimpleStatisticsDto;
-import com.pos.pos.dto.spread.SpreadGeneralInfoDto;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
-import java.math.BigDecimal;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -26,36 +21,6 @@ import java.util.List;
  */
 @Repository
 public interface PosUserTransactionRecordDao {
-
-    /**
-     * 标记已申请提现的记录为已提取
-     *
-     * @param userId 用户userId
-     */
-    void markTransactionRecordAgentStatus(
-            @Param("userId") Long userId,
-            @Param("fromAgentStatus") Byte fromAgentStatus,
-            @Param("toAgentStatus") Byte toAgentStatus,
-            @Param("deadline") Date deadline);
-
-    /**
-     * 查询用户推广概要信息
-     *
-     * @param user 用户标识
-     * @return 推广概要信息
-     */
-    SpreadGeneralInfoDto querySpreadGeneralInfo(@Param("user") UserIdentifier user);
-
-    /**
-     * 查询到截止时间用户可提现的金额
-     *
-     * @param user     用户标识
-     * @param deadline 截止时间
-     * @return 可提现金额
-     */
-    BigDecimal queryCurrentCanWithdrawDepositAmount(
-            @Param("user") UserIdentifier user,
-            @Param("deadline") Date deadline);
 
     /**
      * 查询符合条件的交易数量

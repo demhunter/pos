@@ -31,7 +31,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/twitter")
-@Api(value = "/twitter", description = "* 推客佣金相关接口")
+@Api(value = "/twitter", description = "v1.0.0 * 推客佣金相关接口")
 public class TwitterController {
 
     @Resource

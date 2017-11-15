@@ -22,7 +22,7 @@ import javax.annotation.Resource;
  */
 @RestController
 @RequestMapping("/upload")
-@Api(value = "/upload", description = "文件上传相关接口")
+@Api(value = "/upload", description = "v1.0.0 * 文件上传相关接口")
 public class TokenManagerController {
 
     @Resource

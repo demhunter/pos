@@ -27,7 +27,7 @@ import javax.annotation.Resource;
  */
 @RestController
 @RequestMapping(value = "/twitter/develop")
-@Api(value = "/twitter/develop", description = "* 发展下级推客相关接口")
+@Api(value = "/twitter/develop", description = "v1.0.0 * 发展下级推客相关接口")
 public class DevelopController {
 
     @Resource

@@ -24,7 +24,7 @@ import javax.annotation.Resource;
  */
 @RestController
 @RequestMapping("/sms")
-@Api(value = "/sms", description = "v1.0.0 * wb 短信相关接口")
+@Api(value = "/sms", description = "v1.0.0 * 短信相关接口")
 public class SMSController {
 
     @Resource

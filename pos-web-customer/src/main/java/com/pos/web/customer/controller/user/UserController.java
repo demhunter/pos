@@ -39,7 +39,7 @@ import javax.servlet.http.HttpSession;
  */
 @RestController
 @RequestMapping("/user")
-@Api(value = "/user", description = "* 基本用户相关接口")
+@Api(value = "/user", description = "v1.0.0 * 基本用户相关接口")
 public class UserController {
 
     @Resource
