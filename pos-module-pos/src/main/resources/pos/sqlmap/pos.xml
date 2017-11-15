@@ -27,16 +27,13 @@
     <select id="queryRecordByUserIdAndCostType" resultType="com.pos.pos.domain.PosTransaction">
         SELECT
         <include refid="posRecord"/>
-        FROM
-        user_pos_transaction_record
-        WHERE
-        user_id = #{userId}
-        AND
-        status = 1
-        <if test="costType!=0">
-            AND cost_type=#{costType}
+        FROM `transaction`
+        WHERE user_id = #{userId}
+        AND (status = 3 OR status = 4)
+        <if test="costType != 0">
+            AND cost_type = #{costType}
         </if>
-        ORDER BY create_date
+        ORDER BY create_time
     </select>
 
     <select id="queryRecordById" resultType="com.pos.pos.domain.PosTransaction">
@@ -60,7 +57,7 @@
     <sql id="posRecord">
             id AS id,
             record_num AS recordNum,
-            in_card AS inCardId,
+            in_card_id AS inCardId,
             out_card_info AS outCardInfo,
             user_id AS userId,
             amount AS amount,
@@ -71,8 +68,8 @@
             company_id AS companyId,
             cost_type AS costType,
             status AS status,
-            create_date AS createTime,
-            complete_date AS completeDate,
+            create_time AS createTime,
+            complete_time AS completeTime,
             helibao_zhifu_num AS helibaoZhifuNum,
             helibao_tixian_num AS helibaoTixianNum
     </sql>
@@ -81,14 +78,14 @@
         INSERT INTO user_pos_transaction_record
         (
             record_num,
-            in_card,
+            in_card_id,
             out_card_info,
             user_id,
             company_id,
             amount,
             cost_type,
             status,
-            create_date
+            create_time
         )
         VALUES
         (
@@ -131,8 +128,8 @@
             <if test="record.helibaoTixianNum!=null">
                 helibao_tixian_num=#{record.helibaoTixianNum},
             </if>
-            <if test="record.payDate!=null">
-                pay_date=#{record.payDate},
+            <if test="record.payTime!=null">
+                pay_date=#{record.payTime},
             </if>
             <if test="record.completeDate!=null">
                 complete_date=#{record.completeDate},

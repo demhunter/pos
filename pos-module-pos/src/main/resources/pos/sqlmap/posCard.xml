@@ -65,7 +65,7 @@
     </select>
 
     <delete id="delete" parameterType="Long">
-        DELETE FROM user_pos_card
+        DELETE FROM bank_card
         WHERE id = #{cardId}
     </delete>
 
@@ -89,17 +89,17 @@
     </update>
 
     <sql id="posCardDtoColumns">
-        pc.id AS id,
-        pc.user_id AS userId,
-        pc.bank_card_no AS bankCardNo,
-        pc.holder_name AS holderName,
-        pc.id_card_no AS idCardNo,
-        pc.mobile_phone AS mobilePhone,
-        pc.bank_name AS bankName,
-        pc.bank_code AS bankCode,
+        bc.id AS id,
+        bc.user_id AS userId,
+        bc.bank_card_no AS bankCardNo,
+        bc.holder_name AS holderName,
+        bc.id_card_no AS idCardNo,
+        bc.mobile_phone AS mobilePhone,
+        bc.bank_name AS bankName,
+        bc.bank_code AS bankCode,
         bl.logo AS logo,
-        pc.card_type AS cardType,
-        pc.card_usage AS cardUsage,
-        pc.last_use_time AS lastUseTime
+        bc.card_type AS cardType,
+        bc.card_usage AS cardUsage,
+        bc.last_use_time AS lastUseTime
     </sql>
 </mapper>

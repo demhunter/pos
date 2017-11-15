@@ -21,8 +21,8 @@ public class PosConverter {
 
         vo.setId(dto.getId());
         vo.setUserId(dto.getUserId());
-        vo.setName(dto.getPosUserInfo().getName());
-        vo.setPhone(dto.getPosUserInfo().getUserPhone());
+        vo.setName(dto.getPosUserInfo().getRealName());
+        vo.setPhone(dto.getPosUserInfo().getPhone());
         vo.setRegisterTime(dto.getCreateDate());
         vo.setUserAuditStatus(dto.getAuditStatus());
         vo.setBindingCard(dto.getCardId() != null);

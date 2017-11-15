@@ -651,8 +651,8 @@ public class PosServiceImpl implements PosService {
         switch (targetStatus) {
             case TRANSACTION_IN_PROGRESS:
                 // 交易失败后重发交易处理时，不更换支付时间和支付流水号
-                if (transactionRecord.getPayDate() == null) {
-                    transactionRecord.setPayDate(currentTime);
+                if (transactionRecord.getPayTime() == null) {
+                    transactionRecord.setPayTime(currentTime);
                 }
                 if (StringUtils.isEmpty(transactionRecord.getHelibaoZhifuNum())) {
                     transactionRecord.setHelibaoZhifuNum(context.getSerialNumber());
@@ -820,7 +820,7 @@ public class PosServiceImpl implements PosService {
         transactionRecord.setServiceCharge(serviceCharge);
         transactionRecord.setPayCharge(payCharge);
         transactionRecord.setHelibaoZhifuNum(confirmContext.getRt6_serialNumber());
-        transactionRecord.setPayDate(currentTime);
+        transactionRecord.setPayTime(currentTime);
         posDao.updatePosRecord(transactionRecord);
         // 发起提现
         SettlementCardWithdrawVo settlement = buildSettlementCardWithdrawVo(transactionRecord, arrivalAmount);
@@ -932,14 +932,14 @@ public class PosServiceImpl implements PosService {
         List<PosTransaction> records = posDao.queryRecordByUserIdAndCostType(userId, 0);
         if (!CollectionUtils.isEmpty(records)) {
             PosTransaction first = records.get(0);
-            if (SimpleDateUtils.daysOfDuration(first.getCreateDate(), now) > 180) {
+            if (SimpleDateUtils.daysOfDuration(first.getCreateTime(), now) > 180) {
                 costAndCompanyDto.setCostTypeEnum(CostTypeEnum.DESIGN);
                 costAndCompanyDto.setCompanyId(getCompanyId());
             } else {
                 records = posDao.queryRecordByUserIdAndCostType(userId, CostTypeEnum.CONSTRUCTION.getCode());
                 if (!CollectionUtils.isEmpty(records)) {
                     first = records.get(0);
-                    if (SimpleDateUtils.daysOfDuration(first.getCreateDate(), now) > 20) {
+                    if (SimpleDateUtils.daysOfDuration(first.getCreateTime(), now) > 20) {
                         costAndCompanyDto.setCostTypeEnum(CostTypeEnum.CONSTRUCTION);
                         costAndCompanyDto.setCompanyId(first.getCompanyId());
                     } else {

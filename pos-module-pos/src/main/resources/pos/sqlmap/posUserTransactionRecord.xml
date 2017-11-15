@@ -95,7 +95,7 @@
         tr.create_date AS createTime,
         tr.helibao_zhifu_num AS helibaoZhifuNum,
         tr.helibao_tixian_num AS helibaoTixianNum,
-        tr.pay_date AS payDate,
+        tr.pay_date AS payTime,
         tr.complete_date AS completeDate
     </sql>
 </mapper>

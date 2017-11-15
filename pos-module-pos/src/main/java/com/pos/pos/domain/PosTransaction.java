@@ -24,16 +24,10 @@ public class PosTransaction implements Serializable {
 
     private Long inCardId;//转入的卡ID
 
-    @Deprecated
-    private long outCardId;//转出的卡ID
-
     /** @see PosOutCardInfoDto */
     private String outCardInfo; // 转出卡信息 JSON
 
     private Long userId;//提现的人的userId
-
-    @Deprecated
-    private long agentId;//提取佣金的人的userId
 
     private BigDecimal amount;//提现的金额
 
@@ -45,57 +39,21 @@ public class PosTransaction implements Serializable {
 
     private BigDecimal posCharge;//提现手续费（平台支付给用户时，支付公司扣除的）
 
-    @Deprecated
-    private BigDecimal agentCharge;//用户提现时，平台支付给用户上级的佣金
-
     private Long companyId;//公司ID
 
     private Byte costType;//支付的费用类型
 
     private Integer status;//状态
 
-    private Date createDate;//创建时间
+    private Date createTime;//创建时间
 
-    private Date payDate;//用户支付的时间
+    private Date payTime;//用户支付的时间
 
     private Date completeDate;//公司支付给用户的时间
 
     private String helibaoZhifuNum;//合利宝支付的流水号
 
     private String helibaoTixianNum;//合利宝提现的流水号
-
-    @Deprecated
-    private byte getAgent;//渠道商提取佣金的状态 0=未提取 1=已申请 2=已提取
-
-    @Deprecated
-    public long getAgentId() {
-        return agentId;
-    }
-
-    @Deprecated
-    public void setAgentId(long agentId) {
-        this.agentId = agentId;
-    }
-
-    @Deprecated
-    public byte getGetAgent() {
-        return getAgent;
-    }
-
-    @Deprecated
-    public void setGetAgent(byte getAgent) {
-        this.getAgent = getAgent;
-    }
-
-    @Deprecated
-    public BigDecimal getAgentCharge() {
-        return agentCharge;
-    }
-
-    @Deprecated
-    public void setAgentCharge(BigDecimal agentCharge) {
-        this.agentCharge = agentCharge;
-    }
 
     public Long getId() {
         return id;
@@ -119,14 +77,6 @@ public class PosTransaction implements Serializable {
 
     public void setInCardId(Long inCardId) {
         this.inCardId = inCardId;
-    }
-
-    public long getOutCardId() {
-        return outCardId;
-    }
-
-    public void setOutCardId(long outCardId) {
-        this.outCardId = outCardId;
     }
 
     public String getOutCardInfo() {
@@ -209,20 +159,20 @@ public class PosTransaction implements Serializable {
         this.status = status;
     }
 
-    public Date getCreateDate() {
-        return createDate;
+    public Date getCreateTime() {
+        return createTime;
     }
 
-    public void setCreateDate(Date createDate) {
-        this.createDate = createDate;
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
     }
 
-    public Date getPayDate() {
-        return payDate;
+    public Date getPayTime() {
+        return payTime;
     }
 
-    public void setPayDate(Date payDate) {
-        this.payDate = payDate;
+    public void setPayTime(Date payTime) {
+        this.payTime = payTime;
     }
 
     public Date getCompleteDate() {

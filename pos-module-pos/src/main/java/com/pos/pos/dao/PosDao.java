@@ -19,8 +19,9 @@ public interface PosDao {
 
     List<Long> getCompanyIds();
 
-    List<PosTransaction> queryRecordByUserIdAndCostType(@Param("userId") long userId, @Param("costType")
-            int costType);
+    List<PosTransaction> queryRecordByUserIdAndCostType(
+            @Param("userId") long userId,
+            @Param("costType") int costType);
 
     PosTransaction queryRecordById(@Param("id") long id);
 
