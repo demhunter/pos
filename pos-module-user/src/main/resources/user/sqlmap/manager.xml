@@ -2,8 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.pos.user.dao.v1_0_0.ManagerDao">
-    <select id="getByUserId" resultType="com.pos.user.dto.v1_0_0.ManagerDto">
+<mapper namespace="com.pos.user.dao.ManagerDao">
+    <select id="getByUserId" resultType="com.pos.user.dto.ManagerDto">
 
     </select>
 

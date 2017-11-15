@@ -5,7 +5,7 @@ package com.pos.user.service_v.impl;
 
 import com.google.common.collect.Maps;
 import com.pos.common.util.validation.FieldChecker;
-import com.pos.user.dao.v1_0_0.CustomerDao;
+import com.pos.user.dao.CustomerDao;
 import com.pos.user.dto.v1_0_0.CustomerDto;
 import com.pos.user.service_v.CustomerService;
 import org.springframework.stereotype.Service;

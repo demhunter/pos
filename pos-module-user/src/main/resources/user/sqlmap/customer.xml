@@ -2,8 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.pos.user.dao.v1_0_0.CustomerDao">
-    <insert id="saveCustomerBase" parameterType="com.pos.user.domain.v1_0_0.Customer">
+<mapper namespace="com.pos.user.dao.CustomerDao">
+    <insert id="saveCustomerBase" parameterType="com.pos.user.domain.Customer">
         INSERT INTO user_customer_base(
             user_id,
             mail,
@@ -25,7 +25,7 @@
         )
     </insert>
 
-    <select id="getByUserId" resultType="com.pos.user.dto.v1_0_0.CustomerDto">
+    <select id="getByUserId" resultType="com.pos.user.dto.CustomerDto">
         SELECT
         <include refid="customerDtoColumns"/>
         FROM `user` u
@@ -35,7 +35,7 @@
         WHERE u.`id` = #{userId}
     </select>
 
-    <select id="findByUserIdAndEnable" resultType="com.pos.user.dto.v1_0_0.CustomerDto">
+    <select id="findByUserIdAndEnable" resultType="com.pos.user.dto.CustomerDto">
         SELECT
         <include refid="customerDtoColumns"/>
         FROM `user` u

@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2016 ywmj.com. All Rights Reserved.
  */
-package com.pos.user.dao.v1_0_0;
+package com.pos.user.dao;
 
-import com.pos.user.domain.v1_0_0.Customer;
+import com.pos.user.domain.Customer;
 import com.pos.user.dto.v1_0_0.CustomerDto;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;

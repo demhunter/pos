@@ -1,11 +1,11 @@
 /*
  * Copyright (c) 2016 ywmj.com. All Rights Reserved.
  */
-package com.pos.user.dao.v1_0_0;
+package com.pos.user.dao;
 
 import com.pos.user.condition.query.UserListCondition;
-import com.pos.user.domain.v1_0_0.User;
-import com.pos.user.domain.v1_0_0.UserExtension;
+import com.pos.user.domain.User;
+import com.pos.user.domain.UserExtension;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
