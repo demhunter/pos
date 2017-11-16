@@ -162,7 +162,7 @@ public interface PosTwitterDao {
     int queryCustomerCountByTwitterUserId(@Param("twitterUserId") Long twitterUserId);
 
     /**
-     * 查询推客用户发展的客户列表 TODO 待完善
+     * 查询推客用户发展的客户列表
      *
      * @param twitterUserId 推客用户userId
      * @param limitHelper   分页参数

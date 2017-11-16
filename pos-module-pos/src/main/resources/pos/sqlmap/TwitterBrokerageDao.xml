@@ -97,16 +97,16 @@
 
     <select id="queryAgentBrokerageMap" resultType="com.pos.pos.dto.twitter.TwitterBrokerageStatisticsDto">
         SELECT
-            uptr.user_id AS userId,
-            SUM(uptb.agent_charge) AS brokerage
-        FROM user_pos_transaction_record uptr
-        LEFT JOIN user_pos_twitter_brokerage uptb ON uptb.record_id = uptr.id
-        WHERE uptr.user_id IN
+            trans.user_id AS userId,
+            SUM(b.twitter_brokerage) AS brokerage
+        FROM `transaction` trans
+        LEFT JOIN brokerage b ON b.transaction_id = trans.id
+        WHERE trans.user_id IN
         <foreach collection="userIds" index="index" item="item" open="(" separator="," close=")">
             #{item}
         </foreach>
-        AND (uptr.status = 3 OR uptr.status = 4)
-        GROUP BY uptr.user_id
+        AND (trans.status = 3 OR trans.status = 4)
+        GROUP BY trans.user_id
     </select>
 
     <select id="queryParentAgentBrokerageMap" resultType="com.pos.pos.dto.twitter.TwitterBrokerageStatisticsDto">

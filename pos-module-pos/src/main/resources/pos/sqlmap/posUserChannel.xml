@@ -21,8 +21,8 @@
     <update id="update">
         UPDATE user_pos_channel_info
         <set>
-            <if test="channel.relationAvailable != null">
-                relation_available = #{channel.relationAvailable},
+            <if test="channel.available != null">
+                relation_available = #{channel.available},
             </if>
             <if test="channel.phone != null">
                 channel_phone = #{channel.phone},
@@ -61,7 +61,7 @@
     <sql id="channelColumn">
         upci.`id` AS `id`,
         upci.parent_user_id AS parentUserId,
-        upci.relation_available AS relationAvailable,
+        upci.relation_available AS available,
         upci.channel_user_id AS chennelUserId,
         upci.channel_phone AS phone,
         upci.channel_remark AS remark,
@@ -75,7 +75,7 @@
     <sql id="channelDtoColumn">
         upci.`id` AS `id`,
         upci.parent_user_id AS parentUserId,
-        upci.relation_available AS relationAvailable,
+        upci.relation_available AS available,
         upci.channel_user_id AS userId,
         upci.channel_phone AS phone,
         upci.channel_remark AS remark,
@@ -90,7 +90,7 @@
         upci.channel_user_id AS userId,
         upci.channel_phone AS phone,
         upci.create_date AS createTime,
-        upci.relation_available AS relationAvailable
+        upci.relation_available AS available
     </sql>
 
     <sql id="childChannelDtoColumn">

@@ -391,7 +391,7 @@ public class TwitterServiceImpl implements TwitterService {
         if (totalCount > 0) {
             List<SpreadCustomerDto> result = posTwitterDao.queryCustomersByTwitterUserId(twitterUserId, limitHelper);
             if (!CollectionUtils.isEmpty(result)) {
-                List<Long> userIds = result.stream().map(SpreadCustomerDto::getJuniorUserId)
+                List<Long> userIds = result.stream().map(SpreadCustomerDto::getUserId)
                         .collect(Collectors.toList());
                 Map<Long, BigDecimal> brokerageMap = new HashMap<>();
                 List<TwitterBrokerageStatisticsDto> brokerages = twitterBrokerageDao.queryAgentBrokerageMap(userIds);
@@ -399,11 +399,11 @@ public class TwitterServiceImpl implements TwitterService {
                     brokerages.forEach(e -> brokerageMap.put(e.getUserId(), e.getBrokerage()));
                 }
                 result.forEach(e -> {
-                    if (!StringUtils.isEmpty(e.getJuniorName())) {
-                        e.setJuniorName(securityService.decryptData(e.getJuniorName()));
+                    if (!StringUtils.isEmpty(e.getName())) {
+                        e.setName(securityService.decryptData(e.getName()));
                     }
                     if (!CollectionUtils.isEmpty(brokerageMap)) {
-                        e.setBrokerage(brokerageMap.get(e.getJuniorUserId()) == null ? BigDecimal.ZERO : brokerageMap.get(e.getJuniorUserId()));
+                        e.setBrokerage(brokerageMap.get(e.getUserId()) == null ? BigDecimal.ZERO : brokerageMap.get(e.getUserId()));
                     } else {
                         e.setBrokerage(BigDecimal.ZERO);
                     }

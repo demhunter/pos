@@ -15,18 +15,19 @@
     <select id="queryCustomersByTwitterUserId" resultType="com.pos.pos.dto.spread.SpreadCustomerDto">
         SELECT
             tc.id AS `id`,
-            t.user_id AS userId,
+            tc.twitter_user_id AS twitterUserId,
             tc.user_id AS userId,
             tc.remark AS remark,
             tc.available AS available,
             tc.create_time AS createTime,
             upa.audit_status AS auditStatus,
-            upa.id_card_name AS juniorName
+            ucp.real_name AS `name`
         FROM twitter_customer tc
-        JOIN user_pos_auth upa ON upji.junior_user_id = upa.user_id
-        WHERE upji.channel_user_id = #{userId}
-        AND upji.relation_available = 1
-        ORDER BY upji.create_date DESC
+        JOIN customer_authority AS ca ON tc.user_id = ca.user_id
+        LEFT JOIN user_customer_personal AS ucp ON ucp.user_id = ca.user_id
+        WHERE tc.twitter_user_id = #{twitterUserId}
+        AND tc.available = 1
+        ORDER BY tc.create_time DESC
         LIMIT #{limitHelper.offset}, #{limitHelper.pageSize}
     </select>
 
@@ -202,7 +203,7 @@
         upci.channel_user_id AS userId,
         upci.channel_phone AS phone,
         upci.create_date AS createTime,
-        upci.relation_available AS relationAvailable
+        upci.relation_available AS available
     </sql>
 
     <sql id="childTwitterDtoColumn">

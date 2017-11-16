@@ -24,25 +24,25 @@ public class SpreadCustomerDto implements Serializable {
     private Long id;
 
     @ApiModelProperty("上线推客的userId")
-    private Long channelUserId;
+    private Long twitterUserId;
 
     @ApiModelProperty("下级客户的userId")
-    private Long juniorUserId;
+    private Long userId;
 
     @ApiModelProperty("下级客户姓名")
-    private String juniorName;
+    private String name;
 
     @ApiModelProperty("下级客户的电话")
-    private String juniorPhone;
+    private String phone;
 
     @ApiModelProperty("下级客户的备注")
-    private String juniorRemark;
+    private String remark;
 
     @ApiModelProperty("上下级关系是否有效，当为false时表示解除上下级推客客户关系")
-    private Boolean relationAvailable;
+    private Boolean available;
 
     @ApiModelProperty("创建时间")
-    private Date createDate;
+    private Date createTime;
 
     @ApiModelProperty("为推客提供的累计佣金")
     private BigDecimal brokerage;
@@ -70,60 +70,60 @@ public class SpreadCustomerDto implements Serializable {
         this.id = id;
     }
 
-    public Long getChannelUserId() {
-        return channelUserId;
+    public Long getTwitterUserId() {
+        return twitterUserId;
     }
 
-    public void setChannelUserId(Long channelUserId) {
-        this.channelUserId = channelUserId;
+    public void setTwitterUserId(Long twitterUserId) {
+        this.twitterUserId = twitterUserId;
     }
 
-    public Long getJuniorUserId() {
-        return juniorUserId;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setJuniorUserId(Long juniorUserId) {
-        this.juniorUserId = juniorUserId;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
-    public String getJuniorName() {
-        return juniorName;
+    public String getName() {
+        return name;
     }
 
-    public void setJuniorName(String juniorName) {
-        this.juniorName = juniorName;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getJuniorPhone() {
-        return juniorPhone;
+    public String getPhone() {
+        return phone;
     }
 
-    public void setJuniorPhone(String juniorPhone) {
-        this.juniorPhone = juniorPhone;
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
-    public String getJuniorRemark() {
-        return juniorRemark;
+    public String getRemark() {
+        return remark;
     }
 
-    public void setJuniorRemark(String juniorRemark) {
-        this.juniorRemark = juniorRemark;
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 
-    public Boolean getRelationAvailable() {
-        return relationAvailable;
+    public Boolean getAvailable() {
+        return available;
     }
 
-    public void setRelationAvailable(Boolean relationAvailable) {
-        this.relationAvailable = relationAvailable;
+    public void setAvailable(Boolean available) {
+        this.available = available;
     }
 
-    public Date getCreateDate() {
-        return createDate;
+    public Date getCreateTime() {
+        return createTime;
     }
 
-    public void setCreateDate(Date createDate) {
-        this.createDate = createDate;
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
     }
 
     public BigDecimal getBrokerage() {

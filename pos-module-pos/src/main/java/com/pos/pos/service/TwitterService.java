@@ -122,7 +122,7 @@ public interface TwitterService {
     ApiResult<SpreadGeneralInfoDto> getSpreadGeneralInfo(UserIdentifier user);
 
     /**
-     * 查询推客用户推广的收款客户列表 TODO 待完善
+     * 查询推客用户推广的收款客户列表
      *
      * @param twitterUserId 推客用户userId
      * @param limitHelper   分页参数

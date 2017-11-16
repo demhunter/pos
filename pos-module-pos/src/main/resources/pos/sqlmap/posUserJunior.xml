@@ -15,8 +15,8 @@
         VALUES
         (
         #{juniorInfo.userId},
-        #{juniorInfo.juniorUserId},
-        #{juniorInfo.juniorPhone},
+        #{juniorInfo.userId},
+        #{juniorInfo.phone},
         NOW()
         )
     </insert>
@@ -25,25 +25,25 @@
         SELECT
             upji.`id` AS `id`,
             upji.channel_user_id AS userId,
-            upji.junior_user_id AS juniorUserId,
-            upji.junior_phone AS juniorPhone,
-            upji.junior_remark AS juniorRemark,
-            upji.relation_available AS relationAvailable,
+            upji.junior_user_id AS userId,
+            upji.junior_phone AS phone,
+            upji.junior_remark AS remark,
+            upji.relation_available AS available,
             upji.create_date AS createTime,
             upji.update_user_id AS updateUserId,
             upji.update_date AS updateTime
         FROM user_pos_junior_info upji
-        WHERE upji.junior_user_id = #{juniorUserId}
+        WHERE upji.junior_user_id = #{userId}
     </select>
 
     <select id="queryJuniorsByChannelUserId" resultType="com.pos.pos.domain.TwitterCustomer">
         SELECT
             upji.`id` AS `id`,
             upji.channel_user_id AS userId,
-            upji.junior_user_id AS juniorUserId,
-            upji.junior_phone AS juniorPhone,
-            upji.junior_remark AS juniorRemark,
-            upji.relation_available AS relationAvailable,
+            upji.junior_user_id AS userId,
+            upji.junior_phone AS phone,
+            upji.junior_remark AS remark,
+            upji.relation_available AS available,
             upji.create_date AS createTime,
             upji.update_user_id AS updateUserId,
             upji.update_date AS updateTime
@@ -57,17 +57,17 @@
             <if test="juniorInfo.userId != null">
                 channel_user_id = #{juniorInfo.userId},
             </if>
-            <if test="juniorInfo.juniorUserId != null">
-                junior_user_id = #{juniorInfo.juniorUserId},
+            <if test="juniorInfo.userId != null">
+                junior_user_id = #{juniorInfo.userId},
             </if>
-            <if test="juniorInfo.juniorPhone != null">
-                junior_phone = #{juniorInfo.juniorPhone},
+            <if test="juniorInfo.phone != null">
+                junior_phone = #{juniorInfo.phone},
             </if>
-            <if test="juniorInfo.juniorRemark != null">
-                junior_remark = #{juniorInfo.juniorRemark},
+            <if test="juniorInfo.remark != null">
+                junior_remark = #{juniorInfo.remark},
             </if>
-            <if test="juniorInfo.relationAvailable != null">
-                relation_available = #{juniorInfo.relationAvailable},
+            <if test="juniorInfo.available != null">
+                relation_available = #{juniorInfo.available},
             </if>
             update_user_id = #{juniorInfo.updateUserId},
             update_date = NOW()
