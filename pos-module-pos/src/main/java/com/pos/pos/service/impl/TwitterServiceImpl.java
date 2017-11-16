@@ -26,9 +26,10 @@ import com.pos.pos.domain.TwitterRelation;
 import com.pos.pos.dto.BrokerageHandledRecordDto;
 import com.pos.pos.dto.auth.AuthorityDto;
 import com.pos.pos.dto.develop.DevelopGeneralInfoDto;
-import com.pos.pos.dto.develop.PosUserChildChannelDto;
+import com.pos.pos.dto.develop.ChildTwitterDto;
 import com.pos.pos.dto.spread.SpreadCustomerDto;
 import com.pos.pos.dto.spread.SpreadGeneralInfoDto;
+import com.pos.pos.dto.twitter.TwitterBrokerageStatisticsDto;
 import com.pos.pos.dto.twitter.TwitterDailyStatisticsDto;
 import com.pos.pos.dto.twitter.TwitterGeneralInfoDto;
 import com.pos.pos.exception.PosUserErrorCode;
@@ -46,6 +47,7 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -178,7 +180,7 @@ public class TwitterServiceImpl implements TwitterService {
         Date deadline = new Date();
         currentApplyMoney = twitterBrokerageDao.queryTwitterCanApplyMoney(user.getUserId(), deadline);
         currentApplyMoney = currentApplyMoney == null ? BigDecimal.ZERO : currentApplyMoney;
-        if (currentApplyMoney.compareTo(BigDecimal.ZERO) <= 0) {
+        if (currentApplyMoney.compareTo(new BigDecimal("10.00")) <= 0) {
             return ApiResult.fail(PosUserErrorCode.CURRENT_APPLY_MONEY_IS_ZERO);
         }
         // 标记佣金已申请提现
@@ -251,21 +253,22 @@ public class TwitterServiceImpl implements TwitterService {
             return ApiResult.fail(PosUserErrorCode.TWITTER_PERMISSION_ERROR_FOR_DEVELOP);
         }
 
-        Twitter channel = posTwitterDao.getTwitterByUserId(twitterUserId);
+        Twitter twitter = posTwitterDao.getTwitterByUserId(twitterUserId);
         DevelopGeneralInfoDto general = new DevelopGeneralInfoDto();
         general.setRate(posConstants.getPosParentTwitterBrokerageRate());
-        general.setDevelopCount(posTwitterDao.getDevelopCount(twitterUserId));
-        general.setExistedParent(channel.getRelationAvailable());
+        general.setDevelopCount(posTwitterDao.getDevelopCountByParentUserId(twitterUserId));
+        Twitter parent = posTwitterDao.getParentTwitterByChild(twitterUserId);
+        general.setExistedParent(twitter != null);
         if (general.getExistedParent()) {
-            general.setParentUserId(channel.getParentUserId());
-            CustomerDto parent = customerService.findById(channel.getParentUserId(), null);
-            if (parent != null) {
-                String parentName = parent.getRealName();
+            general.setParentUserId(parent.getUserId());
+            CustomerDto customer = customerService.findById(parent.getUserId(), null);
+            if (customer != null) {
+                String parentName = customer.getRealName();
                 if (StringUtils.isEmpty(parentName)) {
-                    parentName = parent.getPhone();
+                    parentName = customer.getPhone();
                 }
                 general.setParentName(parentName);
-                general.setParentPhone(parent.getPhone());
+                general.setParentPhone(customer.getPhone());
             }
         }
 
@@ -273,12 +276,12 @@ public class TwitterServiceImpl implements TwitterService {
     }
 
     @Override
-    public ApiResult<Pagination<PosUserChildChannelDto>> queryDevelopTwitters(Long channelUserId, LimitHelper limitHelper) {
-        FieldChecker.checkEmpty(channelUserId, "channelUserId");
+    public ApiResult<Pagination<ChildTwitterDto>> queryDevelopTwitters(Long twitterUserId, LimitHelper limitHelper) {
+        FieldChecker.checkEmpty(twitterUserId, "twitterUserId");
         FieldChecker.checkEmpty(limitHelper, "limitHelper");
 
         // 校验推客权限
-        AuthorityDto auth = authorityDao.findAuthByUserId(channelUserId);
+        AuthorityDto auth = authorityDao.findAuthByUserId(twitterUserId);
         if (auth == null) {
             return ApiResult.fail(UserErrorCode.USER_NOT_EXISTED);
         }
@@ -288,19 +291,23 @@ public class TwitterServiceImpl implements TwitterService {
             return ApiResult.fail(PosUserErrorCode.TWITTER_PERMISSION_ERROR_FOR_DEVELOP);
         }
 
-        int totalCount = posTwitterDao.getDevelopCount(channelUserId);
-        Pagination<PosUserChildChannelDto> pagination = Pagination.newInstance(limitHelper, totalCount);
+        int totalCount = posTwitterDao.getDevelopCountByParentUserId(twitterUserId);
+        Pagination<ChildTwitterDto> pagination = Pagination.newInstance(limitHelper, totalCount);
         if (totalCount > 0) {
-            List<PosUserChildChannelDto> result = posTwitterDao.queryDevelopChildTwitter(channelUserId, limitHelper);
+            List<ChildTwitterDto> result = posTwitterDao.queryDevelopChildTwitter(twitterUserId, limitHelper);
             if (!CollectionUtils.isEmpty(result)) {
-                List<Long> userIds = result.stream().map(PosUserChildChannelDto::getChannelUserId).collect(Collectors.toList());
-                Map<Long, BigDecimal> brokerageMap = twitterBrokerageDao.queryParentAgentBrokerageMap(userIds);
+                List<Long> userIds = result.stream().map(ChildTwitterDto::getUserId).collect(Collectors.toList());
+                Map<Long, BigDecimal> brokerageMap = new HashMap<>();
+                List<TwitterBrokerageStatisticsDto> brokerages = twitterBrokerageDao.queryParentAgentBrokerageMap(userIds);
+                if (!CollectionUtils.isEmpty(brokerages)) {
+                    brokerages.forEach(e -> brokerageMap.put(e.getUserId(), e.getBrokerage()));
+                }
                 result.forEach(e -> {
-                    if (!StringUtils.isEmpty(e.getChildChannelName())) {
-                        e.setChildChannelName(securityService.decryptData(e.getChildChannelName()));
+                    if (!StringUtils.isEmpty(e.getChildName())) {
+                        e.setChildName(securityService.decryptData(e.getChildName()));
                     }
                     if (!CollectionUtils.isEmpty(brokerageMap)) {
-                        e.setBrokerage(brokerageMap.get(e.getChannelUserId()) == null ? BigDecimal.ZERO : brokerageMap.get(e.getChannelUserId()));
+                        e.setBrokerage(brokerageMap.get(e.getUserId()) == null ? BigDecimal.ZERO : brokerageMap.get(e.getUserId()));
                     } else {
                         e.setBrokerage(BigDecimal.ZERO);
                     }
@@ -328,16 +335,16 @@ public class TwitterServiceImpl implements TwitterService {
             return ApiResult.fail(PosUserErrorCode.TWITTER_PERMISSION_ERROR_FOR_DEVELOP);
         }
 
-        Twitter channel = posTwitterDao.getTwitterById(developId);
-        if (channel == null
-                || !channel.getRelationAvailable()
-                || !channel.getParentUserId().equals(operatorUserId)) {
+        TwitterRelation relation = posTwitterDao.getTwitterRelationByChildId(developId);
+        Twitter parent = posTwitterDao.getParentTwitterByChild(developId);
+        if (relation == null || parent == null || !relation.getAvailable()
+                || !parent.getUserId().equals(operatorUserId)) {
             return ApiResult.fail(UserErrorCode.USER_NOT_EXISTED);
         }
 
-        channel.setRemark(remark);
-        channel.setUpdateUserId(operatorUserId);
-        posTwitterDao.update(channel);
+        relation.setRemark(remark);
+        relation.setUpdateUserId(operatorUserId);
+        posTwitterDao.updateTwitterRelation(relation);
 
         return ApiResult.succ();
     }
@@ -386,7 +393,11 @@ public class TwitterServiceImpl implements TwitterService {
             if (!CollectionUtils.isEmpty(result)) {
                 List<Long> userIds = result.stream().map(SpreadCustomerDto::getJuniorUserId)
                         .collect(Collectors.toList());
-                Map<Long, BigDecimal> brokerageMap = twitterBrokerageDao.queryAgentBrokerageMap(userIds);
+                Map<Long, BigDecimal> brokerageMap = new HashMap<>();
+                List<TwitterBrokerageStatisticsDto> brokerages = twitterBrokerageDao.queryAgentBrokerageMap(userIds);
+                if (!CollectionUtils.isEmpty(brokerages)) {
+                    brokerages.forEach(e -> brokerageMap.put(e.getUserId(), e.getBrokerage()));
+                }
                 result.forEach(e -> {
                     if (!StringUtils.isEmpty(e.getJuniorName())) {
                         e.setJuniorName(securityService.decryptData(e.getJuniorName()));

@@ -5,6 +5,7 @@ package com.pos.pos.dao;
 
 import com.pos.common.util.mvc.support.LimitHelper;
 import com.pos.pos.domain.TwitterBrokerage;
+import com.pos.pos.dto.twitter.TwitterBrokerageStatisticsDto;
 import com.pos.pos.dto.twitter.TwitterDailyStatisticsDto;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -99,7 +100,7 @@ public interface TwitterBrokerageDao {
      * @param userIds 客户列表
      * @return key = 客户userId
      */
-    Map<Long, BigDecimal> queryAgentBrokerageMap(@Param("userIds") List<Long> userIds);
+    List<TwitterBrokerageStatisticsDto> queryAgentBrokerageMap(@Param("userIds") List<Long> userIds);
 
     /**
      * 查询指定推客列表为父推客带来的佣金
@@ -107,5 +108,5 @@ public interface TwitterBrokerageDao {
      * @param userIds 推客列表
      * @return key = 推客userId
      */
-    Map<Long, BigDecimal> queryParentAgentBrokerageMap(@Param("userIds") List<Long> userIds);
+    List<TwitterBrokerageStatisticsDto> queryParentAgentBrokerageMap(@Param("userIds") List<Long> userIds);
 }

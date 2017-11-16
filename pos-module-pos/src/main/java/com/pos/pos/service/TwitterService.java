@@ -10,7 +10,7 @@ import com.pos.common.util.mvc.support.NullObject;
 import com.pos.common.util.mvc.support.Pagination;
 import com.pos.pos.dto.BrokerageHandledRecordDto;
 import com.pos.pos.dto.develop.DevelopGeneralInfoDto;
-import com.pos.pos.dto.develop.PosUserChildChannelDto;
+import com.pos.pos.dto.develop.ChildTwitterDto;
 import com.pos.pos.dto.spread.SpreadCustomerDto;
 import com.pos.pos.dto.spread.SpreadGeneralInfoDto;
 import com.pos.pos.dto.twitter.TwitterDailyStatisticsDto;
@@ -95,16 +95,16 @@ public interface TwitterService {
     ApiResult<DevelopGeneralInfoDto> getDevelopGeneralInfo(Long twitterUserId);
 
     /**
-     * 查询用户发展的下级推客列表 TODO 待完善
+     * 查询用户发展的下级推客列表
      *
-     * @param channelUserId 推客用户userId
+     * @param twitterUserId 推客用户userId
      * @param limitHelper   分页参数
      * @return 发展的下级推客列表
      */
-    ApiResult<Pagination<PosUserChildChannelDto>> queryDevelopTwitters(Long channelUserId, LimitHelper limitHelper);
+    ApiResult<Pagination<ChildTwitterDto>> queryDevelopTwitters(Long twitterUserId, LimitHelper limitHelper);
 
     /**
-     * 更新推客备忘录 TODO 待完善
+     * 更新推客备忘录
      *
      * @param developId      推客主键id
      * @param remark         备忘录内容

@@ -14,7 +14,7 @@ import java.util.Date;
  * @author wangbing
  * @version 1.0, 2017/10/13
  */
-public class PosUserSimpleChannelDto implements Serializable {
+public class SimpleTwitterDto implements Serializable {
 
     private static final long serialVersionUID = -5310545990600536694L;
 
@@ -25,13 +25,13 @@ public class PosUserSimpleChannelDto implements Serializable {
     private Long parentUserId;
 
     @ApiModelProperty("推客用户ID")
-    private Long channelUserId;
+    private Long userId;
 
     @ApiModelProperty("推客电话")
-    private String channelPhone;
+    private String phone;
 
     @ApiModelProperty("关联时间（Date，被发展为推客的时间）")
-    private Date relationTime;
+    private Date createTime;
 
     @ApiModelProperty("上下级推客关系是否有效，当为false时表示解除上下级推客推客关系")
     private Boolean relationAvailable;
@@ -52,20 +52,20 @@ public class PosUserSimpleChannelDto implements Serializable {
         this.parentUserId = parentUserId;
     }
 
-    public Long getChannelUserId() {
-        return channelUserId;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setChannelUserId(Long channelUserId) {
-        this.channelUserId = channelUserId;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
-    public Date getRelationTime() {
-        return relationTime;
+    public Date getCreateTime() {
+        return createTime;
     }
 
-    public void setRelationTime(Date relationTime) {
-        this.relationTime = relationTime;
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
     }
 
     public Boolean getRelationAvailable() {
@@ -76,11 +76,11 @@ public class PosUserSimpleChannelDto implements Serializable {
         this.relationAvailable = relationAvailable;
     }
 
-    public String getChannelPhone() {
-        return channelPhone;
+    public String getPhone() {
+        return phone;
     }
 
-    public void setChannelPhone(String channelPhone) {
-        this.channelPhone = channelPhone;
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 }

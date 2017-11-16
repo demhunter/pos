@@ -14,13 +14,13 @@ import java.math.BigDecimal;
  * @author wangbing
  * @version 1.0, 2017/10/13
  */
-public class PosUserChildChannelDto extends PosUserSimpleChannelDto implements Serializable {
+public class ChildTwitterDto extends SimpleTwitterDto implements Serializable {
 
     @ApiModelProperty("备注")
-    private String channelRemark;
+    private String remark;
 
     @ApiModelProperty("下级推客姓名")
-    private String childChannelName;
+    private String childName;
 
     @ApiModelProperty("为上级推客提供的累计佣金（BigDecimal）")
     private BigDecimal brokerage;
@@ -36,20 +36,20 @@ public class PosUserChildChannelDto extends PosUserSimpleChannelDto implements S
         this.identityAuditStatus = identityAuditStatus;
     }
 
-    public String getChannelRemark() {
-        return channelRemark;
+    public String getRemark() {
+        return remark;
     }
 
-    public void setChannelRemark(String channelRemark) {
-        this.channelRemark = channelRemark;
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 
-    public String getChildChannelName() {
-        return childChannelName;
+    public String getChildName() {
+        return childName;
     }
 
-    public void setChildChannelName(String childChannelName) {
-        this.childChannelName = childChannelName;
+    public void setChildName(String childName) {
+        this.childName = childName;
     }
 
     public BigDecimal getBrokerage() {

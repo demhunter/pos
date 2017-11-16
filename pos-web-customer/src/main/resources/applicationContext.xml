@@ -25,8 +25,6 @@
                 <value>classpath:cors.properties</value>
                 <value>classpath:error.properties</value>
                 <value>classpath:logback.properties</value>
-                <value>classpath:im-config.properties</value>
-                <value>classpath:im-template.properties</value>
                 <value>classpath:sms-config.properties</value>
                 <value>classpath:sms-template.properties</value>
                 <value>classpath:basic-config.properties</value>

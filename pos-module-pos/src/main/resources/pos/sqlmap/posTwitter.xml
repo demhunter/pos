@@ -100,6 +100,30 @@
         )
     </insert>
 
+    <update id="updateTwitterRelation" parameterType="com.pos.pos.domain.TwitterRelation">
+        UPDATE twitter_relation
+        SET available = #{relation.available},
+        remark = #{relation.remark},
+        update_user_id = #{relation.updateUserId},
+        update_time = NOW()
+        WHERE id = #{relation.id}
+    </update>
+
+    <select id="getTwitterRelationByChildId" resultType="com.pos.pos.domain.TwitterRelation">
+        SELECT
+            `id` AS `id`,
+            parent_twitter_id AS parentTwitterId,
+            child_twitter_id AS childTwitterId,
+            available AS available,
+            remark AS remark,
+            create_time AS createTime,
+            update_time AS updateTime,
+            update_user_id AS updateUserId
+        FROM twitter_relation
+        WHERE child_twitter_id = #{childTwitterId}
+        AND available = 1;
+    </select>
+
     <insert id="saveTwitterCustomer" parameterType="com.pos.pos.domain.TwitterCustomer">
         INSERT INTO twitter_customer(
             twitter_user_id,
@@ -130,7 +154,7 @@
 
     </update>
 
-    <select id="getDevelopCount" resultType="int">
+    <select id="getDevelopCountByParentUserId" resultType="int">
         SELECT COUNT(tr.child_twitter_id)
         FROM twitter t
         LEFT JOIN twitter_relation AS tr ON tr.parent_twitter_id = t.id
@@ -138,9 +162,9 @@
         AND tr.available = 1
     </select>
 
-    <select id="queryDevelopChildTwitter" resultType="com.pos.pos.dto.develop.PosUserChildChannelDto">
+    <select id="queryDevelopChildTwitter" resultType="com.pos.pos.dto.develop.ChildTwitterDto">
         SELECT
-        <include refid="childChannelDtoColumn"/>
+        <include refid="childTwitterDtoColumn"/>
         FROM twitter parent
         JOIN twitter_relation AS tr ON tr.parent_twitter_id = parent.id
         JOIN twitter AS child ON tr.child_twitter_id = child.id
@@ -172,19 +196,19 @@
         tc.update_user_id AS updateUserId
     </sql>
 
-    <sql id="simpleChannelDtoColumn">
+    <sql id="simpleTwitterDtoColumn">
         upci.`id` AS `id`,
         upci.parent_user_id AS parentUserId,
         upci.channel_user_id AS userId,
-        upci.channel_phone AS channelPhone,
-        upci.create_date AS relationTime,
+        upci.channel_phone AS phone,
+        upci.create_date AS createTime,
         upci.relation_available AS relationAvailable
     </sql>
 
-    <sql id="childChannelDtoColumn">
-        <include refid="simpleChannelDtoColumn"/>
+    <sql id="childTwitterDtoColumn">
+        <include refid="simpleTwitterDtoColumn"/>
         , upci.channel_remark AS remark,
         upa.audit_status AS identityAuditStatus,
-        upa.id_card_name AS childChannelName
+        upa.id_card_name AS childName
     </sql>
 </mapper>

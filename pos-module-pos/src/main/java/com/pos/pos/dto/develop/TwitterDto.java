@@ -14,7 +14,7 @@ import java.math.BigDecimal;
  * @author wangbing
  * @version 1.0, 2017/8/24
  */
-public class PosUserChannelDto extends PosUserSimpleChannelDto implements Serializable {
+public class TwitterDto extends SimpleTwitterDto implements Serializable {
 
     @ApiModelProperty("累计已提现金额")
     private BigDecimal totalWithdrawDeposit;

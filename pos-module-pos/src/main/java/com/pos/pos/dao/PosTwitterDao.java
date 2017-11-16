@@ -7,7 +7,7 @@ import com.pos.common.util.mvc.support.LimitHelper;
 import com.pos.pos.domain.Twitter;
 import com.pos.pos.domain.TwitterCustomer;
 import com.pos.pos.domain.TwitterRelation;
-import com.pos.pos.dto.develop.PosUserChildChannelDto;
+import com.pos.pos.dto.develop.ChildTwitterDto;
 import com.pos.pos.dto.spread.SpreadCustomerDto;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -70,11 +70,25 @@ public interface PosTwitterDao {
     void update(@Param("twitter") Twitter twitter);
 
     /**
-     * 保存推客关联关系 todo
+     * 保存推客关联关系
      *
      * @param relation 关联关系
      */
     void saveTwitterRelation(@Param("relation") TwitterRelation relation);
+
+    /**
+     * 更新推客关联关系
+     *
+     * @param relation 关联关系
+     */
+    void updateTwitterRelation(@Param("relation") TwitterRelation relation);
+
+    /**
+     * 根据子推客id获取推客关联关系
+     *
+     * @param childTwitterId 子推客id
+     */
+    TwitterRelation getTwitterRelationByChildId(@Param("childTwitterId") Long childTwitterId);
 
     /**
      * 根据子推客id更新推客推客关联关系
@@ -126,7 +140,7 @@ public interface PosTwitterDao {
      * @param parentUserId 推客userId
      * @return 下级推客数量
      */
-    int getDevelopCount(@Param("parentUserId") Long parentUserId);
+    int getDevelopCountByParentUserId(@Param("parentUserId") Long parentUserId);
 
     /**
      * 查询用户发展的下级推客列表 TODO
@@ -135,7 +149,7 @@ public interface PosTwitterDao {
      * @param limitHelper  分页参数
      * @return 查询结果
      */
-    List<PosUserChildChannelDto> queryDevelopChildTwitter(
+    List<ChildTwitterDto> queryDevelopChildTwitter(
             @Param("parentUserId") Long parentUserId,
             @Param("limitHelper") LimitHelper limitHelper);
 

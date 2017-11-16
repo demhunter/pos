@@ -42,7 +42,7 @@
         SUM(IF(twitter_user_id = #{twitterUserId}, twitter_brokerage, 0)) AS customerBrokerage,
         SUM(IF(parent_user_id = #{twitterUserId}, parent_brokerage, 0)) AS childTwitterBrokerage
         FROM brokerage
-        WHERE agent_user_id = #{twitterUserId} OR parent_agent_user_id = #{twitterUserId}
+        WHERE twitter_user_id = #{twitterUserId} OR parent_user_id = #{twitterUserId}
         GROUP BY dateKey
         ORDER BY dateKey DESC
         LIMIT #{limitHelper.offset}, #{limitHelper.pageSize}
@@ -95,7 +95,7 @@
         </if>
     </update>
 
-    <select id="queryAgentBrokerageMap" resultType="Map">
+    <select id="queryAgentBrokerageMap" resultType="com.pos.pos.dto.twitter.TwitterBrokerageStatisticsDto">
         SELECT
             uptr.user_id AS userId,
             SUM(uptb.agent_charge) AS brokerage
@@ -109,19 +109,19 @@
         GROUP BY uptr.user_id
     </select>
 
-    <select id="queryParentAgentBrokerageMap" resultType="Map">
+    <select id="queryParentAgentBrokerageMap" resultType="com.pos.pos.dto.twitter.TwitterBrokerageStatisticsDto">
         SELECT
-        upji.channel_user_id AS userId,
+        upji.twitter_user_id AS userId,
         SUM(uptb.parent_agent_charge) AS brokerage
-        FROM user_pos_junior_info upji
-        LEFT JOIN user_pos_transaction_record uptr ON uptr.user_id = upji.junior_user_id
-        LEFT JOIN user_pos_twitter_brokerage uptb ON uptb.record_id = uptr.id
-        WHERE upji.channel_user_id IN
+        FROM twitter_customer tc
+        LEFT JOIN `transaction` trans ON trans.user_id = tc.user_id
+        LEFT JOIN brokerage b ON b.transaction_id = trans.id
+        WHERE tc.twitter_user_id IN
         <foreach collection="userIds" index="index" item="item" open="(" separator="," close=")">
             #{item}
         </foreach>
-        AND (uptr.status = 3 OR uptr.status = 4)
-        AND upji.relation_available = 1
-        GROUP BY upji.channel_user_id
+        AND (trans.status = 3 OR trans.status = 4)
+        AND tc.available = 1
+        GROUP BY tc.channel_user_id
     </select>
 </mapper>

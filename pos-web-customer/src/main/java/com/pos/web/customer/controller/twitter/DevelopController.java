@@ -9,7 +9,7 @@ import com.pos.common.util.mvc.support.LimitHelper;
 import com.pos.common.util.mvc.support.NullObject;
 import com.pos.common.util.mvc.support.Pagination;
 import com.pos.pos.dto.develop.DevelopGeneralInfoDto;
-import com.pos.pos.dto.develop.PosUserChildChannelDto;
+import com.pos.pos.dto.develop.ChildTwitterDto;
 import com.pos.pos.service.TwitterService;
 import com.pos.user.session.UserInfo;
 import com.wordnik.swagger.annotations.Api;
@@ -42,7 +42,7 @@ public class DevelopController {
 
     @RequestMapping(value = "", method = RequestMethod.GET)
     @ApiOperation(value = "wb * 发展的下级推客列表", notes = "发展的下级推客列表")
-    public ApiResult<Pagination<PosUserChildChannelDto>> queryChildChannels(
+    public ApiResult<Pagination<ChildTwitterDto>> queryChildChannels(
             @ApiParam(name = "pageNum", value = "当前页编号")
             @RequestParam("pageNum") int pageNum,
             @ApiParam(name = "pageSize", value = "每页显示的记录数量")

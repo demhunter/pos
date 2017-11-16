@@ -5,7 +5,7 @@ package com.pos.pos.dao;
 
 import com.pos.common.util.mvc.support.LimitHelper;
 import com.pos.pos.domain.Twitter;
-import com.pos.pos.dto.develop.PosUserChildChannelDto;
+import com.pos.pos.dto.develop.ChildTwitterDto;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -56,7 +56,7 @@ public interface PosUserChannelDao {
      * @param limitHelper  分页参数
      * @return 查询结果
      */
-    List<PosUserChildChannelDto> queryDevelopChildChannels(
+    List<ChildTwitterDto> queryDevelopChildChannels(
             @Param("parentUserId") Long parentUserId,
             @Param("limitHelper") LimitHelper limitHelper);
 }

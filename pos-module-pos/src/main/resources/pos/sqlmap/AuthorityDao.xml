@@ -184,9 +184,9 @@
             upc.card_type AS cardType,
             upci.parent_user_id AS parentUserId,
             upci.channel_user_id AS userId,
-            upci.channel_phone AS channelPhone,
+            upci.channel_phone AS phone,
             upci.channel_remark AS remark,
-            upci.create_date AS relationTime,
+            upci.create_date AS createTime,
             upci.total_money AS totalWithdrawDeposit,
             upci.apply_money AS currentWithdrawDeposit
         FROM user_pos_auth AS upa

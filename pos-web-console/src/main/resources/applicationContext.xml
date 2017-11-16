@@ -22,8 +22,6 @@
                 <value>classpath:sms-template.properties</value>
                 <value>classpath:basic-config.properties</value>
                 <value>classpath:user-config.properties</value>
-                <value>classpath:im-config.properties</value>
-                <value>classpath:im-template.properties</value>
                 <value>classpath:pos.properties</value>
             </array>
         </property>

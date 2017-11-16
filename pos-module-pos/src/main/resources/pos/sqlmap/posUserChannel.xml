@@ -24,8 +24,8 @@
             <if test="channel.relationAvailable != null">
                 relation_available = #{channel.relationAvailable},
             </if>
-            <if test="channel.channelPhone != null">
-                channel_phone = #{channel.channelPhone},
+            <if test="channel.phone != null">
+                channel_phone = #{channel.phone},
             </if>
             <if test="channel.remark != null">
                 channel_remark = #{channel.remark},
@@ -47,7 +47,7 @@
         AND upci.relation_available = 1
     </select>
 
-    <select id="queryDevelopChildChannels" resultType="com.pos.pos.dto.develop.PosUserChildChannelDto">
+    <select id="queryDevelopChildChannels" resultType="com.pos.pos.dto.develop.ChildTwitterDto">
         SELECT
         <include refid="childChannelDtoColumn"/>
         FROM user_pos_channel_info upci
@@ -63,7 +63,7 @@
         upci.parent_user_id AS parentUserId,
         upci.relation_available AS relationAvailable,
         upci.channel_user_id AS chennelUserId,
-        upci.channel_phone AS channelPhone,
+        upci.channel_phone AS phone,
         upci.channel_remark AS remark,
         upci.create_date AS createTime,
         upci.total_money AS totalMoney,
@@ -77,9 +77,9 @@
         upci.parent_user_id AS parentUserId,
         upci.relation_available AS relationAvailable,
         upci.channel_user_id AS userId,
-        upci.channel_phone AS channelPhone,
+        upci.channel_phone AS phone,
         upci.channel_remark AS remark,
-        upci.create_date AS relationTime,
+        upci.create_date AS createTime,
         upci.total_money AS totalWithdrawDeposit,
         upci.apply_money AS currentWithdrawDeposit
     </sql>
@@ -88,8 +88,8 @@
         upci.`id` AS `id`,
         upci.parent_user_id AS parentUserId,
         upci.channel_user_id AS userId,
-        upci.channel_phone AS channelPhone,
-        upci.create_date AS relationTime,
+        upci.channel_phone AS phone,
+        upci.create_date AS createTime,
         upci.relation_available AS relationAvailable
     </sql>
 
@@ -97,6 +97,6 @@
         <include refid="simpleChannelDtoColumn"/>
         , upci.channel_remark AS remark,
         upa.audit_status AS identityAuditStatus,
-        upa.id_card_name AS childChannelName
+        upa.id_card_name AS childName
     </sql>
 </mapper>
