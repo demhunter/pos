@@ -17,8 +17,6 @@ import java.util.List;
 @Repository
 public interface PosDao {
 
-    List<Long> getCompanyIds();
-
     List<PosTransaction> queryRecordByUserIdAndCostType(
             @Param("userId") long userId,
             @Param("costType") int costType);
@@ -29,6 +27,10 @@ public interface PosDao {
 
     void addUserPosRecord(@Param("record") PosTransaction posTransaction);
 
+    /**
+     * TODO 待完善
+     * @param posTransaction
+     */
     void updatePosRecord(@Param("record") PosTransaction posTransaction);
 
     List<BankLogoDto> queryBankLogo();

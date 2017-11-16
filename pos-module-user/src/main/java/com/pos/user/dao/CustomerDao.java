@@ -35,7 +35,14 @@ public interface CustomerDao {
      */
     CustomerDto findByUserIdAndEnable(@Param("userId") Long userId, @Param("enable") Boolean enable);
 
+    /**
+     * 根据UserIds和启禁用状态获取用户信息
+     *
+     * @param userIds 用户id列表
+     * @param enable  true：只返回启用，false：只返回禁用，null：不限
+     * @return 用户信息
+     */
     List<CustomerDto> findCustomersInUserIds(
             @Param("userIds") List<Long> userIds,
-            @Param("deleted") Boolean deleted, @Param("available") Boolean available);
+            @Param("enable") Boolean enable);
 }

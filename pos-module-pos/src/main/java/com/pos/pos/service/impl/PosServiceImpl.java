@@ -958,11 +958,17 @@ public class PosServiceImpl implements PosService {
         return costAndCompanyDto;
     }
 
+    /**
+     * 随机获取公司id TODO 规则待修改
+     *
+     * @return 分配的公司id
+     */
     private long getCompanyId() {
-        List<Long> companyIds = posDao.getCompanyIds();
+        /*List<Long> companyIds = posDao.getCompanyIds();
         long companyId = 0;
         if (!CollectionUtils.isEmpty(companyIds)) companyId = companyIds.get(new Random().nextInt(companyIds.size()));
-        return companyId;
+        return companyId;*/
+        return new Random().nextInt(100);
     }
 
     public Map<String, String> getAllBankLogo() {

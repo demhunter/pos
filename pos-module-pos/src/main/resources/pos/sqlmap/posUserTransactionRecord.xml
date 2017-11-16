@@ -81,7 +81,7 @@
     <sql id="recordColumns">
         tr.id AS id,
         tr.record_num AS recordNum,
-        tr.in_card AS inCardId,
+        tr.in_card_id AS inCardId,
         tr.out_card_info AS outCardInfo,
         tr.user_id AS userId,
         tr.amount AS amount,
@@ -92,10 +92,10 @@
         tr.company_id AS companyId,
         tr.cost_type AS costType,
         tr.status AS status,
-        tr.create_date AS createTime,
+        tr.create_time AS createTime,
         tr.helibao_zhifu_num AS helibaoZhifuNum,
         tr.helibao_tixian_num AS helibaoTixianNum,
-        tr.pay_date AS payTime,
-        tr.complete_date AS completeDate
+        tr.pay_time AS payTime,
+        tr.complete_time AS completeDate
     </sql>
 </mapper>

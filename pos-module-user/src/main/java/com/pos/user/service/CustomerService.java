@@ -25,7 +25,7 @@ public interface CustomerService {
     CustomerDto findById(Long userId, Boolean enable);
 
     /**
-     * 查询客户信息 TODO
+     * 查询客户信息
      *
      * @param userIds
      * @return
@@ -33,11 +33,10 @@ public interface CustomerService {
     Map<Long, CustomerDto> getCustomerDtoMapById(List<Long> userIds);
 
     /**
-     * 查询指定的一组客户信息. TODO
+     * 查询指定的一组客户信息.
      *
      * @param userIds 一组用户ID
-     * @param disable 是否返回被禁用的账号
-     * @param deleted 是否返回被删除的账号
+     * @param enable  true：只返回启用，false：只返回禁用，null：不限
      */
-    List<CustomerDto> findInUserIds(List<Long> userIds, boolean disable, boolean deleted);
+    List<CustomerDto> findInUserIds(List<Long> userIds, Boolean enable);
 }

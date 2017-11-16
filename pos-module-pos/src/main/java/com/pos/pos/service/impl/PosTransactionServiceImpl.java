@@ -84,7 +84,8 @@ public class PosTransactionServiceImpl implements PosTransactionService {
                 if (!CollectionUtils.isEmpty(cards)) {
                     cards.forEach(e -> cardMap.put(e.getId(), decryptPosCardInfo(e)));
                 }
-                List<CustomerDto> customers = customerService.findInUserIds(Lists.newArrayList(userIds), true, true);
+                List<CustomerDto> customers = customerService.findInUserIds(Lists.newArrayList(userIds), null
+                );
                 Map<Long, CustomerDto> userMap = new HashMap<>();
                 if (!CollectionUtils.isEmpty(customers)) {
                     customers.forEach(e -> userMap.put(e.getId(), e));

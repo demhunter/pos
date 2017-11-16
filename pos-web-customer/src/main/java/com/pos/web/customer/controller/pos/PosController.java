@@ -158,7 +158,7 @@ public class PosController {
         return posService.sendPayValidateSmsCode(userInfo.getId(), recordId);
     }
 
-    @RequestMapping(value = "getMoney/{recordId}", method = RequestMethod.POST)
+    @RequestMapping(value = "get-money/{recordId}", method = RequestMethod.POST)
     @ApiOperation(value = "快捷收款-4，提现", notes = "快捷收款-3，提现")
     public ApiResult<NullObject> getMoney(
             @ApiParam(name = "recordId", value = "记录ID")

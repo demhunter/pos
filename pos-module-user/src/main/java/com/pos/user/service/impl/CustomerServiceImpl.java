@@ -39,7 +39,7 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Map<Long, CustomerDto> getCustomerDtoMapById(List<Long> userIds) {
         FieldChecker.checkEmpty(userIds, "userIds");
-        List<CustomerDto> customerDtos = findInUserIds(userIds, true, false);
+        List<CustomerDto> customerDtos = findInUserIds(userIds, null);
         if (CollectionUtils.isEmpty(customerDtos)) {
             return Maps.newLinkedHashMap();
         }
@@ -53,7 +53,9 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public List<CustomerDto> findInUserIds(List<Long> userIds, boolean disable, boolean deleted) {
-        return customerDao.findCustomersInUserIds(userIds, deleted ? null : false, disable ? null : true);
+    public List<CustomerDto> findInUserIds(List<Long> userIds, Boolean enable) {
+        FieldChecker.checkEmpty(userIds, "userIds");
+
+        return customerDao.findCustomersInUserIds(userIds, enable);
     }
 }

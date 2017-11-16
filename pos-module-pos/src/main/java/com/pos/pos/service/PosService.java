@@ -149,8 +149,7 @@ public interface PosService {
     ApiResult<NullObject> sendPayValidateSmsCode(Long userId, Long recordId);
 
     /**
-     * 用户确认提现<br>
-     * 到公司账户，提现到用户需要掉另外的接口
+     * 用户确认支付并提现
      *
      * @param userId   用户userId
      * @param smsCode  短信验证码

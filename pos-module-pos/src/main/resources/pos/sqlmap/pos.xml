@@ -20,10 +20,6 @@
         pc.last_use_date AS lastUseDate
     </sql>
 
-    <select id="getCompanyIds" resultType="LONG">
-        SELECT id FROM company
-    </select>
-
     <select id="queryRecordByUserIdAndCostType" resultType="com.pos.pos.domain.PosTransaction">
         SELECT
         <include refid="posRecord"/>
@@ -39,19 +35,15 @@
     <select id="queryRecordById" resultType="com.pos.pos.domain.PosTransaction">
         SELECT
         <include refid="posRecord"/>
-        FROM
-        user_pos_transaction_record
-        WHERE
-        id = #{id}
+        FROM `transaction`
+        WHERE id = #{id}
     </select>
 
     <select id="queryRecordByRecordNum" resultType="com.pos.pos.domain.PosTransaction">
         SELECT
         <include refid="posRecord"/>
-        FROM
-        user_pos_transaction_record
-        WHERE
-        record_num = #{recordNum}
+        FROM `transaction`
+        WHERE record_num = #{recordNum}
     </select>
 
     <sql id="posRecord">

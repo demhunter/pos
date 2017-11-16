@@ -48,9 +48,9 @@
     <select id="queryPosCardByIds" resultType="com.pos.pos.dto.card.PosCardDto">
         SELECT
         <include refid="posCardDtoColumns"/>
-        FROM user_pos_card pc
-        LEFT JOIN bank_logo bl ON bl.bank_code = pc.bank_code
-        WHERE pc.id IN
+        FROM bank_card bc
+        LEFT JOIN bank_logo bl ON bl.bank_code = bc.bank_code
+        WHERE bc.id IN
         <foreach collection="cardIds" index="index" item="item" open="(" separator="," close=")">
             #{item}
         </foreach>
