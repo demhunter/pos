@@ -201,12 +201,12 @@ public interface PosService {
     /**
      * 线下手动处理失败的交易
      *
-     * @param recordId    交易记录id
-     * @param handledInfo 处理信息
-     * @param operator    操作人
+     * @param transactionId 交易记录id
+     * @param handledInfo   处理信息
+     * @param operator      操作人
      * @return 处理结果
      */
-    ApiResult<NullObject> handledTransaction(Long recordId, TransactionHandledInfoDto handledInfo, UserIdentifier operator);
+    ApiResult<NullObject> handledTransaction(Long transactionId, TransactionHandledInfoDto handledInfo, UserIdentifier operator);
 
     /**
      * 获取交易的手动处理内容

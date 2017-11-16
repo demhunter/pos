@@ -25,7 +25,7 @@ public class TransactionHandledInfoDto implements Serializable {
     private Long id;
 
     @ApiModelProperty("处理关联交易记录id")
-    private Long recordId;
+    private Long transactionId;
 
     @ApiModelProperty("结算金额（BigDecimal）")
     private BigDecimal amount;
@@ -45,7 +45,7 @@ public class TransactionHandledInfoDto implements Serializable {
     private String remark;
 
     @ApiModelProperty("打款日期")
-    private Date createDate;
+    private Date createTime;
 
     @ApiModelProperty("创建人UserId")
     private Long createUserId;
@@ -74,12 +74,12 @@ public class TransactionHandledInfoDto implements Serializable {
         this.id = id;
     }
 
-    public Long getRecordId() {
-        return recordId;
+    public Long getTransactionId() {
+        return transactionId;
     }
 
-    public void setRecordId(Long recordId) {
-        this.recordId = recordId;
+    public void setTransactionId(Long transactionId) {
+        this.transactionId = transactionId;
     }
 
     public BigDecimal getAmount() {
@@ -114,12 +114,12 @@ public class TransactionHandledInfoDto implements Serializable {
         this.remark = remark;
     }
 
-    public Date getCreateDate() {
-        return createDate;
+    public Date getCreateTime() {
+        return createTime;
     }
 
-    public void setCreateDate(Date createDate) {
-        this.createDate = createDate;
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
     }
 
     public Long getCreateUserId() {

@@ -69,10 +69,10 @@
                     </foreach>
                 </if>
                 <if test="condition.beginDate != null">
-                    AND tr.create_date &gt;= #{condition.beginDate}
+                    AND tr.create_time &gt;= #{condition.beginDate}
                 </if>
                 <if test="condition.endDate != null">
-                    AND tr.create_date &lt;= #{condition.endDate}
+                    AND tr.create_time &lt;= #{condition.endDate}
                 </if>
             </where>
         </if>

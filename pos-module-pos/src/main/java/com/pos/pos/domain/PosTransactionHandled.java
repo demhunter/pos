@@ -16,7 +16,7 @@ public class PosTransactionHandled {
 
     private Long id; // 自增id
 
-    private Long recordId; // 处理关联交易记录id
+    private Long transactionId; // 处理关联交易记录id
 
     private BigDecimal amount; // 结算金额
 
@@ -26,7 +26,7 @@ public class PosTransactionHandled {
 
     private String remark; // 备注
 
-    private Date createDate; // 打款日期
+    private Date createTime; // 打款日期
 
     private Long createUserId; // 创建人UserId
 
@@ -38,12 +38,12 @@ public class PosTransactionHandled {
         this.id = id;
     }
 
-    public Long getRecordId() {
-        return recordId;
+    public Long getTransactionId() {
+        return transactionId;
     }
 
-    public void setRecordId(Long recordId) {
-        this.recordId = recordId;
+    public void setTransactionId(Long transactionId) {
+        this.transactionId = transactionId;
     }
 
     public BigDecimal getAmount() {
@@ -78,12 +78,12 @@ public class PosTransactionHandled {
         this.remark = remark;
     }
 
-    public Date getCreateDate() {
-        return createDate;
+    public Date getCreateTime() {
+        return createTime;
     }
 
-    public void setCreateDate(Date createDate) {
-        this.createDate = createDate;
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
     }
 
     public Long getCreateUserId() {

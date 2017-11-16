@@ -37,8 +37,8 @@ import java.util.List;
  * @version 1.0, 2017/10/13
  */
 @RestController
-@RequestMapping("/pos/transaction")
-@Api(value = "/pos/transaction", description = "快捷收款交易记录相关接口")
+@RequestMapping("/transaction")
+@Api(value = "/transaction", description = "v1.0.0 * 快捷收款交易记录相关接口")
 public class PosTransactionController {
 
     @Resource

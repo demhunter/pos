@@ -28,7 +28,7 @@ public interface PosDao {
     void addUserPosRecord(@Param("record") PosTransaction posTransaction);
 
     /**
-     * TODO 待完善
+     *
      * @param posTransaction
      */
     void updatePosRecord(@Param("record") PosTransaction posTransaction);

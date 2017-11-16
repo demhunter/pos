@@ -1044,13 +1044,13 @@ public class PosServiceImpl implements PosService {
     }
 
     @Override
-    public ApiResult<NullObject> handledTransaction(Long recordId, TransactionHandledInfoDto handledInfo, UserIdentifier operator) {
-        FieldChecker.checkEmpty(recordId, "recordId");
+    public ApiResult<NullObject> handledTransaction(Long transactionId, TransactionHandledInfoDto handledInfo, UserIdentifier operator) {
+        FieldChecker.checkEmpty(transactionId, "transactionId");
         FieldChecker.checkEmpty(handledInfo, "handledInfo");
         FieldChecker.checkEmpty(operator, "operator");
         handledInfo.check("handledInfo");
 
-        PosTransaction record = posDao.queryRecordById(recordId);
+        PosTransaction record = posDao.queryRecordById(transactionId);
         if (record == null) {
             return ApiResult.fail(PosUserErrorCode.TRANSACTION_RECORD_NOT_EXISTED);
         }
@@ -1060,12 +1060,13 @@ public class PosServiceImpl implements PosService {
         }
         PosTransactionHandled saveInfo = new PosTransactionHandled();
         BeanUtils.copyProperties(handledInfo, saveInfo);
+        saveInfo.setTransactionId(transactionId);
         saveInfo.setCreateUserId(operator.getUserId());
-        saveInfo.setCreateDate(new Date());
+        saveInfo.setCreateTime(new Date());
         posUserTransactionHandledDao.save(saveInfo);
 
         TransactionStatusTransferContext context = new TransactionStatusTransferContext();
-        context.setRecordId(recordId);
+        context.setRecordId(transactionId);
         FSM fsm = PosFSMFactory.newPosTransactionInstance(statusType.toString(), context);
         fsm.processFSM("platHandledSuccess");
 

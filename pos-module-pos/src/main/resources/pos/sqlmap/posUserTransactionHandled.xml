@@ -5,16 +5,16 @@
 <mapper namespace="com.pos.pos.dao.PosUserTransactionHandledDao">
 
     <insert id="save" parameterType="com.pos.pos.domain.PosTransactionHandled">
-        INSERT INTO user_pos_transaction_handled_info (
-            record_id,
+        INSERT INTO transaction_handled (
+            transaction_id,
             amount,
             pay_mode,
             voucher,
             remark,
             create_user_id,
-            create_date
+            create_time
         ) VALUE (
-            #{handledInfo.recordId},
+            #{handledInfo.transactionId},
             #{handledInfo.amount},
             #{handledInfo.payMode},
             #{handledInfo.voucher},
@@ -27,14 +27,14 @@
     <select id="getByRecordId" resultType="com.pos.pos.dto.transaction.TransactionHandledInfoDto">
         SELECT
             `id` AS `id`,
-            record_id AS recordId,
+            transaction_id AS transactionId,
             amount,
             pay_mode AS payMode,
             voucher,
             remark,
             create_user_id AS createUserId,
-            create_date AS createTime
-        FROM user_pos_transaction_handled_info
-        WHERE record_id = #{recordId}
+            create_time AS createTime
+        FROM transaction_handled
+        WHERE transaction_id = #{transactionId}
     </select>
 </mapper>
