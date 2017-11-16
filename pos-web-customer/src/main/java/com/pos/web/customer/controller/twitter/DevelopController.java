@@ -34,14 +34,14 @@ public class DevelopController {
     private TwitterService twitterService;
 
     @RequestMapping(value = "general", method = RequestMethod.GET)
-    @ApiOperation(value = "wb * 获取发展下级推客概要信息", notes = "获取发展下级推客概要信息")
+    @ApiOperation(value = "v1.0.0 * 获取发展下级推客概要信息", notes = "获取发展下级推客概要信息")
     public ApiResult<DevelopGeneralInfoDto> getDevelopGeneralInfo(
             @FromSession UserInfo userInfo) {
         return twitterService.getDevelopGeneralInfo(userInfo.getId());
     }
 
     @RequestMapping(value = "", method = RequestMethod.GET)
-    @ApiOperation(value = "wb * 发展的下级推客列表", notes = "发展的下级推客列表")
+    @ApiOperation(value = "v1.0.0 * 发展的下级推客列表", notes = "发展的下级推客列表")
     public ApiResult<Pagination<ChildTwitterDto>> queryChildChannels(
             @ApiParam(name = "pageNum", value = "当前页编号")
             @RequestParam("pageNum") int pageNum,
@@ -53,7 +53,7 @@ public class DevelopController {
     }
 
     @RequestMapping(value = "{developId}/remark", method = RequestMethod.POST)
-    @ApiOperation(value = "wb * 编辑下级推客的备注", notes = "编辑下级推客的备注")
+    @ApiOperation(value = "v1.0.0 * 编辑下级推客的备注", notes = "编辑下级推客的备注")
     public ApiResult<NullObject> updateChildChannelRemark(
             @ApiParam(name = "developId", value = "下级推客的主键id")
             @PathVariable("developId") Long developId,

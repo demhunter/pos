@@ -7,6 +7,7 @@ import com.pos.user.condition.query.UserListCondition;
 import com.pos.user.domain.User;
 import com.pos.user.domain.UserExtension;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -16,6 +17,7 @@ import java.util.List;
  * @author wangbing
  * @version 1.0, 2017/11/13
  */
+@Repository
 public interface UserDao {
 
     /**

@@ -35,14 +35,14 @@ public class VerificationController {
     private PosService posService;
 
     @RequestMapping(value = "identity", method = RequestMethod.GET)
-    @ApiOperation(value = "wb * 获取已提交的身份认证信息", notes = "获取已提交的身份认证信息（PS：从未提交过身份认证信息则返回空）")
+    @ApiOperation(value = "v1.0.0 * 获取已提交的身份认证信息", notes = "获取已提交的身份认证信息（PS：从未提交过身份认证信息则返回空）")
     public ApiResult<PosUserIdentityDto> getIdentityInfo(
             @FromSession UserInfo userInfo) {
         return ApiResult.succ(posService.getIdentityInfo(userInfo.getId(), false));
     }
 
     @RequestMapping(value = "identity", method = RequestMethod.POST)
-    @ApiOperation(value = "wb * 提交身份认证信息-1", notes = "提交身份认证信息-1")
+    @ApiOperation(value = "v1.0.0 * 提交身份认证信息-1", notes = "提交身份认证信息-1")
     public ApiResult<NullObject> updateIdentityInfo(
             @ApiParam(name = "identityInfo", value = "身份认证信息")
             @RequestBody PosUserIdentityDto identityInfo,
@@ -51,14 +51,14 @@ public class VerificationController {
     }
 
     @RequestMapping(value = "bank-card", method = RequestMethod.GET)
-    @ApiOperation(value = "wb * 获取绑定的收款卡信息，身份认证信息-2", notes = "获取绑定的收款卡信息，身份认证信息-2（PS：从未绑定过收款银行卡则返回空）")
+    @ApiOperation(value = "v1.0.0 * 获取绑定的收款卡信息，身份认证信息-2", notes = "获取绑定的收款卡信息，身份认证信息-2（PS：从未绑定过收款银行卡则返回空）")
     public ApiResult<BindCardDto> getBindCardInfo(
             @FromSession UserInfo userInfo) {
         return ApiResult.succ(posService.getBindCardInfo(userInfo.getId(), false));
     }
 
     @RequestMapping(value = "bank-card", method = RequestMethod.POST)
-    @ApiOperation(value = "wb * 绑定收款卡，提交身份认证信息-2", notes = "绑定收款银行卡，提交身份认证信息-2")
+    @ApiOperation(value = "v1.0.0 * 绑定收款卡，提交身份认证信息-2", notes = "绑定收款银行卡，提交身份认证信息-2")
     public ApiResult<NullObject> bingCard(
             @ApiParam(name = "bindCardInfo", value = "绑卡信息")
             @RequestBody BindCardDto bindCardInfo,

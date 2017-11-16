@@ -58,7 +58,7 @@ public class UserController {
     private UserSessionPosComponent userSessionPosComponent;
 
     @RequestMapping(value = "register", method = RequestMethod.POST)
-    @ApiOperation(value = "v1.0.0 wb 用户注册请求", notes = "v1.0.0 wb 用户注册请求(v1.0.0 * 关系绑定从登陆移到注册)")
+    @ApiOperation(value = "v1.0.0 * 用户注册请求", notes = "v1.0.0 * 用户注册请求(v1.0.0 * 关系绑定从登陆移到注册)")
     public ApiResult<CustomerDto> register(
             @ApiParam(name = "registerInfo", value = "注册相关信息")
             @RequestBody RegisterInfoDto registerInfo,
@@ -80,7 +80,7 @@ public class UserController {
     }
 
     @RequestMapping(value = "login", method = RequestMethod.POST)
-    @ApiOperation(value = "v1.0.0 wb 用户登录接口", notes = "用户登录接口(v1.0.0 * 关系绑定从登陆移到注册)")
+    @ApiOperation(value = "v1.0.0 * 用户登录接口", notes = "用户登录接口(v1.0.0 * 关系绑定从登陆移到注册)")
     public ApiResult<CustomerDto> login(
             @ApiParam(name = "loginInfo", value = "登录相关信息")
             @RequestBody LoginInfoDto loginInfo,
@@ -92,7 +92,7 @@ public class UserController {
     }
 
     @RequestMapping(value = "login-test", method = RequestMethod.POST)
-    @ApiOperation(value = "v1.0.0 * wb 登录测试接口", notes = "管理员登录测试接口，用于开发/测试环境下调试")
+    @ApiOperation(value = "v1.0.0 * 登录测试接口", notes = "管理员登录测试接口，用于开发/测试环境下调试")
     public ApiResult<CustomerDto> loginTest(
             @ApiParam(name = "loginInfo", value = "登录相关信息")
             @RequestBody LoginInfoDto loginInfo,
@@ -104,7 +104,7 @@ public class UserController {
     }
 
     @RequestMapping(value = "logout", method = RequestMethod.POST)
-    @ApiOperation(value = "用户登出接口", notes = "用户登出接口")
+    @ApiOperation(value = "v1.0.0 *用户登出接口", notes = "用户登出接口")
     public ApiResult<NullObject> logout(@FromSession UserInfo userInfo, HttpSession httpSession) {
         if (userInfo == null) {
             return ApiResult.fail(UserErrorCode.USER_NOT_LOGIN);
@@ -114,7 +114,7 @@ public class UserController {
     }
 
     @RequestMapping(value = "password", method = RequestMethod.POST)
-    @ApiOperation(value = "v1.0.0 * wb 找回密码请求", notes = "找回密码请求，找回成功后则自动登录")
+    @ApiOperation(value = "v1.0.0 * 找回密码请求", notes = "找回密码请求，找回成功后则自动登录")
     public ApiResult<CustomerDto> getBackPassword(
             @ApiParam(name = "loginInfo", value = "登录相关信息")
             @RequestBody LoginInfoDto loginInfo,

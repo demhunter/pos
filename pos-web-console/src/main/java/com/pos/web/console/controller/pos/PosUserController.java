@@ -69,13 +69,13 @@ public class PosUserController {
     private TwitterService twitterService;
 
     @RequestMapping(value = "enum", method = RequestMethod.GET)
-    @ApiOperation(value = "wb 获取快捷收款相关枚举信息", notes = "获取快捷收款相关枚举信息")
+    @ApiOperation(value = "v1.0.0 * 获取快捷收款相关枚举信息", notes = "获取快捷收款相关枚举信息")
     public ApiResult<PosEnumsDto> queryPosEnums() {
         return ApiResult.succ(PosEnumsDto.getInstance());
     }
 
     @RequestMapping(value = "", method = RequestMethod.GET)
-    @ApiOperation(value = "wb * 快捷收款用户列表", notes = "快捷收款用户列表")
+    @ApiOperation(value = "v1.0.0 * 快捷收款用户列表", notes = "快捷收款用户列表")
     public ApiResult<Pagination<CustomerSimpleInfoVo>> queryPosUsers(
             @ApiParam(name = "userAuditStatus", value = "身份认证状态（0 = 未提交，1 = 未审核，2 = 已通过，3 = 未通过，null：不限）")
             @RequestParam(name = "userAuditStatus", required = false) Integer userAuditStatus,
@@ -133,7 +133,7 @@ public class PosUserController {
     }
 
     @RequestMapping(value = "{posId}/permission", method = RequestMethod.POST)
-    @ApiOperation(value = "wb * 更改快捷收款用户的权限信息", notes = "更改快捷收款用户的权限信息")
+    @ApiOperation(value = "v1.0.0 * 更改快捷收款用户的权限信息", notes = "更改快捷收款用户的权限信息")
     public ApiResult<NullObject> updatePosUserPermission(
             @ApiParam(name = "posId", value = "快捷收款用户自增id")
             @PathVariable("posId") Long posId,
@@ -144,7 +144,7 @@ public class PosUserController {
     }
 
     @RequestMapping(value = "brokerage/record", method = RequestMethod.POST)
-    @ApiOperation(value = "v1.8.0 * wb 处理提现申请", notes = "处理提现申请")
+    @ApiOperation(value = "v1.0.0 * 处理提现申请", notes = "处理提现申请")
     public ApiResult<NullObject> addPosUserGetBrokerageRecord(
             @ApiParam(name = "brokerage", value = "提现申请处理记录")
             @RequestBody BrokerageHandledRecordDto brokerageRecord,
@@ -153,7 +153,7 @@ public class PosUserController {
     }
 
     @RequestMapping(value = "{posId}/audit", method = RequestMethod.GET)
-    @ApiOperation(value = "wb * 获取被审核的用户信息", notes = "获取被审核的用户信息")
+    @ApiOperation(value = "v1.0.0 * 获取被审核的用户信息", notes = "获取被审核的用户信息")
     public ApiResult<PosUserAuditInfoDto> getAuditInfo(
             @ApiParam(name = "posId", value = "快捷收款用户自增id")
             @PathVariable("posId") Long posId) {
@@ -161,7 +161,7 @@ public class PosUserController {
     }
 
     @RequestMapping(value = "{posId}/audit", method = RequestMethod.POST)
-    @ApiOperation(value = "wb * 审核用户信息", notes = "审核用户信息")
+    @ApiOperation(value = "v1.0.0 * 审核用户信息", notes = "审核用户信息")
     public ApiResult<NullObject> auditPosUserInfo(
             @ApiParam(name = "posId", value = "被审核的快捷收款用户自增id")
             @PathVariable("posId") Long posId,
@@ -182,7 +182,7 @@ public class PosUserController {
     }
 
     @RequestMapping(value = "export", method = RequestMethod.GET)
-    @ApiOperation(value = "wb * 导出符合条件的快捷收款用户列表", notes = "导出符合条件的快捷收款用户列表" +
+    @ApiOperation(value = "v1.0.0 * 导出符合条件的快捷收款用户列表", notes = "导出符合条件的快捷收款用户列表" +
             "（ps：该接口前端不处理返回结果，导出成功后浏览器将自动下载Excel文件）")
     public ModelAndView findAndExportPosUsers(
             @ApiParam(name = "userAuditStatus", value = "身份认证状态（0 = 未提交，1 = 未审核，2 = 已通过，3 = 未通过，null：不限）")

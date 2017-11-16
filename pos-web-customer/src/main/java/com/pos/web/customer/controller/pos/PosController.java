@@ -75,7 +75,7 @@ public class PosController {
 
 
     @RequestMapping(value = "explain", method = RequestMethod.GET)
-    @ApiOperation(value = "功能说明", notes = "功能说明的地址")
+    @ApiOperation(value = "v1.0.0 * 功能说明", notes = "功能说明的地址")
     public ApiResult<OnlyStringVo> explain() {
         OnlyStringVo onlyStringVo = new OnlyStringVo();
         onlyStringVo.setResult(globalConstants.explainUrl);
@@ -83,14 +83,14 @@ public class PosController {
     }
 
     @RequestMapping(value = "", method = RequestMethod.GET)
-    @ApiOperation(value = "wb 快捷收款-1，获取当前用户快捷收款相关信息", notes = "点击快捷收款，快捷收款-1，获取当前用户快捷收款相关信息")
+    @ApiOperation(value = "v1.0.0 * 快捷收款-1，获取当前用户快捷收款相关信息", notes = "点击快捷收款，快捷收款-1，获取当前用户快捷收款相关信息")
     public ApiResult<QuickGetMoneyDto> quickGetMoney(
             @FromSession UserInfo userInfo) {
         return posService.getQuickInfo(userInfo.getId());
     }
 
     @RequestMapping(value = "bank-card/{cardId}/delete", method = RequestMethod.POST)
-    @ApiOperation(value = "wb * 删除已保存的卡信息", notes = "删除已保存的卡信息")
+    @ApiOperation(value = "v1.0.0 * 删除已保存的卡信息", notes = "删除已保存的卡信息")
     public ApiResult<NullObject> deleteBankCard(
             @ApiParam(name = "cardId", value = "银行卡id")
             @PathVariable("cardId") Long cardId,
@@ -130,7 +130,7 @@ public class PosController {
 //    }
 
     @RequestMapping(value = "select-card", method = RequestMethod.POST)
-    @ApiOperation(value = "wb 快捷收款-2-1，选择一张卡，下单", notes = "快捷收款-2-1，选择一张付款的卡，并且填写金额,下单")
+    @ApiOperation(value = "v1.0.0 * 快捷收款-2-1，选择一张卡，下单", notes = "快捷收款-2-1，选择一张付款的卡，并且填写金额,下单")
     public ApiResult<CreateOrderDto> selectCard(
             @ApiParam(name = "selectCardRequestDto", value = "选卡下单信息")
             @RequestBody SelectCardRequestDto selectCardRequestDto,
@@ -140,7 +140,7 @@ public class PosController {
     }
 
     @RequestMapping(value = "write-card", method = RequestMethod.POST)
-    @ApiOperation(value = "wb 快捷收款-2-2，填写卡信息，下单", notes = "快捷收款-2-2，手动填写卡信息，下单")
+    @ApiOperation(value = "v1.0.0 * 快捷收款-2-2，填写卡信息，下单", notes = "快捷收款-2-2，手动填写卡信息，下单")
     public ApiResult<CreateOrderDto> writeCard(
             @ApiParam(name = "getMoneyRequestDto", value = "填写卡信息下单信息")
             @RequestBody GetMoneyDto getMoneyRequestDto,
@@ -150,7 +150,7 @@ public class PosController {
     }
 
     @RequestMapping(value = "sms-code/{recordId}", method = RequestMethod.GET)
-    @ApiOperation(value = "快捷收款-3，提现时获取验证码", notes = "提现时获取验证码")
+    @ApiOperation(value = "v1.0.0 * 快捷收款-3，提现时获取验证码", notes = "提现时获取验证码")
     public ApiResult<NullObject> getSmsCode(
             @ApiParam(name = "recordId", value = "记录ID")
             @PathVariable("recordId") Long recordId,
@@ -159,7 +159,7 @@ public class PosController {
     }
 
     @RequestMapping(value = "get-money/{recordId}", method = RequestMethod.POST)
-    @ApiOperation(value = "快捷收款-4，提现", notes = "快捷收款-3，提现")
+    @ApiOperation(value = "v1.0.0 * 快捷收款-4，提现", notes = "快捷收款-3，提现")
     public ApiResult<NullObject> getMoney(
             @ApiParam(name = "recordId", value = "记录ID")
             @PathVariable("recordId") Long recordId,
@@ -186,7 +186,7 @@ public class PosController {
     }
 
     @RequestMapping(value = "records", method = RequestMethod.GET)
-    @ApiOperation(value = "wb * 收款记录", notes = "收款记录（* 卡号只有后四位）")
+    @ApiOperation(value = "v1.0.0 * 收款记录", notes = "收款记录（* 卡号只有后四位）")
     public ApiResult<List<RecordVo>> transactionRecords(
             @ApiParam(name = "pageNum", value = "页码，默认为1")
             @RequestParam("pageNum") int pageNum,

@@ -51,7 +51,7 @@ public class PosTransactionController {
     private PosService posService;
 
     @RequestMapping(value = "", method = RequestMethod.GET)
-    @ApiOperation(value = "wb * 查询交易列表", notes = "wb * 查询交易列表")
+    @ApiOperation(value = "v1.0.0 * 查询交易列表", notes = "查询交易列表")
     public ApiResult<Pagination<TransactionRecordDto>> queryTransactionRecords(
             @ApiParam(name = "transactionStatus", value = "到账状态：0 = 已下单，1 = 交易处理中，2 = 交易失败，3 = 交易成功，4 = 已手动处理")
             @RequestParam(name = "transactionStatus", required = false) Integer transactionStatus,
@@ -83,7 +83,7 @@ public class PosTransactionController {
     }
 
     @RequestMapping(value = "export", method = RequestMethod.GET)
-    @ApiOperation(value = "wb * 导出交易列表", notes = "wb * 导出交易列表（ps：该接口前端不处理返回结果，导出成功后浏览器将自动下载Excel文件）")
+    @ApiOperation(value = "v1.0.0 * 导出交易列表", notes = "wb * 导出交易列表（ps：该接口前端不处理返回结果，导出成功后浏览器将自动下载Excel文件）")
     public ModelAndView queryAndExportTransactionRecords(
             @ApiParam(name = "transactionStatus", value = "到账状态：0 = 失败，1 = 成功，2 = 处理中，3 = 已手动处理")
             @RequestParam(name = "transactionStatus", required = false) Integer transactionStatus,
@@ -135,7 +135,7 @@ public class PosTransactionController {
     }
 
     @RequestMapping(value = "{recordId}/withdraw/again", method = RequestMethod.POST)
-    @ApiOperation(value = "wb * 重新发起结算", notes = "重新发起结算")
+    @ApiOperation(value = "v1.0.0 * 重新发起结算", notes = "重新发起结算")
     public ApiResult<NullObject> repeatSendWithdrawRequest(
             @ApiParam(name = "recordId", value = "交易记录id")
             @PathVariable("recordId") Long recordId,
@@ -144,7 +144,7 @@ public class PosTransactionController {
     }
 
     @RequestMapping(value = "{recordId}/withdraw/handled", method = RequestMethod.POST)
-    @ApiOperation(value = "wb * 手动处理结算", notes = "手动处理结算")
+    @ApiOperation(value = "v1.0.0 * 手动处理结算", notes = "手动处理结算")
     public ApiResult<NullObject> handledTransaction(
             @ApiParam(name = "recordId", value = "交易记录id")
             @PathVariable("recordId") Long recordId,
@@ -155,7 +155,7 @@ public class PosTransactionController {
     }
 
     @RequestMapping(value = "{recordId}/withdraw/handled", method = RequestMethod.GET)
-    @ApiOperation(value = "wb * 获取手动处理结算的处理信息", notes = "获取手动处理结算的处理信息")
+    @ApiOperation(value = "v1.0.0 * 获取手动处理结算的处理信息", notes = "获取手动处理结算的处理信息")
     public ApiResult<TransactionHandledInfoDto> getTransactionHandledInfo(
             @ApiParam(name = "recordId", value = "交易记录id")
             @PathVariable("recordId") Long recordId) {

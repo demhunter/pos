@@ -31,7 +31,7 @@ public class SMSController {
     private SmsService smsService;
 
     @RequestMapping(value = "verify-code", method = RequestMethod.POST)
-    @ApiOperation(value = "v1.0.0 * wb 发送短信验证码请求", notes = "发送短信验证码请求(v1.0.0 * 请求地址发生变化)")
+    @ApiOperation(value = "v1.0.0 * 发送短信验证码请求", notes = "发送短信验证码请求(v1.0.0 * 请求地址发生变化)")
     public ApiResult sendSmsCode(
             @ApiParam(name = "phone", value = "用户手机号")
             @RequestParam("phone") String phone,

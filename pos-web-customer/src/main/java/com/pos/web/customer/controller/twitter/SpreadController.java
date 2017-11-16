@@ -36,14 +36,14 @@ public class SpreadController {
     private TwitterService twitterService;
 
     @RequestMapping(value = "general", method = RequestMethod.GET)
-    @ApiOperation(value = "wb 发展收款客户概要信息", notes = "发展收款客户概要信息")
+    @ApiOperation(value = "v1.0.0 * 发展收款客户概要信息", notes = "发展收款客户概要信息")
     public ApiResult<SpreadGeneralInfoDto> getSpreadGeneralInfo(
             @FromSession UserInfo userInfo) {
         return twitterService.getSpreadGeneralInfo(userInfo.buildUserIdentifier());
     }
 
     @RequestMapping(value = "", method = RequestMethod.GET)
-    @ApiOperation(value = "wb * 发展收款客户列表", notes = "发展收款客户列表")
+    @ApiOperation(value = "v1.0.0 * 发展收款客户列表", notes = "发展收款客户列表")
     public ApiResult<Pagination<SpreadCustomerDto>> querySpreadCustomers(
             @ApiParam(name = "pageNum", value = "当前页编号")
             @RequestParam("pageNum") int pageNum,

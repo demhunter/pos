@@ -32,7 +32,7 @@ public class UploadManagerController {
     private QiniuUploadManager uploadManager;
 
     @RequestMapping(value = "qiniu/video/persist", method = RequestMethod.GET)
-    @ApiOperation(value = "持久化并转码已上传到七牛的视频", notes = "持久化并转码已上传到七牛的视频")
+    @ApiOperation(value = "v1.0.0 * 持久化并转码已上传到七牛的视频", notes = "持久化并转码已上传到七牛的视频")
     public ApiResult<String> persistVideo(
             @ApiParam(name = "fileKey", value = "要持久化的文件KEY")
             @RequestParam("fileKey") String fileKey) {
