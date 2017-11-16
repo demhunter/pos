@@ -4,15 +4,8 @@
 package com.pos.web.console.controller.repair;
 
 import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.pos.common.util.mvc.support.ApiResult;
-import com.pos.common.util.mvc.support.NullObject;
-import com.pos.pos.service.support.RepairPosData;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.annotation.Resource;
 
 /**
  * POS 数据修复Controller
@@ -25,12 +18,4 @@ import javax.annotation.Resource;
 @Api(value = "/repair", description = "POS数据修复相关接口")
 public class PosRepairController {
 
-    @Resource
-    private RepairPosData repairPosData;
-
-    @RequestMapping(value = "transaction/out-card-info", method = RequestMethod.GET)
-    @ApiOperation(value = "* 清洗交易数据的付款银行卡信息，主要作用为解密SQL变更的付款银行卡信息数据", notes = "清洗交易数据的付款银行卡信息，主要作用为解密SQL变更的付款银行卡信息数据")
-    public ApiResult<NullObject> repairPosTransactionOutCardInfo() {
-        return repairPosData.repairPosTransactionOutCardInfo();
-    }
 }

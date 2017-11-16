@@ -3,6 +3,7 @@
  */
 package com.pos.web.customer.controller.common;
 
+import com.pos.web.customer.vo.token.QiNiuTokenVo;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.pos.basic.manager.QiniuUploadManager;
@@ -15,26 +16,21 @@ import javax.annotation.Resource;
 
 
 /**
- * POS 文件上传相关接口
+ * token管理相关接口
  *
  * @author wangbing
  * @version 1.0, 2017/10/12
  */
 @RestController
-@RequestMapping("/upload")
-@Api(value = "/upload", description = "v1.0.0 * 文件上传相关接口")
+@RequestMapping("/token")
+@Api(value = "/token", description = "v1.0.0 * token管理相关接口")
 public class TokenManagerController {
 
     @Resource
     private QiniuUploadManager uploadManager;
 
-    /**
-     * 七牛图片传输获取token
-     *
-     * @return 发送结果
-     */
-    @RequestMapping(value = "getToken", method = RequestMethod.GET)
-    @ApiOperation(value = "getToken", notes = "七牛图片传输获取token")
+    @RequestMapping(value = "qiniu/image", method = RequestMethod.GET)
+    @ApiOperation(value = "v1.0.0 * 获取七牛图片传输token", notes = "获取七牛图片传输token")
     public ApiResult<String> getUploadToken() {
         String token = uploadManager.getUpToken();
         ApiResult<String> apiResult = new ApiResult<>();
@@ -42,6 +38,14 @@ public class TokenManagerController {
             apiResult.setData(token);
         }
         return apiResult;
+    }
+
+    @RequestMapping(value = "qiniu/image/uptoken", method = RequestMethod.GET)
+    @ApiOperation(value = "v1.0.0 * 获取七牛图片传输uptoken，用户前端JS SDK的uptoken_url", notes = "获取七牛图片传输uptoken，用户前端JS SDK的uptoken_url")
+    public QiNiuTokenVo getQiNiuToken() {
+        QiNiuTokenVo tokenVo = new QiNiuTokenVo();
+        tokenVo.setUptoken(uploadManager.getUpToken());
+        return tokenVo;
     }
 
 }

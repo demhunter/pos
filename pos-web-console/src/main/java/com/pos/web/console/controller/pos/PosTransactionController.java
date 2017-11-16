@@ -39,7 +39,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/pos/transaction")
 @Api(value = "/pos/transaction", description = "快捷收款交易记录相关接口")
-@SuppressWarnings("all")
 public class PosTransactionController {
 
     @Resource
