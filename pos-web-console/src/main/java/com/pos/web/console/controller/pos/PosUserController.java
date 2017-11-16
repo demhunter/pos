@@ -12,7 +12,7 @@ import com.pos.common.util.mvc.support.Pagination;
 import com.pos.common.util.mvc.view.XlsStyle;
 import com.pos.common.util.mvc.view.XlsView;
 import com.pos.pos.condition.orderby.PosUserOrderField;
-import com.pos.pos.condition.query.PosUserCondition;
+import com.pos.pos.condition.query.CustomerCondition;
 import com.pos.pos.constants.AuthStatusEnum;
 import com.pos.pos.constants.PosTwitterStatus;
 import com.pos.pos.dto.BrokerageHandledRecordDto;
@@ -22,13 +22,13 @@ import com.pos.pos.dto.auth.BaseAuthDto;
 import com.pos.pos.dto.identity.IdentifyInfoDto;
 import com.pos.pos.dto.user.PosUserIntegrateDto;
 import com.pos.pos.service.PosService;
-import com.pos.pos.service.PosUserService;
+import com.pos.pos.service.PosCustomerService;
 import com.pos.pos.service.AuthorityService;
 import com.pos.pos.service.TwitterService;
 import com.pos.user.service.UserService;
 import com.pos.user.session.UserInfo;
 import com.pos.web.console.converter.PosConverter;
-import com.pos.web.console.vo.pos.PosUserSimpleInfoVo;
+import com.pos.web.console.vo.pos.CustomerSimpleInfoVo;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
@@ -49,15 +49,15 @@ import java.util.stream.Collectors;
  * @version 1.0, 2017/8/24
  */
 @RestController
-@RequestMapping("/pos/user")
-@Api(value = "/pos/user", description = "快捷收款用户相关接口")
+@RequestMapping("/customer")
+@Api(value = "/customer", description = "v1.0.0 * 快捷收款用户相关接口")
 public class PosUserController {
 
     @Resource
     private UserService userService;
 
     @Resource
-    private PosUserService posUserService;
+    private PosCustomerService posCustomerService;
 
     @Resource
     private PosService posService;
@@ -76,7 +76,7 @@ public class PosUserController {
 
     @RequestMapping(value = "", method = RequestMethod.GET)
     @ApiOperation(value = "wb * 快捷收款用户列表", notes = "快捷收款用户列表")
-    public ApiResult<Pagination<PosUserSimpleInfoVo>> queryPosUsers(
+    public ApiResult<Pagination<CustomerSimpleInfoVo>> queryPosUsers(
             @ApiParam(name = "userAuditStatus", value = "身份认证状态（0 = 未提交，1 = 未审核，2 = 已通过，3 = 未通过，null：不限）")
             @RequestParam(name = "userAuditStatus", required = false) Integer userAuditStatus,
             @ApiParam(name = "bindingCard", value = "是否绑定银行卡（true：已绑定，false：未绑定，null：不限）")
@@ -98,7 +98,7 @@ public class PosUserController {
             @ApiParam(name = "pageSize", value = "每页显示的记录数量")
             @RequestParam("pageSize") int pageSize) {
         LimitHelper limitHelper = new LimitHelper(pageNum, pageSize);
-        PosUserCondition condition = new PosUserCondition();
+        CustomerCondition condition = new CustomerCondition();
         condition.setUserAuditStatus(userAuditStatus);
         condition.setBindingCard(bindingCard);
         condition.setGetPermission(getPermission);
@@ -113,10 +113,10 @@ public class PosUserController {
             }
             condition.setIncludeUserIds(includeUserIds);
         }
-        Pagination<PosUserIntegrateDto> pagination = posUserService.queryPosUsers(condition, PosUserOrderField.getDefaultOrderHelper(), limitHelper);
-        Pagination<PosUserSimpleInfoVo> result = Pagination.newInstance(limitHelper, pagination.getTotalCount());
+        Pagination<PosUserIntegrateDto> pagination = posCustomerService.queryPosCustomers(condition, PosUserOrderField.getDefaultOrderHelper(), limitHelper);
+        Pagination<CustomerSimpleInfoVo> result = Pagination.newInstance(limitHelper, pagination.getTotalCount());
         if (pagination.getTotalCount() > 0 && !CollectionUtils.isEmpty(pagination.getResult())) {
-            List<PosUserSimpleInfoVo> posUsers = pagination.getResult().stream()
+            List<CustomerSimpleInfoVo> posUsers = pagination.getResult().stream()
                     .map(PosConverter::toPosUserSimpleInfoVo).collect(Collectors.toList());
             result.setResult(posUsers);
         }
@@ -202,7 +202,7 @@ public class PosUserController {
             @ApiParam(name = "searchKey", value = "搜索关键字（手机号/姓名）")
             @RequestParam(name = "searchKey", required = false) String searchKey) {
         LimitHelper limitHelper = new LimitHelper(1, Integer.MAX_VALUE, false);
-        PosUserCondition condition = new PosUserCondition();
+        CustomerCondition condition = new CustomerCondition();
         condition.setUserAuditStatus(userAuditStatus);
         condition.setBindingCard(bindingCard);
         condition.setGetPermission(getPermission);
@@ -223,7 +223,7 @@ public class PosUserController {
             }
             condition.setIncludeUserIds(includeUserIds);
         }
-        Pagination<PosUserIntegrateDto> pagination = posUserService.queryPosUsers(condition, PosUserOrderField.getDefaultOrderHelper(), limitHelper);
+        Pagination<PosUserIntegrateDto> pagination = posCustomerService.queryPosCustomers(condition, PosUserOrderField.getDefaultOrderHelper(), limitHelper);
         xlsView = new XlsView(pagination.getTotalCount(), new String[]{
                 "手机号",
                 "姓名",
@@ -239,7 +239,7 @@ public class PosUserController {
                 "存在提现申请"
         }).setXlsStyle(new XlsStyle().setSheetName("快捷收款用户列表").setColumnWidth(17));
         if (pagination.getTotalCount() > 0 && !CollectionUtils.isEmpty(pagination.getResult())) {
-            List<PosUserSimpleInfoVo> posUsers = pagination.getResult().stream()
+            List<CustomerSimpleInfoVo> posUsers = pagination.getResult().stream()
                     .map(PosConverter::toPosUserSimpleInfoVo).collect(Collectors.toList());
             posUsers.forEach(posUser ->
                 xlsView.addRowValues(new Object[]{

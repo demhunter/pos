@@ -5,18 +5,15 @@ package com.pos.pos.service.impl;
 
 import com.pos.common.util.mvc.support.*;
 import com.pos.basic.service.SecurityService;
-import com.pos.common.sms.service.SmsService;
 import com.pos.common.util.validation.FieldChecker;
 import com.pos.pos.condition.orderby.PosUserOrderField;
-import com.pos.pos.condition.query.PosUserCondition;
+import com.pos.pos.condition.query.CustomerCondition;
 import com.pos.pos.dao.AuthorityDao;
-import com.pos.pos.dao.PosUserChannelDao;
 import com.pos.pos.dto.user.PosUserIntegrateDto;
 import com.pos.pos.constants.PosConstants;
-import com.pos.pos.dao.PosUserJuniorDao;
 import com.pos.pos.dao.PosUserTransactionRecordDao;
 import com.pos.pos.dto.transaction.TransactionSimpleStatisticsDto;
-import com.pos.pos.service.PosUserService;
+import com.pos.pos.service.PosCustomerService;
 import com.pos.user.dto.customer.CustomerDto;
 import com.pos.user.service.CustomerService;
 import org.apache.commons.lang3.StringUtils;
@@ -39,7 +36,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class PosUserServiceImpl implements PosUserService {
+public class PosCustomerServiceImpl implements PosCustomerService {
 
     @Resource
     private CustomerService customerService;
@@ -57,7 +54,7 @@ public class PosUserServiceImpl implements PosUserService {
     private PosConstants posConstants;
 
     @Override
-    public Pagination<PosUserIntegrateDto> queryPosUsers(PosUserCondition condition, OrderHelper orderHelper, LimitHelper limitHelper) {
+    public Pagination<PosUserIntegrateDto> queryPosCustomers(CustomerCondition condition, OrderHelper orderHelper, LimitHelper limitHelper) {
         FieldChecker.checkEmpty(limitHelper, "limitHelper");
         if (orderHelper != null) {
             orderHelper.validate(PosUserOrderField.getInstance());

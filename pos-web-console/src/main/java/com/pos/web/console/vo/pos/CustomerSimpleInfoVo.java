@@ -17,7 +17,7 @@ import java.util.Date;
  * @author wangbing
  * @version 1.0, 2017/8/24
  */
-public class PosUserSimpleInfoVo implements Serializable {
+public class CustomerSimpleInfoVo implements Serializable {
 
     @ApiModelProperty("自增id")
     private Long id;

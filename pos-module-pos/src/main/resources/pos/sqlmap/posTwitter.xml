@@ -140,19 +140,36 @@
     </insert>
 
     <update id="updateTwitterCustomer" parameterType="com.pos.pos.domain.TwitterCustomer">
-
+        UPDATE twitter_customer
+        SET remark = #{customer.remark},
+        available = #{customer.available},
+        update_time = NOW(),
+        update_user_id = #{customer.updateUserId}
+        WHERE `id` = #{customer.id}
     </update>
 
     <update id="updateTwitterRelationAvailableByChild">
-
+        UPDATE twitter_relation
+        SET available = #{available},
+        update_time = NOW(),
+        update_user_id = #{updateUserId}
+        WHERE child_twitter_id = #{childTwitterId}
     </update>
 
     <update id="updateTwitterRelationAvailableByParent">
-
+        UPDATE twitter_relation
+        SET available = #{available},
+        update_time = NOW(),
+        update_user_id = #{updateUserId}
+        WHERE parent_twitter_id = #{parentTwitterId}
     </update>
 
     <update id="updateTwitterCustomerAvailableByTwitter">
-
+        UPDATE twitter_customer
+        SET available = #{available},
+        update_user_id = #{updateUserId}
+        update_time = NOW()
+        WHERE twitter_user_id = #{twitterUserId}
     </update>
 
     <select id="getDevelopCountByParentUserId" resultType="int">
@@ -188,7 +205,7 @@
 
     <sql id="twitterCustomerColumns">
         tc.`id` AS `id`,
-        tc.twitter_id AS twitterId,
+        tc.twitter_user_id AS twitterUserId,
         tc.user_id AS userId,
         tc.remark AS remark,
         tc.available AS available,

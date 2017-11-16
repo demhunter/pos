@@ -3,7 +3,7 @@
  */
 package com.pos.web.console.converter;
 
-import com.pos.web.console.vo.pos.PosUserSimpleInfoVo;
+import com.pos.web.console.vo.pos.CustomerSimpleInfoVo;
 import com.pos.pos.dto.user.PosUserIntegrateDto;
 
 import java.math.BigDecimal;
@@ -16,8 +16,8 @@ import java.math.BigDecimal;
  */
 public class PosConverter {
 
-    public static PosUserSimpleInfoVo toPosUserSimpleInfoVo(PosUserIntegrateDto dto) {
-        PosUserSimpleInfoVo vo = new PosUserSimpleInfoVo();
+    public static CustomerSimpleInfoVo toPosUserSimpleInfoVo(PosUserIntegrateDto dto) {
+        CustomerSimpleInfoVo vo = new CustomerSimpleInfoVo();
 
         vo.setId(dto.getId());
         vo.setUserId(dto.getUserId());

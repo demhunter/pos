@@ -154,44 +154,39 @@
 
     <select id="getPosUserCount" resultType="int">
         SELECT COUNT(*) FROM (
-            SELECT COUNT(DISTINCT upa.user_id)
-            FROM user_pos_auth AS upa
-            LEFT JOIN user_pos_channel_info AS upci ON upci.channel_user_id = upa.user_id
-            LEFT JOIN user_pos_card AS upc ON upc.id = upa.pos_card_id
+            SELECT COUNT(DISTINCT ca.user_id)
+            FROM customer_authority AS ca
+            LEFT JOIN twitter AS t ON t.user_id = ca.user_id
+            LEFT JOIN bank_card AS bc ON bc.id = ca.bank_card_id
             <include refid="conditionColumn"/>
-            GROUP BY upa.user_id
+            GROUP BY ca.user_id
         ) T
     </select>
 
     <select id="queryPosUsers" resultType="com.pos.pos.dto.user.PosUserIntegrateDto">
         SELECT
-            upa.id AS id,
-            upa.user_id AS userId,
-            upa.`get` AS `get`,
-            upa.get_rate AS getRate,
-            upa.twitter_status AS twitterStatus,
-            upa.spread AS spread,
-            upa.develop AS develop,
-            upa.create_date AS createTime,
-            upa.audit_status AS auditStatus,
-            upa.pos_card_id AS cardId,
-            upc.card_no AS bankCardNO,
-            upc.name AS bankCardName,
-            upc.id_card_no AS bankCardIdCardNO,
-            upc.mobile_phone AS mobilePhone,
-            upc.bank AS bankName,
-            upc.bank_code AS bankCode,
-            upc.card_type AS cardType,
-            upci.parent_user_id AS parentUserId,
-            upci.channel_user_id AS userId,
-            upci.channel_phone AS phone,
-            upci.channel_remark AS remark,
-            upci.create_date AS createTime,
-            upci.total_money AS totalWithdrawDeposit,
-            upci.apply_money AS currentWithdrawDeposit
-        FROM user_pos_auth AS upa
-        LEFT JOIN user_pos_channel_info AS upci ON upci.channel_user_id = upa.user_id
-        LEFT JOIN user_pos_card AS upc ON upc.id = upa.pos_card_id
+        ca.id AS id,
+        ca.user_id AS userId,
+        ca.`get` AS `get`,
+        ca.get_rate AS getRate,
+        ca.twitter_status AS twitterStatus,
+        ca.spread AS spread,
+        ca.develop AS develop,
+        ca.create_date AS createTime,
+        ca.audit_status AS auditStatus,
+        ca.pos_card_id AS cardId,
+        bc.card_no AS bankCardNO,
+        bc.name AS bankCardName,
+        bc.id_card_no AS bankCardIdCardNO,
+        bc.mobile_phone AS mobilePhone,
+        bc.bank AS bankName,
+        bc.bank_code AS bankCode,
+        bc.card_type AS cardType,
+        t.total_money AS totalWithdrawDeposit,
+        t.apply_money AS currentWithdrawDeposit
+        FROM customer authority AS ca
+        LEFT JOIN twitter AS t ON t.user_id = ca.user_id
+        LEFT JOIN bank_card AS bc ON bc.id = ca.bank_card_id
         <include refid="conditionColumn"/>
         <if test="orderHelper != null">
             ORDER BY  ${orderHelper.fieldName} ${orderHelper.ordination}
@@ -202,14 +197,14 @@
     </select>
 
     <update id="updateAuth">
-        UPDATE user_pos_auth
+        UPDATE customer_authority
         SET `get` = #{baseAuth.get},
         get_rate = #{baseAuth.getRate},
         twitter_status = #{baseAuth.twitterStatus},
         spread = #{baseAuth.spread},
         develop = #{baseAuth.develop},
         update_user_id = #{updateUserId},
-        update_date = NOW()
+        update_time = NOW()
         WHERE id = #{posId}
     </update>
 
@@ -217,54 +212,54 @@
         <if test="condition != null">
             <where>
                 <if test="condition.id != null">
-                    upa.id = #{condition.id}
+                    ca.id = #{condition.id}
                 </if>
                 <if test="condition.userId != null">
-                    AND upa.user_id = #{condition.userId}
+                    AND ca.user_id = #{condition.userId}
                 </if>
                 <if test="condition.userAuditStatus != null">
-                    AND upa.audit_status = #{condition.userAuditStatus}
+                    AND ca.audit_status = #{condition.userAuditStatus}
                 </if>
                 <if test="condition.getPermission != null">
                     <if test="condition.getPermission">
-                        AND upa.get = 2
+                        AND ca.get = 2
                     </if>
                     <if test="!condition.getPermission">
-                        AND (upa.get = 1 OR upa.get = 3)
+                        AND (ca.get = 1 OR ca.get = 3)
                     </if>
                 </if>
                 <if test="condition.twitterPermission != null">
                     <if test="condition.twitterPermission">
-                        AND upa.twitter_status = 2
+                        AND ca.twitter_status = 2
                     </if>
                     <if test="!condition.twitterPermission">
-                        AND (upa.twitter_status = 1 OR upa.twitter_status = 3)
+                        AND (ca.twitter_status = 1 OR ca.twitter_status = 3)
                     </if>
                 </if>
                 <if test="condition.bindingCard != null">
                     <if test="condition.bindingCard">
-                        AND upa.pos_card_id IS NOT NULL
+                        AND ca.bank_card_id IS NOT NULL
                     </if>
                     <if test="!condition.bindingCard">
-                        AND upa.pos_card_id IS NULL
+                        AND ca.bank_card_id IS NULL
                     </if>
                 </if>
                 <if test="condition.withdrawDeposit != null">
                     <if test="condition.withdrawDeposit">
-                        AND upci.apply_money &gt; 0
+                        AND t.apply_money &gt; 0
                     </if>
                     <if test="!condition.withdrawDeposit">
-                        AND (upci.apply_money IS NULL OR upci.apply_money = 0)
+                        AND (t.apply_money IS NULL OR t.apply_money = 0)
                     </if>
                 </if>
                 <if test="condition.beginTime != null">
-                    AND upa.create_date &gt;= #{condition.beginTime}
+                    AND ca.create_date &gt;= #{condition.beginTime}
                 </if>
                 <if test="condition.endTime != null">
-                    AND upa.create_date &lt;= #{condition.endTime}
+                    AND ca.create_date &lt;= #{condition.endTime}
                 </if>
                 <if test="condition.includeUserIds != null and condition.includeUserIds.size() > 0">
-                    AND upa.user_id IN
+                    AND ca.user_id IN
                     <foreach collection="condition.includeUserIds" index="index" item="item" open="(" separator="," close=")">
                         #{item}
                     </foreach>

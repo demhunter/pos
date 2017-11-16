@@ -196,28 +196,30 @@ public class AuthorityServiceImpl implements AuthorityService {
         authorityDao.updateAuth(authId, baseAuth, user.getUserId());
         // 开通推客功能权限需要特殊处理，第一次开通推客功能需要新增推客记录
         if (PosTwitterStatus.ENABLE.equals(baseAuth.parseTwitterStatus())) {
-            Twitter channel = posTwitterDao.getTwitterByUserId(oldAuth.getUserId());
-            if (channel == null) {
+            Twitter twitter = posTwitterDao.getTwitterByUserId(oldAuth.getUserId());
+            if (twitter == null) {
                 // 查询是否有关联上级推客
-                TwitterCustomer junior = posTwitterDao.getTwitterCustomerByUserId(oldAuth.getUserId());
-                if (junior != null && junior.getAvailable()) {
+                TwitterCustomer twitterCustomer = posTwitterDao.getTwitterCustomerByUserId(oldAuth.getUserId());
+                if (twitterCustomer != null && twitterCustomer.getAvailable()) {
                     // 解除关联关系
-                    junior.setAvailable(Boolean.FALSE);
-                    junior.setUpdateUserId(user.getUserId());
-                    posTwitterDao.updateTwitterCustomer(junior);
+                    twitterCustomer.setAvailable(Boolean.FALSE);
+                    twitterCustomer.setUpdateUserId(user.getUserId());
+                    posTwitterDao.updateTwitterCustomer(twitterCustomer);
                 }
                 // 开通成为没有上级的推客
-                channel = new Twitter();
-                channel.setUserId(oldAuth.getUserId());
-                posTwitterDao.saveTwitter(channel);
+                twitter = new Twitter();
+                twitter.setUserId(oldAuth.getUserId());
+                twitter.setTotalMoney(BigDecimal.ZERO);
+                twitter.setApplyMoney(BigDecimal.ZERO);
+                posTwitterDao.saveTwitter(twitter);
             }
         } else if (PosTwitterStatus.CLOSED.equals(baseAuth.parseTwitterStatus())) {
             Twitter twitter = posTwitterDao.getTwitterByUserId(oldAuth.getUserId());
             if (twitter != null) {
                 // 解除推客的上下级推客推客关系，推客的上下级推客客户关系
-                posTwitterDao.updateTwitterRelationAvailableByChild(twitter.getId(), false);
-                posTwitterDao.updateTwitterRelationAvailableByParent(twitter.getId(), false);
-                posTwitterDao.updateTwitterCustomerAvailableByTwitter(twitter.getId(), false);
+                posTwitterDao.updateTwitterRelationAvailableByChild(twitter.getId(), false, user.getUserId());
+                posTwitterDao.updateTwitterRelationAvailableByParent(twitter.getId(), false, user.getUserId());
+                posTwitterDao.updateTwitterCustomerAvailableByTwitter(twitter.getUserId(), false, user.getUserId());
             }
         }
         // 判断推客权限和收款费率是否变更，发送变更短信

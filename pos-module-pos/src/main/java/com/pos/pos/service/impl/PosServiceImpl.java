@@ -690,8 +690,8 @@ public class PosServiceImpl implements PosService {
             return true;
         }
         // 查询用户推客的上级推客信息
-        Twitter child = posTwitterDao.getTwitterById(twitterCustomer.getTwitterId());
-        Twitter parent = posTwitterDao.getParentTwitterByChild(twitterCustomer.getTwitterId());
+        Twitter child = posTwitterDao.getTwitterByUserId(twitterCustomer.getTwitterUserId());
+        Twitter parent = posTwitterDao.getParentTwitterByChild(twitterCustomer.getTwitterUserId());
         TwitterBrokerage brokerage = buildTwitterBrokerage(transactionRecord, child, parent);
 
         twitterBrokerageDao.save(brokerage);

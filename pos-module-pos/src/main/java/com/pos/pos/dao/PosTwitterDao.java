@@ -94,21 +94,25 @@ public interface PosTwitterDao {
      * 根据子推客id更新推客推客关联关系
      *
      * @param childTwitterId 子推客id
-     * @param available true：恢复关联；false：取消关联
+     * @param available      true：恢复关联；false：取消关联
+     * @param updateUserId   更新操作人UserId
      */
     void updateTwitterRelationAvailableByChild(
             @Param("childTwitterId") Long childTwitterId,
-            @Param("available") boolean available);
+            @Param("available") boolean available,
+            @Param("updateUserId") Long updateUserId);
 
     /**
      * 根据父推客id更新推客推客关联关系
      *
      * @param parentTwitterId 父推客id
-     * @param available true：恢复关联；false：取消关联
+     * @param available       true：恢复关联；false：取消关联
+     * @param updateUserId    更新操作人UserId
      */
     void updateTwitterRelationAvailableByParent(
             @Param("parentTwitterId") Long parentTwitterId,
-            @Param("available") boolean available);
+            @Param("available") boolean available,
+            @Param("updateUserId") Long updateUserId);
 
     /**
      * 保存推客客户关系
@@ -118,21 +122,23 @@ public interface PosTwitterDao {
     void saveTwitterCustomer(@Param("junior") TwitterCustomer customer);
 
     /**
-     * 更新推客客户关系 todo
+     * 更新推客客户关系
      *
-     * @param junior
+     * @param customer 推客客户关系
      */
-    void updateTwitterCustomer(@Param("junior") TwitterCustomer junior);
+    void updateTwitterCustomer(@Param("customer") TwitterCustomer customer);
 
     /**
      * 根据推客id更新推客客户关联关系
      *
-     * @param twitterId 推客id
-     * @param available true：恢复关联；false：取消关联
+     * @param twitterUserId 推客userId
+     * @param available     true：恢复关联；false：取消关联
+     * @param updateUserId  更新操作人UserId
      */
     void updateTwitterCustomerAvailableByTwitter(
-            @Param("twitterId") Long twitterId,
-            @Param("available") boolean available);
+            @Param("twitterUserId") Long twitterUserId,
+            @Param("available") boolean available,
+            @Param("updateUserId") Long updateUserId);
 
     /**
      * 查询用户发展的下级推客数量
@@ -143,7 +149,7 @@ public interface PosTwitterDao {
     int getDevelopCountByParentUserId(@Param("parentUserId") Long parentUserId);
 
     /**
-     * 查询用户发展的下级推客列表 TODO
+     * 查询用户发展的下级推客列表
      *
      * @param parentUserId 用户id
      * @param limitHelper  分页参数

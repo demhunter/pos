@@ -202,26 +202,26 @@ public class TwitterServiceImpl implements TwitterService {
         FieldChecker.checkEmpty(user, "user");
         record.check("record");
 
-        Twitter channel = posTwitterDao.getTwitterByUserId(record.getUserId());
-        if (channel == null) {
+        Twitter twitter = posTwitterDao.getTwitterByUserId(record.getUserId());
+        if (twitter == null) {
             return ApiResult.fail(PosUserErrorCode.CHANNEL_NOT_EXISTED);
         }
-        if (!channel.getApplyMoney().equals(record.getAmount())) {
-            LOG.error("data apply money:{}; handled apply money:{}", channel.getApplyMoney(), record.getAmount());
+        if (!twitter.getApplyMoney().equals(record.getAmount())) {
+            LOG.error("data apply money:{}; handled apply money:{}", twitter.getApplyMoney(), record.getAmount());
             return ApiResult.fail(PosUserErrorCode.CHANNEL_APPLY_MONEY_ERROR);
         }
         // 保存处理记录
         twitterBrokerageHandledDao.save(record);
         // 累计提现总金额，清空当前提现申请金额
-        BigDecimal totalMoney = channel.getTotalMoney() == null ? BigDecimal.ZERO : channel.getTotalMoney();
-        channel.setTotalMoney(totalMoney.add(record.getAmount()));
-        channel.setApplyMoney(BigDecimal.ZERO);
-        posTwitterDao.update(channel);
+        BigDecimal totalMoney = twitter.getTotalMoney() == null ? BigDecimal.ZERO : twitter.getTotalMoney();
+        twitter.setTotalMoney(totalMoney.add(record.getAmount()));
+        twitter.setApplyMoney(BigDecimal.ZERO);
+        posTwitterDao.update(twitter);
         // 标记已提现的收款
-        twitterBrokerageDao.markTwitterStatus(channel.getUserId(),
+        twitterBrokerageDao.markTwitterStatus(twitter.getUserId(),
                 GetAgentEnum.APPLY.getCode(), GetAgentEnum.GET.getCode(), null);
         twitterBrokerageDao.markParentStatus(user.getUserId(),
-                GetAgentEnum.NOT_GET.getCode(), GetAgentEnum.APPLY.getCode(), null);
+                GetAgentEnum.APPLY.getCode(), GetAgentEnum.GET.getCode(), null);
         // 发送申请已处理短信
         CustomerDto customer = customerService.findById(record.getUserId(), null);
         if (customer != null) {

@@ -4,13 +4,13 @@
 
 <mapper namespace="com.pos.pos.dao.TwitterBrokerageHandledDao">
     <insert id="save" parameterType="com.pos.pos.dto.BrokerageHandledRecordDto">
-        INSERT INTO user_pos_get_brokerage_record
+        INSERT INTO brokerage_handled
         (
             user_id,
             amount,
             pay_mode,
             voucher,
-            pay_date,
+            pay_time,
             remark
         ) VALUES (
             #{record.userId},

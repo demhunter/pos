@@ -4,9 +4,7 @@
 package com.pos.pos.service;
 
 import com.pos.common.util.mvc.support.*;
-import com.pos.basic.dto.UserIdentifier;
-import com.pos.pos.condition.query.PosUserCondition;
-import com.pos.pos.dto.auth.BaseAuthDto;
+import com.pos.pos.condition.query.CustomerCondition;
 import com.pos.pos.dto.user.PosUserIntegrateDto;
 
 /**
@@ -15,7 +13,7 @@ import com.pos.pos.dto.user.PosUserIntegrateDto;
  * @author wangbing
  * @version 1.0, 2017/8/25
  */
-public interface PosUserService {
+public interface PosCustomerService {
 
     /**
      * 查询符合条件的快捷收款用户聚合信息
@@ -25,5 +23,5 @@ public interface PosUserService {
      * @param limitHelper 分页参数
      * @return 查询结果
      */
-    Pagination<PosUserIntegrateDto> queryPosUsers(PosUserCondition condition, OrderHelper orderHelper, LimitHelper limitHelper);
+    Pagination<PosUserIntegrateDto> queryPosCustomers(CustomerCondition condition, OrderHelper orderHelper, LimitHelper limitHelper);
 }

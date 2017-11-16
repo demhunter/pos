@@ -8,7 +8,7 @@ import com.pos.common.util.mvc.support.OrderHelper;
 import com.pos.pos.dto.auth.AuthorityDetailDto;
 import com.pos.pos.dto.auth.AuthorityDto;
 import com.pos.pos.dto.user.PosUserIntegrateDto;
-import com.pos.pos.condition.query.PosUserCondition;
+import com.pos.pos.condition.query.CustomerCondition;
 import com.pos.pos.domain.Authority;
 import com.pos.pos.dto.auth.BaseAuthDto;
 import org.apache.ibatis.annotations.Param;
@@ -98,7 +98,7 @@ public interface AuthorityDao {
      * @param condition 查询条件
      * @return 符合条件的快捷收款用户数量
      */
-    int getPosUserCount(@Param("condition") PosUserCondition condition);
+    int getPosUserCount(@Param("condition") CustomerCondition condition);
 
     /**
      * 查询符合条件快捷收款用户列表
@@ -109,7 +109,7 @@ public interface AuthorityDao {
      * @return 查询结果
      */
     List<PosUserIntegrateDto> queryPosUsers(
-            @Param("condition") PosUserCondition condition,
+            @Param("condition") CustomerCondition condition,
             @Param("orderHelper") OrderHelper orderHelper,
             @Param("limitHelper") LimitHelper limitHelper);
 
@@ -118,6 +118,7 @@ public interface AuthorityDao {
      *
      * @param posId 被更新用户posId
      * @param baseAuth 新权限信息
+     * @param updateUserId 更新操作
      */
     void updateAuth(
             @Param("posId") Long posId,
