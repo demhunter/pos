@@ -39,10 +39,6 @@ public class PosTransaction implements Serializable {
 
     private BigDecimal posCharge;//提现手续费（平台支付给用户时，支付公司扣除的）
 
-    private Long companyId;//公司ID
-
-    private Byte costType;//支付的费用类型
-
     private Integer status;//状态
 
     private Date createTime;//创建时间
@@ -133,22 +129,6 @@ public class PosTransaction implements Serializable {
 
     public void setPosCharge(BigDecimal posCharge) {
         this.posCharge = posCharge;
-    }
-
-    public Long getCompanyId() {
-        return companyId;
-    }
-
-    public void setCompanyId(Long companyId) {
-        this.companyId = companyId;
-    }
-
-    public Byte getCostType() {
-        return costType;
-    }
-
-    public void setCostType(Byte costType) {
-        this.costType = costType;
     }
 
     public Integer getStatus() {

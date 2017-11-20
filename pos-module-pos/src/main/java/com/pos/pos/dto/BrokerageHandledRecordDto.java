@@ -60,7 +60,7 @@ public class BrokerageHandledRecordDto implements Serializable {
         FieldChecker.checkEmpty(PayModeEnum.getEnum(payMode), fieldPrefix + "payMode");
         FieldChecker.checkEmpty(voucher, fieldPrefix + "voucher");
         if (StringUtils.isNotEmpty(remark)) {
-            FieldChecker.checkMaxLength(remark, 15, fieldPrefix + "remark");
+            FieldChecker.checkMaxLength(remark, 50, fieldPrefix + "remark");
         }
     }
 
