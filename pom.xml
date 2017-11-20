@@ -93,12 +93,6 @@
 
             <dependency>
                 <groupId>com.pos</groupId>
-                <artifactId>pos-module-im</artifactId>
-                <version>${pos-module-im.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.pos</groupId>
                 <artifactId>pos-module-user</artifactId>
                 <version>${pos-module-user.version}</version>
             </dependency>
