@@ -113,6 +113,8 @@ public class UserController {
         loginInfoDto.setIdentityInfoDto(identityInfoDto);
         loginInfoDto.getIdentityInfoDto().setPassword(decryptedPassword);
         loginInfoDto.setIp(HttpRequestUtils.getRealRemoteAddr(request));
+        loginInfoDto.setRecommendId(registerRequestDto.getLeaderId());
+        loginInfoDto.setRecommendType(registerRequestDto.getType());
         ApiResult<UserRegConfirmDto> apiResult = registerService.addCustomer(loginInfoDto, true, CustomerType.NATURE);
 
         if (!apiResult.isSucc() || (apiResult.getData() != null && (apiResult.getData()).getNeedConfirm())) {
@@ -120,8 +122,8 @@ public class UserController {
         }
         CustomerDto customerDto = customerService.findByUserPhone(registerRequestDto.getPhone(), false, false);
         customerDto.setUserSession(userSessionPosComponent.add(session, new UserInfo(customerDto)));
-        // 绑定推客与注册用户的关系
-        posService.posLogin(customerDto, registerRequestDto.getType(), registerRequestDto.getLeaderId());
+        /*// 绑定推客与注册用户的关系
+        posService.posLogin(customerDto, registerRequestDto.getType(), registerRequestDto.getLeaderId());*/
         apiResult.getData().setCustomerDto(customerDto);
         apiResult.setMessage("客户注册成功！");
         return apiResult;
@@ -145,6 +147,9 @@ public class UserController {
         identityInfoDto.setSmsCode(registerRequestDto.getSmsCode());
         loginInfoDto.setIdentityInfoDto(identityInfoDto);
         loginInfoDto.setIp(HttpRequestUtils.getRealRemoteAddr(request));
+
+        loginInfoDto.setRecommendId(registerRequestDto.getLeaderId());
+        loginInfoDto.setRecommendType(registerRequestDto.getType());
         ApiResult apiResult = registerService.confirmCustomerRegister(loginInfoDto, true, CustomerType.NATURE);
 
         if (!apiResult.isSucc()) {

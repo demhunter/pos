@@ -3,7 +3,6 @@
  */
 package com.pos.user.dto.mq;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
@@ -26,6 +25,10 @@ public class CustomerInfoMsg implements Serializable {
 
     private String userName; // 注册客户姓名，例：业主****，注：在填写了邀请码时此字段才有意义
 
+    private Long recommendId; // 选填，上一级的userId
+
+    private Byte recommendType; // 选填，登录的类型（int，1 = 推广发展客户的链接，2 = 推广发展渠推客的链接）
+
     public CustomerInfoMsg() {
     }
 
@@ -36,6 +39,29 @@ public class CustomerInfoMsg implements Serializable {
         if (!StringUtils.isEmpty(invitationCode)) {
             this.userName = "业主" + userPhone.substring(userPhone.length() - 4, userPhone.length());
         }
+    }
+
+    public CustomerInfoMsg(Long userId, String userPhone, Long recommendId, Byte recommendType) {
+        this.userId = userId;
+        this.userPhone = userPhone;
+        this.recommendId = recommendId;
+        this.recommendType = recommendType;
+    }
+
+    public Long getRecommendId() {
+        return recommendId;
+    }
+
+    public void setRecommendId(Long recommendId) {
+        this.recommendId = recommendId;
+    }
+
+    public Byte getRecommendType() {
+        return recommendType;
+    }
+
+    public void setRecommendType(Byte recommendType) {
+        this.recommendType = recommendType;
     }
 
     public Long getUserId() {

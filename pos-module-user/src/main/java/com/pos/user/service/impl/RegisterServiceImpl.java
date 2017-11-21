@@ -135,7 +135,7 @@ public class RegisterServiceImpl implements RegisterService {
             confirmDto.setCustomerDto(customerDto);
 
             // 发送注册推荐人消息
-            // sendCustomerRegisterMessage(user.getId(), user.getUserPhone(), loginInfoDto.getInvitationCode());
+            sendCustomerRegisterMessage(user.getId(), user.getUserPhone(), loginInfoDto.getRecommendId(), loginInfoDto.getRecommendType());
 
             return ApiResult.succ(confirmDto);
         }
@@ -179,7 +179,7 @@ public class RegisterServiceImpl implements RegisterService {
         confirmDto.setCustomerDto(customerDto);
 
         // 发送注册推荐人消息
-        // sendCustomerRegisterMessage(existingUser.getId(), existingUser.getUserPhone(), loginInfoDto.getInvitationCode());
+        sendCustomerRegisterMessage(existingUser.getId(), existingUser.getUserPhone(), loginInfoDto.getRecommendId(), loginInfoDto.getRecommendType());
 
         return ApiResult.succ(confirmDto);
     }
@@ -208,7 +208,7 @@ public class RegisterServiceImpl implements RegisterService {
         Customer customer = saveCustomer(existingUser, customerType);
         CustomerDto customerDto = saveCustomer2IMServer(existingUser, userClass, customer);
         // 发送注册推荐人消息
-        sendCustomerRegisterMessage(existingUser.getId(), existingUser.getUserPhone(), loginInfoDto.getInvitationCode());
+        sendCustomerRegisterMessage(existingUser.getId(), existingUser.getUserPhone(), loginInfoDto.getRecommendId(), loginInfoDto.getRecommendType());
 
         return ApiResult.succ(customerDto);
     }
@@ -226,7 +226,7 @@ public class RegisterServiceImpl implements RegisterService {
         Customer customer = saveCustomer(existingUser, customerType);
         CustomerDto customerDto = saveCustomer2IMServer(existingUser, userClass, customer);
         // 发送注册推荐人消息
-        sendCustomerRegisterMessage(existingUser.getId(), existingUser.getUserPhone(), loginInfoDto.getInvitationCode());
+        sendCustomerRegisterMessage(existingUser.getId(), existingUser.getUserPhone(), loginInfoDto.getRecommendId(), loginInfoDto.getRecommendType());
 
         return ApiResult.succ(customerDto);
     }
@@ -408,9 +408,9 @@ public class RegisterServiceImpl implements RegisterService {
         }
     }
 
-    private void sendCustomerRegisterMessage(Long userId, String userPhone, String invitationCode) {
-        CustomerInfoMsg msg = new CustomerInfoMsg(userId, userPhone, invitationCode);
-        mqTemplate.sendDirectMessage(new MQMessage(MQReceiverType.CUSTOMER, "reg.route.key", msg));
+    private void sendCustomerRegisterMessage(Long userId, String userPhone, Long recommendUserId, Byte recommendType) {
+        CustomerInfoMsg msg = new CustomerInfoMsg(userId, userPhone, recommendUserId, recommendType);
+        mqTemplate.sendDirectMessage(new MQMessage(MQReceiverType.CUSTOMER, "pos.reg.route.key", msg));
         LOG.info("发送一条用户注册的消息");
     }
 

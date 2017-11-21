@@ -12,6 +12,7 @@
     <rabbit:direct-exchange name="pos.direct.exchange" durable="true" auto-delete="false">
         <rabbit:bindings>
             <rabbit:binding queue="pos.demo.queue" key="demo.route.key"/>
+            <rabbit:binding queue="pos.customer.reg.queue" key="pos.reg.route.key"/>
         </rabbit:bindings>
     </rabbit:direct-exchange>
 

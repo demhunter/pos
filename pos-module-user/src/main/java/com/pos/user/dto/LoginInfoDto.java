@@ -3,9 +3,7 @@
  */
 package com.pos.user.dto;
 
-import com.google.common.base.Strings;
 import com.wordnik.swagger.annotations.ApiModelProperty;
-import com.pos.user.constant.UserType;
 
 import java.io.Serializable;
 
@@ -39,22 +37,10 @@ public class LoginInfoDto implements Serializable {
     private Long recommendId;
 
     @ApiModelProperty("选填，登录的类型（int，1 = 推广发展客户的链接，2 = 推广发展渠推客的链接）")
-    private String recommendType;
+    private Byte recommendType;
 
     @ApiModelProperty("推客邀请码（可空）")
     private String invitationCode;
-
-    /**
-     * 是否有推荐人.
-     *
-     * @return
-     */
-    @Deprecated
-    public boolean hasRecommend() {
-        return recommendId != null
-                && !Strings.isNullOrEmpty(recommendType)
-                && UserType.getEnum(recommendType) != null;
-    }
 
     public IdentityInfoDto getIdentityInfoDto() {
         return identityInfoDto;
@@ -88,23 +74,19 @@ public class LoginInfoDto implements Serializable {
         this.invitationCode = invitationCode;
     }
 
-    @Deprecated
     public Long getRecommendId() {
         return recommendId;
     }
 
-    @Deprecated
     public void setRecommendId(Long recommendId) {
         this.recommendId = recommendId;
     }
 
-    @Deprecated
-    public String getRecommendType() {
+    public Byte getRecommendType() {
         return recommendType;
     }
 
-    @Deprecated
-    public void setRecommendType(String recommendType) {
+    public void setRecommendType(Byte recommendType) {
         this.recommendType = recommendType;
     }
 }
