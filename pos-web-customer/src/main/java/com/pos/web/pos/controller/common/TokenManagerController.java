@@ -23,7 +23,7 @@ import javax.annotation.Resource;
  */
 @RestController
 @RequestMapping("/upload/")
-@Api(value = "/upload", description = "文件上传相关接口")
+@Api(value = "/upload", description = "v1.0.0 * 文件上传相关接口")
 public class TokenManagerController {
 
     @Resource
@@ -35,7 +35,7 @@ public class TokenManagerController {
      * @return 发送结果
      */
     @RequestMapping(value = "getToken", method = RequestMethod.GET)
-    @ApiOperation(value = "getToken", notes = "七牛图片传输获取token")
+    @ApiOperation(value = "v1.0.0 * getToken", notes = "七牛图片传输获取token")
     public ApiResult<String> getUploadToken() {
         String token = uploadManager.getUpToken();
         ApiResult<String> apiResult = new ApiResult<>();
@@ -46,7 +46,7 @@ public class TokenManagerController {
     }
 
     @RequestMapping(value = "getToken/url", method = RequestMethod.GET)
-    @ApiOperation(value = "getToken/url", notes = "七牛图片传输获取token的URL")
+    @ApiOperation(value = "v1.0.0 * getToken/url", notes = "七牛图片传输获取token的URL")
     public QiNiuTokenVo getQiNiuToken() {
         QiNiuTokenVo tokenVo = new QiNiuTokenVo();
         tokenVo.setUptoken(uploadManager.getUpToken());

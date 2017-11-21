@@ -26,7 +26,7 @@ import javax.annotation.Resource;
  */
 @RestController
 @RequestMapping("/upload/")
-@Api(value = "/upload", description = "文件上传相关接口")
+@Api(value = "/upload", description = "v1.0.0 * 文件上传相关接口")
 public class TokenManagerController {
 
     @Resource
@@ -38,7 +38,7 @@ public class TokenManagerController {
      * @return 发送结果
      */
     @RequestMapping(value = "getToken", method = RequestMethod.GET)
-    @ApiOperation(value = "getToken", notes = "七牛图片传输获取token")
+    @ApiOperation(value = "v1.0.0 * getToken", notes = "七牛图片传输获取token")
     public ApiResult<String> getUploadToken() {
         String token = uploadManager.getUpToken();
         ApiResult<String> apiResult = new ApiResult<>();
@@ -54,7 +54,7 @@ public class TokenManagerController {
      * @return 发送结果
      */
     @RequestMapping(value = "getVideoToken", method = RequestMethod.GET)
-    @ApiOperation(value = "七牛视频传输获取token", notes = "七牛视频传输获取token")
+    @ApiOperation(value = "v1.0.0 * 七牛视频传输获取token", notes = "七牛视频传输获取token")
     public ApiResult<String> getVideoUploadToken() {
         String token = uploadManager.getVideoUpToken();
         ApiResult<String> apiResult = new ApiResult<>();
@@ -65,7 +65,7 @@ public class TokenManagerController {
     }
 
     @RequestMapping(value = "persistVideo", method = RequestMethod.GET)
-    @ApiOperation(value = "持久化并转码已上传到七牛的视频", notes = "持久化并转码已上传到七牛的视频")
+    @ApiOperation(value = "v1.0.0 * 持久化并转码已上传到七牛的视频", notes = "持久化并转码已上传到七牛的视频")
     public ApiResult<String> persistVideo(
             @ApiParam(name = "fileKey", value = "要持久化的文件KEY")
             @RequestParam("fileKey") String fileKey) {

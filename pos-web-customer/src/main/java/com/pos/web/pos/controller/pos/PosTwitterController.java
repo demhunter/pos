@@ -32,7 +32,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/pos/twitter")
-@Api(value = "/pos/twitter", description = "* 推客佣金相关接口")
+@Api(value = "/pos/twitter", description = "v1.0.0 * 推客佣金相关接口")
 public class PosTwitterController {
 
     @Resource
@@ -42,14 +42,14 @@ public class PosTwitterController {
     private PosUserBrokerageRecordService posUserBrokerageRecordService;
 
     @RequestMapping(value = "general", method = RequestMethod.GET)
-    @ApiOperation(value = "wb * 获取推客佣金简要统计信息", notes = "获取推客佣金简要统计信息")
+    @ApiOperation(value = "v1.0.0 * 获取推客佣金简要统计信息", notes = "获取推客佣金简要统计信息")
     public ApiResult<TwitterGeneralInfoDto> getTwitterGeneralInfo(
             @FromSession UserInfo userInfo) {
         return posUserChannelInfoService.queryTwitterGeneralInfo(userInfo.getId());
     }
 
     @RequestMapping(value = "statistics", method = RequestMethod.GET)
-    @ApiOperation(value = "v1.8.0 * wb 获取每日记录", notes = "获取每日记录")
+    @ApiOperation(value = "v1.0.0 * 获取每日记录", notes = "获取每日记录")
     public ApiResult<List<TwitterDailyStatisticsDto>> queryDailyStatistics(
             @ApiParam(name = "pageNum", value = "当前页编号")
             @RequestParam("pageNum") int pageNum,
@@ -61,14 +61,14 @@ public class PosTwitterController {
     }
 
     @RequestMapping(value = "apply", method = RequestMethod.POST)
-    @ApiOperation(value = "v1.8.0 * wb 申请提现", notes = "申请提现，不传金额，后端计算，申请提交成功返回申请提现的金额")
+    @ApiOperation(value = "v1.0.0 * 申请提现", notes = "申请提现，不传金额，后端计算，申请提交成功返回申请提现的金额")
     public ApiResult<BigDecimal> addWithdrawDepositApply(
             @FromSession UserInfo userInfo) {
         return posUserChannelInfoService.applyWithdrawBrokerage(userInfo.buildUserIdentifier());
     }
 
     @RequestMapping(value = "applied/record", method = RequestMethod.GET)
-    @ApiOperation(value = "v1.8.0 * wb 提现记录", notes = "提现记录")
+    @ApiOperation(value = "v1.0.0 * 提现记录", notes = "提现记录")
     public ApiResult<List<PosUserGetBrokerageRecordDto>> queryWithdrawDepositRecord(
             @ApiParam(name = "pageNum", value = "当前页编号")
             @RequestParam("pageNum") int pageNum,

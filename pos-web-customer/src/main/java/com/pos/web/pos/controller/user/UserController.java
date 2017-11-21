@@ -47,7 +47,7 @@ import javax.servlet.http.HttpSession;
  */
 @RestController
 @RequestMapping("/user")
-@Api(value = "/user", description = "* 基本用户相关接口(* 获取推荐人信息接口)")
+@Api(value = "/user", description = "v1.0.0 * 基本用户相关接口(* 获取推荐人信息接口)")
 public class UserController {
 
     private final static Logger logger = LoggerFactory.getLogger(UserController.class);
@@ -83,7 +83,7 @@ public class UserController {
     private PosUserChannelInfoService posUserChannelInfoService;
 
     @RequestMapping(value = "referrer/{referrerUserId}", method = RequestMethod.GET)
-    @ApiOperation(value = "* 分享出去的页面注册时获取推荐人信息", notes = "分享出去的页面注册时获取推荐人信息")
+    @ApiOperation(value = "v1.0.0 * 分享出去的页面注册时获取推荐人信息", notes = "分享出去的页面注册时获取推荐人信息")
     public ApiResult<ReferrerSimpleDto> getReferrerInfo(
             @ApiParam(name = "referrerUserId", value = "推荐人userId")
             @PathVariable("referrerUserId") Long referrerUserId) {
@@ -98,7 +98,7 @@ public class UserController {
      */
     @SuppressWarnings("all")
     @RequestMapping(value = "register", method = RequestMethod.POST)
-    @ApiOperation(value = "用户注册请求", notes = "用户注册请求")
+    @ApiOperation(value = "v1.0.0 * 用户注册请求", notes = "用户注册请求")
     public ApiResult<UserRegConfirmDto> register(
             @ApiParam(name = "registerRequestDto", value = "注册相关信息")
             @RequestBody RegisterRequestDto registerRequestDto,
@@ -132,7 +132,7 @@ public class UserController {
      * @return 开通结果
      */
     @RequestMapping(value = "confirm", method = RequestMethod.POST)
-    @ApiOperation(value = "用户确认开通角色", notes = "用户确认开通角色")
+    @ApiOperation(value = "v1.0.0 * 用户确认开通角色", notes = "用户确认开通角色")
     public ApiResult<CustomerDto> confirm(
             @ApiParam(name = "registerRequestDto", value = "登录相关信息")
             @RequestBody RegisterRequestDto registerRequestDto,
@@ -162,7 +162,7 @@ public class UserController {
      * @return 登录结果
      */
     @RequestMapping(value = "login", method = RequestMethod.POST)
-    @ApiOperation(value = "wb * 用户登录接口", notes = "用户登录接口(wb * 只返回用户基本信息，其它信息再调用获取用户信息接口获取详细信息)")
+    @ApiOperation(value = "v1.0.0 * 用户登录接口", notes = "用户登录接口(wb * 只返回用户基本信息，其它信息再调用获取用户信息接口获取详细信息)")
     public ApiResult<CustomerDto> login(
             @ApiParam(name = "loginInfoVo", value = "登录相关信息")
             @RequestBody LoginRequestDto loginRequestDto,
@@ -177,7 +177,7 @@ public class UserController {
      * @return 登录结果
      */
     @RequestMapping(value = "loginTest", method = RequestMethod.POST)
-    @ApiOperation(value = "wb * 登录测试接口", notes = "管理员登录测试接口，用于开发/测试环境下调试")
+    @ApiOperation(value = "v1.0.0 * 登录测试接口", notes = "管理员登录测试接口，用于开发/测试环境下调试")
     public ApiResult<CustomerDto> loginTest(
             @ApiParam(name = "loginInfoVo", value = "登录相关信息")
             @RequestBody LoginRequestDto loginRequestDto,
@@ -191,7 +191,7 @@ public class UserController {
      * @return 登出结果
      */
     @RequestMapping(value = "logout", method = RequestMethod.POST)
-    @ApiOperation(value = "用户登出接口", notes = "用户登出接口")
+    @ApiOperation(value = "v1.0.0 * 用户登出接口", notes = "用户登出接口")
     public ApiResult<NullObject> logout(@FromSession UserInfo userInfo, HttpSession httpSession) {
         if (userInfo == null) {
             return ApiResult.fail(UserErrorCode.USER_NOT_LOGIN);
@@ -208,7 +208,7 @@ public class UserController {
      * @return 发送结果
      */
     @RequestMapping(value = "sendSmsCode", method = RequestMethod.POST)
-    @ApiOperation(value = "发送短信验证码请求", notes = "发送短信验证码请求")
+    @ApiOperation(value = "v1.0.0 * 发送短信验证码请求", notes = "发送短信验证码请求")
     public ApiResult sendSmsCode(
             @ApiParam(name = "phone", value = "用户手机号")
             @RequestParam("phone") String phone,
@@ -229,7 +229,7 @@ public class UserController {
      * @return 用户信息结果
      */
     @RequestMapping(value = "getBackPassword", method = RequestMethod.POST)
-    @ApiOperation(value = "找回密码请求", notes = "找回密码请求，找回成功后如果用户已经开通C端账号则自动登录(v1.3.3 返回自定义UserSession)")
+    @ApiOperation(value = "v1.0.0 * 找回密码请求", notes = "找回密码请求，找回成功后如果用户已经开通C端账号则自动登录(v1.3.3 返回自定义UserSession)")
     public ApiResult getBackPassword(
             @ApiParam(name = "loginInfoVo", value = "登录相关信息")
             @RequestBody RegisterRequestDto loginInfoVo) {

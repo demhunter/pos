@@ -32,7 +32,7 @@ import javax.servlet.http.HttpSession;
  */
 @RestController
 @RequestMapping("/user")
-@Api(value = "user", description = "快捷收款管理员相关接口")
+@Api(value = "user", description = "v1.0.0 * 快捷收款管理员相关接口")
 public class UserController {
 
     @Resource
@@ -42,7 +42,7 @@ public class UserController {
     private SecurityService securityService;
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
-    @ApiOperation(value = "管理员登录接口", notes = "管理员登录接口")
+    @ApiOperation(value = "v1.0.0 * 管理员登录接口", notes = "管理员登录接口")
     public ApiResult<ManagerDto> login(
             @ApiParam(name = "userForm", value = "用户名,用户密码,验证码")
             @RequestBody UserForm userForm,
@@ -51,7 +51,7 @@ public class UserController {
     }
 
     @RequestMapping(value = "/loginTest", method = RequestMethod.POST)
-    @ApiOperation(value = "管理员登录测试接口", notes = "管理员登录测试接口，用于开发/测试环境下调试")
+    @ApiOperation(value = "v1.0.0 * 管理员登录测试接口", notes = "管理员登录测试接口，用于开发/测试环境下调试")
     public ApiResult<ManagerDto> loginTest(
             @ApiParam(name = "userForm", value = "用户名,用户密码,验证码")
             @RequestBody UserForm userForm,
@@ -60,7 +60,7 @@ public class UserController {
     }
 
     @RequestMapping(value = "/logout", method = RequestMethod.POST)
-    @ApiOperation(value = "管理员登出接口", notes = "管理员登出接口")
+    @ApiOperation(value = "v1.0.0 * 管理员登出接口", notes = "管理员登出接口")
     public ApiResult<NullObject> logout(HttpSession httpSession) {
         SessionUtils.removeUserInfo(httpSession);
         return ApiResult.succ(null, "管理员已退出！");

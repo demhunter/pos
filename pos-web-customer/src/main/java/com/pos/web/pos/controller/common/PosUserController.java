@@ -34,7 +34,7 @@ import javax.annotation.Resource;
  */
 @RestController
 @RequestMapping("/pos/user")
-@Api(value = "/pos/user", description = "* pos用户信息接口")
+@Api(value = "/pos/user", description = "v1.0.0 * pos用户信息接口")
 public class PosUserController {
 
     @Resource
@@ -50,7 +50,7 @@ public class PosUserController {
     private PosUserTransactionRecordService posUserTransactionRecordService;
 
     @RequestMapping(value = "", method = RequestMethod.GET)
-    @ApiOperation(value = "wb * 获取用户信息，用以展示首页内容", notes = "获取用户信息，用以展示首页内容")
+    @ApiOperation(value = "v1.0.0 * 获取用户信息，用以展示首页内容", notes = "获取用户信息，用以展示首页内容")
     public ApiResult<CustomerVo> getPosUserInfo(
             @FromSession UserInfo userInfo) {
         CustomerDto customer = customerService.findById(userInfo.getId(), true, false);

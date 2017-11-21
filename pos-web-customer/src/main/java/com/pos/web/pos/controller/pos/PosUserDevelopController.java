@@ -27,21 +27,21 @@ import javax.annotation.Resource;
  */
 @RestController
 @RequestMapping(value = "/pos/develop")
-@Api(value = "/pos/develop", description = "* 发展下级推客相关接口")
+@Api(value = "/pos/develop", description = "v1.0.0 * 发展下级推客相关接口")
 public class PosUserDevelopController {
 
     @Resource
     private PosUserChannelInfoService posUserChannelInfoService;
 
     @RequestMapping(value = "general", method = RequestMethod.GET)
-    @ApiOperation(value = "wb * 获取发展下级推客概要信息", notes = "获取发展下级推客概要信息")
+    @ApiOperation(value = "v1.0.0 * 获取发展下级推客概要信息", notes = "获取发展下级推客概要信息")
     public ApiResult<DevelopGeneralInfoDto> getDevelopGeneralInfo(
             @FromSession UserInfo userInfo) {
         return posUserChannelInfoService.getDevelopGeneralInfo(userInfo.getId());
     }
 
     @RequestMapping(value = "", method = RequestMethod.GET)
-    @ApiOperation(value = "wb * 发展的下级推客列表", notes = "发展的下级推客列表")
+    @ApiOperation(value = "v1.0.0 * 发展的下级推客列表", notes = "发展的下级推客列表")
     public ApiResult<Pagination<PosUserChildChannelDto>> queryChildChannels(
             @ApiParam(name = "pageNum", value = "当前页编号")
             @RequestParam("pageNum") int pageNum,
@@ -53,7 +53,7 @@ public class PosUserDevelopController {
     }
 
     @RequestMapping(value = "{developId}/remark", method = RequestMethod.POST)
-    @ApiOperation(value = "wb * 编辑下级推客的备注", notes = "编辑下级推客的备注")
+    @ApiOperation(value = "v1.0.0 * 编辑下级推客的备注", notes = "编辑下级推客的备注")
     public ApiResult<NullObject> updateChildChannelRemark(
             @ApiParam(name = "developId", value = "下级推客的主键id")
             @PathVariable("developId") Long developId,

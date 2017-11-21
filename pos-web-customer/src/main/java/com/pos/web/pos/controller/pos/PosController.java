@@ -58,7 +58,7 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/pos")
-@Api(value = "/pos", description = "* 支付业务相关接口")
+@Api(value = "/pos", description = "v1.0.0 * 支付业务相关接口")
 public class PosController {
 
     private final static Logger LOG = LoggerFactory.getLogger(PosController.class);
@@ -79,7 +79,7 @@ public class PosController {
 
 
     @RequestMapping(value = "explain", method = RequestMethod.GET)
-    @ApiOperation(value = "功能说明", notes = "功能说明的地址")
+    @ApiOperation(value = "v1.0.0 * 功能说明", notes = "功能说明的地址")
     public ApiResult<OnlyStringVo> explain() {
         OnlyStringVo onlyStringVo = new OnlyStringVo();
         onlyStringVo.setResult(globalConstants.explainUrl);
@@ -87,14 +87,14 @@ public class PosController {
     }
 
     @RequestMapping(value = "identity", method = RequestMethod.GET)
-    @ApiOperation(value = "wb * 获取已提交的身份认证信息", notes = "获取已提交的身份认证信息（PS：从未提交过身份认证信息则返回空）")
+    @ApiOperation(value = "v1.0.0 * 获取已提交的身份认证信息", notes = "获取已提交的身份认证信息（PS：从未提交过身份认证信息则返回空）")
     public ApiResult<PosUserIdentityDto> getIdentityInfo(
             @FromSession UserInfo userInfo) {
         return ApiResult.succ(posService.getIdentityInfo(userInfo.getId(), false));
     }
 
     @RequestMapping(value = "identity", method = RequestMethod.POST)
-    @ApiOperation(value = "wb * 提交身份认证信息-1", notes = "提交身份认证信息-1")
+    @ApiOperation(value = "v1.0.0 * 提交身份认证信息-1", notes = "提交身份认证信息-1")
     public ApiResult<NullObject> updateIdentityInfo(
             @ApiParam(name = "identityInfo", value = "身份认证信息")
             @RequestBody PosUserIdentityDto identityInfo,
@@ -103,14 +103,14 @@ public class PosController {
     }
 
     @RequestMapping(value = "bindCard", method = RequestMethod.GET)
-    @ApiOperation(value = "wb * 获取绑定的收款卡信息，身份认证信息-2", notes = "获取绑定的收款卡信息，身份认证信息-2（PS：从未绑定过收款银行卡则返回空）")
+    @ApiOperation(value = "v1.0.0 * 获取绑定的收款卡信息，身份认证信息-2", notes = "获取绑定的收款卡信息，身份认证信息-2（PS：从未绑定过收款银行卡则返回空）")
     public ApiResult<BindCardDto> getBindCardInfo(
             @FromSession UserInfo userInfo) {
         return ApiResult.succ(posService.getBindCardInfo(userInfo.getId(), false));
     }
 
     @RequestMapping(value = "bindCard", method = RequestMethod.POST)
-    @ApiOperation(value = "wb * 绑定收款卡，提交身份认证信息-2", notes = "绑定收款银行卡，提交身份认证信息-2")
+    @ApiOperation(value = "v1.0.0 * 绑定收款卡，提交身份认证信息-2", notes = "绑定收款银行卡，提交身份认证信息-2")
     public ApiResult<NullObject> bingCard(
             @ApiParam(name = "bindCardInfo", value = "绑卡信息")
             @RequestBody BindCardDto bindCardInfo,
@@ -119,14 +119,14 @@ public class PosController {
     }
 
     @RequestMapping(value = "quickGetMoney", method = RequestMethod.GET)
-    @ApiOperation(value = "wb 快捷收款-1，获取当前用户快捷收款相关信息", notes = "点击快捷收款，快捷收款-1，获取当前用户快捷收款相关信息")
+    @ApiOperation(value = "v1.0.0 * 快捷收款-1，获取当前用户快捷收款相关信息", notes = "点击快捷收款，快捷收款-1，获取当前用户快捷收款相关信息")
     public ApiResult<QuickGetMoneyDto> quickGetMoney(
             @FromSession UserInfo userInfo) {
         return posService.getQuickInfo(userInfo.getId());
     }
 
     @RequestMapping(value = "bank-card/{cardId}/delete", method = RequestMethod.POST)
-    @ApiOperation(value = "wb * 删除已保存的卡信息", notes = "删除已保存的卡信息")
+    @ApiOperation(value = "v1.0.0 * 删除已保存的卡信息", notes = "删除已保存的卡信息")
     public ApiResult<NullObject> deleteBankCard(
             @ApiParam(name = "cardId", value = "银行卡id")
             @PathVariable("cardId") Long cardId,
@@ -166,7 +166,7 @@ public class PosController {
 //    }
 
     @RequestMapping(value = "selectCard", method = RequestMethod.POST)
-    @ApiOperation(value = "wb 快捷收款-2-1，选择一张卡，下单", notes = "快捷收款-2-1，选择一张付款的卡，并且填写金额,下单")
+    @ApiOperation(value = "v1.0.0 * 快捷收款-2-1，选择一张卡，下单", notes = "快捷收款-2-1，选择一张付款的卡，并且填写金额,下单")
     public ApiResult<CreateOrderDto> selectCard(
             @ApiParam(name = "selectCardRequestDto", value = "选卡下单信息")
             @RequestBody SelectCardRequestDto selectCardRequestDto,
@@ -176,7 +176,7 @@ public class PosController {
     }
 
     @RequestMapping(value = "writeCard", method = RequestMethod.POST)
-    @ApiOperation(value = "wb 快捷收款-2-2，填写卡信息，下单", notes = "快捷收款-2-2，手动填写卡信息，下单")
+    @ApiOperation(value = "v1.0.0 * 快捷收款-2-2，填写卡信息，下单", notes = "快捷收款-2-2，手动填写卡信息，下单")
     public ApiResult<CreateOrderDto> writeCard(
             @ApiParam(name = "getMoneyRequestDto", value = "填写卡信息下单信息")
             @RequestBody GetMoneyDto getMoneyRequestDto,
@@ -186,7 +186,7 @@ public class PosController {
     }
 
     @RequestMapping(value = "getSmsCode/{recordId}", method = RequestMethod.POST)
-    @ApiOperation(value = "快捷收款-3，提现时获取验证码", notes = "提现时获取验证码")
+    @ApiOperation(value = "v1.0.0 * 快捷收款-3，提现时获取验证码", notes = "提现时获取验证码")
     public ApiResult<NullObject> getSmsCode(
             @ApiParam(name = "recordId", value = "记录ID")
             @PathVariable("recordId") Long recordId,
@@ -195,7 +195,7 @@ public class PosController {
     }
 
     @RequestMapping(value = "getMoney/{recordId}", method = RequestMethod.POST)
-    @ApiOperation(value = "快捷收款-4，提现", notes = "快捷收款-3，提现")
+    @ApiOperation(value = "v1.0.0 * 快捷收款-4，提现", notes = "快捷收款-3，提现")
     public ApiResult<NullObject> getMoney(
             @ApiParam(name = "recordId", value = "记录ID")
             @PathVariable("recordId") Long recordId,
@@ -222,7 +222,7 @@ public class PosController {
     }
 
     @RequestMapping(value = "records", method = RequestMethod.GET)
-    @ApiOperation(value = "wb * 收款记录", notes = "收款记录（* 卡号只有后四位）")
+    @ApiOperation(value = "v1.0.0 * 收款记录", notes = "收款记录（* 卡号只有后四位）")
     public ApiResult<List<RecordVo>> transactionRecords(
             @ApiParam(name = "pageNum", value = "页码，默认为1")
             @RequestParam("pageNum") int pageNum,
@@ -286,7 +286,7 @@ public class PosController {
     }
 
     @RequestMapping(value = "getSign", method = RequestMethod.POST)
-    @ApiOperation(value = "获取微信分享的签名", notes = "获取微信分享的签名")
+    @ApiOperation(value = "v1.0.0 * 获取微信分享的签名", notes = "获取微信分享的签名")
     public ApiResult<GetSignDto> getSign(
             @RequestBody GetSignRequestDto getSignRequestDto) {
         return posService.getSign(getSignRequestDto.getUrl());

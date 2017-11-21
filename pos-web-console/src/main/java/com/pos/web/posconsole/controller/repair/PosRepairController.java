@@ -18,7 +18,7 @@ import javax.annotation.Resource;
  */
 @RestController
 @RequestMapping("/repair")
-@Api(value = "/repair", description = "POS数据修复相关接口")
+@Api(value = "/repair", description = "v1.0.0 * POS数据修复相关接口")
 public class PosRepairController {
 
     @Resource

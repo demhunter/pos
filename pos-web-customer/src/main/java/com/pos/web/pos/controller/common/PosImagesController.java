@@ -25,7 +25,7 @@ import javax.annotation.Resource;
  */
 @RestController
 @RequestMapping("/images")
-@Api(value = "/images", description = "图片接口")
+@Api(value = "/images", description = "v1.0.0 * 图片接口")
 public class PosImagesController {
 
     private final static Logger logger = LoggerFactory.getLogger(PosImagesController.class);
@@ -34,7 +34,7 @@ public class PosImagesController {
     private PosWeChatMediaSupport posWeChatMediaSupport;
 
     @RequestMapping(value = "upload/wechat-media", method = RequestMethod.GET)
-    @ApiOperation(value = "上传微信的多媒体素材到七牛", notes = "上传微信的多媒体素材到七牛")
+    @ApiOperation(value = "v1.0.0 * 上传微信的多媒体素材到七牛", notes = "上传微信的多媒体素材到七牛")
     public ApiResult<String> uploadWeChatImageToQiNiu(
             @ApiParam(name = "mediaId", value = "微信多媒体素材id（图片格式的素材）")
             @RequestParam("mediaId") String mediaId) {
