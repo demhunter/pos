@@ -3,25 +3,28 @@
  */
 package com.pos.user.service.support;
 
-import java.util.Calendar;
-
-import javax.annotation.Resource;
-
+import com.pos.common.util.basic.JsonUtils;
+import com.pos.common.util.exception.IllegalParamException;
+import com.pos.common.util.exception.ValidationException;
+import com.pos.common.util.validation.FieldChecker;
 import com.pos.user.constant.UserType;
-import com.pos.user.dao.*;
-import com.pos.user.domain.*;
+import com.pos.user.dao.CustomerDao;
+import com.pos.user.dao.ManagerDao;
+import com.pos.user.dao.UserClassDao;
+import com.pos.user.dao.UserDao;
+import com.pos.user.domain.Customer;
+import com.pos.user.domain.Manager;
+import com.pos.user.domain.User;
+import com.pos.user.domain.UserClass;
 import com.pos.user.dto.UserDto;
-import com.pos.user.dto.employee.EmployeeDto;
+import com.pos.user.dto.converter.UserDtoConverter;
 import com.pos.user.dto.manager.ManagerDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import com.pos.common.util.basic.JsonUtils;
-import com.pos.common.util.exception.IllegalParamException;
-import com.pos.common.util.exception.ValidationException;
-import com.pos.common.util.validation.FieldChecker;
-import com.pos.user.dto.converter.UserDtoConverter;
+import javax.annotation.Resource;
+import java.util.Calendar;
 
 /**
  * 用户服务支撑类, 仅供内部服务调用.
@@ -44,12 +47,6 @@ public class UserServiceSupport {
     private CustomerDao customerDao;
 
     @Resource
-    private EmployeeDao employeeDao;
-
-    @Resource
-    private MerchantDao merchantDao;
-
-    @Resource
     private ManagerDao managerDao;
 
     /**
@@ -65,10 +62,6 @@ public class UserServiceSupport {
         UserDto userDto;
         if (UserType.CUSTOMER == userType) {
             userDto = customerDao.findCustomerByUserId(userId, deleted ? null : false, disable ? null : true);
-        } else if (UserType.EMPLOYEE == userType) {
-            userDto = employeeDao.findEmployeeByUserId(userId, deleted ? null : false, disable ? null : true);
-        } else if (UserType.BUSINESS == userType) {
-            userDto = merchantDao.findMerchantByUserId(userId, deleted ? null : false, disable ? null : true);
         } else if (UserType.MANAGER == userType) {
             userDto = managerDao.findManagerByUserId(userId, deleted ? null : false, disable ? null : true);
         } else {
@@ -91,10 +84,6 @@ public class UserServiceSupport {
         UserDto userDto;
         if (UserType.CUSTOMER == userType) {
             userDto = customerDao.findCustomerByUserName(userName, deleted ? null : false, disable ? null : true);
-        } else if (UserType.EMPLOYEE == userType) {
-            userDto = employeeDao.findEmployeeByUserName(userName, deleted ? null : false, disable ? null : true);
-        } else if (UserType.BUSINESS == userType) {
-            userDto = merchantDao.findMerchantByUserName(userName, deleted ? null : false, disable ? null : true);
         } else if (UserType.MANAGER == userType) {
             userDto = managerDao.findManagerByUserName(userName, deleted ? null : false, disable ? null : true);
         } else {
@@ -118,10 +107,6 @@ public class UserServiceSupport {
         UserDto user;
         if (UserType.CUSTOMER == userType) {
             user = customerDao.findCustomerByUserPhone(userPhone, deleted ? null : false, disable ? null : true);
-        } else if (UserType.EMPLOYEE == userType) {
-            user = employeeDao.findEmployeeByUserPhone(userPhone, deleted ? null : false, disable ? null : true);
-        } else if (UserType.BUSINESS == userType) {
-            user = merchantDao.findMerchantByUserPhone(userPhone, deleted ? null : false, disable ? null : true);
         } else if (UserType.MANAGER == userType) {
             user = managerDao.findManagerByUserPhone(userPhone, deleted ? null : false, disable ? null : true);
         } else {
@@ -145,16 +130,6 @@ public class UserServiceSupport {
             Customer customer = customerDao.getByUserId(user.getId());
             if (customer != null) {
                 userDto = UserDtoConverter.convert2CustomerDto(user, uc, customer);
-            }
-        } else if (userType == UserType.EMPLOYEE) {
-            Employee employee = employeeDao.getByUserId(user.getId());
-            if (employee != null) {
-                userDto = UserDtoConverter.convert2EmployeeDto(user, uc, employee);
-            }
-        } else if (userType == UserType.BUSINESS) {
-            Merchant merchant = merchantDao.getByUserId(user.getId());
-            if (merchant != null) {
-                userDto = UserDtoConverter.convert2MerchantDto(user, uc, merchant);
             }
         } else if (userType == UserType.MANAGER) {
             Manager manager = managerDao.getByUserId(user.getId());
@@ -233,8 +208,6 @@ public class UserServiceSupport {
     public Byte getUserDetailType(UserDto user) {
         if (user instanceof ManagerDto) {
             return ((ManagerDto) user).getUserDetailType();
-        } else if (user instanceof EmployeeDto) {
-            return ((EmployeeDto) user).getUserDetailType();
         } else {
             return null;
         }
