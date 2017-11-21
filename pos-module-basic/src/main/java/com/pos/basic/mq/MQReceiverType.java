@@ -21,7 +21,9 @@ public enum MQReceiverType {
 
     EMPLOYEE((byte) 3, "employee"),
 
-    BUSINESS((byte) 4, "business");
+    BUSINESS((byte) 4, "business"),
+
+    POS((byte) 5, "pos");
 
     /**
      * 标识码

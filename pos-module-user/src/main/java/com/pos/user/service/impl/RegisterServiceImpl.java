@@ -410,7 +410,7 @@ public class RegisterServiceImpl implements RegisterService {
 
     private void sendCustomerRegisterMessage(Long userId, String userPhone, Long recommendUserId, Byte recommendType) {
         CustomerInfoMsg msg = new CustomerInfoMsg(userId, userPhone, recommendUserId, recommendType);
-        mqTemplate.sendDirectMessage(new MQMessage(MQReceiverType.CUSTOMER, "pos.reg.route.key", msg));
+        mqTemplate.sendDirectMessage(new MQMessage(MQReceiverType.POS, "pos.reg.route.key", msg));
         LOG.info("发送一条用户注册的消息");
     }
 
