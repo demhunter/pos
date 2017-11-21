@@ -3,10 +3,10 @@
  */
 package com.pos.basic.service.impl;
 
+import com.pos.basic.service.PhoneAddressService;
 import com.pos.basic.dao.AreaDao;
 import com.pos.basic.domain.Area;
 import com.pos.basic.dto.phoneAddress.PhoneAddressResultDto;
-import com.pos.basic.service.PhoneAddressService;
 import com.pos.common.util.basic.JsonUtils;
 import com.pos.common.util.basic.SimpleRegexUtils;
 import com.pos.common.util.validation.FieldChecker;

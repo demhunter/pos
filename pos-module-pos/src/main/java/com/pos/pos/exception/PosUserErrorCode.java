@@ -19,7 +19,7 @@ public enum PosUserErrorCode implements ErrorCode {
 
     CURRENT_APPLY_MONEY_NOT_EMPTY(1803, "还有待处理的提现申请，不能再次申请提现"),
 
-    CURRENT_APPLY_MONEY_IS_ZERO(1804, "当前可提现金额为0，不能申请提现"),
+    CURRENT_APPLY_MONEY_LESS_THAN_TEN(1804, "当前可提现金额小于10元，不能申请提现"),
 
     DATA_EXCEPTION(1805, "数据异常"),
 
@@ -34,8 +34,6 @@ public enum PosUserErrorCode implements ErrorCode {
     IDENTITY_INFO_REFRESHED_ERROR(1810, "用户身份认证信息已过时，请刷新过后重新审核"),
 
     NOT_SUBMIT_ERROR_FOR_GET(1811, "身份认证信息还未提交，不能进行收款操作，请先提交身份认证信息"),
-
-    REJECTED_ERROR_FOR_GET(1811, "身份认证信息审核未通过，不能进行收款操作，请重新身份认证信息"),
 
     PERMISSION_GET_ERROR(1812, "暂无快捷收款权限"),
 
@@ -59,7 +57,9 @@ public enum PosUserErrorCode implements ErrorCode {
 
     WECHAT_ERROR_FOR_ACCESS_TOKEN(1822, "获取微信access token失败"),
 
-    WECHAT_ERROR_UPLOAD_IMAGE(1823, "图片上传失败");
+    WECHAT_ERROR_UPLOAD_IMAGE(1823, "图片上传失败"),
+
+    REJECTED_ERROR_FOR_GET(1824, "身份认证信息审核未通过，不能进行收款操作，请重新身份认证信息");
 
     private final int code;
 

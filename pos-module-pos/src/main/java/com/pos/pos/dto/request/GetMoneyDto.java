@@ -3,7 +3,6 @@
  */
 package com.pos.pos.dto.request;
 
-import com.pos.pos.constants.PosConstants;
 import com.pos.pos.dto.card.PosCardValidInfoDto;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 import com.pos.basic.service.SecurityService;
@@ -11,6 +10,7 @@ import com.pos.common.util.basic.Copyable;
 import com.pos.common.util.basic.SimpleRegexUtils;
 import com.pos.common.util.exception.IllegalParamException;
 import com.pos.common.util.validation.FieldChecker;
+import com.pos.pos.constants.PosConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 

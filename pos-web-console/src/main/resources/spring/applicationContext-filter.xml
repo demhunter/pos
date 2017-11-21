@@ -38,7 +38,7 @@
         <property name="basePath" value="${web.posconsole.basePath}"/>
         <property name="forbiddenUrls" value="${web.forbidden.paths}"/>
         <property name="excludeMethods" value="OPTIONS"/> <!-- 如果允许AJAX跨域调用，则排除验证OPTIONS请求 -->
-        <property name="excludeUrls" value=".+\.ico,.+\.xml,.+\.jpg,.+\.gif,.+\.htm,.+\.html,/,/druid.*,/help.*,/api-docs.*,/user/login,/user/loginTest,/repair.*"/>
+        <property name="excludeUrls" value=".+\.ico,.+\.xml,.+\.jpg,.+\.gif,.+\.htm,.+\.html,/,/druid.*,/help.*,/api-docs.*,/user/login,/user/loginTest,/repair/transaction/out-card-info"/>
     </bean>
 
 </beans>

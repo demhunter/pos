@@ -5,8 +5,8 @@ package com.pos.pos.fsm.handler.audit;
 
 import com.pos.basic.sm.action.FSMAction;
 import com.pos.pos.constants.UserAuditStatus;
-import com.pos.pos.service.PosService;
 import com.pos.pos.fsm.context.AuditStatusTransferContext;
+import com.pos.pos.service.PosService;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;

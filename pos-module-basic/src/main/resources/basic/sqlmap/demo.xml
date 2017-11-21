@@ -5,7 +5,7 @@
 <mapper namespace="com.pos.basic.dao.DemoEnumDao">
 
     <sql id="demoSql">
-        , typeHandler = com.pos.basic.enumHandler.EnumByteTypeHandler
+        , typeHandler = com.ywmj.basic.enumHandler.EnumByteTypeHandler
     </sql>
 
     <insert id="demoSave" >

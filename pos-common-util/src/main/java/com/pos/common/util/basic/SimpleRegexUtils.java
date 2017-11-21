@@ -4,8 +4,8 @@
 package com.pos.common.util.basic;
 
 import com.pos.common.util.date.SimpleDateUtils;
-import com.pos.common.util.validation.FieldChecker;
 import com.pos.common.util.exception.IllegalParamException;
+import com.pos.common.util.validation.FieldChecker;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.Calendar;
@@ -52,6 +52,28 @@ public class SimpleRegexUtils {
      */
     public static String hiddenMobile(String mobile) {
         return mobile.replaceAll("(\\d{3})\\d{4}(\\d{4})","$1****$2");
+    }
+
+    /**
+     * 隐藏姓名的中间字符，如：张三 -> 张*；王老五 -> 王*五
+     * PS：姓名为空或只有一个字，则不做处理直接返回
+     *
+     * @param name 姓名
+     * @return 隐藏后的姓名
+     */
+    public static String hiddenName(String name) {
+        if (StringUtils.isEmpty(name) || name.length() == 1) {
+            return name;
+        }
+        if (name.length() == 2) {
+            return name.replaceAll("([\\u4e00-\\u9fa5]{1})(.*)([\\u4e00-\\u9fa5]{1})", "$1" + "*");
+        }
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < name.length() - 2; i++) {
+            builder.append("*");
+        }
+        String asteriskStr = builder.toString();
+        return name.replaceAll("([\\u4e00-\\u9fa5]{1})(.*)([\\u4e00-\\u9fa5]{1})", "$1" + asteriskStr + "$3");
     }
 
     /**

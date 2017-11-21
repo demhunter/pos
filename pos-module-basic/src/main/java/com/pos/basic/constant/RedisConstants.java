@@ -278,4 +278,14 @@ public class RedisConstants {
      */
     public static final String POS_TRANSACTION_WITHDRAW_QUEUE = "pos_transaction_withdraw_queue";
 
+    /**
+     * POS 短信推广手机号码队列
+     */
+    public static final String POS_SMS_SPREAD_PHONES_QUEUE = "pos_sms_spread_phones_queue";
+
+    /**
+     * POS 短信推广发送次数（以天记，每天会发送50个电话号码）
+     */
+    public static final String POS_SMS_SPREAD_TIMES = "pos_sms_spread_times";
+
 }

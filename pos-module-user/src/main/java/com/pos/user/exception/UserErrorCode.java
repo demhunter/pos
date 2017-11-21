@@ -46,7 +46,10 @@ public enum UserErrorCode implements ErrorCode {
     HAS_MANAGER_NO_EMPLOYEE(355, "手机号已注册为平台管理员，不能注册为业者账户"),
     USER_ALREADY_EMPLOYEE(356, "该账号属于%s在职员工，无法挂靠"),
     USER_HAS_CASE_INFO(357, "该业者存在需要更换员工绑定关系的作品的修改信息未上传"),
-    RESULT_COUNT_TO_MORE(358, "返回的查询结果信息过多，请输入更精确的查询信息");
+    RESULT_COUNT_TO_MORE(358, "返回的查询结果信息过多，请输入更精确的查询信息"),
+    EMPLOYEE_QUIT_JOB(359,"业者已经从公司离职，重新入职前无法登录"),
+    PE_NOT_JOIN_COMPANY(360, "该用户为平台家居顾问，不能入职装修公司"),
+    NOT_JOIN_COMPANY(361, "抱歉，该员工为贵司前员工，当前选择角色与原有角色存在冲突，请在当前操作完成后，前往员工管理-员工列表进行角色变更操作");
 
     private final int code;
 

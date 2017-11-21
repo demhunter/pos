@@ -3,7 +3,7 @@
  */
 package com.pos.pos.dao;
 
-import com.pos.pos.domain.PosTransactionHandled;
+import com.pos.pos.domain.UserPosTransactionHandledInfo;
 import com.pos.pos.dto.transaction.TransactionHandledInfoDto;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -22,7 +22,7 @@ public interface PosUserTransactionHandledDao {
      *
      * @param handledInfo 处理信息
      */
-    void save(@Param("handledInfo") PosTransactionHandled handledInfo);
+    void save(@Param("handledInfo") UserPosTransactionHandledInfo handledInfo);
 
     /**
      * 手动处理信息

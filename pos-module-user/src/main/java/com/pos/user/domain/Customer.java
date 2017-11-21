@@ -4,33 +4,38 @@
 package com.pos.user.domain;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /**
- * 客户基础信息领域对象
+ * C端用户的领域对象.
  *
- * @author wangbing
- * @version 1.0, 2017/11/13
+ * @author wayne
+ * @version 1.0, 2016/8/1
  */
 public class Customer implements Serializable {
 
+    private static final long serialVersionUID = 989215464355652904L;
+
     private Long id;
 
-    private Long userId; // 用户id
+    private Long userId; // User.id
 
-    private String mail; // 用户绑定的电子邮箱
+    private String nickName; // 昵称
 
-    private String nickName; // 用户昵称
+    private String headImage; // 头像
 
-    private String headImage; // 用户头像
+    private Byte customerType; //客户类型
 
-    private Integer gender; // 性别(int)：0 = 保密，1 = 男，2 = 女
+    private Boolean intention;//是否为意向客户
 
-    private Integer age; // 年龄(int)
+    private String remarks;//备注信息
 
-    private Integer sourceType; // 用户来源类型体系
+    public Byte getCustomerType() {
+        return customerType;
+    }
 
-    private Date updateTime; // 更新时间
+    public void setCustomerType(Byte customerType) {
+        this.customerType = customerType;
+    }
 
     public Long getId() {
         return id;
@@ -46,14 +51,6 @@ public class Customer implements Serializable {
 
     public void setUserId(Long userId) {
         this.userId = userId;
-    }
-
-    public String getMail() {
-        return mail;
-    }
-
-    public void setMail(String mail) {
-        this.mail = mail;
     }
 
     public String getNickName() {
@@ -72,35 +69,19 @@ public class Customer implements Serializable {
         this.headImage = headImage;
     }
 
-    public Integer getGender() {
-        return gender;
+    public Boolean getIntention() {
+        return intention;
     }
 
-    public void setGender(Integer gender) {
-        this.gender = gender;
+    public void setIntention(Boolean intention) {
+        this.intention = intention;
     }
 
-    public Integer getAge() {
-        return age;
+    public String getRemarks() {
+        return remarks;
     }
 
-    public void setAge(Integer age) {
-        this.age = age;
-    }
-
-    public Integer getSourceType() {
-        return sourceType;
-    }
-
-    public void setSourceType(Integer sourceType) {
-        this.sourceType = sourceType;
-    }
-
-    public Date getUpdateTime() {
-        return updateTime;
-    }
-
-    public void setUpdateTime(Date updateTime) {
-        this.updateTime = updateTime;
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
     }
 }

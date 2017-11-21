@@ -3,8 +3,8 @@
  */
 package com.pos.common.util.validation;
 
-import com.pos.common.util.exception.RequiredParamException;
 import com.pos.common.util.exception.IllegalParamException;
+import com.pos.common.util.exception.RequiredParamException;
 
 import java.math.BigDecimal;
 import java.util.Collection;

@@ -3,7 +3,7 @@
  */
 package com.pos.pos.dao;
 
-import com.pos.pos.domain.PosTransaction;
+import com.pos.pos.domain.UserPosTransactionRecord;
 import com.pos.pos.dto.BankLogoDto;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -17,21 +17,18 @@ import java.util.List;
 @Repository
 public interface PosDao {
 
-    List<PosTransaction> queryRecordByUserIdAndCostType(
-            @Param("userId") long userId,
-            @Param("costType") int costType);
+    List<Long> getCompanyIds();
 
-    PosTransaction queryRecordById(@Param("id") long id);
+    List<UserPosTransactionRecord> queryRecordByUserIdAndCostType(@Param("userId") long userId, @Param("costType")
+            int costType);
 
-    PosTransaction queryRecordByRecordNum(@Param("recordNum") String recordNum);
+    UserPosTransactionRecord queryRecordById(@Param("id") long id);
 
-    void addUserPosRecord(@Param("record") PosTransaction posTransaction);
+    UserPosTransactionRecord queryRecordByRecordNum(@Param("recordNum") String recordNum);
 
-    /**
-     *
-     * @param posTransaction
-     */
-    void updatePosRecord(@Param("record") PosTransaction posTransaction);
+    void addUserPosRecord(@Param("record") UserPosTransactionRecord userPosTransactionRecord);
+
+    void updatePosRecord(@Param("record") UserPosTransactionRecord userPosTransactionRecord);
 
     List<BankLogoDto> queryBankLogo();
 

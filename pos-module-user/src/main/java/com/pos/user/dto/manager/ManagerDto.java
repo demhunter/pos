@@ -3,60 +3,102 @@
  */
 package com.pos.user.dto.manager;
 
-import com.pos.user.dto.UserDto;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.base.Strings;
 import com.wordnik.swagger.annotations.ApiModelProperty;
-import org.apache.commons.lang3.StringUtils;
+import com.pos.common.util.basic.Copyable;
+import com.pos.common.util.basic.PrintableBeanUtils;
+import com.pos.common.util.exception.ValidationException;
+import com.pos.common.util.validation.FieldChecker;
+import com.pos.user.constant.ManagerType;
+import com.pos.user.constant.UserType;
+import com.pos.user.dto.UserDto;
+import com.pos.user.dto.merchant.MerchantDto;
+import org.springframework.beans.BeanUtils;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /**
- * 管理信息DTO
+ * 平台管理员DTO.
  *
- * @author wangbing
- * @version 1.0, 2017/11/13
+ * @author wayne
+ * @version 1.0, 2016/8/1
  */
-public class ManagerDto extends UserDto implements Serializable {
+public class ManagerDto extends UserDto implements Serializable, Copyable<MerchantDto> {
 
-    @ApiModelProperty("管理员类型")
-    private Integer managerType;
+    private static final long serialVersionUID = 6956691276501035611L;
 
-    @ApiModelProperty("管理员姓名")
-    private String name;
+    /**
+     * 账号实体的UID（区分于用户ID），对象转换时需要该属性
+     */
+    @JsonIgnore
+    private Long entityId;
 
-    @ApiModelProperty("管理员头像")
+    @ApiModelProperty("用户细分类型(int)：1 = 普通，2 = 客服，3 = 商务拓展")
+    private byte userDetailType;
+
+    @ApiModelProperty("头像")
     private String headImage;
 
     @ApiModelProperty("是否离职")
-    private Boolean dimission;
+    private boolean quitJobs;
 
-    @ApiModelProperty("更新时间")
-    private Date updateTime;
+    @Override
+    public MerchantDto copy() {
+        MerchantDto newObj = new MerchantDto();
+        BeanUtils.copyProperties(this, newObj);
+        return newObj;
+    }
+
+    @Override
+    public void check(String fieldPrefix) {
+        super.check(fieldPrefix);
+        fieldPrefix = fieldPrefix == null ? "" : fieldPrefix + ".";
+        FieldChecker.checkEmpty(entityId, fieldPrefix + "entityId");
+        if (parseUserDetailType() == null) {
+            throw new ValidationException("'" + fieldPrefix + "userDetailType'无效值");
+        }
+    }
 
     @Override
     public String getShowName() {
-        return name;
+        return getName();
     }
 
     @Override
-    public String getShowHead() {
-        return StringUtils.isEmpty(headImage) ? DEFAULT_HEAD_IMAGE : headImage;
+    public String getUserType() {
+        return Strings.isNullOrEmpty(super.getUserType()) ? UserType.MANAGER.getValue() : super.getUserType();
     }
 
-    public Integer getManagerType() {
-        return managerType;
+    @Override
+    public String toString() {
+        return PrintableBeanUtils.toString(this);
     }
 
-    public void setManagerType(Integer managerType) {
-        this.managerType = managerType;
+    @ApiModelProperty("用户细分类型的值描述")
+    public String getUserDetailTypeDesc() {
+        ManagerType type = parseUserDetailType();
+        return type != null ? type.getDesc() : "";
     }
 
-    public String getName() {
-        return name;
+    public ManagerType parseUserDetailType() {
+        return ManagerType.getEnum(userDetailType);
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public Long getEntityId() {
+        return entityId;
+    }
+
+    public void setEntityId(Long entityId) {
+        this.entityId = entityId;
+    }
+
+    public byte getUserDetailType() {
+        return userDetailType;
+    }
+
+    public void setUserDetailType(byte userDetailType) {
+        this.userDetailType = userDetailType;
     }
 
     public String getHeadImage() {
@@ -67,19 +109,12 @@ public class ManagerDto extends UserDto implements Serializable {
         this.headImage = headImage;
     }
 
-    public Boolean getDimission() {
-        return dimission;
+    public boolean isQuitJobs() {
+        return quitJobs;
     }
 
-    public void setDimission(Boolean dimission) {
-        this.dimission = dimission;
+    public void setQuitJobs(boolean quitJobs) {
+        this.quitJobs = quitJobs;
     }
 
-    public Date getUpdateTime() {
-        return updateTime;
-    }
-
-    public void setUpdateTime(Date updateTime) {
-        this.updateTime = updateTime;
-    }
 }

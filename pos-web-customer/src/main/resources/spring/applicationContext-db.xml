@@ -59,7 +59,6 @@
                 <value>classpath:basic/sqlmap/*.xml</value>
                 <value>classpath:sms/sqlmap/*.xml</value>
                 <value>classpath:user/sqlmap/*.xml</value>
-                <value>classpath:im/sqlmap/*.xml</value>
                 <value>classpath:pos/sqlmap/*.xml</value>
             </list>
         </property>

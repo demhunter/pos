@@ -6,7 +6,6 @@ package com.pos.pos.dto;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 
 /**
  * @author 睿智
@@ -27,17 +26,6 @@ public class GetSignDto implements Serializable {
 
     @ApiModelProperty("签名")
     private String signature;
-
-    @ApiModelProperty("日期")
-    private LocalDateTime dateTime;
-
-    public LocalDateTime getDateTime() {
-        return dateTime;
-    }
-
-    public void setDateTime(LocalDateTime dateTime) {
-        this.dateTime = dateTime;
-    }
 
     public String getAppId() {
         return appId;

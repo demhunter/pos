@@ -3,7 +3,7 @@
  */
 package com.pos.user.dto.mq;
 
-import com.pos.user.dto.login.RegisterRecommendDto;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
@@ -26,8 +26,6 @@ public class CustomerInfoMsg implements Serializable {
 
     private String userName; // 注册客户姓名，例：业主****，注：在填写了邀请码时此字段才有意义
 
-    private RegisterRecommendDto registerRecommend; // 推荐信息
-
     public CustomerInfoMsg() {
     }
 
@@ -38,20 +36,6 @@ public class CustomerInfoMsg implements Serializable {
         if (!StringUtils.isEmpty(invitationCode)) {
             this.userName = "业主" + userPhone.substring(userPhone.length() - 4, userPhone.length());
         }
-    }
-
-    public CustomerInfoMsg(Long userId, String userPhone, RegisterRecommendDto registerRecommend) {
-        this.userId = userId;
-        this.userPhone = userPhone;
-        this.registerRecommend = registerRecommend;
-    }
-
-    public RegisterRecommendDto getRegisterRecommend() {
-        return registerRecommend;
-    }
-
-    public void setRegisterRecommend(RegisterRecommendDto registerRecommend) {
-        this.registerRecommend = registerRecommend;
     }
 
     public Long getUserId() {

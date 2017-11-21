@@ -3,8 +3,8 @@
  */
 package com.pos.pos.dto.get;
 
-import com.wordnik.swagger.annotations.ApiModelProperty;
 import com.pos.pos.dto.card.PosCardDto;
+import com.wordnik.swagger.annotations.ApiModelProperty;
 
 import java.io.Serializable;
 import java.math.BigDecimal;

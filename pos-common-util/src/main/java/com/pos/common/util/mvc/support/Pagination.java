@@ -4,8 +4,8 @@
 package com.pos.common.util.mvc.support;
 
 import com.google.common.base.Strings;
-import com.wordnik.swagger.annotations.ApiModelProperty;
 import com.pos.common.util.basic.PrintableBeanUtils;
+import com.wordnik.swagger.annotations.ApiModelProperty;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;

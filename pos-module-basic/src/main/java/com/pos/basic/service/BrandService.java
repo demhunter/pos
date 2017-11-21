@@ -4,10 +4,10 @@
 package com.pos.basic.service;
 
 import com.pos.basic.dto.brand.BrandCollectionDto;
-import com.pos.basic.dto.brand.BrandDetailDto;
-import com.pos.basic.dto.brand.BrandDto;
 import com.pos.common.util.mvc.support.*;
 import com.pos.basic.condition.orderby.BrandOrderField;
+import com.pos.basic.dto.brand.BrandDetailDto;
+import com.pos.basic.dto.brand.BrandDto;
 import com.pos.basic.dto.brand.BrandIdsDto;
 
 import java.util.List;

@@ -24,7 +24,7 @@ public class UserIdentifier implements Serializable {
     @ApiModelProperty("用户ID")
     private Long userId;
 
-    @ApiModelProperty("用户类型：c = C端用户，m = 平台管理员")
+    @ApiModelProperty("用户类型：c = C端用户，b = B端用户，e = B端从业者，m = 平台管理员")
     private String userType;
 
     public UserIdentifier() {

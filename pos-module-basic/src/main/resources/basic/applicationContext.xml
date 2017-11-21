@@ -12,7 +12,7 @@
                http://www.springframework.org/schema/context/spring-context.xsd">
 
     <aop:aspectj-autoproxy/>
-    <context:component-scan base-package="com.pos.basic"/>
+    <context:component-scan base-package="com.ywmj.basic"/>
 
     <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="ignoreUnresolvablePlaceholders" value="true" />

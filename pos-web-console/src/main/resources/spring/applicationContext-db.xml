@@ -60,7 +60,6 @@
                 <value>classpath:sms/sqlmap/*.xml</value>
                 <value>classpath:user/sqlmap/*.xml</value>
                 <value>classpath:pos/sqlmap/*.xml</value>
-                <value>classpath:im/sqlmap/*.xml</value>
             </list>
         </property>
         <property name="configLocation" value="classpath:mybatis/mybatis-config.xml"/>

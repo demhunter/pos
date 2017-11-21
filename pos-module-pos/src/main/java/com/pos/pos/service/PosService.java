@@ -11,28 +11,37 @@ import com.pos.pos.constants.UserAuditStatus;
 import com.pos.pos.dto.CreateOrderDto;
 import com.pos.pos.dto.GetSignDto;
 import com.pos.pos.dto.PosUserAuditInfoDto;
-import com.pos.pos.dto.auth.AuthorityDetailDto;
-import com.pos.pos.dto.auth.AuthorityDto;
+import com.pos.pos.dto.auth.PosUserAuthDetailDto;
+import com.pos.pos.dto.auth.PosUserAuthDto;
 import com.pos.pos.dto.get.QuickGetMoneyDto;
 import com.pos.pos.dto.identity.IdentifyInfoDto;
 import com.pos.pos.dto.request.BindCardDto;
 import com.pos.pos.dto.request.GetMoneyDto;
 import com.pos.pos.dto.transaction.SelectCardRequestDto;
-import com.pos.pos.dto.transaction.TransactionHandledInfoDto;
 import com.pos.pos.dto.user.PosUserIdentityDto;
 import com.pos.pos.fsm.context.AuditStatusTransferContext;
 import com.pos.pos.fsm.context.TransactionStatusTransferContext;
 import com.pos.pos.helipay.vo.ConfirmPayResponseVo;
+import com.pos.pos.dto.transaction.TransactionHandledInfoDto;
+import com.pos.user.dto.customer.CustomerDto;
 
 import java.util.Map;
 
 /**
- * 主要业务Service
- *
- * @author wangbing
- * @version 1.0, 2017/11/14
+ * @author 睿智
+ * @version 1.0, 2017/8/22
  */
 public interface PosService {
+
+    /**
+     * 用户登录收款时调用处理头像和昵称信。<br>
+     * 如果用户首次登陆还需处理用户权限和关系信息。
+     *
+     * @param customer 用户信息
+     * @param type     登录类型
+     * @param leaderId 上级id
+     */
+    void posLogin(CustomerDto customer, Byte type, Long leaderId);
 
     /**
      * 获取快捷收款用户详细信息
@@ -40,7 +49,7 @@ public interface PosService {
      * @param userId 用户userId
      * @return 快捷收款用户详细信息
      */
-    AuthorityDetailDto findAuthDetail(Long userId);
+    PosUserAuthDetailDto findAuthDetail(Long userId);
 
     /**
      * 获取快捷收款用户信息
@@ -48,12 +57,12 @@ public interface PosService {
      * @param userId 用户id
      * @return 快捷收款用户信息
      */
-    AuthorityDto findAuth(Long userId);
+    PosUserAuthDto findAuth(Long userId);
 
     /**
      * 获取用户身份认证信息-1
      *
-     * @param userId    用户id
+     * @param userId 用户id
      * @param decrypted 是否需要解密（true：需要解密返回，false：不需要解密返回）
      * @return 用户身份认证信息，从未提交过身份认证信息则返回空
      */
@@ -71,7 +80,7 @@ public interface PosService {
     /**
      * 获取用户绑定的收款银行卡信息
      *
-     * @param userId    用户userId
+     * @param userId 用户userId
      * @param decrypted 是否需要解密（true：需要解密返回，false：不需要解密返回）
      * @return 用户绑卡信息，，从未绑定过收款银行卡则返回空
      */
@@ -149,7 +158,8 @@ public interface PosService {
     ApiResult<NullObject> sendPayValidateSmsCode(Long userId, Long recordId);
 
     /**
-     * 用户确认支付并提现
+     * 用户确认提现<br>
+     * 到公司账户，提现到用户需要掉另外的接口
      *
      * @param userId   用户userId
      * @param smsCode  短信验证码
@@ -201,12 +211,12 @@ public interface PosService {
     /**
      * 线下手动处理失败的交易
      *
-     * @param transactionId 交易记录id
-     * @param handledInfo   处理信息
-     * @param operator      操作人
+     * @param recordId    交易记录id
+     * @param handledInfo 处理信息
+     * @param operator    操作人
      * @return 处理结果
      */
-    ApiResult<NullObject> handledTransaction(Long transactionId, TransactionHandledInfoDto handledInfo, UserIdentifier operator);
+    ApiResult<NullObject> handledTransaction(Long recordId, TransactionHandledInfoDto handledInfo, UserIdentifier operator);
 
     /**
      * 获取交易的手动处理内容

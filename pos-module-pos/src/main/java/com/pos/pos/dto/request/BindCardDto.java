@@ -3,6 +3,7 @@
  */
 package com.pos.pos.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 
 import java.io.Serializable;
@@ -25,6 +26,10 @@ public class BindCardDto implements Serializable {
 
     @ApiModelProperty("银行储蓄卡卡号")
     private String cardNO;
+
+    @Deprecated
+    @JsonIgnore
+    private String idCardNO;
 
     @ApiModelProperty("预留手机号")
     private String phone;
@@ -73,6 +78,16 @@ public class BindCardDto implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Deprecated
+    public String getIdCardNO() {
+        return idCardNO;
+    }
+
+    @Deprecated
+    public void setIdCardNO(String idCardNO) {
+        this.idCardNO = idCardNO;
     }
 
     public String getPhone() {

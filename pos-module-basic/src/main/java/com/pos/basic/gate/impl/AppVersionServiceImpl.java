@@ -3,9 +3,9 @@
  */
 package com.pos.basic.gate.impl;
 
+import com.pos.basic.gate.dto.AppVersionDto;
 import com.pos.basic.dao.AppVersionDao;
 import com.pos.basic.domain.AppVersion;
-import com.pos.basic.gate.dto.AppVersionDto;
 import com.pos.basic.gate.AppVersionService;
 import com.pos.common.util.validation.FieldChecker;
 import org.springframework.stereotype.Service;

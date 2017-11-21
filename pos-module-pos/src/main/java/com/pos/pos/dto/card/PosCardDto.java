@@ -4,11 +4,11 @@
 package com.pos.pos.dto.card;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.pos.pos.dto.PosOutCardInfoDto;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 import com.pos.common.util.basic.Copyable;
 import com.pos.pos.constants.CardTypeEnum;
 import com.pos.pos.constants.CardUsageEnum;
+import com.pos.pos.dto.PosOutCardInfoDto;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.StringUtils;
 
@@ -32,13 +32,13 @@ public class PosCardDto implements Serializable, Copyable {
     private Long userId;
 
     @ApiModelProperty("持卡人姓名")
-    private String holderName;
+    private String name;
 
     @ApiModelProperty("持卡人身份证号")
     private String idCardNo;
 
     @ApiModelProperty("卡号")
-    private String bankCardNo;
+    private String cardNO;
 
     @ApiModelProperty("银行预留手机号")
     private String mobilePhone;
@@ -64,7 +64,7 @@ public class PosCardDto implements Serializable, Copyable {
     private Byte cardUsage;
 
     @ApiModelProperty("银行卡最近使用时间（Date）")
-    private Date lastUseTime;
+    private Date lastUseDate;
 
     @JsonIgnore
     private PosCardValidInfoDto validInfo; // 下单时填写的CVV2和有效期信息
@@ -78,8 +78,8 @@ public class PosCardDto implements Serializable, Copyable {
 
     public PosOutCardInfoDto buildSimplePosOutCard() {
         PosOutCardInfoDto simpleOut = new PosOutCardInfoDto();
-        if (!StringUtils.isEmpty(bankCardNo)) {
-            simpleOut.setCardNo(bankCardNo.substring(bankCardNo.length() - 4, bankCardNo.length()));
+        if (!StringUtils.isEmpty(cardNO)) {
+            simpleOut.setCardNo(cardNO.substring(cardNO.length() - 4, cardNO.length()));
         }
         simpleOut.setBankCode(bankCode);
         simpleOut.setBankName(bankName);
@@ -120,6 +120,14 @@ public class PosCardDto implements Serializable, Copyable {
         this.mobilePhone = mobilePhone;
     }
 
+    public Date getLastUseDate() {
+        return lastUseDate;
+    }
+
+    public void setLastUseDate(Date lastUseDate) {
+        this.lastUseDate = lastUseDate;
+    }
+
     public Long getId() {
         return id;
     }
@@ -136,12 +144,28 @@ public class PosCardDto implements Serializable, Copyable {
         this.userId = userId;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String getIdCardNo() {
         return idCardNo;
     }
 
     public void setIdCardNo(String idCardNo) {
         this.idCardNo = idCardNo;
+    }
+
+    public String getCardNO() {
+        return cardNO;
+    }
+
+    public void setCardNO(String cardNO) {
+        this.cardNO = cardNO;
     }
 
     public Byte getCardType() {
@@ -174,29 +198,5 @@ public class PosCardDto implements Serializable, Copyable {
 
     public void setCardUsage(Byte cardUsage) {
         this.cardUsage = cardUsage;
-    }
-
-    public String getHolderName() {
-        return holderName;
-    }
-
-    public void setHolderName(String holderName) {
-        this.holderName = holderName;
-    }
-
-    public String getBankCardNo() {
-        return bankCardNo;
-    }
-
-    public void setBankCardNo(String bankCardNo) {
-        this.bankCardNo = bankCardNo;
-    }
-
-    public Date getLastUseTime() {
-        return lastUseTime;
-    }
-
-    public void setLastUseTime(Date lastUseTime) {
-        this.lastUseTime = lastUseTime;
     }
 }

@@ -4,229 +4,30 @@
 
 <mapper namespace="com.pos.pos.dao.PosTwitterDao">
 
-    <select id="queryCustomerCountByTwitterUserId" resultType="int">
+    <select id="queryChannelJuniorCount" resultType="int">
         SELECT COUNT(*)
-        FROM twitter_customer tc
-        JOIN twitter AS t ON t.id = tc.twitter_id
-        WHERE t.user_id = #{twitterUserId}
+        FROM user_pos_junior_info
+        WHERE channel_user_id = #{channelUserId}
         AND relation_available = 1
     </select>
 
-    <select id="queryCustomersByTwitterUserId" resultType="com.pos.pos.dto.spread.SpreadCustomerDto">
+    <select id="queryChannelJuniors" resultType="com.pos.pos.dto.spread.SpreadCustomerDto">
         SELECT
-            tc.id AS `id`,
-            tc.twitter_user_id AS twitterUserId,
-            tc.user_id AS userId,
-            tc.remark AS remark,
-            tc.available AS available,
-            tc.create_time AS createTime,
+            upji.id AS `id`,
+            upji.channel_user_id AS channelUserId,
+            upji.junior_user_id AS juniorUserId,
+            upji.junior_phone AS juniorPhone,
+            upji.junior_remark AS juniorRemark,
+            upji.relation_available AS relationAvailable,
+            upji.create_date AS createDate,
             upa.audit_status AS auditStatus,
-            ucp.real_name AS `name`
-        FROM twitter_customer tc
-        JOIN customer_authority AS ca ON tc.user_id = ca.user_id
-        LEFT JOIN user_customer_personal AS ucp ON ucp.user_id = ca.user_id
-        WHERE tc.twitter_user_id = #{twitterUserId}
-        AND tc.available = 1
-        ORDER BY tc.create_time DESC
+            upa.id_card_name AS juniorName
+        FROM user_pos_junior_info upji
+        JOIN user_pos_auth upa ON upji.junior_user_id = upa.user_id
+        WHERE upji.channel_user_id = #{channelUserId}
+        AND upji.relation_available = 1
+        ORDER BY upji.create_date DESC
         LIMIT #{limitHelper.offset}, #{limitHelper.pageSize}
     </select>
 
-    <select id="getTwitterByUserId" resultType="com.pos.pos.domain.Twitter">
-        SELECT
-        <include refid="twitterColumns"/>
-        FROM twitter t
-        WHERE t.user_id = #{userId}
-    </select>
-
-    <select id="getTwitterById" resultType="com.pos.pos.domain.Twitter">
-        SELECT
-        <include refid="twitterColumns"/>
-        FROM twitter t
-        WHERE t.id = #{twitterId}
-    </select>
-
-    <select id="getParentTwitterByChild" resultType="com.pos.pos.domain.Twitter">
-        SELECT
-        <include refid="twitterColumns"/>
-        FROM twitter_relation tr
-        JOIN twitter AS t ON t.id = tr.parent_twitter_id
-        WHERE tr.child_twitter_id = #{childTwitterId}
-        AND tr.available = 1
-    </select>
-
-    <select id="getTwitterCustomerByUserId" resultType="com.pos.pos.domain.TwitterCustomer">
-        SELECT
-        <include refid="twitterCustomerColumns"/>
-        FROM twitter_customer tc
-        WHERE tc.user_id = #{userId}
-    </select>
-
-    <insert id="saveTwitter" parameterType="com.pos.pos.domain.Twitter" useGeneratedKeys="true"
-            keyProperty="twitter.id">
-        INSERT INTO twitter(
-            user_id,
-            create_time
-        ) VALUES (
-            #{twitter.userId},
-            NOW()
-        )
-    </insert>
-
-    <update id="update">
-        UPDATE twitter
-        <set>
-            <if test="twitter.totalMoney != null">
-                total_money = #{twitter.totalMoney},
-            </if>
-            <if test="twitter.applyMoney != null">
-                apply_money = #{twitter.applyMoney},
-            </if>
-            update_user_id = #{twitter.updateUserId},
-            update_time = NOW()
-        </set>
-        WHERE `id` = #{twitter.id}
-    </update>
-
-    <insert id="saveTwitterRelation" parameterType="com.pos.pos.domain.TwitterRelation">
-        INSERT INTO twitter_relation(
-            parent_twitter_id,
-            child_twitter_id,
-            available,
-            create_time
-        ) VALUE (
-            #{relation.parentTwitterId},
-            #{relation.childTwitterId},
-            #{relation.available},
-            NOW()
-        )
-    </insert>
-
-    <update id="updateTwitterRelation" parameterType="com.pos.pos.domain.TwitterRelation">
-        UPDATE twitter_relation
-        SET available = #{relation.available},
-        remark = #{relation.remark},
-        update_user_id = #{relation.updateUserId},
-        update_time = NOW()
-        WHERE id = #{relation.id}
-    </update>
-
-    <select id="getTwitterRelationByChildId" resultType="com.pos.pos.domain.TwitterRelation">
-        SELECT
-            `id` AS `id`,
-            parent_twitter_id AS parentTwitterId,
-            child_twitter_id AS childTwitterId,
-            available AS available,
-            remark AS remark,
-            create_time AS createTime,
-            update_time AS updateTime,
-            update_user_id AS updateUserId
-        FROM twitter_relation
-        WHERE child_twitter_id = #{childTwitterId}
-        AND available = 1;
-    </select>
-
-    <insert id="saveTwitterCustomer" parameterType="com.pos.pos.domain.TwitterCustomer">
-        INSERT INTO twitter_customer(
-            twitter_user_id,
-            user_id,
-            available,
-            create_time
-        ) VALUE (
-            #{junior.twitterUserId},
-            #{junior.userId},
-            #{junior.available},
-            NOW()
-        )
-    </insert>
-
-    <update id="updateTwitterCustomer" parameterType="com.pos.pos.domain.TwitterCustomer">
-        UPDATE twitter_customer
-        SET remark = #{customer.remark},
-        available = #{customer.available},
-        update_time = NOW(),
-        update_user_id = #{customer.updateUserId}
-        WHERE `id` = #{customer.id}
-    </update>
-
-    <update id="updateTwitterRelationAvailableByChild">
-        UPDATE twitter_relation
-        SET available = #{available},
-        update_time = NOW(),
-        update_user_id = #{updateUserId}
-        WHERE child_twitter_id = #{childTwitterId}
-    </update>
-
-    <update id="updateTwitterRelationAvailableByParent">
-        UPDATE twitter_relation
-        SET available = #{available},
-        update_time = NOW(),
-        update_user_id = #{updateUserId}
-        WHERE parent_twitter_id = #{parentTwitterId}
-    </update>
-
-    <update id="updateTwitterCustomerAvailableByTwitter">
-        UPDATE twitter_customer
-        SET available = #{available},
-        update_user_id = #{updateUserId}
-        update_time = NOW()
-        WHERE twitter_user_id = #{twitterUserId}
-    </update>
-
-    <select id="getDevelopCountByParentUserId" resultType="int">
-        SELECT COUNT(tr.child_twitter_id)
-        FROM twitter t
-        LEFT JOIN twitter_relation AS tr ON tr.parent_twitter_id = t.id
-        WHERE t.user_id = #{parentUserId}
-        AND tr.available = 1
-    </select>
-
-    <select id="queryDevelopChildTwitter" resultType="com.pos.pos.dto.develop.ChildTwitterDto">
-        SELECT
-        <include refid="childTwitterDtoColumn"/>
-        FROM twitter parent
-        JOIN twitter_relation AS tr ON tr.parent_twitter_id = parent.id
-        JOIN twitter AS child ON tr.child_twitter_id = child.id
-        JOIN authority AS auth ON auth.user_id = child.user_id
-        WHERE parent.user_id = #{parentUserId}
-        AND tr.available = 1
-        ORDER BY tr.create_time DESC
-        LIMIT #{limitHelper.offset}, #{limitHelper.pageSize}
-    </select>
-
-    <sql id="twitterColumns">
-        t.`id` AS `id`,
-        t.user_id AS userId,
-        t.total_money AS totalMoney,
-        t.apply_money AS applyMoney,
-        t.create_time AS createTime,
-        t.update_time AS updateTime,
-        t.update_user_id AS updateUserId
-    </sql>
-
-    <sql id="twitterCustomerColumns">
-        tc.`id` AS `id`,
-        tc.twitter_user_id AS twitterUserId,
-        tc.user_id AS userId,
-        tc.remark AS remark,
-        tc.available AS available,
-        tc.create_time AS createTime,
-        tc.update_time AS updateTime,
-        tc.update_user_id AS updateUserId
-    </sql>
-
-    <sql id="simpleTwitterDtoColumn">
-        upci.`id` AS `id`,
-        upci.parent_user_id AS parentUserId,
-        upci.channel_user_id AS userId,
-        upci.channel_phone AS phone,
-        upci.create_date AS createTime,
-        upci.relation_available AS available
-    </sql>
-
-    <sql id="childTwitterDtoColumn">
-        <include refid="simpleTwitterDtoColumn"/>
-        , upci.channel_remark AS remark,
-        upa.audit_status AS identityAuditStatus,
-        upa.id_card_name AS childName
-    </sql>
 </mapper>

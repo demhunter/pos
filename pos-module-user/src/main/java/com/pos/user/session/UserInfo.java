@@ -6,6 +6,9 @@ package com.pos.user.session;
 import com.pos.basic.dto.UserIdentifier;
 import com.pos.common.util.basic.PrintableBeanUtils;
 import com.pos.user.dto.UserDto;
+import com.pos.user.dto.employee.EmployeeDto;
+import com.pos.user.dto.manager.ManagerDto;
+import com.pos.user.dto.merchant.MerchantDto;
 
 import java.io.Serializable;
 
@@ -23,24 +26,45 @@ public final class UserInfo implements Serializable {
 
     private String userName; // 登录账号名，如果注册时使用的是手机号，则默认为手机号
 
-    private String userPhone; // 登录手机号，如果注册时使用的是账号名，则默认为空
+    private String userPhone; // 登录手机号，如果注册时使用的是账号名，则默认为账号名
 
-    private String userType; // 用户类型：c = C端用户，m = 后台管理员
+    private String userType; // 用户类型：c = C端用户，b = B端用户，e = B端从业者，m = 平台管理员
+
+    private Byte userDetailType; // 用户细分类型（可空）
+
+    private Long companyId; // 所属公司ID（可空）
 
     private String showName; // 用户显示给其他人看到的名称
 
     private String showHead; // 用户显示给其他人看到的头像
+
+    private String imUid; // 用户与第三方IM平台的唯一通信ID
 
     public UserInfo() {
     }
 
     public UserInfo(UserDto userDto) {
         this.id = userDto.getId();
-        this.userName = userDto.getLoginName();
+        this.userName = userDto.getUserName();
+        this.userPhone = userDto.getUserPhone();
         this.userType = userDto.getUserType();
         this.showName = userDto.getShowName();
         this.showHead = userDto.getShowHead();
-        this.userPhone = userDto.getPhone();
+
+        if (userDto instanceof EmployeeDto) {
+            EmployeeDto employeeDto = (EmployeeDto) userDto;
+            this.userDetailType = employeeDto.getUserDetailType();
+            this.companyId = employeeDto.getCompanyId();
+        } else if (userDto instanceof MerchantDto) {
+            MerchantDto merchantDto = (MerchantDto) userDto;
+            this.userDetailType = merchantDto.getUserDetailType();
+            this.companyId = merchantDto.getCompanyId();
+        } else if (userDto instanceof ManagerDto) {
+            ManagerDto managerDto = (ManagerDto) userDto;
+            this.userDetailType = managerDto.getUserDetailType();
+        }
+
+        this.imUid = userDto.getImUid();
     }
 
     public UserIdentifier buildUserIdentifier() {
@@ -50,6 +74,14 @@ public final class UserInfo implements Serializable {
     @Override
     public String toString() {
         return PrintableBeanUtils.toString(this);
+    }
+
+    public String getImUid() {
+        return imUid;
+    }
+
+    public void setImUid(String imUid) {
+        this.imUid = imUid;
     }
 
     public Long getId() {
@@ -82,6 +114,22 @@ public final class UserInfo implements Serializable {
 
     public void setUserType(String userType) {
         this.userType = userType;
+    }
+
+    public Byte getUserDetailType() {
+        return userDetailType;
+    }
+
+    public void setUserDetailType(Byte userDetailType) {
+        this.userDetailType = userDetailType;
+    }
+
+    public Long getCompanyId() {
+        return companyId;
+    }
+
+    public void setCompanyId(Long companyId) {
+        this.companyId = companyId;
     }
 
     public String getShowName() {

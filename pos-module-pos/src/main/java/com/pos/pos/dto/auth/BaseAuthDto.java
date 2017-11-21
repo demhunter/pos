@@ -3,9 +3,9 @@
  */
 package com.pos.pos.dto.auth;
 
-import com.pos.pos.constants.PosTwitterStatus;
-import com.wordnik.swagger.annotations.ApiModelProperty;
 import com.pos.pos.constants.AuthStatusEnum;
+import com.wordnik.swagger.annotations.ApiModelProperty;
+import com.pos.pos.constants.PosTwitterStatus;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -35,6 +35,8 @@ public class BaseAuthDto implements Serializable {
 
     @ApiModelProperty("推广发展下级推客功能（1=未启用 2=启用 3==关闭）")
     private Integer develop;
+
+
 
     public AuthStatusEnum parseSpreadAuth() {
         return spread == null ? null : AuthStatusEnum.getEnum(spread.byteValue());

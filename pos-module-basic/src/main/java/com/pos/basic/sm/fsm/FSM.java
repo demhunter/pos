@@ -23,10 +23,10 @@
 **/
 package com.pos.basic.sm.fsm;
 
-import com.pos.basic.sm.action.FSMAction;
 import com.pos.basic.sm.states.FSMStateAction;
-import com.pos.basic.sm.states.FSMTransitionInfo;
+import com.pos.basic.sm.action.FSMAction;
 import com.pos.basic.sm.states.FSMStates;
+import com.pos.basic.sm.states.FSMTransitionInfo;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;

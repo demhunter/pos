@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.user.dao.MerchantDao">
+
+    <insert id="save" parameterType="com.pos.user.domain.Merchant">
+        INSERT INTO
+        merchant (user_id, user_detail_type, company_id, head_image)
+        VALUES
+        (#{m.userId}, #{m.userDetailType}, #{m.companyId}, #{m.headImage});
+    </insert>
+
+    <update id="update" parameterType="com.pos.user.domain.Merchant">
+        UPDATE merchant
+        SET
+        user_detail_type = #{m.userDetailType},
+        company_id = #{m.companyId},
+        head_image = #{m.headImage}
+        WHERE id = #{m.id}
+    </update>
+
+    <select id="getByUserId" resultType="com.pos.user.domain.Merchant">
+        SELECT
+        <include refid="merchantColumns"/>
+        FROM merchant m WHERE m.user_id = #{userId}
+    </select>
+
+    <select id="findMerchantByUserId" resultType="com.pos.user.dto.merchant.MerchantDto">
+        SELECT
+        <include refid="merchantDtoColumns"/>
+        FROM `user` u
+        INNER JOIN user_class uc ON u.id = uc.user_id
+        INNER JOIN merchant m ON u.id = m.user_id
+        WHERE u.id = #{userId}
+        <if test="deleted != null">
+            AND u.deleted = #{deleted}
+        </if>
+        AND uc.user_type = 'b'
+        <if test="available != null">
+            AND uc.available = #{available}
+        </if>
+    </select>
+
+    <select id="findMerchantByUserName" resultType="com.pos.user.dto.merchant.MerchantDto">
+        SELECT
+        <include refid="merchantDtoColumns"/>
+        FROM `user` u
+        INNER JOIN user_class uc ON u.id = uc.user_id
+        INNER JOIN merchant m ON u.id = m.user_id
+        WHERE u.user_name = #{userName}
+        <if test="deleted != null">
+            AND u.deleted = #{deleted}
+        </if>
+        AND uc.user_type = 'b'
+        <if test="available != null">
+            AND uc.available = #{available}
+        </if>
+    </select>
+
+    <select id="findMerchantByUserPhone" resultType="com.pos.user.dto.merchant.MerchantDto">
+        SELECT
+        <include refid="merchantDtoColumns"/>
+        FROM `user` u
+        INNER JOIN user_class uc ON u.id = uc.user_id
+        INNER JOIN merchant m ON u.id = m.user_id
+        WHERE u.user_phone = #{userPhone}
+        <if test="deleted != null">
+            AND u.deleted = #{deleted}
+        </if>
+        AND uc.user_type = 'b'
+        <if test="available != null">
+            AND uc.available = #{available}
+        </if>
+    </select>
+
+    <select id="queryMerchants" resultType="com.pos.user.dto.merchant.MerchantDto">
+        SELECT
+        <include refid="merchantDtoColumns"/>
+        FROM `user` u
+        INNER JOIN user_class uc ON u.id = uc.user_id
+        INNER JOIN merchant m ON u.id = m.user_id
+        WHERE uc.user_type = 'b'
+        <if test="deleted != null">
+            AND u.deleted = #{deleted}
+        </if>
+        <if test="available != null">
+            AND uc.available = #{available}
+        </if>
+        LIMIT #{limitHelper.offset}, #{limitHelper.pageSize}
+    </select>
+
+    <sql id="merchantColumns">
+        m.id as id,
+        m.user_id as userId,
+        m.user_detail_type as userDetailType,
+        m.company_id as companyId,
+        m.head_image as headImage
+    </sql>
+
+    <sql id="merchantDtoColumns">
+        u.id as id,
+        u.user_name as userName,
+        u.user_phone as userPhone,
+        u.deleted as deleted,
+        u.mail as mail,
+        u.name as name,
+        u.gender as gender,
+        u.id_card as idCard,
+        u.id_image_a as idImageA,
+        u.id_image_b as idImageB,
+        u.id_hold_image as idHoldImage,
+        uc.id as userTypeId,
+        uc.user_type as userType,
+        uc.available as available,
+        uc.create_user as createUserId,
+        uc.create_time as createTime,
+        uc.update_time as updateTime,
+        uc.last_login_time as lastLoginTime,
+        m.id as entityId,
+        m.user_detail_type as userDetailType,
+        m.company_id as companyId,
+        m.head_image as headImage
+    </sql>
+
+</mapper>

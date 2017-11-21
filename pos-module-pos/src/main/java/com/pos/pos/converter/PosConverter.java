@@ -4,13 +4,13 @@
 package com.pos.pos.converter;
 
 import com.pos.common.util.basic.JsonUtils;
-import com.pos.pos.domain.PosBankCard;
-import com.pos.pos.domain.PosTransaction;
+import com.pos.pos.domain.UserPosTransactionRecord;
 import com.pos.pos.dto.PosOutCardInfoDto;
 import com.pos.pos.dto.card.PosCardDto;
 import com.pos.pos.dto.request.GetMoneyDto;
-import com.pos.pos.dto.transaction.TransactionRecordDto;
 import com.pos.pos.constants.CardUsageEnum;
+import com.pos.pos.domain.UserPosCard;
+import com.pos.pos.dto.transaction.TransactionRecordDto;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.type.TypeReference;
 import org.springframework.beans.BeanUtils;
@@ -23,21 +23,21 @@ import org.springframework.beans.BeanUtils;
  */
 public class PosConverter {
 
-    public static PosCardDto toPosCardDto(PosBankCard card) {
+    public static PosCardDto toPosCardDto(UserPosCard card) {
         PosCardDto dto = new PosCardDto();
 
         BeanUtils.copyProperties(card, dto);
-        dto.setBankName(card.getBankName());
+        dto.setBankName(card.getBank());
 
         return dto;
     }
 
-    public static PosBankCard toUserPosCard(PosCardDto dto) {
-        PosBankCard card = new PosBankCard();
+    public static UserPosCard toUserPosCard(PosCardDto dto) {
+        UserPosCard card = new UserPosCard();
 
         BeanUtils.copyProperties(dto, card);
-        card.setBankName(dto.getBankName());
-        card.setIdCardNo(dto.getIdCardNo());
+        card.setBank(dto.getBankName());
+        card.setIdCardNO(dto.getIdCardNo());
 
         return card;
     }
@@ -46,16 +46,16 @@ public class PosConverter {
         PosCardDto dto = new PosCardDto();
 
         dto.setUserId(userId);
-        dto.setHolderName(getMoneyDto.getName());
+        dto.setName(getMoneyDto.getName());
         dto.setIdCardNo(getMoneyDto.getIdCardNO());
-        dto.setBankCardNo(getMoneyDto.getCardNO());
+        dto.setCardNO(getMoneyDto.getCardNO());
         dto.setMobilePhone(getMoneyDto.getMobilePhone());
         dto.setCardUsage(CardUsageEnum.OUT_CARD.getCode());
 
         return dto;
     }
 
-    public static TransactionRecordDto toTransactionRecordDto(PosTransaction record) {
+    public static TransactionRecordDto toTransactionRecordDto(UserPosTransactionRecord record) {
         TransactionRecordDto transaction = new TransactionRecordDto();
 
         BeanUtils.copyProperties(record, transaction);

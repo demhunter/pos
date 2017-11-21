@@ -1,0 +1,853 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.user.dao.PlatformEmployeeDao">
+    <select id="queryByUserId" resultType="com.pos.user.dto.platformEmployee.PlatformEmployeeDetailDto">
+        SELECT
+        <include refid="platformEmployeeDetailColumns"/>
+        FROM platform_employee pe
+        WHERE pe.user_id = #{userId}
+    </select>
+
+    <select id="queryById" resultType="com.pos.user.domain.PlatformEmployee">
+        SELECT
+        <include refid="platformEmployeeDetailColumns"/>
+        FROM platform_employee pe
+        WHERE pe.id = #{id}
+    </select>
+
+    <select id="queryPeUserId" resultType="com.pos.user.domain.PlatformEmployee">
+        SELECT
+        <include refid="platformEmployeeDetailColumns"/>
+        FROM platform_employee pe
+        WHERE pe.user_id = #{peUserId}
+    </select>
+
+    <select id="getRelationTwitter" resultType="com.pos.user.dto.platformEmployee.RelationTwitterDto">
+        SELECT
+        t.id AS id,
+        u.id AS userId,
+        u.`name` AS `name` ,
+        u.user_phone AS mobilePhone,
+        t.available AS `enable`,
+        t.relation_date AS relationDate
+        FROM
+        twitter t JOIN `user` u ON u.id = t.user_id
+        LEFT JOIN platform_employee pe ON t.hc_id = pe.user_id
+        <where>
+            <if test="condition.name != null">
+                AND u.name LIKE CONCAT('%',#{condition.name},'%')
+            </if>
+            <if test="condition.mobilePhone!=null">
+                AND u.user_phone LIKE CONCAT('%',#{condition.mobilePhone},'%')
+            </if>
+            <if test="condition.peId!=null">
+                AND pe.id = #{condition.peId}
+            </if>
+        </where>
+        <if test="orderHelper != null">
+            ORDER BY  ${orderHelper.fieldName} ${orderHelper.ordination}
+        </if>
+        <if test="limitHelper != null">
+            LIMIT #{limitHelper.offset}, #{limitHelper.pageSize}
+        </if>
+    </select>
+
+    <select id="getRelationTwitterCount" resultType="int">
+        SELECT COUNT(*)
+        FROM
+        twitter t JOIN `user` u ON u.id = t.user_id
+        LEFT JOIN platform_employee pe ON t.hc_id = pe.user_id
+        <where>
+            <if test="condition.name != null">
+                AND u.name LIKE CONCAT('%',#{condition.name},'%')
+            </if>
+            <if test="condition.mobilePhone!=null">
+                AND u.user_phone LIKE CONCAT('%',#{condition.mobilePhone},'%')
+            </if>
+            <if test="condition.peId!=null">
+                AND pe.id = #{condition.peId}
+            </if>
+        </where>
+    </select>
+
+    <select id="queryCustomerUserIds" resultType="com.pos.user.dto.platformEmployee.CustomerListUserIdsDto">
+        SELECT
+        pec.c_user_id AS userId,
+        pcs.im_session_available AS notCloseSessionCount,
+        pcs.order_unpaid + pcs.order_going AS notEndOrderCount
+        FROM
+        pe_customers pec
+        JOIN `user` u ON pec.c_user_id = u.id
+        LEFT JOIN platform_customer_statistics pcs ON pec.c_user_id = pcs.user_id
+        LEFT JOIN customer_account ca ON pec.c_user_id = ca.user_id
+        JOIN platform_employee pe ON pec.pe_user_id = pe.user_id
+        <where>
+            <if test="condition.refuse != null">
+                AND pec.status=3
+            </if>
+            <if test="condition.notRefuse!=null">
+                AND (pec.status = 2 or pec.status = 1 or pec.status = 4)
+            </if>
+            <if test="condition.relation!=null">
+                AND pec.relation_type = #{condition.relation}
+            </if>
+            <if test="condition.mobilePhone!=null">
+                AND u.user_phone LIKE CONCAT('%',#{condition.mobilePhone},'%')
+            </if>
+            <if test="condition.peId!=null">
+                AND pe.id = #{condition.peId}
+            </if>
+        </where>
+        <if test="orderHelpers != null">
+            ORDER BY
+            <foreach item="orderHelper" index="index" collection="orderHelpers" open="" separator="," close="">
+                ${orderHelper.fieldName} ${orderHelper.ordination}
+            </foreach>
+        </if>
+        <if test="limitHelper != null">
+            LIMIT #{limitHelper.offset}, #{limitHelper.pageSize}
+        </if>
+    </select>
+
+    <select id="queryCustomer" resultType="com.pos.user.dto.platformEmployee.CustomerListDto">
+        SELECT
+            pec.id AS id,
+            pec.c_user_id AS userId,
+            c.`nick_name` AS `name`,
+            u.user_phone AS mobilePhone,
+            ca.`available` AS `status`,
+            pec.relation_type AS relationType,
+            pec.`status` AS orderStatus,
+            pec.remark AS remark,
+            pcs.im_session_available AS notCloseSessionCount,
+            pcs.order_unpaid + pcs.order_going AS notEndOrderCount
+        FROM
+            pe_customers pec
+        LEFT JOIN `user` u ON pec.c_user_id = u.id
+        LEFT JOIN platform_customer_statistics pcs ON pec.c_user_id = pcs.user_id
+        LEFT JOIN user_class ca ON pec.c_user_id = ca.user_id
+        LEFT JOIN platform_employee pe ON pec.pe_user_id = pe.user_id
+        LEFT JOIN customer c ON u.id = c.user_id
+        WHERE
+        (ca.user_type = 'c' OR ca.user_type is null)
+            <if test="condition.refuse != null">
+                AND pec.status=3
+            </if>
+            <if test="condition.notRefuse!=null">
+                AND (pec.status = 2 or pec.status = 1 or pec.status = 4)
+            </if>
+            <if test="condition.relation!=null">
+                AND pec.relation_type = #{condition.relation}
+            </if>
+            <if test="condition.mobilePhone!=null">
+                AND u.user_phone LIKE CONCAT('%',#{condition.mobilePhone},'%')
+            </if>
+            <if test="condition.peId!=null">
+                AND pe.id = #{condition.peId}
+            </if>
+        <if test="orderHelpers != null">
+            ORDER BY
+            <foreach item="orderHelper" index="index" collection="orderHelpers" open="" separator="," close="">
+                ${orderHelper.fieldName} ${orderHelper.ordination}
+            </foreach>
+        </if>
+        <if test="limitHelper != null">
+            LIMIT #{limitHelper.offset}, #{limitHelper.pageSize}
+        </if>
+    </select>
+
+    <select id="queryCustomerCount" resultType="int">
+        SELECT
+        COUNT(*)
+        FROM
+        pe_customers pec
+        LEFT JOIN `user` u ON pec.c_user_id = u.id
+        LEFT JOIN platform_customer_statistics pcs ON pec.c_user_id = pcs.user_id
+        LEFT JOIN customer_account ca ON pec.c_user_id = ca.user_id
+        LEFT JOIN platform_employee pe ON pec.pe_user_id = pe.user_id
+        LEFT JOIN customer c ON u.id = c.user_id
+        WHERE
+        (ca.user_type = 'c' OR ca.user_type is null)
+            <if test="condition.refuse != null">
+                AND pec.status=3
+            </if>
+            <if test="condition.notRefuse!=null">
+                AND (pec.status = 2 or pec.status = 1 or pec.status = 4)
+            </if>
+            <if test="condition.relation!=null">
+                AND pec.relation_type = #{condition.relation}
+            </if>
+            <if test="condition.mobilePhone!=null">
+                AND u.user_phone LIKE CONCAT('%',#{condition.mobilePhone},'%')
+            </if>
+            <if test="condition.peId!=null">
+                AND pe.id = #{condition.peId}
+            </if>
+    </select>
+
+    <update id="updateCustomerRelation">
+        UPDATE pe_customers
+        SET pe_user_id = #{peUserId}
+        WHERE c_user_id in
+        <foreach item="cid" index="index" collection="customerIds" open="(" separator="," close=")">
+            #{cid}
+        </foreach>
+        AND area_id = #{areaId}
+    </update>
+
+    <select id="querySessionCount" resultType="int">
+        SELECT  COUNT(*) FROM im_session
+        WHERE available = 1 AND (user_id IN
+        <foreach item="cid" index="index" collection="customerIds" open="(" separator="," close=")">
+            #{cid}
+        </foreach>
+        OR user_id IN (SELECT c_user_id FROM pe_customers WHERE pe_user_id = #{newPeId}))
+    </select>
+
+    <select id="queryCustomerSession" resultType="Long">
+        SELECT im.id
+        FROM im_session im
+        LEFT JOIN im_session_platform_employee impe ON im.id = impe.session_id
+        WHERE im.user_id IN
+        <foreach item="cid" index="index" collection="customerIds" open="(" separator="," close=")">
+            #{cid}
+        </foreach>
+        AND im.user_type='c'
+        AND impe.pe_user_id = #{peUserId}
+    </select>
+
+    <update id="updateImSessionMember">
+        UPDATE im_session_member
+        SET user_id = #{peId}
+        WHERE user_join_type =3
+        AND user_type='e'
+        AND user_id = #{oldPeUserId}
+        AND session_id IN
+        (SELECT id FROM im_session WHERE user_id IN
+        <foreach item="cid" index="index" collection="customerIds" open="(" separator="," close=")">
+            #{cid}
+        </foreach>
+        AND user_type='c'
+         )
+    </update>
+
+    <select id="querySessionByUserId" resultType="Long">
+        SELECT id
+        FROM im_session
+        WHERE user_id IN
+        <foreach item="cid" index="index" collection="customerIds" open="(" separator="," close=")">
+            #{cid}
+        </foreach>
+        AND user_type='c'
+        AND available = 1
+    </select>
+    
+    <update id="updateImSessionPlatformEmployee">
+        UPDATE im_session_platform_employee
+        SET pe_user_id=#{peId}
+        WHERE session_id IN
+            <foreach item="sid" index="index" collection="sessionIds" open="(" separator="," close=")">
+                #{sid}
+            </foreach>
+        AND pe_user_id = #{oldPeUserId}
+    </update>
+
+    <update id="updateOrderPlatformEmployee">
+        UPDATE `order`
+        SET pe_user_id = #{peId}
+        WHERE (status = 0 OR status = 1)
+        AND id IN
+            <foreach item="cid" index="index" collection="orderIds" open="(" separator="," close=")">
+                #{cid}
+            </foreach>
+    </update>
+
+    <select id="queryNeedUpdateOrderIds" resultType="Long">
+        SELECT id FROM `order`
+        WHERE (status = 0 OR status = 1)
+        AND customer_user_id IN
+            <foreach item="cid" index="index" collection="customerIds" open="(" separator="," close=")">
+                #{cid}
+            </foreach>
+        AND pe_user_id = #{oldPeUserId}
+    </select>
+    
+    <update id="updateOrderEmployeeRelation">
+        UPDATE order_employee_relation
+        SET user_id = #{peUserId}
+        WHERE employee_type = #{employeeType}
+        AND order_id IN
+        <foreach item="oid" index="index" collection="orderIds" open="(" separator="," close=")">
+            #{oid}
+        </foreach>
+    </update>
+
+    <select id="queryTwitter" resultType="com.pos.user.dto.platformEmployee.TwitterDto">
+        SELECT
+        t.id AS id,
+        u.`name` AS `name`,
+        u.user_phone AS mobilePhone,
+        uu.`name` AS peName,
+        a.short_name AS peArea
+        FROM
+        twitter t
+        LEFT JOIN platform_employee pe ON t.hc_id = pe.user_id
+        LEFT JOIN area a ON pe.area_id = a.id
+        LEFT JOIN `user` u ON t.user_id = u.id
+        LEFT JOIN `user` uu ON pe.user_id = uu.id
+        WHERE  (t.hc_id is null OR pe.id != #{condition.peId})
+        <if test="condition.twitter!=null">
+            AND (u.name LIKE CONCAT('%',#{condition.twitter},'%') or u.user_phone LIKE CONCAT('%',#{condition.twitter},'%'))
+        </if>
+        <if test="condition.twitterIds != null">
+            AND t.id IN
+            <foreach item="item" index="index" collection="condition.twitterIds" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="queryChildTwitter" resultType="com.pos.user.dto.platformEmployee.TwitterChildDto">
+        SELECT
+        tr.twitter_id AS twitterId,
+        tr.child_twitter_id AS childrenTwitterId,
+        tr.child_level AS childLevel
+        FROM
+        twitter_relation tr
+        WHERE
+        tr.twitter_id = #{condition.twitterId}
+    </select>
+
+    <update id="updateTwitterRelation">
+        UPDATE twitter
+        SET hc_id = #{peId}
+        WHERE id in
+        <foreach item="tid" index="index" collection="twitterIds" open="(" separator="," close=")">
+            #{tid}
+        </foreach>
+    </update>
+
+    <update id="updateDistribution">
+        UPDATE platform_employee
+        SET distribution = #{distribution}
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateEnable">
+        UPDATE platform_employee
+        SET enable = #{enable}
+        WHERE id = #{id}
+    </update>
+
+    <select id="queryCount" resultType="int">
+        SELECT COUNT(*)
+        FROM platform_employee pe
+        <include refid="conditionColumns"/>
+    </select>
+
+    <select id="queryCountStatistics" resultType="com.pos.user.dto.platformEmployee.PECountStatisticsDto">
+        SELECT
+        COUNT(IF(pe.distribution = 1, TRUE, NULL)) AS acceptDistribution,
+        COUNT(IF(pe.distribution = 0, TRUE, NULL)) AS refuseDistribution
+        FROM platform_employee pe
+        <include refid="conditionColumns"/>
+    </select>
+
+    <select id="queryPlatformEmployees" resultType="com.pos.user.dto.platformEmployee.PlatformEmployeeDetailDto">
+        SELECT
+        <include refid="platformEmployeeDetailColumns"/>
+        FROM platform_employee pe
+        <include refid="conditionColumns"/>
+    </select>
+
+    <insert id="addPlatformEmployee" useGeneratedKeys="true" keyProperty="platformEmployee.id">
+        INSERT INTO
+        platform_employee (user_id, area_id, user_detail_type,nick_name,distribution,quit,enable,create_date,head_image)
+        VALUES
+        (#{platformEmployee.userId}, #{platformEmployee.areaId}, #{platformEmployee.userDetailType},
+         #{platformEmployee.nickName},#{platformEmployee.distribution},#{platformEmployee.quit},#{platformEmployee.enable},NOW(),#{platformEmployee.headImage});
+    </insert>
+
+    <update id="updatePlatformEmployee">
+        UPDATE platform_employee
+        <set>
+            <if test="platformEmployee.userDetailType != null">
+                user_detail_type = #{platformEmployee.userDetailType},
+            </if>
+            <if test="platformEmployee.nickName != null">
+                nick_name = #{platformEmployee.nickName},
+            </if>
+            <if test="platformEmployee.distribution != null">
+                distribution = #{platformEmployee.distribution},
+            </if>
+            <if test="platformEmployee.headImage != null">
+                head_image = #{platformEmployee.headImage},
+            </if>
+            update_date = NOW()
+        </set>
+        WHERE id = #{platformEmployee.id}
+    </update>
+
+    <select id="queryManagerByAreaId" resultType="com.pos.user.dto.platformEmployee.PlatformEmployeeDetailDto">
+        SELECT
+        <include refid="platformEmployeeDetailColumns"/>
+        FROM platform_employee pe
+        WHERE pe.area_id = #{areaId}
+        AND pe.user_detail_type = #{userDetailType}
+    </select>
+
+    <select id="queryPEByAreaId" resultType="com.pos.user.dto.platformEmployee.PlatformEmployeeDetailDto">
+        SELECT
+        pe.`id` AS `id`,
+        pe.user_id AS userId,
+        pe.area_id AS areaId,
+        pe.work_no AS workNo,
+        pe.user_detail_type AS userDetailType,
+        u.name AS nickName,
+        pe.head_image AS headImage,
+        pe.distribution AS distribution,
+        pe.quit AS quit,
+        pe.enable AS enable,
+        pe.create_date AS createDate,
+        pe.update_date AS updateDate
+        FROM platform_employee pe
+        JOIN `user` u ON u.id=pe.user_id
+        WHERE pe.area_id = #{areaId}
+        AND pe.enable = #{enable}
+        <if test="distribution!=null">
+          AND pe.distribution=#{distribution}
+        </if>
+        AND pe.id != #{id}
+    </select>
+
+    <select id="querySessionList" resultType="com.pos.user.dto.platformEmployee.SessionListDto">
+        SELECT
+            ims.id AS id,
+            ims.`name` AS `sessionName`,
+            imsa.case_name AS caseName,
+            c.`name` AS companyName,
+            cu.`nick_name` AS customerName,
+            u.user_phone AS customerMobilePhone,
+            ims.available AS sessionStatus,
+            ims.create_time AS createDate,
+            imsm.send_time AS lastDate,
+            uu.user_name AS closerName,
+            uu.id AS closerId
+        FROM
+            im_session ims
+        LEFT JOIN im_session_platform_employee imspe ON imspe.session_id = ims.id
+        LEFT JOIN im_session_case imsa ON ims.id = imsa.session_id
+        LEFT JOIN im_session_company imsc ON ims.id = imsc.session_id
+        LEFT JOIN `user` u ON ims.user_id = u.id
+        LEFT JOIN company c ON imsc.company_id = c.id
+        LEFT JOIN customer cu ON cu.user_id = ims.user_id
+        LEFT JOIN (
+            SELECT
+                *
+            FROM
+                (
+                    SELECT
+                        *
+                    FROM
+                        im_netease_msg
+                    ORDER BY
+                        send_time DESC
+                ) AS a
+            GROUP BY
+                a.to
+        ) AS imsm ON imsm.to = ims.group_id
+        LEFT JOIN `user` uu ON ims.closed_user = uu.id
+        WHERE
+            ims.user_type = 'c'
+            <if test="condition.available!=null">
+                AND ims.available=#{condition.available}
+            </if>
+            <if test="condition.sessionName!=null">
+                AND ims.name LIKE CONCAT('%',#{condition.sessionName},'%')
+            </if>
+            <if test="condition.companyName!=null">
+                AND c.name LIKE CONCAT('%',#{condition.companyName},'%')
+            </if>
+            <if test="condition.mobilePhone!=null">
+                AND u.user_phone LIKE CONCAT('%',#{condition.mobilePhone},'%')
+            </if>
+            <if test="condition.peUserId!=null">
+                AND imspe.pe_user_id=#{condition.peUserId}
+            </if>
+        GROUP BY id
+        <if test="orderHelper != null">
+            ORDER BY ${orderHelper.fieldName} ${orderHelper.ordination}
+        </if>
+        <if test="limitHelper != null">
+            LIMIT #{limitHelper.offset}, #{limitHelper.pageSize}
+        </if>
+    </select>
+
+
+    <select id="querySessionListCount" resultType="int">
+        SELECT
+        COUNT(DISTINCT(ims.id))
+        FROM
+        im_session ims
+        LEFT JOIN im_session_platform_employee imspe ON imspe.session_id = ims.id
+        LEFT JOIN im_session_case imsa ON ims.id = imsa.session_id
+        LEFT JOIN im_session_company imsc ON ims.id = imsc.session_id
+        LEFT JOIN `user` u ON ims.user_id = u.id
+        LEFT JOIN company c ON imsc.company_id = c.id
+        LEFT JOIN customer cu ON cu.user_id = ims.user_id
+        LEFT JOIN (
+        SELECT
+        *
+        FROM
+        (
+        SELECT
+        *
+        FROM
+        im_session_message
+        ORDER BY
+        send_time DESC
+        ) AS a
+        GROUP BY
+        a.session_id
+        ) AS imsm ON imsm.session_id = ims.id
+        LEFT JOIN `user` uu ON ims.closed_user = uu.id
+        WHERE
+        ims.user_type = 'c'
+        <if test="condition.available!=null">
+            AND ims.available=#{condition.available}
+        </if>
+        <if test="condition.sessionName!=null">
+            AND ims.name LIKE CONCAT('%',#{condition.sessionName},'%')
+        </if>
+        <if test="condition.companyName!=null">
+            AND c.name LIKE CONCAT('%',#{condition.companyName},'%')
+        </if>
+        <if test="condition.mobilePhone!=null">
+            AND u.user_phone LIKE CONCAT('%',#{condition.mobilePhone},'%')
+        </if>
+        <if test="condition.peUserId!=null">
+            AND imspe.pe_user_id=#{condition.peUserId}
+        </if>
+    </select>
+
+    <select id="queryOrderList" resultType="com.pos.user.dto.platformEmployee.OrderListDto">
+        SELECT
+            o.id AS id,
+            o.order_num AS orderNum,
+            o.order_type AS orderType,
+            o.`status` AS orderStatus,
+            o.order_phase AS phase,
+            o.prepaid_amount AS payAmount,
+            o.company_id AS companyId,
+            od.customer_phone AS customerMobilePhone,
+            o.create_time AS createDate,
+            o.finish_time AS endDate
+        FROM
+            `order` o
+        JOIN `order_detail` od ON o.id = od.order_id
+        <where>
+            <if test="condition.type!=null">
+                AND o.order_type=#{condition.type}
+            </if>
+            <if test="condition.status!=null">
+                AND o.`status`=#{condition.status}
+            </if>
+            <if test="condition.peUserId!=null">
+                AND o.pe_user_id=#{condition.peUserId}
+            </if>
+        </where>
+        <if test="orderHelper != null">
+            ORDER BY ${orderHelper.fieldName} ${orderHelper.ordination}
+        </if>
+        <if test="limitHelper != null">
+            LIMIT #{limitHelper.offset}, #{limitHelper.pageSize}
+        </if>
+    </select>
+
+    <select id="queryOrderListCount" resultType="int">
+        SELECT
+        COUNT(*)
+        FROM
+        `order` o
+        JOIN `order_detail` od ON o.id = od.order_id
+        <where>
+            <if test="condition.type!=null">
+                AND o.order_type=#{condition.type}
+            </if>
+            <if test="condition.status!=null">
+                AND o.`status`=#{condition.status}
+            </if>
+            <if test="condition.peUserId!=null">
+                AND o.pe_user_id=#{condition.peUserId}
+            </if>
+        </where>
+    </select>
+
+    <select id="queryPlatformEmployeeAllInfo" resultType="com.pos.user.dto.platformEmployee.PlatformEmployeeAllInfoDto">
+        SELECT
+            pe.id AS id,
+            u.`name` AS `name`,
+            u.user_phone AS mobilePhone,
+            a.short_name AS area,
+            a.id AS areaId,
+            pe.user_detail_type AS userDetailType,
+            pe.distribution AS distribution,
+            pe.`enable` AS `enable`,
+            pes.twitter AS twitterCount,
+            pes.customer_complete AS completeCustomerCount,
+            pes.customer_refuse AS refuseCustomerCount,
+            pes.customer_talking AS talkingCustomerCount,
+            pes.im_session_available AS notCloseSessionCount,
+            pes.im_session_closed AS closeSessionCount,
+            pes.order_finished AS completeOrderCount,
+            pes.order_going AS ongoingOrderCount,
+            pes.order_terminated AS closeOrderCount,
+            pes.order_unpaid AS waitPayOrderCount
+        FROM
+            platform_employee pe
+        LEFT JOIN platform_employee_statistics pes ON pe.user_id = pes.user_id
+        JOIN `user` u ON pe.user_id = u.id
+        JOIN area a ON pe.area_id = a.id
+        WHERE pe.id = #{peId}
+    </select>
+
+    <select id="queryPEListUserIds" resultType="com.pos.user.dto.platformEmployee.PlatEmployeeListUserIdsDto">
+        SELECT
+        pe.user_id AS userId,
+        pe.update_date AS updateDate
+        FROM
+        platform_employee pe
+        LEFT JOIN platform_employee_statistics pes ON pe.user_id = pes.user_id
+        LEFT JOIN `user` u ON pe.user_id = u.id
+        LEFT JOIN area a ON pe.area_id = a.id
+        <where>
+            <if test="condition.areaId!=null">
+                a.id = #{condition.areaId}
+            </if>
+            <if test="condition.manager!=null">
+                AND pe.user_detail_type=#{condition.manager}
+            </if>
+            <if test="condition.distribution!=null">
+                AND pe.distribution=#{condition.distribution}
+            </if>
+            <if test="condition.enable!=null">
+                AND pe.`enable`=#{condition.enable}
+            </if>
+            <if test="condition.name!=null">
+                AND u.`name` LIKE CONCAT('%',#{condition.name},'%')
+            </if>
+            <if test="condition.mobilePhone!=null">
+                AND u.user_phone LIKE CONCAT('%',#{condition.mobilePhone},'%')
+            </if>
+        </where>
+        <if test="orderHelper != null">
+            ORDER BY ${orderHelper.fieldName} ${orderHelper.ordination}
+        </if>
+        <if test="limitHelper != null">
+            LIMIT #{limitHelper.offset}, #{limitHelper.pageSize}
+        </if>
+    </select>
+
+    <select id="queryPEList" resultType="com.pos.user.dto.platformEmployee.PlatEmployeeListDto">
+        SELECT
+            pe.id AS id,
+            pe.user_id AS userId,
+            u.`name` AS `name`,
+            u.user_phone AS mobilePhone,
+            a.short_name AS area,
+            pes.twitter AS twitterCount,
+            pes.customer_complete AS completeCustomerCount,
+            pes.customer_refuse AS refuseCustomerCount,
+            pes.customer_talking AS talkingCustomerCount,
+            pes.im_session_available AS notCloseImCount,
+            pes.order_going AS ongoingOrderCount,
+            pes.order_unpaid AS waitPayOrderCount,
+            pe.user_detail_type AS userDetailType,
+            pe.distribution AS distribution,
+            pe.`enable` AS accountStatus,
+            pe.update_date AS updateDate
+        FROM
+            platform_employee pe
+        LEFT JOIN platform_employee_statistics pes ON pe.user_id = pes.user_id
+        LEFT JOIN `user` u ON pe.user_id = u.id
+        LEFT JOIN area a ON pe.area_id = a.id
+        <where>
+            <if test="condition.areaId!=null">
+                a.id = #{condition.areaId}
+            </if>
+            <if test="condition.manager!=null">
+                AND pe.user_detail_type=#{condition.manager}
+            </if>
+            <if test="condition.distribution!=null">
+                AND pe.distribution=#{condition.distribution}
+            </if>
+            <if test="condition.enable!=null">
+                AND pe.`enable`=#{condition.enable}
+            </if>
+            <if test="condition.name!=null">
+                AND u.`name` LIKE CONCAT('%',#{condition.name},'%')
+            </if>
+            <if test="condition.mobilePhone!=null">
+                AND u.user_phone LIKE CONCAT('%',#{condition.mobilePhone},'%')
+            </if>
+        </where>
+        <if test="orderHelper != null">
+            ORDER BY ${orderHelper.fieldName} ${orderHelper.ordination}
+        </if>
+        <if test="limitHelper != null">
+            LIMIT #{limitHelper.offset}, #{limitHelper.pageSize}
+        </if>
+    </select>
+
+    <select id="queryPEListCount" resultType="int">
+        SELECT
+        COUNT(*)
+        FROM
+        platform_employee pe
+        LEFT JOIN platform_employee_statistics pes ON pe.user_id = pes.user_id
+        LEFT JOIN `user` u ON pe.user_id = u.id
+        LEFT JOIN area a ON pe.area_id = a.id
+        <where>
+            <if test="condition.areaId!=null">
+                a.id = #{condition.areaId}
+            </if>
+            <if test="condition.manager!=null">
+                AND pe.user_detail_type=#{condition.manager}
+            </if>
+            <if test="condition.distribution!=null">
+                AND pe.distribution=#{condition.distribution}
+            </if>
+            <if test="condition.enable!=null">
+                AND pe.`enable`=#{condition.enable}
+            </if>
+            <if test="condition.name!=null">
+                AND u.`name` LIKE CONCAT('%',#{condition.name},'%')
+            </if>
+            <if test="condition.mobilePhone!=null">
+                AND u.user_phone LIKE CONCAT('%',#{condition.mobilePhone},'%')
+            </if>
+        </where>
+    </select>
+
+    <select id="queryCompanyInfo" resultType="com.pos.user.dto.platformEmployee.CompanyInfoDto">
+        SELECT
+        `c`.id AS id,
+        `c`.name AS `name`,
+        `c`.area_id AS areaId,
+        `c`.available AS available,
+        `c`.deleted AS deleted
+        FROM company `c`
+        WHERE `c`.id = #{companyId}
+    </select>
+
+    <select id="querySupervisionCompanyInfo" resultType="com.pos.user.dto.platformEmployee.CompanyInfoDto">
+        SELECT
+        `c`.id AS id,
+        `c`.name AS `name`,
+        `c`.area_id AS areaId,
+        `c`.enable AS available
+        FROM supervisor_company `c`
+        WHERE `c`.id = #{companyId}
+    </select>
+
+    <select id="getIMAvailableCountMinPE" resultType="com.pos.user.dto.platformEmployee.PlatformEmployeeDetailDto">
+        SELECT
+        <include refid="platformEmployeeDetailColumns"/>
+        FROM platform_employee pe
+        LEFT JOIN im_session_member AS ism ON ism.user_id = pe.user_id AND ism.user_type = 'e'
+        LEFT JOIN im_session AS im ON im.id = ism.session_id
+        WHERE pe.user_id IN
+        <foreach collection="userIds" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        GROUP BY pe.user_id
+        ORDER BY COUNT(IF(im.available = 1, TRUE, NULL)) ASC
+        LIMIT 0, 1
+    </select>
+
+    <select id="getOrderCountMinPE" resultType="com.pos.user.dto.platformEmployee.PlatformEmployeeDetailDto">
+        SELECT
+        <include refid="platformEmployeeDetailColumns"/>
+        FROM platform_employee pe
+        LEFT JOIN `order` AS o ON o.pe_user_id = pe.user_id
+        WHERE pe.user_id IN
+        <foreach collection="userIds" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        GROUP BY pe.user_id
+        ORDER BY COUNT(IF(o.status = 0 OR o.status = 1, TRUE, NULL)) ASC
+        LIMIT 0, 1
+    </select>
+
+    <select id="getCustomerCountMinPE" resultType="com.pos.user.dto.platformEmployee.PlatformEmployeeDetailDto">
+        SELECT
+        <include refid="platformEmployeeDetailColumns"/>
+        FROM platform_employee pe
+        LEFT JOIN `pe_customers` AS pec ON pec.pe_user_id = pe.user_id
+        WHERE pe.user_id IN
+        <foreach collection="userIds" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        GROUP BY pe.user_id
+        ORDER BY COUNT(pec.c_user_id) ASC
+        LIMIT 0, 1
+    </select>
+
+    <select id="getSimpleInfo" resultType="com.pos.user.dto.platformEmployee.PlatformEmployeeInfoDto">
+        SELECT
+          pe.area_id AS areaId,
+          pe.nick_name AS peName,
+          u.user_phone AS phone
+        FROM pe_customers pec
+        LEFT JOIN platform_employee pe ON  pe.user_id = pec.pe_user_id
+        LEFT JOIN `user` u ON u.id = pe.user_id
+        WHERE pec.c_user_id = #{userId}
+    </select>
+
+    <sql id="conditionColumns">
+        <where>
+            <if test="condition.id != null">
+                pe.`id` = #{condition.id}
+            </if>
+            <if test="condition.userId != null">
+                AND pe.user_id = #{condition.userId}
+            </if>
+            <if test="condition.areaId != null">
+                AND pe.area_id = #{condition.areaId}
+            </if>
+            <if test="condition.workNo != null">
+                AND pe.work_no = #{condition.workNo}
+            </if>
+            <if test="condition.userDetailType != null">
+                AND pe.user_detail_type = #{condition.userDetailType}
+            </if>
+            <if test="condition.distribution != null">
+                AND pe.distribution = #{condition.distribution}
+            </if>
+            <if test="condition.quit != null">
+                AND pe.quit = #{condition.quit}
+            </if>
+            <if test="condition.enable != null">
+                AND pe.enable = #{condition.enable}
+            </if>
+        </where>
+    </sql>
+
+    <sql id="platformEmployeeDetailColumns">
+        pe.`id` AS `id`,
+        pe.user_id AS userId,
+        pe.area_id AS areaId,
+        pe.work_no AS workNo,
+        pe.user_detail_type AS userDetailType,
+        pe.nick_name AS nickName,
+        pe.head_image AS headImage,
+        pe.distribution AS distribution,
+        pe.quit AS quit,
+        pe.enable AS enable,
+        pe.create_date AS createDate,
+        pe.update_date AS updateDate
+    </sql>
+
+</mapper>

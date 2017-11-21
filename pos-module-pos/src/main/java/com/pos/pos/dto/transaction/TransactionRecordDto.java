@@ -3,10 +3,10 @@
  */
 package com.pos.pos.dto.transaction;
 
-import com.wordnik.swagger.annotations.ApiModelProperty;
 import com.pos.pos.constants.TransactionStatusType;
 import com.pos.pos.dto.PosOutCardInfoDto;
 import com.pos.pos.dto.card.PosCardDto;
+import com.wordnik.swagger.annotations.ApiModelProperty;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -58,6 +58,12 @@ public class TransactionRecordDto implements Serializable {
 
     @ApiModelProperty("提现手续费（平台支付给用户时，支付公司扣除的）")
     private BigDecimal posCharge;
+
+    @ApiModelProperty("公司ID")
+    private Long companyId;
+
+    @ApiModelProperty("支付的费用类型")
+    private Integer costType;
 
     @ApiModelProperty("状态：0 = 已下单，1 = 交易处理中，2 = 交易失败，3 = 交易成功，4 = 已手动处理")
     private Integer status;
@@ -189,6 +195,22 @@ public class TransactionRecordDto implements Serializable {
 
     public void setPosCharge(BigDecimal posCharge) {
         this.posCharge = posCharge;
+    }
+
+    public Long getCompanyId() {
+        return companyId;
+    }
+
+    public void setCompanyId(Long companyId) {
+        this.companyId = companyId;
+    }
+
+    public Integer getCostType() {
+        return costType;
+    }
+
+    public void setCostType(Integer costType) {
+        this.costType = costType;
     }
 
     public Integer getStatus() {

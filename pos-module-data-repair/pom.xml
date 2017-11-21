@@ -14,15 +14,7 @@
 
     <dependencies>
         <!-- module start -->
-        <dependency>
-            <groupId>com.pos</groupId>
-            <artifactId>pos-module-basic</artifactId>
-        </dependency>
 
-        <dependency>
-            <groupId>com.pos</groupId>
-            <artifactId>pos-module-pos</artifactId>
-        </dependency>
         <!-- module end -->
 
         <!-- ssh start -->

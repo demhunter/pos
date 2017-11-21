@@ -5,8 +5,8 @@ package com.pos.pos.fsm.handler.transaction;
 
 import com.pos.basic.sm.action.FSMAction;
 import com.pos.pos.constants.TransactionStatusType;
-import com.pos.pos.service.PosService;
 import com.pos.pos.fsm.context.TransactionStatusTransferContext;
+import com.pos.pos.service.PosService;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -24,7 +24,6 @@ public class PosTransactionWithdrawSuccessHandler extends FSMAction {
     private PosService posService;
 
     @Override
-    @SuppressWarnings("all")
     public boolean action(String fromState, String toState, Object context) {
         TransactionStatusTransferContext statusTransfer = (TransactionStatusTransferContext) context;
         TransactionStatusType targetStatus = TransactionStatusType.getEnum(toState);

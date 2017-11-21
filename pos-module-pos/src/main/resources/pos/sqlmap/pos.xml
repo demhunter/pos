@@ -20,36 +20,47 @@
         pc.last_use_date AS lastUseDate
     </sql>
 
-    <select id="queryRecordByUserIdAndCostType" resultType="com.pos.pos.domain.PosTransaction">
+    <select id="getCompanyIds" resultType="LONG">
+        SELECT id FROM company
+    </select>
+
+    <select id="queryRecordByUserIdAndCostType" resultType="com.pos.pos.domain.UserPosTransactionRecord">
         SELECT
         <include refid="posRecord"/>
-        FROM `transaction`
-        WHERE user_id = #{userId}
-        AND (status = 3 OR status = 4)
-        <if test="costType != 0">
-            AND cost_type = #{costType}
+        FROM
+        user_pos_transaction_record
+        WHERE
+        user_id = #{userId}
+        AND
+        status = 1
+        <if test="costType!=0">
+            AND cost_type=#{costType}
         </if>
-        ORDER BY create_time
+        ORDER BY create_date
     </select>
 
-    <select id="queryRecordById" resultType="com.pos.pos.domain.PosTransaction">
+    <select id="queryRecordById" resultType="com.pos.pos.domain.UserPosTransactionRecord">
         SELECT
         <include refid="posRecord"/>
-        FROM `transaction`
-        WHERE id = #{id}
+        FROM
+        user_pos_transaction_record
+        WHERE
+        id = #{id}
     </select>
 
-    <select id="queryRecordByRecordNum" resultType="com.pos.pos.domain.PosTransaction">
+    <select id="queryRecordByRecordNum" resultType="com.pos.pos.domain.UserPosTransactionRecord">
         SELECT
         <include refid="posRecord"/>
-        FROM `transaction`
-        WHERE record_num = #{recordNum}
+        FROM
+        user_pos_transaction_record
+        WHERE
+        record_num = #{recordNum}
     </select>
 
     <sql id="posRecord">
             id AS id,
             record_num AS recordNum,
-            in_card_id AS inCardId,
+            in_card AS inCardId,
             out_card_info AS outCardInfo,
             user_id AS userId,
             amount AS amount,
@@ -60,8 +71,8 @@
             company_id AS companyId,
             cost_type AS costType,
             status AS status,
-            create_time AS createTime,
-            complete_time AS completeTime,
+            create_date AS createDate,
+            complete_date AS completeDate,
             helibao_zhifu_num AS helibaoZhifuNum,
             helibao_tixian_num AS helibaoTixianNum
     </sql>
@@ -70,14 +81,14 @@
         INSERT INTO user_pos_transaction_record
         (
             record_num,
-            in_card_id,
+            in_card,
             out_card_info,
             user_id,
             company_id,
             amount,
             cost_type,
             status,
-            create_time
+            create_date
         )
         VALUES
         (
@@ -120,8 +131,8 @@
             <if test="record.helibaoTixianNum!=null">
                 helibao_tixian_num=#{record.helibaoTixianNum},
             </if>
-            <if test="record.payTime!=null">
-                pay_date=#{record.payTime},
+            <if test="record.payDate!=null">
+                pay_date=#{record.payDate},
             </if>
             <if test="record.completeDate!=null">
                 complete_date=#{record.completeDate},

@@ -3,10 +3,10 @@
  */
 package com.pos.basic.dao;
 
+import com.pos.basic.dto.brand.BrandUnitDto;
 import com.pos.basic.condition.orderby.BrandOrderField;
 import com.pos.basic.domain.Brand;
 import com.pos.basic.domain.BrandClass;
-import com.pos.basic.dto.brand.BrandUnitDto;
 import com.pos.common.util.mvc.support.LimitHelper;
 import com.pos.common.util.mvc.support.OrderHelper;
 import org.apache.ibatis.annotations.Param;

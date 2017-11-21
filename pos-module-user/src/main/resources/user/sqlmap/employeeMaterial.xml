@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.user.dao.EmployeeMaterialDao">
+
+    <sql id="employeeMaterialColumns">
+        em.id AS id,
+        em.employee_user_id AS employeeUserId,
+        em.customer_user_id AS customerUserId,
+        em.create_date AS createDate,
+        em.channel AS channel
+    </sql>
+
+    <insert id="saveEmployeeMaterial" useGeneratedKeys="true" keyProperty="employeeMaterial.id">
+        INSERT INTO `employee_material`
+        (
+          employee_user_id,
+          customer_user_id,
+          create_date,
+          channel
+        ) VALUES
+        (
+          #{employeeMaterial.employeeUserId},
+          #{employeeMaterial.customerUserId},
+          #{employeeMaterial.createDate},
+          #{employeeMaterial.channel}
+        )
+    </insert>
+
+    <sql id="RecommendList">
+        em.id AS id,
+        em.create_date AS createDate,
+        em.channel,
+        cu.`nick_name` AS customerName,
+        uu.user_phone AS mobilePhone,
+        u.`name` AS referee,
+        u.user_phone AS refereeMobilePhone,
+        `c`.name AS company
+    </sql>
+
+    <select id="findRelationByCustomerId" resultType="com.pos.user.domain.EmployeeMaterial">
+        SELECT
+        <include refid="employeeMaterialColumns"/>
+        FROM `employee_material` em
+        <where>
+            em.customer_user_id = #{customerId}
+        </where>
+    </select>
+
+    <select id="getRecommendList" resultType="com.pos.user.dto.employee.RecommendDto">
+        SELECT
+        <include refid="RecommendList"/>
+        FROM
+        employee_material em
+        JOIN `user` u ON em.employee_user_id = u.id
+        JOIN `user` uu ON em.customer_user_id = uu.id
+        JOIN  employee e ON e.user_id = u.id
+        JOIN customer cu ON cu.user_id = uu.id
+        JOIN  company `c` ON e.company_id = `c`.id
+        <where>
+            <if test="condition.customer!=null">
+              AND (uu.user_name LIKE CONCAT('%',#{condition.customer},'%')
+                OR uu.user_phone LIKE CONCAT('%',#{condition.customer},'%'))
+            </if>
+            <if test="condition.referee !=null">
+                AND (u.user_name LIKE CONCAT('%',#{condition.referee},'%')
+                OR u.user_phone LIKE CONCAT('%',#{condition.referee},'%'))
+            </if>
+            <if test="condition.company!=null">
+                AND c.name LIKE CONCAT('%',#{condition.company},'%')
+            </if>
+        </where>
+        <if test="orderHelper != null">
+            ORDER BY  ${orderHelper.fieldName} ${orderHelper.ordination}
+        </if>
+        <if test="limitHelper != null">
+            LIMIT #{limitHelper.offset}, #{limitHelper.pageSize}
+        </if>
+    </select>
+
+    <select id="getRecommendListCount" resultType="java.lang.Integer">
+        SELECT
+        COUNT(*)
+        FROM
+        employee_material em
+        JOIN `user` u ON em.employee_user_id = u.id
+        JOIN `user` uu ON em.customer_user_id = uu.id
+        JOIN  employee e ON e.user_id = u.id
+        JOIN  company `c` ON e.company_id = `c`.id
+        <where>
+            <if test="condition.customer!=null">
+                AND (uu.user_name LIKE CONCAT('%',#{condition.customer},'%')
+                OR uu.user_phone LIKE CONCAT('%',#{condition.customer},'%'))
+            </if>
+            <if test="condition.referee !=null">
+                AND (u.user_name LIKE CONCAT('%',#{condition.referee},'%')
+                OR u.user_phone LIKE CONCAT('%',#{condition.referee},'%'))
+            </if>
+            <if test="condition.company!=null">
+                AND c.name LIKE CONCAT('%',#{condition.company},'%')
+            </if>
+        </where>
+
+    </select>
+
+</mapper>

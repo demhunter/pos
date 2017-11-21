@@ -3,9 +3,9 @@
  */
 package com.pos.basic.dto.brand;
 
-import com.pos.basic.constant.BrandType;
 import com.wordnik.swagger.annotations.ApiModel;
 import com.wordnik.swagger.annotations.ApiModelProperty;
+import com.pos.basic.constant.BrandType;
 import com.pos.common.util.exception.ValidationException;
 
 import java.io.Serializable;

@@ -8,6 +8,7 @@ import com.pos.common.util.basic.UUIDUnsigned32;
 import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.common.util.security.MD5Utils;
 import com.pos.common.util.validation.FieldChecker;
+import com.pos.user.constant.UserType;
 import com.pos.user.exception.UserErrorCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,9 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 import java.util.Calendar;
 
+import static com.pos.user.session.UserSessionComponent.ACCESS_TOKEN_KEY;
+import static com.pos.user.session.UserSessionComponent.SESSION_ID_KEY;
+
 /**
  * POS 快捷收款自定义用户Session的管理组件
  *
@@ -26,13 +30,10 @@ import java.util.Calendar;
  * @version 1.0, 2017/10/20
  */
 @Component
+@SuppressWarnings("all")
 public class UserSessionPosComponent {
 
     private static final Logger LOG = LoggerFactory.getLogger(UserSessionPosComponent.class);
-
-    public static final String SESSION_ID_KEY = "session-id";
-
-    public static final String ACCESS_TOKEN_KEY = "access-token";
 
     @Resource
     private RedisTemplate<String, UserSession> defaultRedis;
@@ -59,6 +60,15 @@ public class UserSessionPosComponent {
         }
         if (!Strings.isNullOrEmpty(userInfo.getShowHead())) {
             session.getUserInfo().setShowHead(userInfo.getShowHead());
+        }
+        if (userInfo.getUserDetailType() != null
+                && !UserType.CUSTOMER.compare(session.getUserInfo().getUserType())) {
+            session.getUserInfo().setUserDetailType(userInfo.getUserDetailType());
+        }
+        if (userInfo.getCompanyId() != null
+                && (UserType.EMPLOYEE.compare(session.getUserInfo().getUserType())
+                || UserType.BUSINESS.compare(session.getUserInfo().getUserType()))) {
+            session.getUserInfo().setCompanyId(userInfo.getCompanyId());
         }
         defaultRedis.opsForValue().set(session.getSessionId(), session);
         return true;

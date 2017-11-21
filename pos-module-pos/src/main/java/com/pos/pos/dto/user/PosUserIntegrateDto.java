@@ -4,10 +4,10 @@
 package com.pos.pos.dto.user;
 
 import com.pos.pos.constants.CardTypeEnum;
-import com.pos.user.dto.customer.CustomerDto;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 import com.pos.pos.constants.UserAuditStatus;
 import com.pos.pos.dto.auth.BaseAuthDto;
+import com.pos.user.dto.customer.CustomerDto;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -86,6 +86,20 @@ public class PosUserIntegrateDto implements Serializable{
     private BigDecimal userPosAmount;
 
     /***********************快捷收款--推客信息***************************/
+    @ApiModelProperty("上线推客用户ID")
+    private Long parentUserId;
+
+    @ApiModelProperty("推客用户ID（=userId）")
+    private Long channelUserId;
+
+    @ApiModelProperty("推客电话")
+    private String channelPhone;
+
+    @ApiModelProperty("备注")
+    private String channelRemark;
+
+    @ApiModelProperty("关联时间（Date）")
+    private Date relationTime;
 
     @ApiModelProperty("累计已提现金额（BigDecimal）")
     private BigDecimal totalWithdrawDeposit;
@@ -115,28 +129,12 @@ public class PosUserIntegrateDto implements Serializable{
         return auditStatus == null ? "" : UserAuditStatus.getEnum(auditStatus).getDesc();
     }
 
-    public Long getId() {
-        return id;
+    public Integer getAuditStatus() {
+        return auditStatus;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public Byte getGet() {
-        return get;
-    }
-
-    public void setGet(Byte get) {
-        this.get = get;
+    public void setAuditStatus(Integer auditStatus) {
+        this.auditStatus = auditStatus;
     }
 
     public BigDecimal getGetRate() {
@@ -161,38 +159,6 @@ public class PosUserIntegrateDto implements Serializable{
 
     public void setTwitterStatus(Integer twitterStatus) {
         this.twitterStatus = twitterStatus;
-    }
-
-    public Byte getSpread() {
-        return spread;
-    }
-
-    public void setSpread(Byte spread) {
-        this.spread = spread;
-    }
-
-    public Byte getDevelop() {
-        return develop;
-    }
-
-    public void setDevelop(Byte develop) {
-        this.develop = develop;
-    }
-
-    public Date getCreateDate() {
-        return createDate;
-    }
-
-    public void setCreateDate(Date createDate) {
-        this.createDate = createDate;
-    }
-
-    public Integer getAuditStatus() {
-        return auditStatus;
-    }
-
-    public void setAuditStatus(Integer auditStatus) {
-        this.auditStatus = auditStatus;
     }
 
     public Long getCardId() {
@@ -275,6 +241,102 @@ public class PosUserIntegrateDto implements Serializable{
         this.userPosAmount = userPosAmount;
     }
 
+    public CustomerDto getPosUserInfo() {
+        return posUserInfo;
+    }
+
+    public void setPosUserInfo(CustomerDto posUserInfo) {
+        this.posUserInfo = posUserInfo;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public Byte getGet() {
+        return get;
+    }
+
+    public void setGet(Byte get) {
+        this.get = get;
+    }
+
+    public Byte getSpread() {
+        return spread;
+    }
+
+    public void setSpread(Byte spread) {
+        this.spread = spread;
+    }
+
+    public Byte getDevelop() {
+        return develop;
+    }
+
+    public void setDevelop(Byte develop) {
+        this.develop = develop;
+    }
+
+    public Date getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
+    }
+
+    public Long getParentUserId() {
+        return parentUserId;
+    }
+
+    public void setParentUserId(Long parentUserId) {
+        this.parentUserId = parentUserId;
+    }
+
+    public Long getChannelUserId() {
+        return channelUserId;
+    }
+
+    public void setChannelUserId(Long channelUserId) {
+        this.channelUserId = channelUserId;
+    }
+
+    public String getChannelPhone() {
+        return channelPhone;
+    }
+
+    public void setChannelPhone(String channelPhone) {
+        this.channelPhone = channelPhone;
+    }
+
+    public String getChannelRemark() {
+        return channelRemark;
+    }
+
+    public void setChannelRemark(String channelRemark) {
+        this.channelRemark = channelRemark;
+    }
+
+    public Date getRelationTime() {
+        return relationTime;
+    }
+
+    public void setRelationTime(Date relationTime) {
+        this.relationTime = relationTime;
+    }
+
     public BigDecimal getTotalWithdrawDeposit() {
         return totalWithdrawDeposit;
     }
@@ -289,13 +351,5 @@ public class PosUserIntegrateDto implements Serializable{
 
     public void setCurrentWithdrawDeposit(BigDecimal currentWithdrawDeposit) {
         this.currentWithdrawDeposit = currentWithdrawDeposit;
-    }
-
-    public CustomerDto getPosUserInfo() {
-        return posUserInfo;
-    }
-
-    public void setPosUserInfo(CustomerDto posUserInfo) {
-        this.posUserInfo = posUserInfo;
     }
 }

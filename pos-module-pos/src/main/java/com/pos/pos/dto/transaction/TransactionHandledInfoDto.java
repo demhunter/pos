@@ -3,10 +3,10 @@
  */
 package com.pos.pos.dto.transaction;
 
+import com.pos.pos.constants.PayModeEnum;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 import com.pos.common.util.exception.IllegalParamException;
 import com.pos.common.util.validation.FieldChecker;
-import com.pos.pos.constants.PayModeEnum;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
@@ -25,7 +25,7 @@ public class TransactionHandledInfoDto implements Serializable {
     private Long id;
 
     @ApiModelProperty("处理关联交易记录id")
-    private Long transactionId;
+    private Long recordId;
 
     @ApiModelProperty("结算金额（BigDecimal）")
     private BigDecimal amount;
@@ -45,7 +45,7 @@ public class TransactionHandledInfoDto implements Serializable {
     private String remark;
 
     @ApiModelProperty("打款日期")
-    private Date createTime;
+    private Date createDate;
 
     @ApiModelProperty("创建人UserId")
     private Long createUserId;
@@ -74,12 +74,12 @@ public class TransactionHandledInfoDto implements Serializable {
         this.id = id;
     }
 
-    public Long getTransactionId() {
-        return transactionId;
+    public Long getRecordId() {
+        return recordId;
     }
 
-    public void setTransactionId(Long transactionId) {
-        this.transactionId = transactionId;
+    public void setRecordId(Long recordId) {
+        this.recordId = recordId;
     }
 
     public BigDecimal getAmount() {
@@ -114,12 +114,12 @@ public class TransactionHandledInfoDto implements Serializable {
         this.remark = remark;
     }
 
-    public Date getCreateTime() {
-        return createTime;
+    public Date getCreateDate() {
+        return createDate;
     }
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
     }
 
     public Long getCreateUserId() {

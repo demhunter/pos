@@ -4,29 +4,26 @@
 package com.pos.user.domain;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /**
- * 管理员信息领域对象
+ * 平台管理员的领域对象.
  *
- * @author wangbing
- * @version 1.0, 2017/11/13
+ * @author wayne
+ * @version 1.0, 2016/8/1
  */
 public class Manager implements Serializable {
 
+    private static final long serialVersionUID = 2343199817627835020L;
+
     private Long id;
 
-    private Long userId; // 用户id
+    private Long userId; // User.id
 
-    private Integer managerType; // 管理员类型，往后拓展权限时，可以以此类型区分权限
+    private byte userDetailType; // 用户细分类型
 
-    private String name; // 管理员姓名
+    private String headImage; // 头像
 
-    private String headImage; // 管理员头像
-
-    private Boolean dimission; // 是否离职
-
-    private Date updateTime; // 更新时间
+    private boolean quitJobs; // 是否离职
 
     public Long getId() {
         return id;
@@ -44,20 +41,12 @@ public class Manager implements Serializable {
         this.userId = userId;
     }
 
-    public Integer getManagerType() {
-        return managerType;
+    public byte getUserDetailType() {
+        return userDetailType;
     }
 
-    public void setManagerType(Integer managerType) {
-        this.managerType = managerType;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    public void setUserDetailType(byte userDetailType) {
+        this.userDetailType = userDetailType;
     }
 
     public String getHeadImage() {
@@ -68,19 +57,12 @@ public class Manager implements Serializable {
         this.headImage = headImage;
     }
 
-    public Boolean getDimission() {
-        return dimission;
+    public boolean isQuitJobs() {
+        return quitJobs;
     }
 
-    public void setDimission(Boolean dimission) {
-        this.dimission = dimission;
+    public void setQuitJobs(boolean quitJobs) {
+        this.quitJobs = quitJobs;
     }
 
-    public Date getUpdateTime() {
-        return updateTime;
-    }
-
-    public void setUpdateTime(Date updateTime) {
-        this.updateTime = updateTime;
-    }
 }

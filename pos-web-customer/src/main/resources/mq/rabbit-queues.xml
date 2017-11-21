@@ -6,6 +6,5 @@
 
     <!-- 队列 -->
     <rabbit:queue name="pos.demo.queue" durable="true" auto-delete="false" exclusive="false"/>
-    <rabbit:queue name="pos.user.register.queue" durable="true" auto-delete="false" exclusive="false"/>
 
 </beans>

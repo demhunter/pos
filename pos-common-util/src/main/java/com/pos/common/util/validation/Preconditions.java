@@ -4,8 +4,8 @@
 package com.pos.common.util.validation;
 
 import com.google.common.collect.Iterables;
-import com.pos.common.util.exception.RequiredParamException;
 import com.pos.common.util.exception.IllegalParamException;
+import com.pos.common.util.exception.RequiredParamException;
 import com.pos.common.util.exception.ValidationException;
 
 import java.util.Collection;

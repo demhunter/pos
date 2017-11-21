@@ -3,9 +3,9 @@
  */
 package com.pos.pos.dao;
 
-import com.pos.pos.domain.PosBankCard;
-import com.pos.pos.constants.CardUsageEnum;
 import com.pos.pos.dto.card.PosCardDto;
+import com.pos.pos.constants.CardUsageEnum;
+import com.pos.pos.domain.UserPosCard;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -23,14 +23,14 @@ public interface PosCardDao {
     /**
      * 保存银行卡信息
      *
-     * @param cardInfo 银行卡信息
+     * @param userPosCard 银行卡信息
      */
-    void save(@Param("cardInfo") PosBankCard cardInfo);
+    void save(@Param("cardInfo") UserPosCard userPosCard);
 
     /**
      * 查询用户的银行卡信息
      *
-     * @param userId    用户userId
+     * @param userId 用户userId
      * @param cardUsage 银行卡的使用类型 {@link CardUsageEnum#code}
      * @return 银行卡信息列表
      */
@@ -66,5 +66,5 @@ public interface PosCardDao {
      *
      * @param card 银行卡信息
      */
-    void update(@Param("card") PosBankCard card);
+    void update(@Param("card") UserPosCard card);
 }

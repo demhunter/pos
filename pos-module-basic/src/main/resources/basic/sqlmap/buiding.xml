@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.basic.dao.BuildingDao">
+
+    <insert id="saveBuilding" useGeneratedKeys="true" keyProperty="building.id">
+        INSERT INTO building
+        (
+            `name`,
+            area_id,
+            address,
+            developer,
+            decoration,
+            create_time,
+            update_time,
+            create_user,
+            update_user
+        )
+        VALUES
+        (
+            #{building.name},
+            #{building.areaId},
+            #{building.address},
+            #{building.developer},
+            #{building.decoration},
+            #{building.createTime},
+            #{building.updateTime},
+            #{building.createUserId},
+            #{building.updateUserId}
+        )
+    </insert>
+
+    <update id="updateBuilding" parameterType="com.pos.basic.domain.Building">
+        UPDATE building
+        <set>
+            developer = #{building.developer},
+            decoration = #{building.decoration}
+            <if test="building.name != null">
+                ,`name` = #{building.name}
+            </if>
+            <if test="building.areaId != null">
+                ,area_id = #{building.areaId}
+            </if>
+            <if test="building.address != null">
+                ,address = #{building.address}
+            </if>
+            <if test="building.available != null">
+                ,available = #{building.available}
+            </if>
+            <if test="building.updateUserId != null">
+                ,update_user = #{building.updateUserId}
+            </if>
+            <if test="building.updateTime != null">
+                ,update_time = #{building.updateTime}
+            </if>
+        </set>
+        WHERE id = #{building.id}
+    </update>
+
+    <select id="queryBuildingCount" resultType="Integer">
+        SELECT COUNT(*)
+        FROM building
+        <where>
+            available = 1
+            <if test="searchKey != null">
+                AND `name` LIKE CONCAT('%', #{searchKey}, '%')
+            </if>
+        </where>
+    </select>
+
+    <select id="queryBuildings" resultType="com.pos.basic.domain.Building">
+        SELECT
+        <include refid="building"/>
+        FROM building b
+        <where>
+            available = 1
+            <if test="searchKey != null">
+                AND `name` LIKE CONCAT('%', #{searchKey}, '%')
+            </if>
+        </where>
+        <if test="orderHelper != null">
+            ORDER BY ${orderHelper.fieldName} ${orderHelper.ordination}
+        </if>
+        LIMIT #{limitHelper.offset}, #{limitHelper.pageSize}
+    </select>
+
+    <select id="queryBuildingExistence" resultType="java.lang.Long">
+        SELECT id
+        FROM building
+        WHERE area_id = #{areaId}
+        AND available IN (0, 1)
+        AND `name` = #{buildingName}
+    </select>
+
+    <select id="queryBuildingById" resultType="com.pos.basic.domain.Building">
+        SELECT
+        id,
+        `name`,
+        area_id AS areaId,
+        available,
+        address,
+        developer,
+        decoration,
+        create_time AS createTime,
+        update_time AS updateTime,
+        create_user AS createUserId,
+        update_user AS updateUserId
+        FROM building
+        WHERE id = #{buildingId}
+    </select>
+
+    <select id="queryBuildingsByKey" resultType="java.util.HashMap">
+        SELECT
+        id AS buildingId,
+        `name` AS buildingName
+        FROM building
+        WHERE area_id = #{areaId}
+        AND available = 1
+        AND `name` LIKE CONCAT(#{buildingKey}, '%')
+    </select>
+
+    <sql id="buildingDto">
+        b.id AS id,
+        b.`name` AS `name`,
+        b.area_id AS areaId,
+        b.address AS address,
+        b.developer AS developer,
+        b.decoration AS decoration
+    </sql>
+
+    <sql id="building">
+        b.id AS id,
+        b.`name` AS `name`,
+        b.area_id AS areaId,
+        b.available AS available,
+        b.address AS address,
+        b.developer AS developer,
+        b.decoration AS decoration,
+        b.create_time AS createTime,
+        b.update_time AS updateTime,
+        b.create_user AS createUserId,
+        b.update_user AS updateUserId
+    </sql>
+
+</mapper>

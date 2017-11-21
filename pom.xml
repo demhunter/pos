@@ -13,9 +13,9 @@
         <module>pos-common-util</module>
         <module>pos-module-basic</module>
         <module>pos-module-user</module>
-        <module>pos-module-pos</module>
         <module>pos-module-data-repair</module>
         <module>pos-web-customer</module>
+        <module>pos-module-pos</module>
         <module>pos-web-console</module>
     </modules>
 
@@ -25,8 +25,8 @@
         <pos-common-util.version>1.0.0-SNAPSHOT</pos-common-util.version>
         <pos-module-basic.version>1.0.0-SNAPSHOT</pos-module-basic.version>
         <pos-module-user.version>1.0.0-SNAPSHOT</pos-module-user.version>
-        <pos-module-pos.version>1.0.0-SNAPSHOT</pos-module-pos.version>
         <pos-web-customer.version>1.0.0-SNAPSHOT</pos-web-customer.version>
+        <pos-module-pos.version>1.0.0-SNAPSHOT</pos-module-pos.version>
         <pos-web-console.version>1.0.0-SNAPSHOT</pos-web-console.version>
         <pos-module-data-repair.version>1.0.0-SNAPSHOT</pos-module-data-repair.version>
 
@@ -96,7 +96,6 @@
                 <artifactId>pos-module-user</artifactId>
                 <version>${pos-module-user.version}</version>
             </dependency>
-
 
             <dependency>
                 <groupId>com.pos</groupId>

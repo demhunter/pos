@@ -16,18 +16,19 @@ import com.pos.common.util.mvc.support.NullObject;
 import com.pos.common.util.validation.FieldChecker;
 import com.pos.common.util.web.http.HttpRequestUtils;
 import com.pos.pos.constants.*;
-import com.pos.pos.converter.PosConverter;
 import com.pos.pos.dao.*;
 import com.pos.pos.domain.*;
 import com.pos.pos.dto.*;
-import com.pos.pos.dto.auth.AuthorityDetailDto;
-import com.pos.pos.dto.auth.AuthorityDto;
-import com.pos.pos.dto.card.PosCardDto;
 import com.pos.pos.dto.card.PosCardValidInfoDto;
+import com.pos.pos.dto.request.GetMoneyDto;
+import com.pos.pos.helipay.vo.*;
+import com.pos.pos.converter.PosConverter;
+import com.pos.pos.dto.auth.PosUserAuthDetailDto;
+import com.pos.pos.dto.auth.PosUserAuthDto;
+import com.pos.pos.dto.card.PosCardDto;
 import com.pos.pos.dto.get.QuickGetMoneyDto;
 import com.pos.pos.dto.identity.IdentifyInfoDto;
 import com.pos.pos.dto.request.BindCardDto;
-import com.pos.pos.dto.request.GetMoneyDto;
 import com.pos.pos.dto.transaction.SelectCardRequestDto;
 import com.pos.pos.dto.transaction.TransactionHandledInfoDto;
 import com.pos.pos.dto.user.PosUserIdentityDto;
@@ -37,8 +38,10 @@ import com.pos.pos.fsm.context.AuditStatusTransferContext;
 import com.pos.pos.fsm.context.TransactionStatusTransferContext;
 import com.pos.pos.helipay.action.QuickPayApi;
 import com.pos.pos.helipay.util.PosErrorCode;
-import com.pos.pos.helipay.vo.*;
 import com.pos.pos.service.PosService;
+import com.pos.user.dao.UserDao;
+import com.pos.user.domain.User;
+import com.pos.user.dto.customer.CustomerDto;
 import com.pos.user.exception.UserErrorCode;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.type.TypeReference;
@@ -59,10 +62,8 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 主要业务Service实现类
- *
- * @author wangbing
- * @version 1.0, 2017/11/14
+ * @author 睿智
+ * @version 1.0, 2017/8/22
  */
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -72,6 +73,9 @@ public class PosServiceImpl implements PosService {
 
     @Resource
     private PosDao posDao;
+
+    @Resource
+    private UserDao userDao;
 
     @Resource
     private GlobalConstants globalConstants;
@@ -92,32 +96,106 @@ public class PosServiceImpl implements PosService {
     private PosCardDao posCardDao;
 
     @Resource
-    private AuthorityDao authorityDao;
+    private PosAuthDao posAuthDao;
 
     @Resource
     private RedisTemplate<String, PosCardDto> redisOutCardTemplate;
 
     @Resource
-    private TwitterBrokerageDao twitterBrokerageDao;
+    private PosTwitterBrokerageDao posTwitterBrokerageDao;
 
     @Resource
     private PosUserTransactionHandledDao posUserTransactionHandledDao;
 
     @Resource
-    private PosTwitterDao posTwitterDao;
+    private PosUserJuniorDao posUserJuniorDao;
 
-    @Override
-    public AuthorityDetailDto findAuthDetail(Long userId) {
-        FieldChecker.checkEmpty(userId, "userId");
+    @Resource
+    private PosUserChannelDao posUserChannelDao;
 
-        return authorityDao.findAuthDetail(userId);
+    // 首次登录，初始化权限信息
+    private void initializeAndSaveUserPosAuth(Long userId, LoginTypeEnum type, PosUserAuthDto leaderUserPosAuth) {
+        UserPosAuth userPosAuth = new UserPosAuth();
+        userPosAuth.setUserId(userId);
+        userPosAuth.setGet(AuthStatusEnum.ENABLE.getCode()); // 默认开启收款功能
+        userPosAuth.setGetRate(posConstants.getPosPoundageRate()); // 设置收款功能权限默认费率
+        userPosAuth.setTwitterStatus(PosTwitterStatus.DISABLE.getCode()); // 默认推客权限未启用，限制发展下级客户和下级推客
+        userPosAuth.setSpread(AuthStatusEnum.DISABLE.getCode()); // 默认发展下级客户权限未启用
+        userPosAuth.setDevelop(AuthStatusEnum.DISABLE.getCode()); // 默认发展下级推客权限未启用
+        if (type != null && LoginTypeEnum.DEVELOP.equals(type) && leaderUserPosAuth != null) {
+            // 用户是通过发展下级推客链接登录，判断上级权限，绑定上下级推客关系
+            PosTwitterStatus twitterStatus = PosTwitterStatus.getEnum(leaderUserPosAuth.getTwitterStatus());
+            AuthStatusEnum developStatus = AuthStatusEnum.getEnum(leaderUserPosAuth.getDevelop().byteValue());
+            // 上级推客的推客权限和子权限发展下级推客权限都处于启用状态，则下级也处于相同的状态
+            if (PosTwitterStatus.ENABLE.equals(twitterStatus) && AuthStatusEnum.ENABLE.equals(developStatus)) {
+                userPosAuth.setTwitterStatus(PosTwitterStatus.ENABLE.getCode()); // 默认推客权限启用，限制发展下级客户和下级推客
+                userPosAuth.setGetRate(posConstants.getPosTwitterPoundageRate()); // 设置推客的收款功能权限默认费率
+                userPosAuth.setSpread(AuthStatusEnum.ENABLE.getCode()); // 默认发展下级客户权限启用
+                userPosAuth.setDevelop(AuthStatusEnum.ENABLE.getCode()); // 默认发展下级推客权限启用
+            }
+        }
+        userPosAuth.setAuditStatus(UserAuditStatus.NOT_SUBMIT.getCode()); // 默认身份认证状态未提交
+        posAuthDao.addPosAuth(userPosAuth);
     }
 
     @Override
-    public AuthorityDto findAuth(Long userId) {
+    public void posLogin(CustomerDto customer, Byte type, Long leaderId) {
+        FieldChecker.checkEmpty(customer, "customer");
+
+        // 设置默认头像和昵称
+        customer.setHeadImage(posConstants.getPosHeadImage());
+        customer.setNickName(StringUtils.isNotBlank(customer.getName()) ? customer.getName() : customer.getUserPhone());
+        PosUserAuthDto userPosAuth = posAuthDao.findAuth(customer.getId()); // 当前用户的POS权限
+        if (userPosAuth == null) {
+            // 用户首次登陆收款
+            LoginTypeEnum loginType = type == null ? null : LoginTypeEnum.getEnum(type);
+            PosUserAuthDto leaderUserPosAuth = leaderId == null ? null : posAuthDao.findAuth(leaderId);
+            // 创建收款用户、初始化权限和收款费率
+            initializeAndSaveUserPosAuth(customer.getId(), loginType, leaderUserPosAuth);
+
+            if (loginType != null && leaderUserPosAuth != null) {
+                PosTwitterStatus leaderTwitterStatus = PosTwitterStatus.getEnum(leaderUserPosAuth.getTwitterStatus());
+                if (PosTwitterStatus.ENABLE.equals(leaderTwitterStatus)) {
+                    AuthStatusEnum spreadStatus = AuthStatusEnum.getEnum(leaderUserPosAuth.getSpread().byteValue());
+                    AuthStatusEnum developStatus = AuthStatusEnum.getEnum(leaderUserPosAuth.getDevelop().byteValue());
+                    if (LoginTypeEnum.SPREAD.equals(loginType) && AuthStatusEnum.ENABLE.equals(spreadStatus)) {
+                        // 推客发展下级客户链接进入，且上级推客的发展下级客户权限处于启用状态
+                        // 则绑定推客客户上下级关系
+                        UserPosJuniorInfo junior = new UserPosJuniorInfo();
+                        junior.setChannelUserId(leaderId);
+                        junior.setJuniorUserId(customer.getId());
+                        junior.setJuniorPhone(customer.getUserPhone());
+                        junior.setRelationAvailable(Boolean.TRUE);
+                        posUserJuniorDao.addJuniorInfo(junior);
+                    } else if (LoginTypeEnum.DEVELOP.equals(loginType) && AuthStatusEnum.ENABLE.equals(developStatus)) {
+                        // 推客发展下级推客链接进入，且上级推客的发展下级推客权限处于启用状态
+                        // 则绑定推客推客上下级关系
+                        UserPosChannelInfo channel = new UserPosChannelInfo();
+                        channel.setParentUserId(leaderId);
+                        channel.setRelationAvailable(Boolean.TRUE);
+                        channel.setChannelUserId(customer.getId());
+                        channel.setChannelPhone(customer.getUserPhone());
+                        channel.setTotalMoney(BigDecimal.ZERO);
+                        channel.setApplyMoney(BigDecimal.ZERO);
+                        posUserChannelDao.save(channel);
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public PosUserAuthDetailDto findAuthDetail(Long userId) {
         FieldChecker.checkEmpty(userId, "userId");
 
-        return authorityDao.findAuthByUserId(userId);
+        return posAuthDao.findAuthDetail(userId);
+    }
+
+    @Override
+    public PosUserAuthDto findAuth(Long userId) {
+        FieldChecker.checkEmpty(userId, "userId");
+
+        return posAuthDao.findAuth(userId);
     }
 
     @Override
@@ -125,7 +203,7 @@ public class PosServiceImpl implements PosService {
         FieldChecker.checkEmpty(userId, "userId");
 
         PosUserIdentityDto identity = null;
-        AuthorityDto authInfo = authorityDao.findAuthByUserId(userId);
+        PosUserAuthDto authInfo = posAuthDao.findAuth(userId);
         if (authInfo != null && StringUtils.isNotEmpty(authInfo.getIdCardNo())) {
             // 身份认证-1相关信息中默认其中一个不为空，则其他也不为空
             identity = authInfo.buildPosUserIdentity(decrypted, securityService);
@@ -139,7 +217,7 @@ public class PosServiceImpl implements PosService {
         FieldChecker.checkEmpty(identityInfo, "identityInfo");
         identityInfo.check("identityInfo", securityService);
 
-        AuthorityDto authInfo = authorityDao.findAuthByUserId(userId);
+        PosUserAuthDto authInfo = posAuthDao.findAuth(userId);
         if (authInfo == null) {
             return ApiResult.fail(UserErrorCode.USER_NOT_EXISTED);
         }
@@ -156,7 +234,8 @@ public class PosServiceImpl implements PosService {
         authInfo.setIdImageA(identityInfo.getIdImageA());
         authInfo.setIdImageB(identityInfo.getIdImageB());
         authInfo.setIdHoldImage(identityInfo.getIdHoldImage());
-        authorityDao.updateIdentityInfo(authInfo);
+        authInfo.setUpdateUserId(userId);
+        posAuthDao.updateIdentityInfo(authInfo);
 
         return ApiResult.succ();
     }
@@ -165,7 +244,7 @@ public class PosServiceImpl implements PosService {
     public BindCardDto getBindCardInfo(Long userId, boolean decrypted) {
         FieldChecker.checkEmpty(userId, "userId");
 
-        AuthorityDetailDto authDetail = authorityDao.findAuthDetail(userId);
+        PosUserAuthDetailDto authDetail = posAuthDao.findAuthDetail(userId);
         BindCardDto bindCardInfo = null;
         if (authDetail != null && authDetail.getPosCardId() != null) {
             // posCardId不为空，则默认用户绑定收款银行卡成功
@@ -174,7 +253,7 @@ public class PosServiceImpl implements PosService {
         return bindCardInfo;
     }
 
-    private ApiResult<NullObject> bindNewCard(AuthorityDetailDto authDetail, BindCardDto bindCardInfo) {
+    private ApiResult<NullObject> bindNewCard(PosUserAuthDetailDto authDetail, BindCardDto bindCardInfo) {
         if (StringUtils.isEmpty(authDetail.getIdCardNo())) {
             return ApiResult.fail(PosUserErrorCode.IDENTITY_INFO_ERROR);
         }
@@ -203,27 +282,32 @@ public class PosServiceImpl implements PosService {
         if (apiResult.isSucc()) {
             SettlementCardBindResponseVo settlementCardBindResponseVo = apiResult.getData();
             // 保存银行卡信息
-            PosBankCard posBankCard = new PosBankCard();
-            posBankCard.setBankName(BankCodeNameEnum.getEnum(settlementCardBindResponseVo.getRt8_bankId()).getDesc());
-            posBankCard.setBankCode(settlementCardBindResponseVo.getRt8_bankId());
-            posBankCard.setBankCardNo(bindCardInfo.getCardNO());
-            posBankCard.setCardType(CardTypeEnum.DEBIT_CARD.getCode());
-            posBankCard.setCardUsage(CardUsageEnum.IN_CARD.getCode());
-            posBankCard.setIdCardNo(authDetail.getIdCardNo());
-            posBankCard.setMobilePhone(bindCardInfo.getPhone());
-            posBankCard.setHolderName(bindCardInfo.getName());
-            posBankCard.setUserId(authDetail.getUserId());
-            posCardDao.save(posBankCard);
+            UserPosCard userPosCard = new UserPosCard();
+            userPosCard.setBank(BankCodeNameEnum.getEnum(settlementCardBindResponseVo.getRt8_bankId()).getDesc());
+            userPosCard.setBankCode(settlementCardBindResponseVo.getRt8_bankId());
+            userPosCard.setCardNO(bindCardInfo.getCardNO());
+            userPosCard.setCardType(CardTypeEnum.DEBIT_CARD.getCode());
+            userPosCard.setCardUsage(CardUsageEnum.IN_CARD.getCode());
+            userPosCard.setIdCardNO(authDetail.getIdCardNo());
+            userPosCard.setMobilePhone(bindCardInfo.getPhone());
+            userPosCard.setName(bindCardInfo.getName());
+            userPosCard.setUserId(authDetail.getUserId());
+            posCardDao.save(userPosCard);
             // 保存绑定的收款银行卡信息
-            authDetail.setPosCardId(posBankCard.getId());
+            authDetail.setPosCardId(userPosCard.getId());
             authDetail.setPosCardImage(bindCardInfo.getPosCardImage());
             authDetail.setUpdateUserId(authDetail.getUserId());
-            authorityDao.updatePosCardInfo(authDetail);
+            posAuthDao.updatePosCardInfo(authDetail);
             // FSM 更新用户身份信息审核状态
             FSM fsm = PosFSMFactory.newPosAuditInstance(authDetail.parseAuditStatus().toString(),
                     new AuditStatusTransferContext(authDetail.getId(), authDetail.getUserId()));
             fsm.processFSM("submitAll");
-
+            // 更新用户姓名
+            User user = userDao.getById(authDetail.getUserId());
+            if (StringUtils.isBlank(user.getName())) {
+                user.setName(decryptName);
+                userDao.update(user);
+            }
             return ApiResult.succ();
         } else {
             return ApiResult.fail(apiResult.getError(), apiResult.getMessage());
@@ -237,13 +321,13 @@ public class PosServiceImpl implements PosService {
      * @param bindCardInfo 绑卡信息
      * @return 操作结果
      */
-    private ApiResult<NullObject> updateBindCardImage(AuthorityDetailDto authDetail, BindCardDto bindCardInfo) {
+    private ApiResult<NullObject> updateBindCardImage(PosUserAuthDetailDto authDetail, BindCardDto bindCardInfo) {
         FieldChecker.checkEmpty(bindCardInfo.getPosCardImage(), "posCardImage");
         FieldChecker.checkEmpty(bindCardInfo.getPosCardId(), "posCardId");
         // 保存绑定的收款银行卡信息
         authDetail.setPosCardImage(bindCardInfo.getPosCardImage());
         authDetail.setUpdateUserId(authDetail.getUserId());
-        authorityDao.updatePosCardInfo(authDetail);
+        posAuthDao.updatePosCardInfo(authDetail);
         // FSM 更新用户身份信息审核状态
         FSM fsm = PosFSMFactory.newPosAuditInstance(authDetail.parseAuditStatus().toString(),
                 new AuditStatusTransferContext(authDetail.getId(), authDetail.getUserId()));
@@ -256,7 +340,7 @@ public class PosServiceImpl implements PosService {
         FieldChecker.checkEmpty(userId, "userId");
         FieldChecker.checkEmpty(bindCardInfo, "bindCardInfo");
 
-        AuthorityDetailDto authDetail = authorityDao.findAuthDetail(userId);
+        PosUserAuthDetailDto authDetail = posAuthDao.findAuthDetail(userId);
         if (authDetail == null) {
             return ApiResult.fail(UserErrorCode.USER_NOT_EXISTED);
         }
@@ -287,7 +371,7 @@ public class PosServiceImpl implements PosService {
             FieldChecker.checkEmpty(transferContext.getRejectReason(), "rejectReason");
         }
 
-        authorityDao.updateAuditStatus(transferContext.getPosAuthId(), auditStatus.getCode(),
+        posAuthDao.updateAuditStatus(transferContext.getPosAuthId(), auditStatus.getCode(),
                 transferContext.getRejectReason(), transferContext.getOperatorUserId());
         return true;
     }
@@ -296,7 +380,7 @@ public class PosServiceImpl implements PosService {
     public ApiResult<PosUserAuditInfoDto> getAuditInfo(Long posAuthId, boolean decrypted) {
         FieldChecker.checkEmpty(posAuthId, "posAuthId");
 
-        AuthorityDetailDto authDetail = authorityDao.findAuthDetailById(posAuthId);
+        PosUserAuthDetailDto authDetail = posAuthDao.findAuthDetailById(posAuthId);
         if (authDetail == null) {
             return ApiResult.fail(UserErrorCode.USER_NOT_EXISTED);
         }
@@ -316,7 +400,7 @@ public class PosServiceImpl implements PosService {
         FieldChecker.checkEmpty(identifyInfo, "posAuthId");
         identifyInfo.check("identifyInfo");
 
-        AuthorityDetailDto authDetail = authorityDao.findAuthDetailById(identifyInfo.getPosAuthId());
+        PosUserAuthDetailDto authDetail = posAuthDao.findAuthDetailById(identifyInfo.getPosAuthId());
         if (authDetail == null) {
             return ApiResult.fail(UserErrorCode.USER_NOT_EXISTED);
         }
@@ -342,7 +426,7 @@ public class PosServiceImpl implements PosService {
     public ApiResult<QuickGetMoneyDto> getQuickInfo(Long userId) {
         FieldChecker.checkEmpty(userId, "userId");
 
-        AuthorityDto auth = authorityDao.findAuthByUserId(userId);
+        PosUserAuthDto auth = posAuthDao.findAuth(userId);
         if (auth == null) {
             return ApiResult.fail(UserErrorCode.USER_NOT_EXISTED);
         }
@@ -374,11 +458,11 @@ public class PosServiceImpl implements PosService {
         selectCardRequestDto.check("selectCardRequestDto", posConstants);
 
         // 身份权限验证
-        ApiResult<AuthorityDetailDto> authCheckResult = checkUserGetAuth(userId);
+        ApiResult<PosUserAuthDetailDto> authCheckResult = checkUserGetAuth(userId);
         if (!authCheckResult.isSucc()) {
             return ApiResult.fail(authCheckResult.getError());
         }
-        AuthorityDetailDto authDetail = authCheckResult.getData();
+        PosUserAuthDetailDto authDetail = authCheckResult.getData();
 
         // 付款银行卡校验
         PosCardDto outCard = posCardDao.getUserPosCard(selectCardRequestDto.getId());
@@ -397,7 +481,7 @@ public class PosServiceImpl implements PosService {
         PosCardDto decryptedOutCard = decryptPosCardInfo(outCard);
 
         // 付款银行卡和收款银行卡所有人必须相同：姓名和身份证号相同
-        if (!decryptedInCard.getHolderName().equals(decryptedOutCard.getHolderName())
+        if (!decryptedInCard.getName().equals(decryptedOutCard.getName())
                 || !decryptedInCard.getIdCardNo().equals(decryptedOutCard.getIdCardNo())) {
             return ApiResult.fail(PosErrorCode.CARD_MSG_IS_WRONG);
         }
@@ -413,8 +497,8 @@ public class PosServiceImpl implements PosService {
      * @param userId 用户userId
      * @return 校验通过：返回用户信息；校验失败：返回错误信息
      */
-    private ApiResult<AuthorityDetailDto> checkUserGetAuth(Long userId) {
-        AuthorityDetailDto authDetail = authorityDao.findAuthDetail(userId);
+    private ApiResult<PosUserAuthDetailDto> checkUserGetAuth(Long userId) {
+        PosUserAuthDetailDto authDetail = posAuthDao.findAuthDetail(userId);
         if (authDetail == null) {
             return ApiResult.fail(UserErrorCode.USER_NOT_EXISTED);
         }
@@ -457,9 +541,9 @@ public class PosServiceImpl implements PosService {
     private PosCardDto decryptPosCardInfo(PosCardDto source) {
         PosCardDto target = source.copy();
 
-        target.setHolderName(securityService.decryptData(target.getHolderName()));
+        target.setName(securityService.decryptData(target.getName()));
         target.setIdCardNo(securityService.decryptData(target.getIdCardNo()));
-        target.setBankCardNo(securityService.decryptData(target.getBankCardNo()));
+        target.setCardNO(securityService.decryptData(target.getCardNO()));
         target.setMobilePhone(securityService.decryptData(target.getMobilePhone()));
 
         return target;
@@ -499,11 +583,11 @@ public class PosServiceImpl implements PosService {
         getMoneyDto.check("getMoneyDto", posConstants, securityService);
 
         // 身份权限验证
-        ApiResult<AuthorityDetailDto> authCheckResult = checkUserGetAuth(userId);
+        ApiResult<PosUserAuthDetailDto> authCheckResult = checkUserGetAuth(userId);
         if (!authCheckResult.isSucc()) {
             return ApiResult.fail(authCheckResult.getError());
         }
-        AuthorityDetailDto authDetail = authCheckResult.getData();
+        PosUserAuthDetailDto authDetail = authCheckResult.getData();
 
         // 银行卡校验
         PosCardDto inCard = authDetail.buildUserInCard();
@@ -514,7 +598,7 @@ public class PosServiceImpl implements PosService {
         PosCardDto decryptedInCard = decryptPosCardInfo(inCard);
         GetMoneyDto decryptedGetMoneyDto = decryptGetMoneyInfo(getMoneyDto);
         // 付款银行卡和收款银行卡所有人必须相同：姓名和身份证号相同
-        if (!decryptedInCard.getHolderName().equals(decryptedGetMoneyDto.getName())
+        if (!decryptedInCard.getName().equals(decryptedGetMoneyDto.getName())
                 || !decryptedInCard.getIdCardNo().equals(decryptedGetMoneyDto.getIdCardNO())) {
             return ApiResult.fail(PosErrorCode.CARD_MSG_IS_WRONG);
         }
@@ -525,7 +609,7 @@ public class PosServiceImpl implements PosService {
         if (!CollectionUtils.isEmpty(outCards)) {
             for (PosCardDto card : outCards) {
                 PosCardDto decryptedOutCard = decryptPosCardInfo(card);
-                if (decryptedOutCard.getBankCardNo().equals(decryptedGetMoneyDto.getCardNO())) {
+                if (decryptedOutCard.getCardNO().equals(decryptedGetMoneyDto.getCardNO())) {
                     outCard = card;
                     break;
                 }
@@ -536,7 +620,7 @@ public class PosServiceImpl implements PosService {
             outCard = PosConverter.toPosCardDto(getMoneyDto, userId);
             // 用户勾选保存银行卡信息，入库
             if (getMoneyDto.isRecordBankCard()) {
-                PosBankCard newCard = PosConverter.toUserPosCard(outCard);
+                UserPosCard newCard = PosConverter.toUserPosCard(outCard);
                 posCardDao.save(newCard);
                 outCard.setId(newCard.getId());
             }
@@ -552,7 +636,7 @@ public class PosServiceImpl implements PosService {
         FieldChecker.checkEmpty(userId, "userId");
         FieldChecker.checkEmpty(recordId, "recordId");
 
-        PosTransaction transactionRecord = posDao.queryRecordById(recordId);
+        UserPosTransactionRecord transactionRecord = posDao.queryRecordById(recordId);
         if (transactionRecord == null
                 || !transactionRecord.getUserId().equals(userId)) {
             return ApiResult.fail(PosUserErrorCode.TRANSACTION_RECORD_NOT_EXISTED);
@@ -586,7 +670,7 @@ public class PosServiceImpl implements PosService {
         FieldChecker.checkEmpty(recordId, "recordId");
         FieldChecker.checkEmpty(ip, "ip");
         // 交易校验
-        PosTransaction transactionRecord = posDao.queryRecordById(recordId);
+        UserPosTransactionRecord transactionRecord = posDao.queryRecordById(recordId);
         if (transactionRecord == null || !transactionRecord.getUserId().equals(userId)) {
             return ApiResult.fail(PosUserErrorCode.TRANSACTION_RECORD_NOT_EXISTED);
         }
@@ -645,14 +729,14 @@ public class PosServiceImpl implements PosService {
         FieldChecker.checkEmpty(targetStatus, "targetStatus");
 
         log.info("TransactionStatusTransferContext={}", JsonUtils.objectToJson(context));
-        PosTransaction transactionRecord = posDao.queryRecordById(context.getRecordId());
+        UserPosTransactionRecord transactionRecord = posDao.queryRecordById(context.getRecordId());
         transactionRecord.setStatus(targetStatus.getCode());
         Date currentTime = new Date();
         switch (targetStatus) {
             case TRANSACTION_IN_PROGRESS:
                 // 交易失败后重发交易处理时，不更换支付时间和支付流水号
-                if (transactionRecord.getPayTime() == null) {
-                    transactionRecord.setPayTime(currentTime);
+                if (transactionRecord.getPayDate() == null) {
+                    transactionRecord.setPayDate(currentTime);
                 }
                 if (StringUtils.isEmpty(transactionRecord.getHelibaoZhifuNum())) {
                     transactionRecord.setHelibaoZhifuNum(context.getSerialNumber());
@@ -682,59 +766,56 @@ public class PosServiceImpl implements PosService {
     public boolean generateBrokerage(Long recordId) {
         FieldChecker.checkEmpty(recordId, "recordId");
 
-        PosTransaction transactionRecord = posDao.queryRecordById(recordId);
+        UserPosTransactionRecord transactionRecord = posDao.queryRecordById(recordId);
         // 查询用户的推客客户关系
-        TwitterCustomer twitterCustomer = posTwitterDao.getTwitterCustomerByUserId(transactionRecord.getUserId());
-        if (twitterCustomer == null || Boolean.FALSE.equals(twitterCustomer.getAvailable())) {
+        UserPosJuniorInfo juniorInfo = posUserJuniorDao.getJuniorByJuniorUserId(transactionRecord.getUserId());
+        if (juniorInfo == null || Boolean.FALSE.equals(juniorInfo.getRelationAvailable())) {
             // 自然客户或已解除推客客户关系，不生成相关佣金，直接返回成功
             return true;
         }
         // 查询用户推客的上级推客信息
-        Twitter child = posTwitterDao.getTwitterByUserId(twitterCustomer.getTwitterUserId());
-        Twitter parent = posTwitterDao.getParentTwitterByChild(twitterCustomer.getTwitterUserId());
-        TwitterBrokerage brokerage = buildTwitterBrokerage(transactionRecord, child, parent);
+        UserPosChannelInfo channelInfo = posUserChannelDao.get(juniorInfo.getChannelUserId());
+        UserPosTwitterBrokerage brokerage = buildTwitterBrokerage(transactionRecord, juniorInfo, channelInfo);
 
-        twitterBrokerageDao.save(brokerage);
+        posTwitterBrokerageDao.save(brokerage);
         return true;
     }
 
     /**
      * 生成交易佣金
      *
-     * @param transaction 交易记录信息
-     * @param child       子推客
-     * @param parent      父推客
+     * @param transactionRecord 交易记录信息
+     * @param juniorInfo        推客客户关系信息
+     * @param channelInfo       客户推客的推客推客关系信息
      * @return 交易佣金
      */
-    private TwitterBrokerage buildTwitterBrokerage(PosTransaction transaction, Twitter child, Twitter parent) {
-        Date now = new Date();
-        TwitterBrokerage brokerage = new TwitterBrokerage();
+    private UserPosTwitterBrokerage buildTwitterBrokerage(UserPosTransactionRecord transactionRecord, UserPosJuniorInfo juniorInfo, UserPosChannelInfo channelInfo) {
+        UserPosTwitterBrokerage brokerage = new UserPosTwitterBrokerage();
 
-        brokerage.setTransactionId(transaction.getId());
+        brokerage.setRecordId(transactionRecord.getId());
         brokerage.setBaseRate(posConstants.getPosPoundageRate());
 
         // 1、计算直接推客应得的佣金信息
-        brokerage.setTwitterUserId(child.getUserId());
-        AuthorityDto auth = authorityDao.findAuthByUserId(child.getUserId());
-        // 推客佣金费率 = 基准费率 - 推客收款费率
+        brokerage.setAgentUserId(juniorInfo.getChannelUserId());
+        PosUserAuthDto auth = posAuthDao.findAuth(juniorInfo.getChannelUserId());
         BigDecimal agentRate = brokerage.getBaseRate().subtract(auth.getGetRate());
         // 费率小于0则
-        brokerage.setTwitterBrokerageRate(agentRate.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : agentRate);
-        // 1.1、客户推客佣金 = 交易金额 * 推客佣金费率
-        BigDecimal agentCharge = transaction.getAmount().multiply(brokerage.getTwitterBrokerageRate(), new MathContext(2));
-        brokerage.setTwitterBrokerage(agentCharge.setScale(2, BigDecimal.ROUND_DOWN));
-        brokerage.setTwitterBrokerageStatus(GetAgentEnum.NOT_GET.getCode());
-        brokerage.setTwitterBrokerageStatusTime(now);
+        brokerage.setAgentRate(agentRate.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : agentRate);
+        // 1.1、客户推客佣金 = 交易金额 * (基准费率 - 推客收款费率)
+        BigDecimal agentCharge = transactionRecord.getAmount().multiply(brokerage.getAgentRate(), new MathContext(2));
+        brokerage.setAgentCharge(agentCharge.setScale(2, BigDecimal.ROUND_DOWN));
+        brokerage.setGetAgent(GetAgentEnum.NOT_GET.getCode());
 
         // 2、计算上级推客应得的佣金信息
-        if (parent != null) {
-            brokerage.setParentUserId(parent.getUserId());
-            brokerage.setParentBrokerageRate(posConstants.getPosParentTwitterBrokerageRate());
+        if (channelInfo != null
+                && Boolean.TRUE.equals(channelInfo.getRelationAvailable())
+                && channelInfo.getParentUserId() != 0) {
+            brokerage.setParentAgentUserId(channelInfo.getParentUserId());
+            brokerage.setParentAgentRate(posConstants.getPosParentTwitterBrokerageRate());
             // 2.1、父推客佣金 = 交易金额 * 父推客佣金费率
-            BigDecimal parentAgentCharge = transaction.getAmount().multiply(brokerage.getParentBrokerageRate());
-            brokerage.setParentBrokerage(parentAgentCharge.setScale(2, BigDecimal.ROUND_DOWN));
-            brokerage.setParentBrokerageStatus(GetAgentEnum.NOT_GET.getCode());
-            brokerage.setParentBrokerageStatusTime(now);
+            BigDecimal parentAgentCharge = transactionRecord.getAmount().multiply(brokerage.getParentAgentRate());
+            brokerage.setParentAgentCharge(parentAgentCharge.setScale(2, BigDecimal.ROUND_DOWN));
+            brokerage.setGetParentAgent(GetAgentEnum.NOT_GET.getCode());
         }
 
         return brokerage;
@@ -743,11 +824,11 @@ public class PosServiceImpl implements PosService {
     public void payCallback(ConfirmPayResponseVo confirmPayResponseVo) {
         log.info("合力保支付回调信息：callBackInfo={}", confirmPayResponseVo);
         String recordNum = confirmPayResponseVo.getRt5_orderId();
-        PosTransaction posTransaction = posDao.queryRecordByRecordNum(recordNum);
-        if (posTransaction != null && "SUCCESS".equals(confirmPayResponseVo.getRt9_orderStatus())) {
+        UserPosTransactionRecord userPosTransactionRecord = posDao.queryRecordByRecordNum(recordNum);
+        if (userPosTransactionRecord != null && "SUCCESS".equals(confirmPayResponseVo.getRt9_orderStatus())) {
             // 抛弃异步打款给用户的操作，避免同步操作打款给用户时失败，异步又打款给用户成功的情形
             // 当同步操作打款用户失败后，由后台管理员操作手动处理
-            log.info("交易recordId={}的金额amount={}已成功到公司账户。", posTransaction.getId(), confirmPayResponseVo.getRt8_orderAmount());
+            log.info("交易recordId={}的金额amount={}已成功到公司账户。", userPosTransactionRecord.getId(), confirmPayResponseVo.getRt8_orderAmount());
         } else {
             log.error("交易记录recordNum={}不存在！", recordNum);
         }
@@ -761,11 +842,11 @@ public class PosServiceImpl implements PosService {
      * @return 提现结果
      */
     private ApiResult<SettlementCardWithdrawResponseVo> payToUser(
-            PosTransaction transactionRecord,
+            UserPosTransactionRecord transactionRecord,
             ConfirmPayResponseVo confirmContext) {
         Date currentTime = new Date();
         // 获取用户信息
-        AuthorityDto authInfo = authorityDao.findAuthByUserId(transactionRecord.getUserId());
+        PosUserAuthDto authInfo = posAuthDao.findAuth(transactionRecord.getUserId());
         // 获取订单金额
         BigDecimal orderAmount = new BigDecimal(confirmContext.getRt8_orderAmount());
         if (!transactionRecord.getAmount().equals(orderAmount)) {
@@ -798,8 +879,8 @@ public class PosServiceImpl implements PosService {
         }
         if (outCard.getId() != null) {
             // 对已保存的付款银行卡进行数据更新
-            outCard.setLastUseTime(currentTime);
-            PosBankCard card = PosConverter.toUserPosCard(outCard);
+            outCard.setLastUseDate(currentTime);
+            UserPosCard card = PosConverter.toUserPosCard(outCard);
             posCardDao.update(card);
         }
         //提现的到账金额
@@ -820,7 +901,7 @@ public class PosServiceImpl implements PosService {
         transactionRecord.setServiceCharge(serviceCharge);
         transactionRecord.setPayCharge(payCharge);
         transactionRecord.setHelibaoZhifuNum(confirmContext.getRt6_serialNumber());
-        transactionRecord.setPayTime(currentTime);
+        transactionRecord.setPayDate(currentTime);
         posDao.updatePosRecord(transactionRecord);
         // 发起提现
         SettlementCardWithdrawVo settlement = buildSettlementCardWithdrawVo(transactionRecord, arrivalAmount);
@@ -839,8 +920,8 @@ public class PosServiceImpl implements PosService {
         return withdrawResult;
     }
 
-    private SettlementCardWithdrawVo buildSettlementCardWithdrawVo(
-            PosTransaction transactionRecord, BigDecimal arrivalAmount) {
+    public SettlementCardWithdrawVo buildSettlementCardWithdrawVo(
+            UserPosTransactionRecord transactionRecord, BigDecimal arrivalAmount) {
         SettlementCardWithdrawVo settlement = new SettlementCardWithdrawVo();
 
         settlement.setP1_bizType("SettlementCardWithdraw");
@@ -862,36 +943,41 @@ public class PosServiceImpl implements PosService {
      * @param ip         下单用户IP地址
      * @return 下单结果
      */
-    private ApiResult<CreateOrderDto> createRecord(AuthorityDetailDto authDetail, PosCardDto outCard, BigDecimal amount, String ip) {
-        CreateOrderVo createOrderVo = buildCreateOrderVo(authDetail.getUserId(), outCard, amount, ip);
+    private ApiResult<CreateOrderDto> createRecord(PosUserAuthDetailDto authDetail, PosCardDto outCard, BigDecimal amount, String ip) {
+        CostAndCompanyDto costAndCompanyDto = getCostType(authDetail.getUserId());
+        CreateOrderVo createOrderVo = buildCreateOrderVo(authDetail.getUserId(), outCard, amount, ip, costAndCompanyDto);
         ApiResult apiResult = quickPayApi.createOrder(createOrderVo);
         if (apiResult.isSucc()) {
-            PosTransaction posTransaction = saveTransactionRecord(authDetail, createOrderVo, amount);
+            UserPosTransactionRecord userPosTransactionRecord = saveTransactionRecord(
+                    authDetail, costAndCompanyDto, createOrderVo, amount);
             // 缓存交易的付款银行卡信息
-            redisOutCardTemplate.opsForValue().set(RedisConstants.POS_TRANSACTION_OUT_CARD_INFO + posTransaction.getId(), outCard);
+            redisOutCardTemplate.opsForValue().set(RedisConstants.POS_TRANSACTION_OUT_CARD_INFO + userPosTransactionRecord.getId(), outCard);
 
             CreateOrderDto createOrderDto = new CreateOrderDto();
-            createOrderDto.setAmount(posTransaction.getAmount());
-            createOrderDto.setCardNO(outCard.getBankCardNo());
-            createOrderDto.setId(posTransaction.getId());
+            createOrderDto.setAmount(userPosTransactionRecord.getAmount());
+            createOrderDto.setCardNO(outCard.getCardNO());
+            createOrderDto.setId(userPosTransactionRecord.getId());
             return ApiResult.succ(createOrderDto);
         }
         return ApiResult.fail(apiResult.getError(), apiResult.getMessage());
     }
 
-    private PosTransaction saveTransactionRecord(
-            AuthorityDetailDto authDetail, CreateOrderVo createOrderVo, BigDecimal amount) {
-        PosTransaction posTransaction = new PosTransaction();
-        posTransaction.setInCardId(authDetail.getPosCardId());
-        posTransaction.setRecordNum(createOrderVo.getP4_orderId());
-        posTransaction.setUserId(authDetail.getUserId());
-        posTransaction.setAmount(amount);
-        posTransaction.setStatus(TransactionStatusType.PREDICT_TRANSACTION.getCode());
-        posDao.addUserPosRecord(posTransaction);
-        return posTransaction;
+    private UserPosTransactionRecord saveTransactionRecord(
+            PosUserAuthDetailDto authDetail, CostAndCompanyDto costAndCompanyDto,
+            CreateOrderVo createOrderVo, BigDecimal amount) {
+        UserPosTransactionRecord userPosTransactionRecord = new UserPosTransactionRecord();
+        userPosTransactionRecord.setCompanyId(costAndCompanyDto.getCompanyId());
+        userPosTransactionRecord.setInCardId(authDetail.getPosCardId());
+        userPosTransactionRecord.setRecordNum(createOrderVo.getP4_orderId());
+        userPosTransactionRecord.setCostType(costAndCompanyDto.getCostTypeEnum().getCode());
+        userPosTransactionRecord.setUserId(authDetail.getUserId());
+        userPosTransactionRecord.setAmount(amount);
+        userPosTransactionRecord.setStatus(TransactionStatusType.PREDICT_TRANSACTION.getCode());
+        posDao.addUserPosRecord(userPosTransactionRecord);
+        return userPosTransactionRecord;
     }
 
-    private CreateOrderVo buildCreateOrderVo(Long userId, PosCardDto outCard, BigDecimal amount, String ip) {
+    private CreateOrderVo buildCreateOrderVo(Long userId, PosCardDto outCard, BigDecimal amount, String ip, CostAndCompanyDto costAndCompanyDto) {
         String orderId = UUID.randomUUID().toString();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
         Date now = new Date();
@@ -901,17 +987,17 @@ public class PosServiceImpl implements PosService {
         createOrderVo.setP3_userId(String.valueOf(userId));
         createOrderVo.setP4_orderId(orderId);
         createOrderVo.setP5_timestamp(sdf.format(now));
-        createOrderVo.setP6_payerName(outCard.getHolderName());
+        createOrderVo.setP6_payerName(outCard.getName());
         createOrderVo.setP7_idCardType("IDCARD");
         createOrderVo.setP8_idCardNo(outCard.getIdCardNo());
-        createOrderVo.setP9_cardNo(outCard.getBankCardNo());
+        createOrderVo.setP9_cardNo(outCard.getCardNO());
         createOrderVo.setP10_year(outCard.getValidInfo().getValidYear());
         createOrderVo.setP11_month(outCard.getValidInfo().getValidMonth());
         createOrderVo.setP12_cvv2(outCard.getValidInfo().getCvv2());
         createOrderVo.setP13_phone(outCard.getMobilePhone());
         createOrderVo.setP14_currency("CNY");
         createOrderVo.setP15_orderAmount(amount.toPlainString());
-        createOrderVo.setP16_goodsName("家装费");
+        createOrderVo.setP16_goodsName(costAndCompanyDto.getCostTypeEnum().getDesc());
         createOrderVo.setP18_terminalType("OTHER");
         String terminalId = UUID.randomUUID().toString();
         createOrderVo.setP19_terminalId(terminalId);
@@ -919,6 +1005,45 @@ public class PosServiceImpl implements PosService {
         createOrderVo.setP23_serverCallbackUrl(posConstants.getHelibaoCallbackUrl());
 
         return createOrderVo;
+    }
+
+    private CostAndCompanyDto getCostType(long userId) {
+        CostAndCompanyDto costAndCompanyDto = new CostAndCompanyDto();
+        Date now = new Date();
+        List<UserPosTransactionRecord> records = posDao.queryRecordByUserIdAndCostType(userId, 0);
+        if (!CollectionUtils.isEmpty(records)) {
+            UserPosTransactionRecord first = records.get(0);
+            if (SimpleDateUtils.daysOfDuration(first.getCreateDate(), now) > 180) {
+                costAndCompanyDto.setCostTypeEnum(CostTypeEnum.DESIGN);
+                costAndCompanyDto.setCompanyId(getCompanyId());
+            } else {
+                records = posDao.queryRecordByUserIdAndCostType(userId, CostTypeEnum.CONSTRUCTION.getCode());
+                if (!CollectionUtils.isEmpty(records)) {
+                    first = records.get(0);
+                    if (SimpleDateUtils.daysOfDuration(first.getCreateDate(), now) > 20) {
+                        costAndCompanyDto.setCostTypeEnum(CostTypeEnum.CONSTRUCTION);
+                        costAndCompanyDto.setCompanyId(first.getCompanyId());
+                    } else {
+                        costAndCompanyDto.setCostTypeEnum(CostTypeEnum.MATERIAL);
+                        costAndCompanyDto.setCompanyId(first.getCompanyId());
+                    }
+                } else {
+                    costAndCompanyDto.setCostTypeEnum(CostTypeEnum.CONSTRUCTION);
+                    costAndCompanyDto.setCompanyId(first.getCompanyId());
+                }
+            }
+        } else {
+            costAndCompanyDto.setCostTypeEnum(CostTypeEnum.DESIGN);
+            costAndCompanyDto.setCompanyId(getCompanyId());
+        }
+        return costAndCompanyDto;
+    }
+
+    private long getCompanyId() {
+        List<Long> companyIds = posDao.getCompanyIds();
+        long companyId = 0;
+        if (!CollectionUtils.isEmpty(companyIds)) companyId = companyIds.get(new Random().nextInt(companyIds.size()));
+        return companyId;
     }
 
     public Map<String, String> getAllBankLogo() {
@@ -994,13 +1119,13 @@ public class PosServiceImpl implements PosService {
     }
 
     @Override
-    public ApiResult<NullObject> handledTransaction(Long transactionId, TransactionHandledInfoDto handledInfo, UserIdentifier operator) {
-        FieldChecker.checkEmpty(transactionId, "transactionId");
+    public ApiResult<NullObject> handledTransaction(Long recordId, TransactionHandledInfoDto handledInfo, UserIdentifier operator) {
+        FieldChecker.checkEmpty(recordId, "recordId");
         FieldChecker.checkEmpty(handledInfo, "handledInfo");
         FieldChecker.checkEmpty(operator, "operator");
         handledInfo.check("handledInfo");
 
-        PosTransaction record = posDao.queryRecordById(transactionId);
+        UserPosTransactionRecord record = posDao.queryRecordById(recordId);
         if (record == null) {
             return ApiResult.fail(PosUserErrorCode.TRANSACTION_RECORD_NOT_EXISTED);
         }
@@ -1008,15 +1133,14 @@ public class PosServiceImpl implements PosService {
         if (!TransactionStatusType.TRANSACTION_FAILED.equals(statusType)) {
             return ApiResult.fail(PosUserErrorCode.TRANSACTION_STATUS_ERROR);
         }
-        PosTransactionHandled saveInfo = new PosTransactionHandled();
+        UserPosTransactionHandledInfo saveInfo = new UserPosTransactionHandledInfo();
         BeanUtils.copyProperties(handledInfo, saveInfo);
-        saveInfo.setTransactionId(transactionId);
         saveInfo.setCreateUserId(operator.getUserId());
-        saveInfo.setCreateTime(new Date());
+        saveInfo.setCreateDate(new Date());
         posUserTransactionHandledDao.save(saveInfo);
 
         TransactionStatusTransferContext context = new TransactionStatusTransferContext();
-        context.setRecordId(transactionId);
+        context.setRecordId(recordId);
         FSM fsm = PosFSMFactory.newPosTransactionInstance(statusType.toString(), context);
         fsm.processFSM("platHandledSuccess");
 
@@ -1036,7 +1160,7 @@ public class PosServiceImpl implements PosService {
         FieldChecker.checkEmpty(operator, "operator");
 
         // 交易校验
-        PosTransaction record = posDao.queryRecordById(recordId);
+        UserPosTransactionRecord record = posDao.queryRecordById(recordId);
         if (record == null) {
             return ApiResult.fail(PosUserErrorCode.TRANSACTION_RECORD_NOT_EXISTED);
         }
@@ -1057,7 +1181,7 @@ public class PosServiceImpl implements PosService {
             redisTemplate.opsForList().rightPush(RedisConstants.POS_TRANSACTION_WITHDRAW_QUEUE, recordId.toString());
         } else {
             // 发起提现失败，更新交易状态-交易失败
-            log.error("失败交易{}重发提现请求失败。原因：{}", recordId, withdrawResult.getMessage());
+            log.error("失败交易{}重发提现请求失败。原因：{}" , recordId, withdrawResult.getMessage());
             return ApiResult.fail(withdrawResult.getError(), withdrawResult.getMessage());
         }
 

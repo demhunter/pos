@@ -3,7 +3,7 @@
  */
 package com.pos.pos.dao;
 
-import com.pos.pos.domain.TwitterCustomer;
+import com.pos.pos.domain.UserPosJuniorInfo;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -16,11 +16,11 @@ import java.util.List;
 @Repository
 public interface PosUserJuniorDao {
 
-    void addJuniorInfo(@Param("juniorInfo") TwitterCustomer twitterCustomer);
+    void addJuniorInfo(@Param("juniorInfo") UserPosJuniorInfo userPosJuniorInfo);
 
-    TwitterCustomer getJuniorByJuniorUserId(@Param("juniorUserId") Long juniorUserId);
+    UserPosJuniorInfo getJuniorByJuniorUserId(@Param("juniorUserId") Long juniorUserId);
 
-    void updateJunior(@Param("juniorInfo") TwitterCustomer twitterCustomer);
+    void updateJunior(@Param("juniorInfo") UserPosJuniorInfo userPosJuniorInfo);
 
-    List<TwitterCustomer> queryJuniorsByChannelUserId(@Param("channelUserId") Long channelUserId);
+    List<UserPosJuniorInfo> queryJuniorsByChannelUserId(@Param("channelUserId") Long channelUserId);
 }

@@ -4,10 +4,10 @@
 package com.pos.common.util.validation;
 
 import com.google.common.base.Strings;
-import com.pos.common.util.exception.RequiredParamException;
 import com.pos.common.util.basic.SimpleRegexUtils;
 import com.pos.common.util.basic.SimpleStringUtils;
 import com.pos.common.util.exception.IllegalParamException;
+import com.pos.common.util.exception.RequiredParamException;
 
 /**
  * 常用字段的验证工具类.

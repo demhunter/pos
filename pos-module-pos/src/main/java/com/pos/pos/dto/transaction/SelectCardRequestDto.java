@@ -3,10 +3,10 @@
  */
 package com.pos.pos.dto.transaction;
 
+import com.pos.pos.constants.PosConstants;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 import com.pos.common.util.exception.IllegalParamException;
 import com.pos.common.util.validation.FieldChecker;
-import com.pos.pos.constants.PosConstants;
 
 import java.io.Serializable;
 import java.math.BigDecimal;

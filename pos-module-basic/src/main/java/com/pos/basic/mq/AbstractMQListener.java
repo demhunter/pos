@@ -3,10 +3,10 @@
  */
 package com.pos.basic.mq;
 
-import com.pos.basic.dao.MQMessageDao;
-import com.pos.basic.domain.Message;
 import com.pos.basic.constant.MQConstant;
 import com.pos.basic.constant.MQMessageType;
+import com.pos.basic.dao.MQMessageDao;
+import com.pos.basic.domain.Message;
 import com.pos.common.util.basic.JsonUtils;
 import com.pos.common.util.validation.Preconditions;
 import org.codehaus.jackson.map.ObjectMapper;

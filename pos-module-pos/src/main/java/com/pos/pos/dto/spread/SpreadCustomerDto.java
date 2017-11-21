@@ -3,8 +3,8 @@
  */
 package com.pos.pos.dto.spread;
 
-import com.wordnik.swagger.annotations.ApiModelProperty;
 import com.pos.pos.constants.UserAuditStatus;
+import com.wordnik.swagger.annotations.ApiModelProperty;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -24,25 +24,25 @@ public class SpreadCustomerDto implements Serializable {
     private Long id;
 
     @ApiModelProperty("上线推客的userId")
-    private Long twitterUserId;
+    private Long channelUserId;
 
     @ApiModelProperty("下级客户的userId")
-    private Long userId;
+    private Long juniorUserId;
 
     @ApiModelProperty("下级客户姓名")
-    private String name;
+    private String juniorName;
 
     @ApiModelProperty("下级客户的电话")
-    private String phone;
+    private String juniorPhone;
 
     @ApiModelProperty("下级客户的备注")
-    private String remark;
+    private String juniorRemark;
 
     @ApiModelProperty("上下级关系是否有效，当为false时表示解除上下级推客客户关系")
-    private Boolean available;
+    private Boolean relationAvailable;
 
     @ApiModelProperty("创建时间")
-    private Date createTime;
+    private Date createDate;
 
     @ApiModelProperty("为推客提供的累计佣金")
     private BigDecimal brokerage;
@@ -70,60 +70,60 @@ public class SpreadCustomerDto implements Serializable {
         this.id = id;
     }
 
-    public Long getTwitterUserId() {
-        return twitterUserId;
+    public Long getChannelUserId() {
+        return channelUserId;
     }
 
-    public void setTwitterUserId(Long twitterUserId) {
-        this.twitterUserId = twitterUserId;
+    public void setChannelUserId(Long channelUserId) {
+        this.channelUserId = channelUserId;
     }
 
-    public Long getUserId() {
-        return userId;
+    public Long getJuniorUserId() {
+        return juniorUserId;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setJuniorUserId(Long juniorUserId) {
+        this.juniorUserId = juniorUserId;
     }
 
-    public String getName() {
-        return name;
+    public String getJuniorName() {
+        return juniorName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setJuniorName(String juniorName) {
+        this.juniorName = juniorName;
     }
 
-    public String getPhone() {
-        return phone;
+    public String getJuniorPhone() {
+        return juniorPhone;
     }
 
-    public void setPhone(String phone) {
-        this.phone = phone;
+    public void setJuniorPhone(String juniorPhone) {
+        this.juniorPhone = juniorPhone;
     }
 
-    public String getRemark() {
-        return remark;
+    public String getJuniorRemark() {
+        return juniorRemark;
     }
 
-    public void setRemark(String remark) {
-        this.remark = remark;
+    public void setJuniorRemark(String juniorRemark) {
+        this.juniorRemark = juniorRemark;
     }
 
-    public Boolean getAvailable() {
-        return available;
+    public Boolean getRelationAvailable() {
+        return relationAvailable;
     }
 
-    public void setAvailable(Boolean available) {
-        this.available = available;
+    public void setRelationAvailable(Boolean relationAvailable) {
+        this.relationAvailable = relationAvailable;
     }
 
-    public Date getCreateTime() {
-        return createTime;
+    public Date getCreateDate() {
+        return createDate;
     }
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
     }
 
     public BigDecimal getBrokerage() {

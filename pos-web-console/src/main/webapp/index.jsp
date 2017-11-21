@@ -7,7 +7,7 @@
 <html lang="zh-cn">
 <head>
     <title>
-        鹦鹉美家 - PosConsole Service
+        钱刷刷POS - Console Service
     </title>
 </head>
 <body>
@@ -17,8 +17,8 @@
         <br/>
         <br/>
         <span id="info">
-鹦鹉美家 - PosConsole Service运行中...
-</span>
+            钱刷刷POS - Console Service运行中...
+        </span>
         <a href="help" target="_blank"> 查看API</a>
     </h1>
 </center>

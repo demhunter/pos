@@ -3,6 +3,7 @@
  */
 package com.pos.pos.dto.twitter;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 
 import java.io.Serializable;
@@ -19,6 +20,11 @@ public class TwitterDailyStatisticsDto implements Serializable {
 
     @ApiModelProperty("日期(date)")
     private Date dateKey;
+
+    // @ApiModelProperty("收款单数")
+    @Deprecated
+    @JsonIgnore
+    private Integer orderCount;
 
     @ApiModelProperty("下级推客返佣奖金（BigDecimal）")
     private BigDecimal childTwitterBrokerage;
@@ -55,5 +61,13 @@ public class TwitterDailyStatisticsDto implements Serializable {
 
     public void setDateKey(Date dateKey) {
         this.dateKey = dateKey;
+    }
+
+    public Integer getOrderCount() {
+        return orderCount;
+    }
+
+    public void setOrderCount(Integer orderCount) {
+        this.orderCount = orderCount;
     }
 }

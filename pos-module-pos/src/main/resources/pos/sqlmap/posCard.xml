@@ -5,24 +5,24 @@
 <mapper namespace="com.pos.pos.dao.PosCardDao">
 
     <insert id="save" useGeneratedKeys="true" keyProperty="cardInfo.id">
-        INSERT INTO bank_card (
+        INSERT INTO user_pos_card (
             user_id,
-            bank_card_no,
-            holder_name,
+            card_no,
+            `name`,
             id_card_no,
             mobile_phone,
-            bank_name,
+            bank,
             bank_code,
             card_type,
             card_usage,
-            create_time
+            create_date
         ) VALUES (
             #{cardInfo.userId},
-            #{cardInfo.bankCardNo},
-            #{cardInfo.holderName},
-            #{cardInfo.idCardNo},
+            #{cardInfo.cardNO},
+            #{cardInfo.name},
+            #{cardInfo.idCardNO},
             #{cardInfo.mobilePhone},
-            #{cardInfo.bankName},
+            #{cardInfo.bank},
             #{cardInfo.bankCode},
             #{cardInfo.cardType},
             #{cardInfo.cardUsage},
@@ -33,24 +33,24 @@
     <select id="queryUserPosCard" resultType="com.pos.pos.dto.card.PosCardDto">
         SELECT
         <include refid="posCardDtoColumns"/>
-        FROM bank_card bc
-        LEFT JOIN bank_logo bl ON bl.bank_code = bc.bank_code
-        WHERE bc.user_id = #{userId}
+        FROM user_pos_card pc
+        LEFT JOIN bank_logo bl ON bl.bank_code = pc.bank_code
+        WHERE pc.user_id = #{userId}
         <if test="cardUsage != null">
-            AND bc.card_usage = #{cardUsage}
+            AND pc.card_usage = #{cardUsage}
             <if test="cardUsage == 2">
-                AND bc.last_use_time IS NOT NULL
+                AND pc.last_use_date IS NOT NULL
             </if>
         </if>
-        ORDER BY bc.last_use_time DESC
+        ORDER BY lastUseDate DESC
     </select>
 
     <select id="queryPosCardByIds" resultType="com.pos.pos.dto.card.PosCardDto">
         SELECT
         <include refid="posCardDtoColumns"/>
-        FROM bank_card bc
-        LEFT JOIN bank_logo bl ON bl.bank_code = bc.bank_code
-        WHERE bc.id IN
+        FROM user_pos_card pc
+        LEFT JOIN bank_logo bl ON bl.bank_code = pc.bank_code
+        WHERE pc.id IN
         <foreach collection="cardIds" index="index" item="item" open="(" separator="," close=")">
             #{item}
         </foreach>
@@ -59,17 +59,17 @@
     <select id="getUserPosCard" resultType="com.pos.pos.dto.card.PosCardDto">
         SELECT
         <include refid="posCardDtoColumns"/>
-        FROM bank_card bc
-        LEFT JOIN bank_logo bl ON bl.bank_code = bc.bank_code
-        WHERE bc.id = #{cardId}
+        FROM user_pos_card pc
+        LEFT JOIN bank_logo bl ON bl.bank_code = pc.bank_code
+        WHERE pc.id = #{cardId}
     </select>
 
     <delete id="delete" parameterType="Long">
-        DELETE FROM bank_card
+        DELETE FROM user_pos_card
         WHERE id = #{cardId}
     </delete>
 
-    <update id="update" parameterType="com.pos.pos.domain.PosBankCard">
+    <update id="update" parameterType="com.pos.pos.domain.UserPosCard">
         UPDATE user_pos_card
         <set>
             <if test="card.bank != null">
@@ -89,17 +89,17 @@
     </update>
 
     <sql id="posCardDtoColumns">
-        bc.id AS id,
-        bc.user_id AS userId,
-        bc.bank_card_no AS bankCardNo,
-        bc.holder_name AS holderName,
-        bc.id_card_no AS idCardNo,
-        bc.mobile_phone AS mobilePhone,
-        bc.bank_name AS bankName,
-        bc.bank_code AS bankCode,
+        pc.id AS id,
+        pc.user_id AS userId,
+        pc.card_no AS cardNO,
+        pc.name AS `name`,
+        pc.id_card_no AS idCardNO,
+        pc.mobile_phone AS mobilePhone,
+        pc.bank AS bankName,
+        pc.bank_code AS bankCode,
         bl.logo AS logo,
-        bc.card_type AS cardType,
-        bc.card_usage AS cardUsage,
-        bc.last_use_time AS lastUseTime
+        pc.card_type AS cardType,
+        pc.card_usage AS cardUsage,
+        pc.last_use_date AS lastUseDate
     </sql>
 </mapper>

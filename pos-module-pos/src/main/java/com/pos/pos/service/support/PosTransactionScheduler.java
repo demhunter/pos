@@ -7,15 +7,15 @@ import com.pos.basic.constant.RedisConstants;
 import com.pos.basic.sm.fsm.FSM;
 import com.pos.common.util.basic.JsonUtils;
 import com.pos.common.util.mvc.support.ApiResult;
+import com.pos.pos.constants.PosConstants;
 import com.pos.pos.constants.TransactionStatusType;
 import com.pos.pos.dao.PosDao;
-import com.pos.pos.domain.PosTransaction;
-import com.pos.pos.fsm.PosFSMFactory;
-import com.pos.pos.constants.PosConstants;
+import com.pos.pos.domain.UserPosTransactionRecord;
 import com.pos.pos.fsm.context.TransactionStatusTransferContext;
-import com.pos.pos.helipay.action.QuickPayApi;
 import com.pos.pos.helipay.vo.QueryOrderVo;
 import com.pos.pos.helipay.vo.QuerySettlementCardVo;
+import com.pos.pos.fsm.PosFSMFactory;
+import com.pos.pos.helipay.action.QuickPayApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -60,7 +60,7 @@ public class PosTransactionScheduler {
                 // 已当前队列数据，启动轮询
                 for (long index = 0; index < queueSize ; index++) {
                     Long recordId = Long.valueOf(redisTemplate.opsForList().leftPop(RedisConstants.POS_TRANSACTION_WITHDRAW_QUEUE));
-                    PosTransaction transactionRecord = posDao.queryRecordById(recordId);
+                    UserPosTransactionRecord transactionRecord =posDao.queryRecordById(recordId);
                     TransactionStatusType statusType = TransactionStatusType.getEnum(transactionRecord.getStatus());
                     // 只轮询状态处于处理中的交易
                     if (statusType.canPolling()) {

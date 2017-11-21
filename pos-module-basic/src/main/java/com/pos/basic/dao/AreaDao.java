@@ -3,9 +3,9 @@
  */
 package com.pos.basic.dao;
 
-import com.pos.basic.dto.area.CitySupportDto;
 import com.pos.basic.domain.Area;
 
+import com.pos.basic.dto.area.CitySupportDto;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 

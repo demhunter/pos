@@ -13,6 +13,8 @@
     <version>${pos-web-customer.version}</version>
     <packaging>war</packaging>
 
+
+
     <dependencies>
         <!-- module start -->
         <dependency>
@@ -24,6 +26,7 @@
             <groupId>com.pos</groupId>
             <artifactId>pos-module-pos</artifactId>
         </dependency>
+
         <!-- module end -->
 
         <!-- mq start -->

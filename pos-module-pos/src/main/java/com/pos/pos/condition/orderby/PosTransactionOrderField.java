@@ -16,9 +16,9 @@ import java.util.stream.Stream;
  */
 public enum PosTransactionOrderField implements OrderField {
 
-    CREATE_TIME("createTime"),
+    CREATE_TIME("createDate"),
 
-    PAY_TIME("pay_time");
+    PAY_TIME("pay_date");
 
     private String value;
 

@@ -4,14 +4,31 @@
 
 <mapper namespace="com.pos.pos.dao.PosUserChannelDao">
 
-    <select id="get" resultType="com.pos.pos.domain.Twitter">
+    <insert id="save" parameterType="com.pos.pos.domain.UserPosChannelInfo">
+        INSERT INTO user_pos_channel_info
+        (
+            parent_user_id,
+            channel_user_id,
+            channel_phone,
+            channel_remark,
+            create_date
+        ) VALUES (
+            #{channel.parentUserId},
+            #{channel.channelUserId},
+            #{channel.channelPhone},
+            #{channel.channelRemark},
+            NOW()
+        )
+    </insert>
+
+    <select id="get" resultType="com.pos.pos.domain.UserPosChannelInfo">
         SELECT
         <include refid="channelColumn"/>
         FROM user_pos_channel_info upci
-        WHERE upci.channel_user_id = #{userId}
+        WHERE upci.channel_user_id = #{channelUserId}
     </select>
 
-    <select id="getById" resultType="com.pos.pos.domain.Twitter">
+    <select id="getById" resultType="com.pos.pos.domain.UserPosChannelInfo">
         SELECT
         <include refid="channelColumn"/>
         FROM user_pos_channel_info upci
@@ -21,14 +38,14 @@
     <update id="update">
         UPDATE user_pos_channel_info
         <set>
-            <if test="channel.available != null">
-                relation_available = #{channel.available},
+            <if test="channel.relationAvailable != null">
+                relation_available = #{channel.relationAvailable},
             </if>
-            <if test="channel.phone != null">
-                channel_phone = #{channel.phone},
+            <if test="channel.channelPhone != null">
+                channel_phone = #{channel.channelPhone},
             </if>
-            <if test="channel.remark != null">
-                channel_remark = #{channel.remark},
+            <if test="channel.channelRemark != null">
+                channel_remark = #{channel.channelRemark},
             </if>
             <if test="channel.totalMoney != null">
                 total_money = #{channel.totalMoney},
@@ -47,7 +64,7 @@
         AND upci.relation_available = 1
     </select>
 
-    <select id="queryDevelopChildChannels" resultType="com.pos.pos.dto.develop.ChildTwitterDto">
+    <select id="queryDevelopChildChannels" resultType="com.pos.pos.dto.develop.PosUserChildChannelDto">
         SELECT
         <include refid="childChannelDtoColumn"/>
         FROM user_pos_channel_info upci
@@ -61,25 +78,25 @@
     <sql id="channelColumn">
         upci.`id` AS `id`,
         upci.parent_user_id AS parentUserId,
-        upci.relation_available AS available,
+        upci.relation_available AS relationAvailable,
         upci.channel_user_id AS chennelUserId,
-        upci.channel_phone AS phone,
-        upci.channel_remark AS remark,
-        upci.create_date AS createTime,
+        upci.channel_phone AS channelPhone,
+        upci.channel_remark AS channelRemark,
+        upci.create_date AS createDate,
         upci.total_money AS totalMoney,
         upci.apply_money AS applyMoney,
         upci.update_user_id AS updateUserId,
-        upci.update_date AS updateTime
+        upci.update_date AS updateDate
     </sql>
 
     <sql id="channelDtoColumn">
         upci.`id` AS `id`,
         upci.parent_user_id AS parentUserId,
-        upci.relation_available AS available,
-        upci.channel_user_id AS userId,
-        upci.channel_phone AS phone,
-        upci.channel_remark AS remark,
-        upci.create_date AS createTime,
+        upci.relation_available AS relationAvailable,
+        upci.channel_user_id AS channelUserId,
+        upci.channel_phone AS channelPhone,
+        upci.channel_remark AS channelRemark,
+        upci.create_date AS relationTime,
         upci.total_money AS totalWithdrawDeposit,
         upci.apply_money AS currentWithdrawDeposit
     </sql>
@@ -87,16 +104,16 @@
     <sql id="simpleChannelDtoColumn">
         upci.`id` AS `id`,
         upci.parent_user_id AS parentUserId,
-        upci.channel_user_id AS userId,
-        upci.channel_phone AS phone,
-        upci.create_date AS createTime,
-        upci.relation_available AS available
+        upci.channel_user_id AS channelUserId,
+        upci.channel_phone AS channelPhone,
+        upci.create_date AS relationTime,
+        upci.relation_available AS relationAvailable
     </sql>
 
     <sql id="childChannelDtoColumn">
         <include refid="simpleChannelDtoColumn"/>
-        , upci.channel_remark AS remark,
+        , upci.channel_remark AS channelRemark,
         upa.audit_status AS identityAuditStatus,
-        upa.id_card_name AS childName
+        upa.id_card_name AS childChannelName
     </sql>
 </mapper>
