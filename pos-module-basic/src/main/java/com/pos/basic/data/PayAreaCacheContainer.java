@@ -22,7 +22,6 @@ import java.util.Map;
  * @author cc
  * @version 1.0, 2016/12/1
  */
-@Component
 public class PayAreaCacheContainer {
 
     private static final Logger logger = LoggerFactory.getLogger(PayAreaCacheContainer.class);

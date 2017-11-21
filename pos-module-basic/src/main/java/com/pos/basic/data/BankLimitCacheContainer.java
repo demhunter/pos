@@ -21,7 +21,6 @@ import java.util.Map;
  * @author cc
  * @version 1.0, 2017/1/9
  */
-@Component
 public class BankLimitCacheContainer {
 
     @Resource
