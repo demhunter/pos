@@ -7,12 +7,12 @@ import com.pos.common.sms.constant.MemcachedPrefixType;
 import com.pos.common.util.basic.AddressUtils;
 import com.pos.common.util.basic.JsonUtils;
 import com.pos.common.util.cache.MemcachedClientUtils;
+import com.pos.common.util.exception.ErrorCode;
+import com.pos.common.util.exception.ValidationException;
 import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.common.util.security.MD5Utils;
 import com.pos.common.util.validation.FieldChecker;
 import com.pos.common.util.validation.Validator;
-import com.pos.common.util.exception.ErrorCode;
-import com.pos.common.util.exception.ValidationException;
 import com.pos.user.constant.UserType;
 import com.pos.user.dao.UserClassDao;
 import com.pos.user.dao.UserDao;
@@ -21,9 +21,7 @@ import com.pos.user.domain.UserClass;
 import com.pos.user.dto.LoginInfoDto;
 import com.pos.user.dto.UserDto;
 import com.pos.user.dto.UserLoginDto;
-import com.pos.user.dto.employee.EmployeeDto;
 import com.pos.user.exception.UserErrorCode;
-import com.pos.user.service.EmployeeService;
 import com.pos.user.service.LoginService;
 import com.pos.user.service.support.UserServiceSupport;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -59,9 +57,6 @@ public class LoginServiceImpl implements LoginService {
     private UserServiceSupport userServiceSupport;
 
     @Resource
-    private EmployeeService employeeService;
-
-    @Resource
     private MemcachedClientUtils memcachedClientUtils;
 
     @Value("${random.token.size}")
@@ -94,12 +89,6 @@ public class LoginServiceImpl implements LoginService {
         } else if (user == null || !user.getPassword().equals(
                 MD5Utils.getMD5Code(userLoginDto.getPassword()))) {
             return ApiResult.fail(UserErrorCode.USER_OR_PWD_ERROR);
-        }
-        if (userLoginDto.getUserType().equals(UserType.EMPLOYEE)){
-            EmployeeDto employee = employeeService.findById(user.getId(), false, false);
-            if ( employee != null && employee.isQuitJobs()){
-                return ApiResult.fail(UserErrorCode.EMPLOYEE_QUIT_JOB);
-            }
         }
         // 查询并判断用户是否开通指定类型的账号
         UserClass uc = userClassDao.findClass(user.getId(), userLoginDto.getUserType().getValue());

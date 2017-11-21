@@ -3,15 +3,6 @@
  */
 package com.pos.user.service.impl;
 
-import com.pos.user.constant.UserType;
-import com.pos.user.dao.*;
-import com.pos.user.domain.*;
-import com.pos.user.dto.LoginInfoDto;
-import com.pos.user.dto.UserRegConfirmDto;
-import com.pos.user.dto.customer.CustomerDto;
-import com.pos.user.dto.employee.EmployeeDto;
-import com.pos.user.dto.manager.ManagerDto;
-import com.pos.user.service.RegisterService;
 import com.pos.basic.mq.MQMessage;
 import com.pos.basic.mq.MQReceiverType;
 import com.pos.basic.mq.MQTemplate;
@@ -29,15 +20,25 @@ import com.pos.common.util.validation.FieldChecker;
 import com.pos.common.util.validation.Preconditions;
 import com.pos.common.util.validation.Validator;
 import com.pos.user.constant.CustomerType;
-import com.pos.user.constant.EmployeeType;
+import com.pos.user.constant.UserType;
+import com.pos.user.dao.CustomerDao;
+import com.pos.user.dao.ManagerDao;
+import com.pos.user.dao.UserClassDao;
+import com.pos.user.dao.UserDao;
+import com.pos.user.domain.Customer;
+import com.pos.user.domain.Manager;
+import com.pos.user.domain.User;
+import com.pos.user.domain.UserClass;
 import com.pos.user.dto.IdentityInfoDto;
+import com.pos.user.dto.LoginInfoDto;
+import com.pos.user.dto.UserRegConfirmDto;
 import com.pos.user.dto.converter.UserDtoConverter;
-import com.pos.user.dto.merchant.MerchantDto;
+import com.pos.user.dto.customer.CustomerDto;
+import com.pos.user.dto.manager.ManagerDto;
 import com.pos.user.dto.mq.CustomerInfoMsg;
 import com.pos.user.exception.UserErrorCode;
-import com.pos.user.service.support.UserServiceSupport;
+import com.pos.user.service.RegisterService;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -71,19 +72,10 @@ public class RegisterServiceImpl implements RegisterService {
     private CustomerDao customerDao;
 
     @Resource
-    private EmployeeDao employeeDao;
-
-    @Resource
-    private MerchantDao merchantDao;
-
-    @Resource
     private ManagerDao managerDao;
 
     @Resource
     private SmsService smsService;
-
-    @Resource
-    private UserServiceSupport userServiceSupport;
 
     @Resource
     private MemcachedClientUtils memcachedClientUtils;
@@ -240,214 +232,6 @@ public class RegisterServiceImpl implements RegisterService {
     }
 
     @Override
-    public ApiResult addEmployee(EmployeeDto employeeDto, Long createUserId) {
-        Preconditions.checkNotNull(employeeDto, "业者信息不能为空！");
-
-        User existingUser = userDao.getByUserPhone(employeeDto.getUserPhone());
-        if (existingUser == null) {
-            String randPassword = RandomStringUtils.randomNumeric(Integer.valueOf(randPasswordSize));
-            User user = addUser(employeeDto.getUserPhone(), employeeDto.getUserPhone(), randPassword, employeeDto.getName());
-
-            UserClass userClass = saveUserClass(user, UserType.EMPLOYEE, createUserId, true, true, null);
-            employeeDto.setId(user.getId());
-            Employee employee = saveEmployee(employeeDto);
-
-            User createUser = userDao.getById(createUserId);
-            saveEmployee2IMServer(user, userClass, employee);
-            sendSmsNotify(UserType.EMPLOYEE, user.getUserPhone(), String.format(employeeNotifyTemplate, user.getName(), createUser.getName(), randPassword));
-
-            // 注册钱脉用户账户
-            //customerAccountService.registerCustomerAccount(user.getId(), UserType.EMPLOYEE.getValue());
-
-            return ApiResult.succ();
-        }
-
-        // 检查账户是否被删除
-        if (existingUser.isDeleted()) {
-            return ApiResult.fail(UserErrorCode.ACCOUNT_DELETED);
-        }
-
-        UserClass managerUserClass = userClassDao.findClass(existingUser.getId(), UserType.MANAGER.getValue());
-        if (managerUserClass != null){//已是M端用户
-            return ApiResult.fail(UserErrorCode.HAS_MANAGER_NO_EMPLOYEE);
-        }
-
-        UserClass bizUserClass = userClassDao.findClass(existingUser.getId(), UserType.BUSINESS.getValue());
-        if (bizUserClass != null) {// 已存在B端账户
-            return ApiResult.fail(UserErrorCode.HAS_BUSINESS_NO_EMPLOYEE);
-        }
-
-        UserClass emUserClass = userClassDao.findClass(existingUser.getId(), UserType.EMPLOYEE.getValue());
-        if (emUserClass != null) {// 已存在E端账号
-            Employee employeeInfo = employeeDao.getByUserId(emUserClass.getUserId());
-            if (!employeeInfo.isQuitJobs()) {
-                if (EmployeeType.PLATFORM_BD.equals(EmployeeType.getEnum(employeeInfo.getUserDetailType()))){
-                     return ApiResult.fail(UserErrorCode.PE_NOT_JOIN_COMPANY);
-                }else {
-                    String employeeCompanyName = employeeDao.findCompany(employeeInfo.getCompanyId());
-                    return ApiResult.failFormatMsg(UserErrorCode.USER_ALREADY_EMPLOYEE, employeeCompanyName);
-                }
-            }
-        }
-
-        // User不为空，一定存在C端账号
-        existingUser.setName(employeeDto.getName());
-        userDao.update(existingUser);
-
-        if (emUserClass != null) {
-            //更新离职的业者信息列表
-            EmployeeDto employeeDtoOld = (EmployeeDto) userServiceSupport.findById(emUserClass.getUserId(), UserType.EMPLOYEE, false, false);
-            Employee employeeInfo = employeeDao.getByUserId(emUserClass.getUserId());
-            if (employeeInfo.isQuitJobs()) {
-                if (employeeDto.getCompanyId().equals(employeeInfo.getCompanyId()) && !EmployeeType.getEnum(employeeDto.getUserDetailType()).equals(EmployeeType.getEnum(employeeInfo.getUserDetailType()))){
-                    return ApiResult.fail(UserErrorCode.NOT_JOIN_COMPANY);
-                }
-                Employee employeeNew = updateEmployee(employeeDto, employeeInfo);
-                employeeDao.update(employeeNew);
-                emUserClass.setAvailable(true);
-                userClassDao.update(emUserClass);
-                updateEmployee2IMServer(existingUser, emUserClass, employeeNew, employeeDtoOld);
-            }
-        }else {
-            UserClass userClass = saveUserClass(existingUser, UserType.EMPLOYEE, createUserId, true, true, null);
-            employeeDto.setId(existingUser.getId());
-            Employee employee = saveEmployee(employeeDto);
-
-            User createUser = userDao.getById(createUserId);
-            saveEmployee2IMServer(existingUser, userClass, employee);
-            sendSmsNotify(UserType.EMPLOYEE, existingUser.getUserPhone(), String.format(employeeExistNotifyTemplate, existingUser.getName(), createUser.getName()));
-        }
-
-        // 注册钱脉用户账户
-        //customerAccountService.registerCustomerAccount(existingUser.getId(), UserType.EMPLOYEE.getValue());
-
-        return ApiResult.succ();
-    }
-
-
-    private Employee updateEmployee(EmployeeDto employeeDto, Employee employeeInfo) {
-        employeeInfo.setNickName(employeeDto.getNickName());
-        employeeInfo.setUserDetailType(employeeDto.getUserDetailType());
-        employeeInfo.setCompanyId(employeeDto.getCompanyId());
-        employeeInfo.setHeadImage(employeeDto.getHeadImage());
-        employeeInfo.setLifePhotos(employeeDto.getLifePhotos());
-        employeeInfo.setQuitJobs(false);
-        employeeInfo.setResume(employeeDto.getResume());
-        employeeInfo.setAdvertorial(employeeDto.getArticles());
-        employeeInfo.setServiceContent(employeeDto.getServiceContent());
-        employeeInfo.setPublicPhone(employeeDto.isPublicPhone());
-        return employeeInfo;
-    }
-
-    @Override
-    public ApiResult openManagerEmployeePart(EmployeeDto employeeDto, Long createUserId) {
-        Preconditions.checkNotNull(employeeDto, "业者信息不能为空！");
-
-        User existingUser = userDao.getByUserPhone(employeeDto.getUserPhone());
-
-        UserClass bizUserClass = userClassDao.findClass(existingUser.getId(), UserType.BUSINESS.getValue());
-        if (bizUserClass == null) {// 不存在B端账户
-            return ApiResult.fail(UserErrorCode.HAS_BUSINESS_NO_EMPLOYEE);
-        }
-        UserClass emUserClass = userClassDao.findClass(existingUser.getId(), UserType.EMPLOYEE.getValue());
-        if (emUserClass != null) {// 已存在E端账号
-            return ApiResult.fail(UserErrorCode.USER_EXISTED);
-        }
-
-        existingUser.setName(employeeDto.getName());
-        userDao.update(existingUser);
-
-        UserClass userClass = saveUserClass(existingUser, UserType.EMPLOYEE, createUserId, true, true, null);
-        employeeDto.setId(existingUser.getId());
-        Employee employee = saveEmployee(employeeDto);
-
-        saveEmployee2IMServer(existingUser, userClass, employee);
-
-        // 注册钱脉用户账户
-        //customerAccountService.registerCustomerAccount(existingUser.getId(), UserType.EMPLOYEE.getValue());
-
-        return ApiResult.succ();
-    }
-
-    @Override
-    public ApiResult addBusiness(User user, Long companyId, boolean isAvailable, Long createUserId) {
-        Preconditions.checkArgument(user != null && companyId != null, "user或companyId不能为空！");
-
-        User existingUser, existingUserByPhone, existingUserByName;
-        if (StringUtils.isEmpty(user.getUserPhone())) {
-            user.setUserPhone(user.getUserName());
-            existingUserByPhone = null;
-        } else {
-            existingUserByPhone = userDao.getByUserPhone(user.getUserPhone());
-        }
-        existingUserByName = userDao.getByUserName(user.getUserName());
-        if (existingUserByPhone == null && existingUserByName == null) {
-            // 生成随机密码
-            String initialPassword = RandomStringUtils.randomNumeric(Integer.valueOf(randPasswordSize));
-            String encodedInitialPassword = MD5Utils.getMD5Code(initialPassword);
-            user.setPassword(encodedInitialPassword);
-            // user不存在，新增用户
-            userDao.save(user);
-            Merchant merchant = saveMerchant(user, companyId);
-            UserClass userClass = saveUserClass(user, UserType.BUSINESS, createUserId, true, false, null);
-
-            if (checkMerchantIntegrity(user)) {
-                saveMerchant2IMServer(user, userClass, merchant);
-            }
-
-            if (isAvailable) {
-                smsService.sendMessage(user.getUserPhone(), String.format(registerTemplate, user.getUserName(), initialPassword));
-            }
-
-            return ApiResult.succ();
-        } else {
-            if (existingUserByPhone != null) {
-                UserClass businessUserClass =
-                        userClassDao.findClass(existingUserByPhone.getId(), UserType.BUSINESS.getValue());
-                UserClass customerUserClass =
-                        userClassDao.findClass(existingUserByPhone.getId(), UserType.CUSTOMER.getValue());
-                UserClass employeeUserClass =
-                        userClassDao.findClass(existingUserByPhone.getId(), UserType.EMPLOYEE.getValue());
-
-                if (employeeUserClass != null) {
-                    return ApiResult.fail(UserErrorCode.HAS_EMPLOYEE_NO_BUSINESS);
-                }
-                if (businessUserClass != null) {
-                    return ApiResult.fail(UserErrorCode.MERCHANT_PHONE_USED);
-                }
-                if (customerUserClass != null) {
-                    // 存在C端用户，继续添加角色
-                    existingUser = existingUserByPhone;
-                } else {
-                    return ApiResult.fail(UserErrorCode.MERCHANT_PHONE_USED);
-                }
-            } else {
-                return ApiResult.fail(UserErrorCode.USER_EXISTED);
-            }
-        }
-
-        // 检查账户是否被删除
-        if (existingUser.isDeleted()) {
-            return ApiResult.fail(UserErrorCode.ACCOUNT_DELETED);
-        }
-
-        user.setId(existingUser.getId());
-        userDao.update(user);
-        Merchant merchant = saveMerchant(existingUser, companyId);
-        UserClass userClass = saveUserClass(existingUser, UserType.BUSINESS, createUserId, isAvailable, true, null);
-
-        if (checkMerchantIntegrity(user)) {
-            saveMerchant2IMServer(user, userClass, merchant);
-        }
-
-        if (isAvailable) {
-            smsService.sendMessage(existingUser.getUserPhone(), String.format(registerExistTemplate, user.getUserName()));
-        }
-
-        return ApiResult.succ();
-    }
-
-    @Override
     public ApiResult addManager(ManagerDto managerDto, Long createUserId) {
         checkAddManager(managerDto, createUserId);
 
@@ -595,30 +379,6 @@ public class RegisterServiceImpl implements RegisterService {
         return customer;
     }
 
-    private Employee saveEmployee(EmployeeDto employeeDto) {
-        Employee employee = new Employee();
-        employee.setResume(employeeDto.getResume());
-        employee.setUserId(employeeDto.getId());
-        employee.setUserDetailType(employeeDto.getUserDetailType());
-        employee.setCompanyId(employeeDto.getCompanyId());
-        employee.setHeadImage(employeeDto.getHeadImage());
-        employee.setLifePhotos(employeeDto.getLifePhotos());
-        employee.setServiceContent(employeeDto.getServiceContent());
-        employee.setAdvertorial(employeeDto.getArticles());
-        employee.setPublicPhone(employeeDto.isPublicPhone());
-
-        employeeDao.save(employee);
-        return employee;
-    }
-
-    private Merchant saveMerchant(User user, Long companyId) {
-        Merchant merchant = new Merchant();
-        merchant.setUserId(user.getId());
-        merchant.setCompanyId(companyId);
-        merchantDao.save(merchant);
-        return merchant;
-    }
-
     private Manager saveManager(ManagerDto managerDto) {
         Manager manager = new Manager();
         manager.setUserId(managerDto.getId());
@@ -633,23 +393,6 @@ public class RegisterServiceImpl implements RegisterService {
         CustomerDto customerDto = UserDtoConverter.convert2CustomerDto(user, userClass, customer);
         //userServiceSupport.refresh2IMServer(customerDto);
         return customerDto;
-    }
-
-    private EmployeeDto saveEmployee2IMServer(User user, UserClass userClass, Employee employee) {
-        EmployeeDto employeeDto = UserDtoConverter.convert2EmployeeDto(user, userClass, employee);
-        //userServiceSupport.refresh2IMServer(employeeDto);
-        return employeeDto;
-    }
-
-    private void updateEmployee2IMServer(User existingUser, UserClass emUserClass, Employee employeeNew, EmployeeDto employeeDtoOld) {
-        EmployeeDto employeeDtoNew = UserDtoConverter.convert2EmployeeDto(existingUser, emUserClass, employeeNew);
-        //userServiceSupport.refresh2IMServer(employeeDtoOld, employeeDtoNew);
-    }
-
-    private MerchantDto saveMerchant2IMServer(User user, UserClass userClass, Merchant merchant) {
-        MerchantDto merchantDto = UserDtoConverter.convert2MerchantDto(user, userClass, merchant);
-        //userServiceSupport.refresh2IMServer(merchantDto);
-        return merchantDto;
     }
 
     private ManagerDto saveManager2IMServer(User user, UserClass userClass, Manager manager) {

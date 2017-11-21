@@ -5,7 +5,6 @@ package com.pos.user.dto.manager;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Strings;
-import com.wordnik.swagger.annotations.ApiModelProperty;
 import com.pos.common.util.basic.Copyable;
 import com.pos.common.util.basic.PrintableBeanUtils;
 import com.pos.common.util.exception.ValidationException;
@@ -13,7 +12,7 @@ import com.pos.common.util.validation.FieldChecker;
 import com.pos.user.constant.ManagerType;
 import com.pos.user.constant.UserType;
 import com.pos.user.dto.UserDto;
-import com.pos.user.dto.merchant.MerchantDto;
+import com.wordnik.swagger.annotations.ApiModelProperty;
 import org.springframework.beans.BeanUtils;
 
 import java.io.Serializable;
@@ -24,7 +23,7 @@ import java.io.Serializable;
  * @author wayne
  * @version 1.0, 2016/8/1
  */
-public class ManagerDto extends UserDto implements Serializable, Copyable<MerchantDto> {
+public class ManagerDto extends UserDto implements Serializable, Copyable<ManagerDto> {
 
     private static final long serialVersionUID = 6956691276501035611L;
 
@@ -44,13 +43,6 @@ public class ManagerDto extends UserDto implements Serializable, Copyable<Mercha
     private boolean quitJobs;
 
     @Override
-    public MerchantDto copy() {
-        MerchantDto newObj = new MerchantDto();
-        BeanUtils.copyProperties(this, newObj);
-        return newObj;
-    }
-
-    @Override
     public void check(String fieldPrefix) {
         super.check(fieldPrefix);
         fieldPrefix = fieldPrefix == null ? "" : fieldPrefix + ".";
@@ -58,6 +50,13 @@ public class ManagerDto extends UserDto implements Serializable, Copyable<Mercha
         if (parseUserDetailType() == null) {
             throw new ValidationException("'" + fieldPrefix + "userDetailType'无效值");
         }
+    }
+
+    @Override
+    public ManagerDto copy() {
+        ManagerDto managerDto = new ManagerDto();
+        BeanUtils.copyProperties(this, managerDto);
+        return managerDto;
     }
 
     @Override

@@ -6,9 +6,7 @@ package com.pos.user.session;
 import com.pos.basic.dto.UserIdentifier;
 import com.pos.common.util.basic.PrintableBeanUtils;
 import com.pos.user.dto.UserDto;
-import com.pos.user.dto.employee.EmployeeDto;
 import com.pos.user.dto.manager.ManagerDto;
-import com.pos.user.dto.merchant.MerchantDto;
 
 import java.io.Serializable;
 
@@ -51,15 +49,7 @@ public final class UserInfo implements Serializable {
         this.showName = userDto.getShowName();
         this.showHead = userDto.getShowHead();
 
-        if (userDto instanceof EmployeeDto) {
-            EmployeeDto employeeDto = (EmployeeDto) userDto;
-            this.userDetailType = employeeDto.getUserDetailType();
-            this.companyId = employeeDto.getCompanyId();
-        } else if (userDto instanceof MerchantDto) {
-            MerchantDto merchantDto = (MerchantDto) userDto;
-            this.userDetailType = merchantDto.getUserDetailType();
-            this.companyId = merchantDto.getCompanyId();
-        } else if (userDto instanceof ManagerDto) {
+        if (userDto instanceof ManagerDto) {
             ManagerDto managerDto = (ManagerDto) userDto;
             this.userDetailType = managerDto.getUserDetailType();
         }

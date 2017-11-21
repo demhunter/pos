@@ -3,12 +3,13 @@
  */
 package com.pos.user.dto.converter;
 
-import com.pos.user.domain.*;
+import com.pos.user.domain.Customer;
+import com.pos.user.domain.Manager;
+import com.pos.user.domain.User;
+import com.pos.user.domain.UserClass;
 import com.pos.user.dto.UserDto;
 import com.pos.user.dto.customer.CustomerDto;
-import com.pos.user.dto.employee.EmployeeDto;
 import com.pos.user.dto.manager.ManagerDto;
-import com.pos.user.dto.merchant.MerchantDto;
 
 /**
  * 用户信息的Entity - DTO转换器.
@@ -63,34 +64,6 @@ public class UserDtoConverter {
         return c;
     }
 
-    public static Employee convert2Employee(EmployeeDto employeeDto) {
-        Employee e = new Employee();
-        e.setId(employeeDto.getEntityId());
-        e.setUserId(employeeDto.getId());
-        e.setUserDetailType(employeeDto.getUserDetailType());
-        e.setCompanyId(employeeDto.getCompanyId());
-        e.setNickName(employeeDto.getNickName());
-        e.setHeadImage(employeeDto.getHeadImage());
-        e.setLifePhotos(employeeDto.getLifePhotos());
-        e.setResume(employeeDto.getResume());
-        e.setQuitJobs(employeeDto.isQuitJobs());
-        e.setPublicPhone(employeeDto.isPublicPhone());
-        e.setAdvertorial(employeeDto.getArticles());
-        e.setServiceContent(employeeDto.getServiceContent());
-        e.setInvitationCode(employeeDto.getInvitationCode());
-        return e;
-    }
-
-    public static Merchant convert2Merchant(MerchantDto merchantDto) {
-        Merchant m = new Merchant();
-        m.setId(merchantDto.getEntityId());
-        m.setUserId(merchantDto.getId());
-        m.setUserDetailType(merchantDto.getUserDetailType());
-        m.setCompanyId(merchantDto.getCompanyId());
-        m.setHeadImage(merchantDto.getHeadImage());
-        return m;
-    }
-
     public static Manager convert2Manager(ManagerDto managerDto) {
         Manager m = new Manager();
         m.setId(managerDto.getEntityId());
@@ -106,31 +79,6 @@ public class UserDtoConverter {
         fillUserDto(dto, user, userClass);
         dto.setNickName(customer.getNickName());
         dto.setHeadImage(customer.getHeadImage());
-        return dto;
-    }
-
-    public static EmployeeDto convert2EmployeeDto(User user, UserClass userClass, Employee employee) {
-        EmployeeDto dto = new EmployeeDto();
-        fillUserDto(dto, user, userClass);
-        dto.setUserDetailType(employee.getUserDetailType());
-        dto.setCompanyId(employee.getCompanyId());
-        dto.setNickName(employee.getNickName());
-        dto.setHeadImage(employee.getHeadImage());
-        dto.setLifePhotos(employee.getLifePhotos());
-        dto.setResume(employee.getResume());
-        dto.setQuitJobs(employee.isQuitJobs());
-        dto.setPublicPhone(employee.isPublicPhone());
-        dto.setArticles(employee.getAdvertorial());
-        dto.setServiceContent(employee.getServiceContent());
-        return dto;
-    }
-
-    public static MerchantDto convert2MerchantDto(User user, UserClass userClass, Merchant merchant) {
-        MerchantDto dto = new MerchantDto();
-        fillUserDto(dto, user, userClass);
-        dto.setUserDetailType(merchant.getUserDetailType());
-        dto.setCompanyId(merchant.getCompanyId());
-        dto.setHeadImage(merchant.getHeadImage());
         return dto;
     }
 
