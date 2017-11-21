@@ -120,6 +120,8 @@ public class UserController {
         }
         CustomerDto customerDto = customerService.findByUserPhone(registerRequestDto.getPhone(), false, false);
         customerDto.setUserSession(userSessionPosComponent.add(session, new UserInfo(customerDto)));
+        // 绑定推客与注册用户的关系
+        posService.posLogin(customerDto, registerRequestDto.getType(), registerRequestDto.getLeaderId());
         apiResult.getData().setCustomerDto(customerDto);
         apiResult.setMessage("客户注册成功！");
         return apiResult;
@@ -271,8 +273,8 @@ public class UserController {
 
         if (apiResult.isSucc()) {
             apiResult.getData().setUserSession(userSessionPosComponent.add(session, new UserInfo(apiResult.getData())));
-            // POS登陆的时候需要处理的逻辑
-            posService.posLogin(apiResult.getData(), loginRequestDto.getType(), loginRequestDto.getLeaderId());
+            // POS登陆的时候需要处理的逻辑，关系绑定切换到注册时绑定
+            // posService.posLogin(apiResult.getData(), loginRequestDto.getType(), loginRequestDto.getLeaderId());
             apiResult.getData().setHeadImage(globalConstants.posHeadImage);
             apiResult.getData().setNickName(StringUtils.isNotBlank(apiResult.getData().getName()) ? apiResult.getData().getName() : apiResult.getData().getUserPhone());
         }

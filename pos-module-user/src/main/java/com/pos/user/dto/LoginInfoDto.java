@@ -35,10 +35,10 @@ public class LoginInfoDto implements Serializable {
     @ApiModelProperty("用户拓展信息")
     private UserExtensionInfoDto userExtensionInfo;
 
-    @Deprecated
+    @ApiModelProperty("选填，上一级的userId")
     private Long recommendId;
 
-    @Deprecated
+    @ApiModelProperty("选填，登录的类型（int，1 = 推广发展客户的链接，2 = 推广发展渠推客的链接）")
     private String recommendType;
 
     @ApiModelProperty("推客邀请码（可空）")

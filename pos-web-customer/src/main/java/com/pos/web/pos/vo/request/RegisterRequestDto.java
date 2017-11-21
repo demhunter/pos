@@ -22,6 +22,28 @@ public class RegisterRequestDto implements Serializable {
     @ApiModelProperty("密码")
     private String password;
 
+    @ApiModelProperty("选填，登录的类型（int，1 = 推广发展客户的链接，2 = 推广发展渠推客的链接）")
+    private Byte type;
+
+    @ApiModelProperty("选填，上一级的userId")
+    private Long leaderId;
+
+    public Byte getType() {
+        return type;
+    }
+
+    public void setType(Byte type) {
+        this.type = type;
+    }
+
+    public Long getLeaderId() {
+        return leaderId;
+    }
+
+    public void setLeaderId(Long leaderId) {
+        this.leaderId = leaderId;
+    }
+
     public String getPhone() {
         return phone;
     }

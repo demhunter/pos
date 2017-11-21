@@ -135,7 +135,7 @@ public class RegisterServiceImpl implements RegisterService {
             confirmDto.setCustomerDto(customerDto);
 
             // 发送注册推荐人消息
-            sendCustomerRegisterMessage(user.getId(), user.getUserPhone(), loginInfoDto.getInvitationCode());
+            // sendCustomerRegisterMessage(user.getId(), user.getUserPhone(), loginInfoDto.getInvitationCode());
 
             return ApiResult.succ(confirmDto);
         }
@@ -179,7 +179,7 @@ public class RegisterServiceImpl implements RegisterService {
         confirmDto.setCustomerDto(customerDto);
 
         // 发送注册推荐人消息
-        sendCustomerRegisterMessage(existingUser.getId(), existingUser.getUserPhone(), loginInfoDto.getInvitationCode());
+        // sendCustomerRegisterMessage(existingUser.getId(), existingUser.getUserPhone(), loginInfoDto.getInvitationCode());
 
         return ApiResult.succ(confirmDto);
     }
