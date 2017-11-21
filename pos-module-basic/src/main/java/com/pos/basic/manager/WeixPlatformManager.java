@@ -25,7 +25,6 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author cc
  * @version 1.0, 16/9/14
  */
-@Component
 public class WeixPlatformManager {
 
     private static final Logger logger = LoggerFactory.getLogger(WeixPlatformManager.class);
