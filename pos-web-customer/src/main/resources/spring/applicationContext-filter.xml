@@ -60,7 +60,7 @@
                 </property>
             </bean>
         </property>
-        <property name="basePath" value="${web.pos.basePath}"/>
+        <property name="basePath" value="${web.customer.basePath}"/>
         <property name="forbiddenUrls" value="${web.forbidden.paths}"/>
         <property name="excludeMethods" value="OPTIONS"/> <!-- 如果允许AJAX跨域调用，则排除验证OPTIONS请求 -->
         <property name="excludeUrls" value="/pos/explain,/pos/getSign,/user/.*,.+\.ico,.+\.gif,.+\.htm,.+\.html,/,/druid.*,/help.*,/api-docs.*,/pos/payCallback,/upload/getToken/url"/>
