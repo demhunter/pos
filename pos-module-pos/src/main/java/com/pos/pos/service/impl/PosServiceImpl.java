@@ -944,12 +944,11 @@ public class PosServiceImpl implements PosService {
      * @return 下单结果
      */
     private ApiResult<CreateOrderDto> createRecord(PosUserAuthDetailDto authDetail, PosCardDto outCard, BigDecimal amount, String ip) {
-        CostAndCompanyDto costAndCompanyDto = getCostType(authDetail.getUserId());
-        CreateOrderVo createOrderVo = buildCreateOrderVo(authDetail.getUserId(), outCard, amount, ip, costAndCompanyDto);
+        CreateOrderVo createOrderVo = buildCreateOrderVo(authDetail.getUserId(), outCard, amount, ip);
         ApiResult apiResult = quickPayApi.createOrder(createOrderVo);
         if (apiResult.isSucc()) {
             UserPosTransactionRecord userPosTransactionRecord = saveTransactionRecord(
-                    authDetail, costAndCompanyDto, createOrderVo, amount);
+                    authDetail, createOrderVo, amount);
             // 缓存交易的付款银行卡信息
             redisOutCardTemplate.opsForValue().set(RedisConstants.POS_TRANSACTION_OUT_CARD_INFO + userPosTransactionRecord.getId(), outCard);
 
@@ -963,13 +962,10 @@ public class PosServiceImpl implements PosService {
     }
 
     private UserPosTransactionRecord saveTransactionRecord(
-            PosUserAuthDetailDto authDetail, CostAndCompanyDto costAndCompanyDto,
-            CreateOrderVo createOrderVo, BigDecimal amount) {
+            PosUserAuthDetailDto authDetail,CreateOrderVo createOrderVo, BigDecimal amount) {
         UserPosTransactionRecord userPosTransactionRecord = new UserPosTransactionRecord();
-        userPosTransactionRecord.setCompanyId(costAndCompanyDto.getCompanyId());
         userPosTransactionRecord.setInCardId(authDetail.getPosCardId());
         userPosTransactionRecord.setRecordNum(createOrderVo.getP4_orderId());
-        userPosTransactionRecord.setCostType(costAndCompanyDto.getCostTypeEnum().getCode());
         userPosTransactionRecord.setUserId(authDetail.getUserId());
         userPosTransactionRecord.setAmount(amount);
         userPosTransactionRecord.setStatus(TransactionStatusType.PREDICT_TRANSACTION.getCode());
@@ -977,7 +973,7 @@ public class PosServiceImpl implements PosService {
         return userPosTransactionRecord;
     }
 
-    private CreateOrderVo buildCreateOrderVo(Long userId, PosCardDto outCard, BigDecimal amount, String ip, CostAndCompanyDto costAndCompanyDto) {
+    private CreateOrderVo buildCreateOrderVo(Long userId, PosCardDto outCard, BigDecimal amount, String ip) {
         String orderId = UUID.randomUUID().toString();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
         Date now = new Date();
@@ -997,7 +993,7 @@ public class PosServiceImpl implements PosService {
         createOrderVo.setP13_phone(outCard.getMobilePhone());
         createOrderVo.setP14_currency("CNY");
         createOrderVo.setP15_orderAmount(amount.toPlainString());
-        createOrderVo.setP16_goodsName(costAndCompanyDto.getCostTypeEnum().getDesc());
+        createOrderVo.setP16_goodsName("家装费");
         createOrderVo.setP18_terminalType("OTHER");
         String terminalId = UUID.randomUUID().toString();
         createOrderVo.setP19_terminalId(terminalId);
@@ -1005,45 +1001,6 @@ public class PosServiceImpl implements PosService {
         createOrderVo.setP23_serverCallbackUrl(posConstants.getHelibaoCallbackUrl());
 
         return createOrderVo;
-    }
-
-    private CostAndCompanyDto getCostType(long userId) {
-        CostAndCompanyDto costAndCompanyDto = new CostAndCompanyDto();
-        Date now = new Date();
-        List<UserPosTransactionRecord> records = posDao.queryRecordByUserIdAndCostType(userId, 0);
-        if (!CollectionUtils.isEmpty(records)) {
-            UserPosTransactionRecord first = records.get(0);
-            if (SimpleDateUtils.daysOfDuration(first.getCreateDate(), now) > 180) {
-                costAndCompanyDto.setCostTypeEnum(CostTypeEnum.DESIGN);
-                costAndCompanyDto.setCompanyId(getCompanyId());
-            } else {
-                records = posDao.queryRecordByUserIdAndCostType(userId, CostTypeEnum.CONSTRUCTION.getCode());
-                if (!CollectionUtils.isEmpty(records)) {
-                    first = records.get(0);
-                    if (SimpleDateUtils.daysOfDuration(first.getCreateDate(), now) > 20) {
-                        costAndCompanyDto.setCostTypeEnum(CostTypeEnum.CONSTRUCTION);
-                        costAndCompanyDto.setCompanyId(first.getCompanyId());
-                    } else {
-                        costAndCompanyDto.setCostTypeEnum(CostTypeEnum.MATERIAL);
-                        costAndCompanyDto.setCompanyId(first.getCompanyId());
-                    }
-                } else {
-                    costAndCompanyDto.setCostTypeEnum(CostTypeEnum.CONSTRUCTION);
-                    costAndCompanyDto.setCompanyId(first.getCompanyId());
-                }
-            }
-        } else {
-            costAndCompanyDto.setCostTypeEnum(CostTypeEnum.DESIGN);
-            costAndCompanyDto.setCompanyId(getCompanyId());
-        }
-        return costAndCompanyDto;
-    }
-
-    private long getCompanyId() {
-        List<Long> companyIds = posDao.getCompanyIds();
-        long companyId = 0;
-        if (!CollectionUtils.isEmpty(companyIds)) companyId = companyIds.get(new Random().nextInt(companyIds.size()));
-        return companyId;
     }
 
     public Map<String, String> getAllBankLogo() {
