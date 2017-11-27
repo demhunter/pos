@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.authority.dao.CustomerPermissionDao">
+
+    <select id="query" resultType="com.pos.authority.dto.permission.CustomerPermissionDto">
+        SELECT
+            `id` AS `id`,
+            user_id AS userId,
+            level AS level,
+            withdraw_permission AS withdrawPermission,
+            withdraw_rate AS withdrawRate,
+            parent_user_id AS parentUserId
+        FROM customer_permission
+        ORDER BY user_id DESC
+    </select>
+</mapper>

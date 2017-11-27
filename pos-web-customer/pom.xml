@@ -14,7 +14,6 @@
     <packaging>war</packaging>
 
 
-
     <dependencies>
         <!-- module start -->
         <dependency>
@@ -25,6 +24,11 @@
         <dependency>
             <groupId>com.pos</groupId>
             <artifactId>pos-module-pos</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.pos</groupId>
+            <artifactId>pos-module-authority</artifactId>
         </dependency>
 
         <!-- module end -->
@@ -74,8 +78,6 @@
         </dependency>
         <!-- Swagger end -->
     </dependencies>
-
-
 
 
     <build>
