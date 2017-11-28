@@ -3,16 +3,20 @@
  */
 package com.pos.web.pos.controller.relation;
 
+import com.pos.authority.dto.relation.CustomerRelationNode;
 import com.pos.authority.dto.relation.CustomerRelationTree;
 import com.pos.authority.service.support.CustomerRelationTreeSupport;
 import com.pos.common.util.mvc.support.ApiResult;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.util.Stack;
 
 /**
  * 关系DemoController
@@ -32,5 +36,13 @@ public class RelationDemoController {
     @ApiOperation(value = "v2.0.0 * 初始化", notes = "初始化")
     public ApiResult<CustomerRelationTree> explain() {
         return ApiResult.succ(customerRelationTreeSupport.initializeRelationTree());
+    }
+
+    @RequestMapping(value = "participation/{userId}", method = RequestMethod.GET)
+    @ApiOperation(value = "v2.0.0 * 获取参与分佣的用户栈", notes = "成功返回，则栈顶一定为交易用户信息，栈底一定为根节点")
+    public ApiResult<Stack<CustomerRelationNode>> brokerageParticipation(
+            @ApiParam(name = "userId", value = "用户id")
+            @PathVariable("userId") Long userId) {
+        return ApiResult.succ(customerRelationTreeSupport.getParticipationForBrokerage(userId));
     }
 }

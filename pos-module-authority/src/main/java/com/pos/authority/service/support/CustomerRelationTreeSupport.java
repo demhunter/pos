@@ -4,6 +4,7 @@
 package com.pos.authority.service.support;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Queues;
 import com.pos.authority.dao.CustomerPermissionDao;
 import com.pos.authority.dto.permission.CustomerPermissionDto;
 import com.pos.authority.dto.relation.CustomerRelationNode;
@@ -14,9 +15,8 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * 客户关系树支持
@@ -106,6 +106,60 @@ public class CustomerRelationTreeSupport {
             }
         }
         return null;
+    }
+
+    // 广度优先搜索叶子节点的父节点
+    private CustomerRelationNode getParentNodeByBFS(CustomerRelationNode leafNode) {
+        LinkedList<CustomerRelationNode> breadthList = Lists.newLinkedList();
+        breadthList.push(relationTree);
+        while (!CollectionUtils.isEmpty(breadthList)) {
+            CustomerRelationNode parentNode = breadthList.pop();
+            if (parentNode.getUserId().equals(leafNode.getParentUserId())) {
+                return parentNode;
+            }
+            if (!CollectionUtils.isEmpty(parentNode.getChildren())) {
+                parentNode.getChildren().values().forEach(e -> breadthList.push(e.copyContainDescendant(true)));
+            }
+        }
+
+        return null;
+    }
+
+    // 广度优先搜索参与分佣的用户链表，搜索成功则返回一个链表：其中链表头为交易用户信息，链表尾为根节点信息
+    public Stack<CustomerRelationNode> getParticipationForBrokerage(Long userId) {
+        Stack<CustomerRelationNode> participationStack = new Stack<>();
+        // 根节点始终参与结算
+        participationStack.push(relationTree.copyContainDescendant(false));
+        // 广度优先搜索列表（根节点不参与交易，直接从第二层级开始搜索）
+        LinkedList<CustomerRelationNode> breadthList = Lists.newLinkedList();
+        // Queue<CustomerRelationNode> breadthQueue = new LinkedList<>();
+        if (!CollectionUtils.isEmpty(relationTree.getChildren())) {
+            relationTree.getChildren().values().forEach(e -> breadthList.add(e.copyContainDescendant(true)));
+        }
+        while (!CollectionUtils.isEmpty(breadthList)) {
+            CustomerRelationNode node = breadthList.pop();
+            // 判断是否进入下一层级
+            if (!participationStack.peek().getUserId().equals(node.getParentUserId())) {
+                CustomerRelationNode parentNode = getParentNodeByBFS(node);
+                if (parentNode == null) {
+                    throw new IllegalStateException("用户" + node.getUserId() +"的上级" + node.getParentUserId() + "不再关系树中！");
+                }
+                if (!participationStack.peek().getUserId().equals(parentNode.getParentUserId())) {
+                    participationStack.pop();
+                }
+                participationStack.push(parentNode.copy());
+            }
+            // 判断当前节点信息
+            if (node.getUserId().equals(userId)) {
+                participationStack.push(node.copyContainDescendant(false));
+                break;
+            }
+            if (!CollectionUtils.isEmpty(node.getChildren())) {
+                node.getChildren().values().forEach(e -> breadthList.add(e.copyContainDescendant(true)));
+            }
+        }
+
+        return participationStack;
     }
 
     private CustomerRelationNode initializeRootNode() {

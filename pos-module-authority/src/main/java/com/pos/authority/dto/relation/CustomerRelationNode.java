@@ -52,6 +52,21 @@ public class CustomerRelationNode implements Serializable, Comparable<CustomerRe
         return backup;
     }
 
+    /**
+     * 复制节点信息
+     *
+     * @param containDescendant 是否保留子树（子孙）信息
+     * @return 节点信息
+     */
+    public CustomerRelationNode copyContainDescendant(boolean containDescendant) {
+        CustomerRelationNode backup = new CustomerRelationNode();
+        BeanUtils.copyProperties(this, backup);
+        if (!containDescendant) {
+            backup.setChildren(new HashMap<>());
+        }
+        return backup;
+    }
+
     @Override
     public int compareTo(CustomerRelationNode o) {
         if (o == null) {
