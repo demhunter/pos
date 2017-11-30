@@ -22,18 +22,14 @@ public class UserPosTransactionRecord implements Serializable {
 
     private String recordNum;//流水号
 
-    private Long inCardId;//转入的卡ID
+    private Integer transactionType; // 交易类型
 
-    @Deprecated
-    private long outCardId;//转出的卡ID
+    private Long inCardId;//转入的卡ID
 
     /** @see PosOutCardInfoDto */
     private String outCardInfo; // 转出卡信息 JSON
 
     private Long userId;//提现的人的userId
-
-    @Deprecated
-    private long agentId;//提取佣金的人的userId
 
     private BigDecimal amount;//提现的金额
 
@@ -44,13 +40,6 @@ public class UserPosTransactionRecord implements Serializable {
     private BigDecimal payCharge;//支付手续费（用户发起支付，支付公司到平台扣除的）
 
     private BigDecimal posCharge;//提现手续费（平台支付给用户时，支付公司扣除的）
-
-    @Deprecated
-    private BigDecimal agentCharge;//用户提现时，平台支付给用户上级的佣金
-
-    private Long companyId;//公司ID
-
-    private Byte costType;//支付的费用类型
 
     private Integer status;//状态
 
@@ -64,38 +53,9 @@ public class UserPosTransactionRecord implements Serializable {
 
     private String helibaoTixianNum;//合利宝提现的流水号
 
-    @Deprecated
-    private byte getAgent;//渠道商提取佣金的状态 0=未提取 1=已申请 2=已提取
+    private Integer failureTimes; // 交易失败次数(>0 表示存在过失败情况）
 
-    @Deprecated
-    public long getAgentId() {
-        return agentId;
-    }
-
-    @Deprecated
-    public void setAgentId(long agentId) {
-        this.agentId = agentId;
-    }
-
-    @Deprecated
-    public byte getGetAgent() {
-        return getAgent;
-    }
-
-    @Deprecated
-    public void setGetAgent(byte getAgent) {
-        this.getAgent = getAgent;
-    }
-
-    @Deprecated
-    public BigDecimal getAgentCharge() {
-        return agentCharge;
-    }
-
-    @Deprecated
-    public void setAgentCharge(BigDecimal agentCharge) {
-        this.agentCharge = agentCharge;
-    }
+    private String extra; // 交易额外信息
 
     public Long getId() {
         return id;
@@ -119,14 +79,6 @@ public class UserPosTransactionRecord implements Serializable {
 
     public void setInCardId(Long inCardId) {
         this.inCardId = inCardId;
-    }
-
-    public long getOutCardId() {
-        return outCardId;
-    }
-
-    public void setOutCardId(long outCardId) {
-        this.outCardId = outCardId;
     }
 
     public String getOutCardInfo() {
@@ -185,22 +137,6 @@ public class UserPosTransactionRecord implements Serializable {
         this.posCharge = posCharge;
     }
 
-    public Long getCompanyId() {
-        return companyId;
-    }
-
-    public void setCompanyId(Long companyId) {
-        this.companyId = companyId;
-    }
-
-    public Byte getCostType() {
-        return costType;
-    }
-
-    public void setCostType(Byte costType) {
-        this.costType = costType;
-    }
-
     public Integer getStatus() {
         return status;
     }
@@ -247,5 +183,29 @@ public class UserPosTransactionRecord implements Serializable {
 
     public void setHelibaoTixianNum(String helibaoTixianNum) {
         this.helibaoTixianNum = helibaoTixianNum;
+    }
+
+    public Integer getTransactionType() {
+        return transactionType;
+    }
+
+    public void setTransactionType(Integer transactionType) {
+        this.transactionType = transactionType;
+    }
+
+    public Integer getFailureTimes() {
+        return failureTimes;
+    }
+
+    public void setFailureTimes(Integer failureTimes) {
+        this.failureTimes = failureTimes;
+    }
+
+    public String getExtra() {
+        return extra;
+    }
+
+    public void setExtra(String extra) {
+        this.extra = extra;
     }
 }
