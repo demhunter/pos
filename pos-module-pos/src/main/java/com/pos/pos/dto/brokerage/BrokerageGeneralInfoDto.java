@@ -18,10 +18,10 @@ import java.math.BigDecimal;
 public class BrokerageGeneralInfoDto implements Serializable {
 
     @ApiModelProperty("可提现余额（BigDecimal）")
-    private BigDecimal canApplyMoney;
+    private BigDecimal canApplyBrokerage;
 
     @ApiModelProperty("累计提现金额（BigDecimal）")
-    private BigDecimal totalApplyMoney;
+    private BigDecimal appliedBrokerage;
 
     @Deprecated
     @JsonIgnore
@@ -38,20 +38,20 @@ public class BrokerageGeneralInfoDto implements Serializable {
         this.todayBrokerage = todayBrokerage;
     }
 
-    public BigDecimal getCanApplyMoney() {
-        return canApplyMoney;
+    public BigDecimal getCanApplyBrokerage() {
+        return canApplyBrokerage;
     }
 
-    public void setCanApplyMoney(BigDecimal canApplyMoney) {
-        this.canApplyMoney = canApplyMoney;
+    public void setCanApplyBrokerage(BigDecimal canApplyBrokerage) {
+        this.canApplyBrokerage = canApplyBrokerage;
     }
 
-    public BigDecimal getTotalApplyMoney() {
-        return totalApplyMoney;
+    public BigDecimal getAppliedBrokerage() {
+        return appliedBrokerage;
     }
 
-    public void setTotalApplyMoney(BigDecimal totalApplyMoney) {
-        this.totalApplyMoney = totalApplyMoney;
+    public void setAppliedBrokerage(BigDecimal appliedBrokerage) {
+        this.appliedBrokerage = appliedBrokerage;
     }
 
     public BigDecimal getCurrentApplyMoney() {

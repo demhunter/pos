@@ -14,7 +14,6 @@ import java.io.Serializable;
  * @author wangbing
  * @version 1.0, 2017/11/30
  */
-@ApiModel("推荐人简要信息")
 public class RecommendSimpleVo implements Serializable {
 
     @ApiModelProperty("推荐人id")

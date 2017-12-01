@@ -105,13 +105,13 @@ public class PosUserChannelInfoServiceImpl implements PosUserChannelInfoService 
         // 获取推客已提现和当前提现金额
         UserPosChannelInfo channelInfo = posUserChannelDao.get(channelUserId);
         BrokerageGeneralInfoDto result = new BrokerageGeneralInfoDto();
-        result.setTotalApplyMoney(channelInfo.getTotalMoney());
+        result.setAppliedBrokerage(channelInfo.getTotalMoney());
         result.setCurrentApplyMoney(channelInfo.getApplyMoney());
         // 维护数据一致性，设置查询和状态更新的截止时间
         Date deadline = new Date();
         // 获取推客可提现余额
         BigDecimal canApplyMoney = posTwitterBrokerageDao.queryTwitterCanApplyMoney(channelUserId, deadline);
-        result.setCanApplyMoney(canApplyMoney == null ? BigDecimal.ZERO : canApplyMoney);
+        result.setCanApplyBrokerage(canApplyMoney == null ? BigDecimal.ZERO : canApplyMoney);
         // 获取推客的今日收益
         BigDecimal todayBrokerage = posTwitterBrokerageDao.queryTwitterDateSectionBrokerage(channelUserId,
                 SimpleDateUtils.getDateOfMidNight(deadline), SimpleDateUtils.getDateOfTodayEnd(deadline));

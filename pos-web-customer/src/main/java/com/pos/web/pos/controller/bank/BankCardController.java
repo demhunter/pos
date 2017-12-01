@@ -41,7 +41,7 @@ public class BankCardController {
     }
 
     @RequestMapping(value = "settlement", method = RequestMethod.POST)
-    @ApiOperation(value = "v2.0.0 * 获取当前绑定的结算银行卡信息", notes = "获取当前绑定的结算银行卡信息")
+    @ApiOperation(value = "v2.0.0 * 更换当前绑定的结算银行卡", notes = "更换当前绑定的结算银行卡")
     public ApiResult<PosCardDto> updateSettlementBankCard(
             @ApiParam(name = "bindCardInfo", value = "绑卡信息")
             @RequestBody BindCardDto bindCardInfo,
@@ -50,7 +50,7 @@ public class BankCardController {
     }
 
     @RequestMapping(value = "expenditure", method = RequestMethod.GET)
-    @ApiModelProperty(value = "v2.0.0 * 获取当前保存的已使用银行卡列表", notes = "获取当前保存的已使用银行卡列表")
+    @ApiOperation(value = "v2.0.0 * 获取当前保存的已使用银行卡列表", notes = "获取当前保存的已使用银行卡列表")
     public ApiResult<List<PosCardDto>> getExpenditureCards(
             @FromSession UserInfo userInfo) {
         return null;

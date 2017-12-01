@@ -36,6 +36,8 @@ public class DescendantController {
     @RequestMapping(value = "children", method = RequestMethod.GET)
     @ApiOperation(value = "v2.0.0 * 获取直接下级", notes = "获取直接下级")
     public ApiResult<Pagination<ChildInfoVo>> getChildren(
+            @ApiParam(name = "childLevel", value = "直接下级等级")
+            @RequestParam(name = "childLevel", required = false) Integer childLevel,
             @ApiParam(name = "searchKey", value = "搜索关键字（姓名或备注）")
             @RequestParam(name = "searchKey", required = false) String searchKey,
             @FromSession UserInfo userInfo) {

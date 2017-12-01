@@ -25,6 +25,7 @@ public class DescendantStatisticsVo implements Serializable {
     @ApiModelProperty("间接下级总数")
     private Integer descendantCount;
 
+    @ApiModelProperty("按等级统计直接下级和间接下级数量")
     private List<DescendantLevelStatisticsVo> levelStatistics;
 
     public Integer getTotalDescendantCount() {

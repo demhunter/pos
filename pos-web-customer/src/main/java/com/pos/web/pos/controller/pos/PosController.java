@@ -94,17 +94,6 @@ public class PosController {
         return posService.getQuickInfo(userInfo.getId());
     }
 
-    @RequestMapping(value = "bank-card/{cardId}/delete", method = RequestMethod.POST)
-    @ApiOperation(value = "v1.0.0 * 删除已保存的卡信息", notes = "删除已保存的卡信息")
-    public ApiResult<NullObject> deleteBankCard(
-            @ApiParam(name = "cardId", value = "银行卡id")
-            @PathVariable("cardId") Long cardId,
-            @FromSession UserInfo userInfo) {
-        return posCardService.deleteOutBankCard(cardId, userInfo.getId());
-    }
-
-
-
     @RequestMapping(value = "selectCard", method = RequestMethod.POST)
     @ApiOperation(value = "v1.0.0 * 快捷收款-2-1，选择一张卡，下单", notes = "快捷收款-2-1，选择一张付款的卡，并且填写金额,下单")
     public ApiResult<CreateOrderDto> selectCard(

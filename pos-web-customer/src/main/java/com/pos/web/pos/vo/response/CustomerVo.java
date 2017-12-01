@@ -3,6 +3,7 @@
  */
 package com.pos.web.pos.vo.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 import com.pos.user.dto.customer.CustomerDto;
 
@@ -44,7 +45,16 @@ public class CustomerVo implements Serializable {
     private RecommendSimpleVo recommendInfo;
 
     @Deprecated
+    @JsonIgnore
     private Boolean showGetRedDot;
+
+    public RecommendSimpleVo getRecommendInfo() {
+        return recommendInfo;
+    }
+
+    public void setRecommendInfo(RecommendSimpleVo recommendInfo) {
+        this.recommendInfo = recommendInfo;
+    }
 
     public Integer getAuditStatus() {
         return auditStatus;
@@ -62,10 +72,12 @@ public class CustomerVo implements Serializable {
         this.rejectReason = rejectReason;
     }
 
+    @Deprecated
     public Boolean getShowGetRedDot() {
         return showGetRedDot;
     }
 
+    @Deprecated
     public void setShowGetRedDot(Boolean showGetRedDot) {
         this.showGetRedDot = showGetRedDot;
     }

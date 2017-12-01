@@ -17,7 +17,7 @@
     <select id="querySpreadGeneralInfo" resultType="com.pos.pos.dto.spread.SpreadGeneralInfoDto">
         SELECT
         COUNT(*) AS spreadOrderCount,
-        SUM(IF(uptr.get_agent = 0, uptr.agent_charge, 0)) AS canApplyMoney
+        SUM(IF(uptr.get_agent = 0, uptr.agent_charge, 0)) AS canApplyBrokerage
         FROM user_pos_transaction_record uptr
         WHERE uptr.agent_id = #{user.userId}
         AND uptr.complete_date IS NOT NULL

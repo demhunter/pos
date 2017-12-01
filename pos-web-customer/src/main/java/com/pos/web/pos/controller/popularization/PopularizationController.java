@@ -19,8 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
  * @version 1.0, 2017/11/30
  */
 @RestController
-@RequestMapping("/descendant")
-@Api(value = "/descendant", description = "v2.0.0 * 下级相关接口")
+@RequestMapping("/popularization")
+@Api(value = "/popularization", description = "v2.0.0 * 下级相关接口")
 public class PopularizationController {
 
     @RequestMapping(value = "", method = RequestMethod.GET)
