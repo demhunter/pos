@@ -15,7 +15,7 @@ import com.pos.common.util.mvc.view.XlsStyle;
 import com.pos.common.util.mvc.view.XlsView;
 import com.pos.pos.condition.orderby.PosTransactionOrderField;
 import com.pos.pos.condition.query.PosTransactionCondition;
-import com.pos.pos.domain.TransactionFailureRecord;
+import com.pos.pos.dto.failure.TransactionFailureRecordDto;
 import com.pos.pos.dto.transaction.TransactionHandledInfoDto;
 import com.pos.pos.dto.transaction.TransactionRecordDto;
 import com.pos.pos.service.PosService;
@@ -207,7 +207,7 @@ public class TransactionController {
 
     @RequestMapping(value = "{recordId}/failures", method = RequestMethod.GET)
     @ApiOperation(value = "v2.0.0 * 查询指定交易的失败记录", notes = "查询指定交易的失败记录")
-    public ApiResult<List<TransactionFailureRecord>> getTransaction(
+    public ApiResult<List<TransactionFailureRecordDto>> getTransaction(
             @ApiParam(name = "recordId", value = "交易id")
             @PathVariable("recordId") Long recordId) {
         return null;

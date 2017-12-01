@@ -32,6 +32,8 @@ public class PopularizationController {
             @RequestParam(name = "beginTime", required = false) String beginTime,
             @ApiParam(name = "endTime", value = "注册结束时间（格式：yyyy-MM-dd）")
             @RequestParam(name = "endTime", required = false) String endTime,
+            @ApiParam(name = "searchKey", value = "文本搜索关键字")
+            @RequestParam(name = "searchKey", required = false) String searchKey,
             @ApiParam(name = "pageNum", value = "当前页编号")
             @RequestParam("pageNum") int pageNum,
             @ApiParam(name = "pageSize", value = "每页显示的记录数量")
@@ -58,7 +60,7 @@ public class PopularizationController {
 
     @RequestMapping(value = "{documentId}/available", method = RequestMethod.POST)
     @ApiOperation(value = "v2.0.0 * 启用/禁用推广文案", notes = "启用/禁用推广文案")
-    public ApiResult<PopularizationDocumentDto> updateAvailable(
+    public ApiResult<NullObject> updateAvailable(
             @ApiParam(name = "documentId", value = "推广文案id")
             @PathVariable("documentId") Long documentId,
             @ApiParam(name = "available", value = "true：启用；false：禁用")

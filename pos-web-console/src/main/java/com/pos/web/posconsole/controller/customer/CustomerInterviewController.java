@@ -34,8 +34,8 @@ public class CustomerInterviewController {
         return null;
     }
 
-    @RequestMapping(value = "{userId}", method = RequestMethod.GET)
-    @ApiOperation(value = "v2.0.0 * 获取指定用户的回访记录", notes = "获取指定用户的回访记录")
+    @RequestMapping(value = "{userId}", method = RequestMethod.POST)
+    @ApiOperation(value = "v2.0.0 * 增加指定用户的回访记录", notes = "增加指定用户的回访记录")
     public ApiResult<NullObject> getCustomerInterview(
             @ApiParam(name = "userId", value = "用户id")
             @PathVariable("userId") Long userId,

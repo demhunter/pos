@@ -137,7 +137,7 @@ public class CustomerController {
     }
 
     @RequestMapping(value = "{posId}/permission", method = RequestMethod.GET)
-    @ApiOperation(value = "v1.0.0 * 获取快捷收款用户的权限信息", notes = "获取快捷收款用户的权限信息")
+    @ApiOperation(value = "v2.0.0 * 获取快捷收款用户的权限信息", notes = "获取快捷收款用户的权限信息")
     public ApiResult<CustomerPermissionBasicDto> getPosUserPermission(
             @ApiParam(name = "posId", value = "快捷收款用户自增id")
             @PathVariable("posId") Long posId) {
@@ -145,7 +145,7 @@ public class CustomerController {
     }
 
     @RequestMapping(value = "{posId}/permission", method = RequestMethod.POST)
-    @ApiOperation(value = "v1.0.0 * 更改快捷收款用户的权限信息", notes = "更改快捷收款用户的权限信息")
+    @ApiOperation(value = "v2.0.0 * 更改快捷收款用户的权限信息", notes = "更改快捷收款用户的权限信息")
     public ApiResult<NullObject> updatePosUserPermission(
             @ApiParam(name = "posId", value = "快捷收款用户自增id")
             @PathVariable("posId") Long posId,
@@ -180,7 +180,7 @@ public class CustomerController {
     }
 
     @RequestMapping(value = "{posId}/audit", method = RequestMethod.POST)
-    @ApiOperation(value = "v2.0.0 * 审核用户信息", notes = "审核用户信息")
+    @ApiOperation(value = "v1.0.0 * 审核用户信息", notes = "审核用户信息")
     public ApiResult<NullObject> auditPosUserInfo(
             @ApiParam(name = "posId", value = "被审核的快捷收款用户自增id")
             @PathVariable("posId") Long posId,

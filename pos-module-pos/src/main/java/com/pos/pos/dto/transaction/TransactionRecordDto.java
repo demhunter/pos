@@ -3,6 +3,7 @@
  */
 package com.pos.pos.dto.transaction;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.pos.pos.constants.TransactionStatusType;
 import com.pos.pos.dto.PosOutCardInfoDto;
 import com.pos.pos.dto.card.PosCardDto;
@@ -59,10 +60,12 @@ public class TransactionRecordDto implements Serializable {
     @ApiModelProperty("提现手续费（平台支付给用户时，支付公司扣除的）")
     private BigDecimal posCharge;
 
-    @ApiModelProperty("公司ID")
+    @Deprecated
+    @JsonIgnore
     private Long companyId;
 
-    @ApiModelProperty("支付的费用类型")
+    @Deprecated
+    @JsonIgnore
     private Integer costType;
 
     @ApiModelProperty("状态：0 = 已下单，1 = 交易处理中，2 = 交易失败，3 = 交易成功，4 = 已手动处理")
@@ -208,18 +211,26 @@ public class TransactionRecordDto implements Serializable {
         this.posCharge = posCharge;
     }
 
+    @Deprecated
+    @JsonIgnore
     public Long getCompanyId() {
         return companyId;
     }
 
+    @Deprecated
+    @JsonIgnore
     public void setCompanyId(Long companyId) {
         this.companyId = companyId;
     }
 
+    @Deprecated
+    @JsonIgnore
     public Integer getCostType() {
         return costType;
     }
 
+    @Deprecated
+    @JsonIgnore
     public void setCostType(Integer costType) {
         this.costType = costType;
     }
