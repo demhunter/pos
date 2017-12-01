@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="http://www.springframework.org/schema/beans"
+       xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd     http://www.springframework.org/schema/rabbit http://www.springframework.org/schema/rabbit/spring-rabbit.xsd">
+
+    <!-- 说明：每个交换器的id和name前都应当加上项目名，以免多个项目的时候交换器重复 -->
+
+    <import resource="rabbit-queues.xml"/>
+
+    <!-- 交换器和绑定关系 -->
+    <rabbit:direct-exchange name="pos.direct.exchange" durable="true" auto-delete="false">
+        <rabbit:bindings>
+            <rabbit:binding queue="pos.demo.queue" key="demo.route.key"/>
+            <rabbit:binding queue="pos.customer.reg.queue" key="pos.reg.route.key"/>
+        </rabbit:bindings>
+    </rabbit:direct-exchange>
+
+</beans>
