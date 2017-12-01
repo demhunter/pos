@@ -27,9 +27,10 @@ import javax.annotation.Resource;
  * @author wangbing
  * @version 1.0, 2017/8/26
  */
-@RestController
+/*@RestController
 @RequestMapping(value = "/pos/spread")
-@Api(value = "/pos/spread", description = "v1.0.0 * 发展收款客户相关接口")
+@Api(value = "/pos/spread", description = "v1.0.0 * 发展收款客户相关接口")*/
+@Deprecated
 public class PosUserSpreadController {
 
     @Resource

@@ -3,21 +3,16 @@
  */
 package com.pos.web.pos.controller.user;
 
-import com.pos.web.pos.vo.request.LoginRequestDto;
-import com.pos.web.pos.vo.request.RegisterRequestDto;
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
+import com.pos.basic.mq.MQMessage;
+import com.pos.basic.mq.MQReceiverType;
+import com.pos.basic.mq.MQTemplate;
 import com.pos.basic.service.SecurityService;
-import com.pos.common.sms.constant.MemcachedPrefixType;
-import com.pos.common.sms.service.SmsService;
 import com.pos.common.util.constans.GlobalConstants;
 import com.pos.common.util.mvc.resolver.FromSession;
 import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.common.util.mvc.support.NullObject;
 import com.pos.common.util.web.http.HttpRequestUtils;
 import com.pos.pos.dto.twitter.ReferrerSimpleDto;
-import com.pos.pos.service.PosService;
 import com.pos.pos.service.PosUserChannelInfoService;
 import com.pos.user.constant.CustomerType;
 import com.pos.user.constant.UserType;
@@ -26,6 +21,7 @@ import com.pos.user.dto.LoginInfoDto;
 import com.pos.user.dto.UserLoginDto;
 import com.pos.user.dto.UserRegConfirmDto;
 import com.pos.user.dto.customer.CustomerDto;
+import com.pos.user.dto.mq.CustomerInfoMsg;
 import com.pos.user.exception.UserErrorCode;
 import com.pos.user.service.CustomerService;
 import com.pos.user.service.LoginService;
@@ -33,6 +29,11 @@ import com.pos.user.service.RegisterService;
 import com.pos.user.service.UserService;
 import com.pos.user.session.UserInfo;
 import com.pos.user.session.UserSessionPosComponent;
+import com.pos.web.pos.vo.request.LoginRequestDto;
+import com.pos.web.pos.vo.request.RegisterRequestDto;
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,19 +69,16 @@ public class UserController {
     private UserService userService;
 
     @Resource
-    private SmsService smsService;
-
-    @Resource
     private SecurityService securityService;
 
     @Resource
     private UserSessionPosComponent userSessionPosComponent;
 
     @Resource
-    private PosService posService;
+    private PosUserChannelInfoService posUserChannelInfoService;
 
     @Resource
-    private PosUserChannelInfoService posUserChannelInfoService;
+    private MQTemplate mqTemplate;
 
     @RequestMapping(value = "referrer/{referrerUserId}", method = RequestMethod.GET)
     @ApiOperation(value = "v1.0.0 * 分享出去的页面注册时获取推荐人信息", notes = "分享出去的页面注册时获取推荐人信息")
@@ -120,11 +118,12 @@ public class UserController {
         if (!apiResult.isSucc() || (apiResult.getData() != null && (apiResult.getData()).getNeedConfirm())) {
             return apiResult;
         }
-        CustomerDto customerDto = customerService.findByUserPhone(registerRequestDto.getPhone(), false, false);
+
+        CustomerDto customerDto = apiResult.getData().getCustomerDto();
+
+        sendCustomerRegisterMessage(customerDto.getId(), customerDto.getUserPhone(), loginInfoDto.getRecommendId(), loginInfoDto.getRecommendType());
         customerDto.setUserSession(userSessionPosComponent.add(session, new UserInfo(customerDto)));
-        /*// 绑定推客与注册用户的关系
-        posService.posLogin(customerDto, registerRequestDto.getType(), registerRequestDto.getLeaderId());*/
-        apiResult.getData().setCustomerDto(customerDto);
+
         apiResult.setMessage("客户注册成功！");
         return apiResult;
     }
@@ -208,28 +207,6 @@ public class UserController {
     }
 
     /**
-     * 发送短信验证码请求
-     *
-     * @param phone  用户手机号
-     * @param source 请求来源 {@link MemcachedPrefixType}
-     * @return 发送结果
-     */
-    @RequestMapping(value = "sendSmsCode", method = RequestMethod.POST)
-    @ApiOperation(value = "v1.0.0 * 发送短信验证码请求", notes = "发送短信验证码请求")
-    public ApiResult sendSmsCode(
-            @ApiParam(name = "phone", value = "用户手机号")
-            @RequestParam("phone") String phone,
-            @ApiParam(name = "source", value = "请求来源：1 = 用户注册，2 = 找回密码，3 = 登录验证，8 = 公司入驻申请，9 = 推客报备客户, 10 = 邀请成为推客, 11 = 邀请客户享受主材补贴")
-            @RequestParam("source") int source) {
-        ApiResult apiResult = smsService.sendVerifyCode(phone, MemcachedPrefixType.getEnum((byte) source));
-        if (!apiResult.isSucc()) {
-            apiResult.setMessage("验证码发送失败");
-        }
-
-        return apiResult;
-    }
-
-    /**
      * 找回密码请求
      *
      * @param loginInfoVo 登录相关信息
@@ -278,13 +255,17 @@ public class UserController {
 
         if (apiResult.isSucc()) {
             apiResult.getData().setUserSession(userSessionPosComponent.add(session, new UserInfo(apiResult.getData())));
-            // POS登陆的时候需要处理的逻辑，关系绑定切换到注册时绑定
-            // posService.posLogin(apiResult.getData(), loginRequestDto.getType(), loginRequestDto.getLeaderId());
             apiResult.getData().setHeadImage(globalConstants.posHeadImage);
             apiResult.getData().setNickName(StringUtils.isNotBlank(apiResult.getData().getName()) ? apiResult.getData().getName() : apiResult.getData().getUserPhone());
         }
 
         return apiResult;
+    }
+
+    private void sendCustomerRegisterMessage(Long userId, String userPhone, Long recommendUserId, Byte recommendType) {
+        CustomerInfoMsg msg = new CustomerInfoMsg(userId, userPhone, recommendUserId, recommendType);
+        mqTemplate.sendDirectMessage(new MQMessage(MQReceiverType.POS, "pos.reg.route.key", msg));
+        logger.info("发送一条用户注册的消息");
     }
 
 }

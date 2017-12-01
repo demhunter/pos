@@ -86,40 +86,9 @@ public class PosController {
         return ApiResult.succ(onlyStringVo);
     }
 
-    @RequestMapping(value = "identity", method = RequestMethod.GET)
-    @ApiOperation(value = "v1.0.0 * 获取已提交的身份认证信息", notes = "获取已提交的身份认证信息（PS：从未提交过身份认证信息则返回空）")
-    public ApiResult<PosUserIdentityDto> getIdentityInfo(
-            @FromSession UserInfo userInfo) {
-        return ApiResult.succ(posService.getIdentityInfo(userInfo.getId(), false));
-    }
-
-    @RequestMapping(value = "identity", method = RequestMethod.POST)
-    @ApiOperation(value = "v1.0.0 * 提交身份认证信息-1", notes = "提交身份认证信息-1")
-    public ApiResult<NullObject> updateIdentityInfo(
-            @ApiParam(name = "identityInfo", value = "身份认证信息")
-            @RequestBody PosUserIdentityDto identityInfo,
-            @FromSession UserInfo userInfo) {
-        return posService.updateIdentityInfo(userInfo.getId(), identityInfo);
-    }
-
-    @RequestMapping(value = "bindCard", method = RequestMethod.GET)
-    @ApiOperation(value = "v1.0.0 * 获取绑定的收款卡信息，身份认证信息-2", notes = "获取绑定的收款卡信息，身份认证信息-2（PS：从未绑定过收款银行卡则返回空）")
-    public ApiResult<BindCardDto> getBindCardInfo(
-            @FromSession UserInfo userInfo) {
-        return ApiResult.succ(posService.getBindCardInfo(userInfo.getId(), false));
-    }
-
-    @RequestMapping(value = "bindCard", method = RequestMethod.POST)
-    @ApiOperation(value = "v1.0.0 * 绑定收款卡，提交身份认证信息-2", notes = "绑定收款银行卡，提交身份认证信息-2")
-    public ApiResult<NullObject> bingCard(
-            @ApiParam(name = "bindCardInfo", value = "绑卡信息")
-            @RequestBody BindCardDto bindCardInfo,
-            @FromSession UserInfo userInfo) {
-        return posService.bindCard(bindCardInfo, userInfo.getId());
-    }
-
     @RequestMapping(value = "quickGetMoney", method = RequestMethod.GET)
-    @ApiOperation(value = "v1.0.0 * 快捷收款-1，获取当前用户快捷收款相关信息", notes = "点击快捷收款，快捷收款-1，获取当前用户快捷收款相关信息")
+    @ApiOperation(value = "v2.0.0 * 快捷收款-1，获取当前用户快捷收款相关信息", notes = "点击快捷收款，快捷收款-1，获取当前用户快捷收款相关信息" +
+            "(v2.0.0 已使用的银行卡从银行卡相关接口获取)")
     public ApiResult<QuickGetMoneyDto> quickGetMoney(
             @FromSession UserInfo userInfo) {
         return posService.getQuickInfo(userInfo.getId());
@@ -134,36 +103,7 @@ public class PosController {
         return posCardService.deleteOutBankCard(cardId, userInfo.getId());
     }
 
-//    @RequestMapping(value = "updateCard",method = RequestMethod.POST)
-//    @ApiOperation(value = "更新绑定的收款卡",notes = "更新绑定的收款卡")
-//    public ApiResult<QuickGetMoneyVo> updateBingCard(@RequestBody BindCardRequestDto bindCardRequestDto, @FromSession
-//            UserInfo userInfo) {
-//        BindCardDto bindCardDto = new BindCardDto();
-//        BeanUtils.copyProperties(bindCardRequestDto, bindCardDto);
-//        ApiResult apiResult = posService.bindCard(bindCardDto, userInfo.getId(),"UPDATE");
-//        if (apiResult.isSucc()) {
-//            long userId = userInfo.getId();
-//            List<UserPosCard> inCards = posService.queryUserCards(userId, CardUsageEnum.IN_CARD.getCode());
-//            List<UserPosCard> outCards = posService.queryUserCards(userId, CardUsageEnum.OUT_CARD.getCode());
-//            Map<String, String> logos = posService.getAllBankLogo();
-//            ApiResult<PosLoginDto> posLoginDto = posService.getUserBaseInfo(userId);
-//            if (posLoginDto.isSucc()) {
-//                GetMoneyVo getMoneyVo = new GetMoneyVo();
-//                BeanUtils.copyProperties(posLoginDto.getData(), getMoneyVo);
-//                getMoneyVo.setHeadImage(globalConstants.posHeadImage);
-//                CustomerDto customerDto = customerService.findById(userId, false, false);
-//                getMoneyVo.setNickName(StringUtils.isNotBlank(customerDto.getName()) ? customerDto.getName() :
-//                        customerDto.getUserPhone());
-//                QuickGetMoneyVo quickGetMoneyVo = new QuickGetMoneyVo(inCards, outCards, globalConstants.poundageRate,
-//                        globalConstants.poundage, globalConstants.arrival, logos, getMoneyVo);
-//                return ApiResult.succ(quickGetMoneyVo);
-//            } else {
-//                return ApiResult.fail(posLoginDto.getError(), apiResult.getMessage());
-//            }
-//        } else {
-//            return ApiResult.fail(apiResult.getError(), apiResult.getMessage());
-//        }
-//    }
+
 
     @RequestMapping(value = "selectCard", method = RequestMethod.POST)
     @ApiOperation(value = "v1.0.0 * 快捷收款-2-1，选择一张卡，下单", notes = "快捷收款-2-1，选择一张付款的卡，并且填写金额,下单")

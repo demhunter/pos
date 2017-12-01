@@ -1,20 +1,21 @@
 /*
  * Copyright (c) 2016 ywmj.com. All Rights Reserved.
  */
-package com.pos.pos.dto.twitter;
+package com.pos.pos.dto.brokerage;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
- * 推客简要统计信息Dto
+ * 佣金简要统计信息Dto
  *
  * @author wangbing
  * @version 1.0, 2017/10/13
  */
-public class TwitterGeneralInfoDto implements Serializable {
+public class BrokerageGeneralInfoDto implements Serializable {
 
     @ApiModelProperty("可提现余额（BigDecimal）")
     private BigDecimal canApplyMoney;
@@ -22,7 +23,8 @@ public class TwitterGeneralInfoDto implements Serializable {
     @ApiModelProperty("累计提现金额（BigDecimal）")
     private BigDecimal totalApplyMoney;
 
-    @ApiModelProperty("待处理提现金额（BigDecimal）")
+    @Deprecated
+    @JsonIgnore
     private BigDecimal currentApplyMoney;
 
     @ApiModelProperty("今日收益（BigDecimal）")

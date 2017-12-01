@@ -13,10 +13,18 @@
     <version>${pos-module-authority.version}</version>
 
     <dependencies>
+        <!-- module start -->
         <dependency>
             <groupId>com.pos</groupId>
             <artifactId>pos-common-util</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.pos</groupId>
+            <artifactId>pos-module-user</artifactId>
+        </dependency>
+
+        <!-- module end -->
 
 
         <dependency>

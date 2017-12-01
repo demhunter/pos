@@ -10,12 +10,12 @@ import com.pos.common.util.mvc.support.NullObject;
 import com.pos.common.util.mvc.support.Pagination;
 import com.pos.pos.domain.UserPosChannelInfo;
 import com.pos.pos.dto.develop.PosUserChildChannelDto;
-import com.pos.pos.dto.twitter.TwitterGeneralInfoDto;
+import com.pos.pos.dto.brokerage.BrokerageGeneralInfoDto;
 import com.pos.pos.dto.develop.DevelopGeneralInfoDto;
 import com.pos.pos.dto.spread.SpreadCustomerDto;
 import com.pos.pos.dto.spread.SpreadGeneralInfoDto;
 import com.pos.pos.dto.twitter.ReferrerSimpleDto;
-import com.pos.pos.dto.twitter.TwitterDailyStatisticsDto;
+import com.pos.pos.dto.brokerage.BrokerageDailyStatisticsDto;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -42,7 +42,7 @@ public interface PosUserChannelInfoService {
      * @param channelUserId 推客用户userId
      * @return 概要信息
      */
-    ApiResult<TwitterGeneralInfoDto> queryTwitterGeneralInfo(Long channelUserId);
+    ApiResult<BrokerageGeneralInfoDto> queryTwitterGeneralInfo(Long channelUserId);
 
     /**
      * 获取推客用户的每日收益
@@ -51,7 +51,7 @@ public interface PosUserChannelInfoService {
      * @param limitHelper   分页参数
      * @return 每日收益
      */
-    List<TwitterDailyStatisticsDto> queryTwitterDailyStatistics(Long channelUserId, LimitHelper limitHelper);
+    List<BrokerageDailyStatisticsDto> queryTwitterDailyStatistics(Long channelUserId, LimitHelper limitHelper);
 
     /**
      * 申请提现佣金

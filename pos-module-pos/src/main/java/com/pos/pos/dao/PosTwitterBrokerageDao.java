@@ -6,7 +6,7 @@ package com.pos.pos.dao;
 import com.pos.common.util.mvc.support.LimitHelper;
 import com.pos.pos.domain.UserPosTwitterBrokerage;
 import com.pos.pos.dto.twitter.TwitterBrokerageStatisticsDto;
-import com.pos.pos.dto.twitter.TwitterDailyStatisticsDto;
+import com.pos.pos.dto.brokerage.BrokerageDailyStatisticsDto;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -37,7 +37,7 @@ public interface PosTwitterBrokerageDao {
      * @param limitHelper   分页参数
      * @return 每日收益
      */
-    List<TwitterDailyStatisticsDto> queryTwitterDailyStatistics(
+    List<BrokerageDailyStatisticsDto> queryTwitterDailyStatistics(
             @Param("channelUserId") Long channelUserId,
             @Param("limitHelper") LimitHelper limitHelper);
 

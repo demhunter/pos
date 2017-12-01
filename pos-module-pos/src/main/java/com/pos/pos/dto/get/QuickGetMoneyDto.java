@@ -18,9 +18,6 @@ import java.util.List;
  */
 public class QuickGetMoneyDto implements Serializable {
 
-    @ApiModelProperty("曾经使用的卡信息")
-    private List<PosCardDto> cardBaseInfos;
-
     @ApiModelProperty("手续费率（BigDecimal，具体数值如0.0058，返给前端是百分化的数值）")
     private BigDecimal poundageRate;
 
@@ -34,14 +31,6 @@ public class QuickGetMoneyDto implements Serializable {
         if (poundageRate != null) {
             this.poundageRate = this.poundageRate.multiply(new BigDecimal("100"));
         }
-    }
-
-    public List<PosCardDto> getCardBaseInfos() {
-        return cardBaseInfos;
-    }
-
-    public void setCardBaseInfos(List<PosCardDto> cardBaseInfos) {
-        this.cardBaseInfos = cardBaseInfos;
     }
 
     public BigDecimal getPoundageRate() {

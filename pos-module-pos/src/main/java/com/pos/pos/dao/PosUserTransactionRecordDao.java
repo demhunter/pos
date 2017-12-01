@@ -9,7 +9,7 @@ import com.pos.common.util.mvc.support.OrderHelper;
 import com.pos.pos.condition.query.PosTransactionCondition;
 import com.pos.pos.domain.UserPosTransactionRecord;
 import com.pos.pos.dto.transaction.TransactionSimpleStatisticsDto;
-import com.pos.pos.dto.twitter.TwitterDailyStatisticsDto;
+import com.pos.pos.dto.brokerage.BrokerageDailyStatisticsDto;
 import com.pos.pos.dto.spread.SpreadGeneralInfoDto;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -53,7 +53,7 @@ public interface PosUserTransactionRecordDao {
      * @param limitHelper 分页参数
      * @return 查询结果
      */
-    List<TwitterDailyStatisticsDto> queryDailyStatistics(
+    List<BrokerageDailyStatisticsDto> queryDailyStatistics(
             @Param("user") UserIdentifier user,
             @Param("limitHelper") LimitHelper limitHelper);
 

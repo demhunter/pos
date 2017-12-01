@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2016 ywmj.com. All Rights Reserved.
  */
-package com.pos.pos.dto.twitter;
+package com.pos.pos.dto.brokerage;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wordnik.swagger.annotations.ApiModelProperty;
@@ -12,31 +12,43 @@ import java.util.Date;
 
 /**
  * 推广快捷收款每日记录Dto
-s *
+ *
  * @author wangbing
  * @version 1.0, 2017/8/26
  */
-public class TwitterDailyStatisticsDto implements Serializable {
+public class BrokerageDailyStatisticsDto implements Serializable {
 
     @ApiModelProperty("日期(date)")
     private Date dateKey;
 
-    // @ApiModelProperty("收款单数")
+    @ApiModelProperty("佣金金额（BigDecimal）")
+    private BigDecimal brokerage;
+
+    @ApiModelProperty("是否为月份统计（true：当前项为月份的统计）")
+    private boolean monthStatistics;
+
     @Deprecated
     @JsonIgnore
-    private Integer orderCount;
-
-    @ApiModelProperty("下级推客返佣奖金（BigDecimal）")
     private BigDecimal childTwitterBrokerage;
 
-    @ApiModelProperty("客户返佣奖金（BigDecimal）")
+    @Deprecated
+    @JsonIgnore
     private BigDecimal customerBrokerage;
 
-    @ApiModelProperty("累计奖金（BigDecimal，childTwitterBrokerage + customerBrokerage）")
+    public boolean isMonthStatistics() {
+        return monthStatistics;
+    }
+
+    public void setMonthStatistics(boolean monthStatistics) {
+        this.monthStatistics = monthStatistics;
+    }
+
     public BigDecimal getBrokerage() {
-        return BigDecimal.ZERO
-                .add(customerBrokerage == null ? BigDecimal.ZERO : customerBrokerage)
-                .add(childTwitterBrokerage == null ? BigDecimal.ZERO : childTwitterBrokerage);
+        return brokerage;
+    }
+
+    public void setBrokerage(BigDecimal brokerage) {
+        this.brokerage = brokerage;
     }
 
     public BigDecimal getChildTwitterBrokerage() {
@@ -61,13 +73,5 @@ public class TwitterDailyStatisticsDto implements Serializable {
 
     public void setDateKey(Date dateKey) {
         this.dateKey = dateKey;
-    }
-
-    public Integer getOrderCount() {
-        return orderCount;
-    }
-
-    public void setOrderCount(Integer orderCount) {
-        this.orderCount = orderCount;
     }
 }

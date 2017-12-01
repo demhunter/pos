@@ -19,7 +19,7 @@ import com.pos.pos.dto.card.PosCardDto;
 import com.pos.pos.service.PosUserTransactionRecordService;
 import com.pos.pos.condition.orderby.PosTransactionOrderField;
 import com.pos.pos.dao.PosUserTransactionRecordDao;
-import com.pos.pos.dto.twitter.TwitterDailyStatisticsDto;
+import com.pos.pos.dto.brokerage.BrokerageDailyStatisticsDto;
 import com.pos.pos.dto.transaction.TransactionRecordDto;
 import com.pos.user.dto.customer.CustomerDto;
 import com.pos.user.service.CustomerService;
@@ -54,7 +54,7 @@ public class PosUserTransactionRecordServiceImpl implements PosUserTransactionRe
     private SecurityService securityService;
 
     @Override
-    public List<TwitterDailyStatisticsDto> queryDailyStatistics(UserIdentifier user, LimitHelper limitHelper) {
+    public List<BrokerageDailyStatisticsDto> queryDailyStatistics(UserIdentifier user, LimitHelper limitHelper) {
         FieldChecker.checkEmpty(user, "user");
         FieldChecker.checkEmpty(limitHelper, "limitHelper");
 

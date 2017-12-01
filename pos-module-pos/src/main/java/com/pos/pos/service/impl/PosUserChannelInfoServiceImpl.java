@@ -25,8 +25,8 @@ import com.pos.pos.dto.spread.SpreadCustomerDto;
 import com.pos.pos.dto.spread.SpreadGeneralInfoDto;
 import com.pos.pos.dto.twitter.ReferrerSimpleDto;
 import com.pos.pos.dto.twitter.TwitterBrokerageStatisticsDto;
-import com.pos.pos.dto.twitter.TwitterDailyStatisticsDto;
-import com.pos.pos.dto.twitter.TwitterGeneralInfoDto;
+import com.pos.pos.dto.brokerage.BrokerageDailyStatisticsDto;
+import com.pos.pos.dto.brokerage.BrokerageGeneralInfoDto;
 import com.pos.pos.exception.PosUserErrorCode;
 import com.pos.pos.service.PosUserChannelInfoService;
 import com.pos.user.dto.customer.CustomerDto;
@@ -91,7 +91,7 @@ public class PosUserChannelInfoServiceImpl implements PosUserChannelInfoService 
     }
 
     @Override
-    public ApiResult<TwitterGeneralInfoDto> queryTwitterGeneralInfo(Long channelUserId) {
+    public ApiResult<BrokerageGeneralInfoDto> queryTwitterGeneralInfo(Long channelUserId) {
         FieldChecker.checkEmpty(channelUserId, "channelUserId");
 
         // 校验推客权限
@@ -104,7 +104,7 @@ public class PosUserChannelInfoServiceImpl implements PosUserChannelInfoService 
         }
         // 获取推客已提现和当前提现金额
         UserPosChannelInfo channelInfo = posUserChannelDao.get(channelUserId);
-        TwitterGeneralInfoDto result = new TwitterGeneralInfoDto();
+        BrokerageGeneralInfoDto result = new BrokerageGeneralInfoDto();
         result.setTotalApplyMoney(channelInfo.getTotalMoney());
         result.setCurrentApplyMoney(channelInfo.getApplyMoney());
         // 维护数据一致性，设置查询和状态更新的截止时间
@@ -121,7 +121,7 @@ public class PosUserChannelInfoServiceImpl implements PosUserChannelInfoService 
     }
 
     @Override
-    public List<TwitterDailyStatisticsDto> queryTwitterDailyStatistics(Long channelUserId, LimitHelper limitHelper) {
+    public List<BrokerageDailyStatisticsDto> queryTwitterDailyStatistics(Long channelUserId, LimitHelper limitHelper) {
         FieldChecker.checkEmpty(channelUserId, "channelUserId");
         FieldChecker.checkEmpty(limitHelper, "limitHelper");
 

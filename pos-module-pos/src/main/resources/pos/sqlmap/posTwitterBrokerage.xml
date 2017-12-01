@@ -32,7 +32,7 @@
         )
     </insert>
 
-    <select id="queryTwitterDailyStatistics" resultType="com.pos.pos.dto.twitter.TwitterDailyStatisticsDto">
+    <select id="queryTwitterDailyStatistics" resultType="com.pos.pos.dto.brokerage.BrokerageDailyStatisticsDto">
         SELECT
         DATE_FORMAT(create_date, '%Y-%m-%d') AS dateKey,
         SUM(IF(agent_user_id = #{channelUserId}, agent_charge, 0)) AS customerBrokerage,

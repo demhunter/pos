@@ -443,7 +443,7 @@ public class PosServiceImpl implements PosService {
         result.setPoundageRate(auth.getGetRate());
         result.setPoundage(posConstants.getPosExtraPoundage());
         result.setArrival(posConstants.getPosArrival());
-        result.setCardBaseInfos(posCardDao.queryUserPosCard(userId, CardUsageEnum.OUT_CARD.getCode()));
+        //result.setCardBaseInfos(posCardDao.queryUserPosCard(userId, CardUsageEnum.OUT_CARD.getCode()));
         result.hundredPercentPoundageRate(); // 百分化费率
 
         return ApiResult.succ(result);

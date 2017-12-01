@@ -9,7 +9,7 @@ import com.pos.common.util.mvc.support.LimitHelper;
 import com.pos.common.util.mvc.support.OrderHelper;
 import com.pos.common.util.mvc.support.Pagination;
 import com.pos.pos.condition.query.PosTransactionCondition;
-import com.pos.pos.dto.twitter.TwitterDailyStatisticsDto;
+import com.pos.pos.dto.brokerage.BrokerageDailyStatisticsDto;
 import com.pos.pos.dto.transaction.TransactionRecordDto;
 
 import java.util.List;
@@ -29,7 +29,7 @@ public interface PosUserTransactionRecordService {
      * @param limitHelper 分页参数
      * @return 每日记录数据统计
      */
-    List<TwitterDailyStatisticsDto> queryDailyStatistics(UserIdentifier user, LimitHelper limitHelper);
+    List<BrokerageDailyStatisticsDto> queryDailyStatistics(UserIdentifier user, LimitHelper limitHelper);
 
     /**
      * 查询用户的交易数量

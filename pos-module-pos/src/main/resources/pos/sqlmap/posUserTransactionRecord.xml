@@ -23,7 +23,7 @@
         AND uptr.complete_date IS NOT NULL
     </select>
 
-    <select id="queryDailyStatistics" resultType="com.pos.pos.dto.twitter.TwitterDailyStatisticsDto">
+    <select id="queryDailyStatistics" resultType="com.pos.pos.dto.brokerage.BrokerageDailyStatisticsDto">
         SELECT
         DATE_FORMAT(uptr.complete_date, '%Y-%m-%d') AS dateKey,
         COUNT(*) AS orderCount,

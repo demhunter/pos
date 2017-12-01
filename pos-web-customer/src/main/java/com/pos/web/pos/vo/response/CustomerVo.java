@@ -7,10 +7,13 @@ import com.wordnik.swagger.annotations.ApiModelProperty;
 import com.pos.user.dto.customer.CustomerDto;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 /**
- * @author 睿智
- * @version 1.0, 2017/8/22
+ * 客户信息vo
+ *
+ * @author wangbing
+ * @version 1.0, 2017/11/30
  */
 public class CustomerVo implements Serializable {
 
@@ -19,62 +22,29 @@ public class CustomerVo implements Serializable {
     @ApiModelProperty("客户登录信息")
     private CustomerDto customerDto;
 
-    @ApiModelProperty("卡号")
-    private String cardNO;
-
-    @ApiModelProperty("银行名")
-    private String bankName;
-
-    @ApiModelProperty("* 银行LOGO")
-    private String bankLogo;
-
-    @ApiModelProperty("* 银行灰度LOGO")
-    private String bankGrayLogo;
-
-    @ApiModelProperty("* 身份认证审核状态，0 = 未提交，1 = 未审核，2 = 已通过，3 = 未通过")
+    @ApiModelProperty("v1.0.0 * 身份认证审核状态，0 = 未提交，1 = 未审核，2 = 已通过，3 = 未通过")
     private Integer auditStatus;
 
-    @ApiModelProperty("* 身份认证审核未通过原因，当auditStatus = 3时此字段有效")
+    @ApiModelProperty("v1.0.0 * 身份认证审核未通过原因，当auditStatus = 3时此字段有效")
     private String rejectReason;
 
-    @ApiModelProperty("* 是否显示快捷收款上的小红点，true：显示，false：不显示")
+    @ApiModelProperty("v2.0.0 * 累计收款金额(BigDecimal)")
+    private BigDecimal totalWithdrawAmount;
+
+    @ApiModelProperty("v2.0.0 * 今日收益(BigDecimal)")
+    private BigDecimal todayBrokerage;
+
+    @ApiModelProperty("v2.0.0 * 用户当前等级")
+    private Integer currentLevel;
+
+    @ApiModelProperty("v2.0.0 * 用户当前等级描述")
+    private String currentLevelDesc;
+
+    @ApiModelProperty("v2.0.0 * 推荐人信息")
+    private RecommendSimpleVo recommendInfo;
+
+    @Deprecated
     private Boolean showGetRedDot;
-
-    @ApiModelProperty("* 推客状态，1 = 未启用，2 = 已启用，3 = 已关闭（PS：当状态为2或3时需要展示佣金提现）")
-    private Integer twitterStatus;
-
-    @ApiModelProperty("是否显示发展收款客户（当twitterStatus = 2时此字段有效）")
-    private boolean showSpread;
-
-    @ApiModelProperty("是否显示发展下级推客（当twitterStatus = 2时此字段有效）")
-    private boolean showDevelop;
-
-    @ApiModelProperty("是否可以收款（true：可以，false：不可以）")
-    private boolean canGet;
-
-    public String getBankGrayLogo() {
-        return bankGrayLogo;
-    }
-
-    public void setBankGrayLogo(String bankGrayLogo) {
-        this.bankGrayLogo = bankGrayLogo;
-    }
-
-    public boolean isCanGet() {
-        return canGet;
-    }
-
-    public void setCanGet(boolean canGet) {
-        this.canGet = canGet;
-    }
-
-    public String getBankLogo() {
-        return bankLogo;
-    }
-
-    public void setBankLogo(String bankLogo) {
-        this.bankLogo = bankLogo;
-    }
 
     public Integer getAuditStatus() {
         return auditStatus;
@@ -100,14 +70,6 @@ public class CustomerVo implements Serializable {
         this.showGetRedDot = showGetRedDot;
     }
 
-    public Integer getTwitterStatus() {
-        return twitterStatus;
-    }
-
-    public void setTwitterStatus(Integer twitterStatus) {
-        this.twitterStatus = twitterStatus;
-    }
-
     public CustomerDto getCustomerDto() {
         return customerDto;
     }
@@ -116,35 +78,35 @@ public class CustomerVo implements Serializable {
         this.customerDto = customerDto;
     }
 
-    public String getCardNO() {
-        return cardNO;
+    public BigDecimal getTotalWithdrawAmount() {
+        return totalWithdrawAmount;
     }
 
-    public void setCardNO(String cardNO) {
-        this.cardNO = cardNO;
+    public void setTotalWithdrawAmount(BigDecimal totalWithdrawAmount) {
+        this.totalWithdrawAmount = totalWithdrawAmount;
     }
 
-    public String getBankName() {
-        return bankName;
+    public BigDecimal getTodayBrokerage() {
+        return todayBrokerage;
     }
 
-    public void setBankName(String bankName) {
-        this.bankName = bankName;
+    public void setTodayBrokerage(BigDecimal todayBrokerage) {
+        this.todayBrokerage = todayBrokerage;
     }
 
-    public boolean isShowSpread() {
-        return showSpread;
+    public Integer getCurrentLevel() {
+        return currentLevel;
     }
 
-    public void setShowSpread(boolean showSpread) {
-        this.showSpread = showSpread;
+    public void setCurrentLevel(Integer currentLevel) {
+        this.currentLevel = currentLevel;
     }
 
-    public boolean isShowDevelop() {
-        return showDevelop;
+    public String getCurrentLevelDesc() {
+        return currentLevelDesc;
     }
 
-    public void setShowDevelop(boolean showDevelop) {
-        this.showDevelop = showDevelop;
+    public void setCurrentLevelDesc(String currentLevelDesc) {
+        this.currentLevelDesc = currentLevelDesc;
     }
 }

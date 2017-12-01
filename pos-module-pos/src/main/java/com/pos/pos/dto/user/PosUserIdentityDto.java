@@ -3,6 +3,7 @@
  */
 package com.pos.pos.dto.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 import com.pos.basic.service.SecurityService;
 import com.pos.common.util.basic.SimpleRegexUtils;
@@ -39,7 +40,8 @@ public class PosUserIdentityDto implements Serializable {
     @ApiModelProperty("身份证反面照")
     private String idImageB;
 
-    @ApiModelProperty("身份证正面持证照")
+    @Deprecated
+    @JsonIgnore
     private String idHoldImage;
 
     @ApiModelProperty("当身份认证未通过时，三种照片是否允许修改，false = 不允许修改")
