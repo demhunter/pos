@@ -3,9 +3,6 @@
  */
 package com.pos.web.posconsole.controller.pos;
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
 import com.pos.common.util.basic.SegmentLocks;
 import com.pos.common.util.date.SimpleDateUtils;
 import com.pos.common.util.exception.CommonErrorCode;
@@ -18,12 +15,16 @@ import com.pos.common.util.mvc.view.XlsStyle;
 import com.pos.common.util.mvc.view.XlsView;
 import com.pos.pos.condition.orderby.PosTransactionOrderField;
 import com.pos.pos.condition.query.PosTransactionCondition;
+import com.pos.pos.domain.TransactionFailureRecord;
 import com.pos.pos.dto.transaction.TransactionHandledInfoDto;
 import com.pos.pos.dto.transaction.TransactionRecordDto;
 import com.pos.pos.service.PosService;
 import com.pos.pos.service.PosUserTransactionRecordService;
 import com.pos.user.service.UserService;
 import com.pos.user.session.UserInfo;
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,17 +38,17 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * 快捷收款交易记录相关Controller
+ * 交易记录相关Controller
  *
  * @author wangbing
  * @version 1.0, 2017/10/13
  */
 @RestController
-@RequestMapping("/pos/transaction")
-@Api(value = "/pos/transaction", description = "v1.0.0 * 快捷收款交易记录相关接口")
-public class PosTransactionController {
+@RequestMapping("/transaction")
+@Api(value = "/transaction", description = "v2.0.0 交易记录相关接口(接口路径有变化，加入佣金交易查询)")
+public class TransactionController {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(PosTransactionController.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(TransactionController.class);
 
     private final static SegmentLocks SEG_LOCKS = new SegmentLocks(8, false);
 
@@ -61,8 +62,10 @@ public class PosTransactionController {
     private PosService posService;
 
     @RequestMapping(value = "", method = RequestMethod.GET)
-    @ApiOperation(value = "v1.0.0 * 查询交易列表", notes = "wb * 查询交易列表")
+    @ApiOperation(value = "v2.0.0 * 查询交易列表", notes = "查询交易列表（v2.0.0 新增交易失败次数，根据交易类型查询，佣金列表页查询此接口）")
     public ApiResult<Pagination<TransactionRecordDto>> queryTransactionRecords(
+            @ApiParam(name = "transactionType", value = "v2.0.0 * 交易类型（1：客户提现交易；2：佣金提现交易；3：客户等级晋升手续费支付交易；默认为1：客户提现交易）")
+            @RequestParam(name = "transactionType", required = false, defaultValue = "1") Integer transactionType,
             @ApiParam(name = "transactionStatus", value = "到账状态：0 = 已下单，1 = 交易处理中，2 = 交易失败，3 = 交易成功，4 = 已手动处理")
             @RequestParam(name = "transactionStatus", required = false) Integer transactionStatus,
             @ApiParam(name = "beginTime", value = "交易开始时间（格式：yyyy-MM-dd）")
@@ -93,7 +96,7 @@ public class PosTransactionController {
     }
 
     @RequestMapping(value = "export", method = RequestMethod.GET)
-    @ApiOperation(value = "v1.0.0 * 导出交易列表", notes = "wb * 导出交易列表（ps：该接口前端不处理返回结果，导出成功后浏览器将自动下载Excel文件）")
+    @ApiOperation(value = "v2.0.0 * 导出交易列表", notes = "导出交易列表（ps：该接口前端不处理返回结果，导出成功后浏览器将自动下载Excel文件）")
     public ModelAndView queryAndExportTransactionRecords(
             @ApiParam(name = "transactionStatus", value = "到账状态：0 = 失败，1 = 成功，2 = 处理中，3 = 已手动处理")
             @RequestParam(name = "transactionStatus", required = false) Integer transactionStatus,
@@ -200,5 +203,13 @@ public class PosTransactionController {
             @ApiParam(name = "recordId", value = "交易记录id")
             @PathVariable("recordId") Long recordId) {
         return posService.getHandledTransactionInfo(recordId);
+    }
+
+    @RequestMapping(value = "{recordId}/failures", method = RequestMethod.GET)
+    @ApiOperation(value = "v2.0.0 * 查询指定交易的失败记录", notes = "查询指定交易的失败记录")
+    public ApiResult<List<TransactionFailureRecord>> getTransaction(
+            @ApiParam(name = "recordId", value = "交易id")
+            @PathVariable("recordId") Long recordId) {
+        return null;
     }
 }

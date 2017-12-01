@@ -89,8 +89,19 @@ public class TransactionRecordDto implements Serializable {
     @ApiModelProperty("合利宝提现的流水号")
     private String helibaoTixianNum;
 
+    @ApiModelProperty("v2.0.0 * 交易失败次数")
+    private Integer failureTimes;
+
     public TransactionStatusType parseTransactionStatus() {
         return status == null ? null : TransactionStatusType.getEnum(status);
+    }
+
+    public Integer getFailureTimes() {
+        return failureTimes;
+    }
+
+    public void setFailureTimes(Integer failureTimes) {
+        this.failureTimes = failureTimes;
     }
 
     public PosCardDto getInCardInfo() {

@@ -3,6 +3,7 @@
  */
 package com.pos.web.posconsole.vo.pos;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 import com.pos.pos.constants.UserAuditStatus;
 import com.pos.pos.dto.auth.BaseAuthDto;
@@ -34,10 +35,25 @@ public class PosUserSimpleInfoVo implements Serializable {
     @ApiModelProperty("注册快捷收款时间（Date）")
     private Date registerTime;
 
-    @ApiModelProperty("* 身份认证审核状态：0 = 未提交，1 = 未审核，2 = 已通过，3 = 未通过")
+    @ApiModelProperty("v2.0.0 * 账号状态（true：启用；false：禁用）")
+    private Boolean userAvailable;
+
+    @ApiModelProperty("v2.0.0 * 是否存在上级用户（true：存在；false：不存在）")
+    private Boolean existedParent;
+
+    @ApiModelProperty("v2.0.0 * 上级用户id")
+    private Long parentUserId;
+
+    @ApiModelProperty("v2.0.0 * 上级用户姓名")
+    private String parentName;
+
+    @ApiModelProperty("v2.0.0 * 上级用户电话")
+    private String parentPhone;
+
+    @ApiModelProperty("身份认证审核状态：0 = 未提交，1 = 未审核，2 = 已通过，3 = 未通过")
     private Integer userAuditStatus;
 
-    @ApiModelProperty("* 身份认证审核状态描述")
+    @ApiModelProperty("身份认证审核状态描述")
     public String getUserAuditStatusDesc() {
         return userAuditStatus == null ? "" : UserAuditStatus.getEnum(userAuditStatus).getDesc();
     }
@@ -51,8 +67,14 @@ public class PosUserSimpleInfoVo implements Serializable {
     @ApiModelProperty("银行卡卡号，仅当bindingCard = true时有效")
     private String cardNo;
 
-    @ApiModelProperty("用户权限信息")
-    private BaseAuthDto baseAuth;
+    @ApiModelProperty("v2.0.0 * 用户等级（1：Lv1；2：Lv2；3：Lv3；4：Lv4）")
+    private Integer level;
+
+    @ApiModelProperty("v2.0.0 * 收款费率（具体百分数值，如0.45%返回0.45）（BigDecimal）")
+    private BigDecimal withdrawRate;
+
+    @ApiModelProperty("v2.0.0 * 收款额外手续费（单位：元）（BigDecimal）")
+    private BigDecimal extraServiceCharge;
 
     @ApiModelProperty("收款笔数")
     private Integer userPosCount;
@@ -60,14 +82,151 @@ public class PosUserSimpleInfoVo implements Serializable {
     @ApiModelProperty("收款总金额（BigDecimal）")
     private BigDecimal userPosAmount;
 
-    @ApiModelProperty("已提现总金额")
+    @ApiModelProperty("v2.0.0 * 直接下级数量")
+    private Integer childrenCount;
+
+    @ApiModelProperty("v2.0.0 * 间接下级数量")
+    private Integer descendantCount;
+
+    @ApiModelProperty("v2.0.0 * 当前可提现佣金（BigDecimal）")
+    private BigDecimal currentBrokerage;
+
+    @ApiModelProperty("v2.0.0 * 佣金提现次数")
+    private Integer brokerageAppliedCount;
+
+    @ApiModelProperty("v2.0.0 * 累计已提现佣金（BigDecimal）")
+    private BigDecimal appliedBrokerage;
+
+    @ApiModelProperty("v2.0.0 * 回访次数")
+    private Integer interviewCount;
+
+    @Deprecated
+    @JsonIgnore
     private BigDecimal totalWithdrawDepositAmount;
 
-    @ApiModelProperty("是否存在提现申请（true：是，false：否）")
+    @Deprecated
+    @JsonIgnore
     private Boolean withdrawDepositApply;
 
-    @ApiModelProperty("待处理提现金额（BigDecimal，当存在提现申请时，此字段才有意义）")
+    @Deprecated
+    @JsonIgnore
     private BigDecimal withdrawDepositAmount;
+
+    @Deprecated
+    @JsonIgnore
+    private BaseAuthDto baseAuth;
+
+    public Integer getInterviewCount() {
+        return interviewCount;
+    }
+
+    public void setInterviewCount(Integer interviewCount) {
+        this.interviewCount = interviewCount;
+    }
+
+    public Integer getChildrenCount() {
+        return childrenCount;
+    }
+
+    public void setChildrenCount(Integer childrenCount) {
+        this.childrenCount = childrenCount;
+    }
+
+    public Integer getDescendantCount() {
+        return descendantCount;
+    }
+
+    public void setDescendantCount(Integer descendantCount) {
+        this.descendantCount = descendantCount;
+    }
+
+    public Boolean getUserAvailable() {
+        return userAvailable;
+    }
+
+    public void setUserAvailable(Boolean userAvailable) {
+        this.userAvailable = userAvailable;
+    }
+
+    public Integer getLevel() {
+        return level;
+    }
+
+    public void setLevel(Integer level) {
+        this.level = level;
+    }
+
+    public BigDecimal getWithdrawRate() {
+        return withdrawRate;
+    }
+
+    public void setWithdrawRate(BigDecimal withdrawRate) {
+        this.withdrawRate = withdrawRate;
+    }
+
+    public BigDecimal getExtraServiceCharge() {
+        return extraServiceCharge;
+    }
+
+    public void setExtraServiceCharge(BigDecimal extraServiceCharge) {
+        this.extraServiceCharge = extraServiceCharge;
+    }
+
+    public BigDecimal getCurrentBrokerage() {
+        return currentBrokerage;
+    }
+
+    public void setCurrentBrokerage(BigDecimal currentBrokerage) {
+        this.currentBrokerage = currentBrokerage;
+    }
+
+    public Integer getBrokerageAppliedCount() {
+        return brokerageAppliedCount;
+    }
+
+    public void setBrokerageAppliedCount(Integer brokerageAppliedCount) {
+        this.brokerageAppliedCount = brokerageAppliedCount;
+    }
+
+    public BigDecimal getAppliedBrokerage() {
+        return appliedBrokerage;
+    }
+
+    public void setAppliedBrokerage(BigDecimal appliedBrokerage) {
+        this.appliedBrokerage = appliedBrokerage;
+    }
+
+    public Boolean getExistedParent() {
+        return existedParent;
+    }
+
+    public void setExistedParent(Boolean existedParent) {
+        this.existedParent = existedParent;
+    }
+
+    public Long getParentUserId() {
+        return parentUserId;
+    }
+
+    public void setParentUserId(Long parentUserId) {
+        this.parentUserId = parentUserId;
+    }
+
+    public String getParentName() {
+        return parentName;
+    }
+
+    public void setParentName(String parentName) {
+        this.parentName = parentName;
+    }
+
+    public String getParentPhone() {
+        return parentPhone;
+    }
+
+    public void setParentPhone(String parentPhone) {
+        this.parentPhone = parentPhone;
+    }
 
     public Integer getUserPosCount() {
         return userPosCount;

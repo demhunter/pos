@@ -17,7 +17,7 @@ import java.util.List;
  */
 public class PopularizationDocumentDto implements Serializable {
 
-    @ApiModelProperty("自增主键id")
+    @ApiModelProperty("自增主键id（更新时必传此参数）")
     private Long id;
 
     @ApiModelProperty("推广文本")

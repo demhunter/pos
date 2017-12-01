@@ -33,6 +33,11 @@
             <groupId>com.pos</groupId>
             <artifactId>pos-common-util</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.pos</groupId>
+            <artifactId>pos-module-authority</artifactId>
+        </dependency>
         <!-- module end -->
 
         <!-- Swagger start -->

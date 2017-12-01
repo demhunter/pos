@@ -1,8 +1,9 @@
 /*
  * Copyright (c) 2016 ywmj.com. All Rights Reserved.
  */
-package com.pos.web.posconsole.controller.pos;
+package com.pos.web.posconsole.controller.customer;
 
+import com.pos.authority.dto.permission.CustomerPermissionBasicDto;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
@@ -54,11 +55,11 @@ import java.util.stream.Collectors;
  * @version 1.0, 2017/8/24
  */
 @RestController
-@RequestMapping("/pos/user")
-@Api(value = "/pos/user", description = "v1.0.0 * 快捷收款用户相关接口")
-public class PosUserController {
+@RequestMapping("/customer")
+@Api(value = "/customer", description = "v2.0.0 快捷收款用户相关接口(接口路径有变化)")
+public class CustomerController {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(PosUserController.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(CustomerController.class);
 
     private final static SegmentLocks SEG_LOCKS = new SegmentLocks(8, false);
 
@@ -81,24 +82,24 @@ public class PosUserController {
     }
 
     @RequestMapping(value = "", method = RequestMethod.GET)
-    @ApiOperation(value = "v1.0.0 * 快捷收款用户列表", notes = "快捷收款用户列表")
-    public ApiResult<Pagination<PosUserSimpleInfoVo>> queryPosUsers(
+    @ApiOperation(value = "v2.0.0 快捷收款用户列表", notes = "快捷收款用户列表")
+    public ApiResult<Pagination<PosUserSimpleInfoVo>> queryCustomers(
             @ApiParam(name = "userAuditStatus", value = "身份认证状态（0 = 未提交，1 = 未审核，2 = 已通过，3 = 未通过，null：不限）")
             @RequestParam(name = "userAuditStatus", required = false) Integer userAuditStatus,
-            @ApiParam(name = "bindingCard", value = "是否绑定银行卡（true：已绑定，false：未绑定，null：不限）")
-            @RequestParam(name = "bindingCard", required = false) Boolean bindingCard,
-            @ApiParam(name = "getPermission", value = "是否有收款权限（true：启用，false：禁用，null：不限）")
-            @RequestParam(name = "getPermission", required = false) Boolean getPermission,
-            @ApiParam(name = "isTwitter", value = "是否是推客（true：是推客，false：不是推客，null：不限）")
-            @RequestParam(name = "isTwitter", required = false) Boolean isTwitter,
-            @ApiParam(name = "withdrawDeposit", value = "是否存在提现申请（true：是，false：否，null：不限）")
-            @RequestParam(name = "withdrawDeposit", required = false) Boolean withdrawDeposit,
+            @ApiParam(name = "level", value = "用户等级（1 = Lv1，2 = Lv2，3 = Lv3，4：Lv4）")
+            @RequestParam(name = "level", required = false) Integer level,
+            @ApiParam(name = "userAvailable", value = "账号状态（true：启用，false：禁用）")
+            @RequestParam(name = "userAvailable", required = false) Boolean userAvailable,
+            @ApiParam(name = "existedInterview", value = "是否有回访记录（true：有，false：没有）")
+            @RequestParam(name = "existedInterview", required = false) Boolean existedInterview,
             @ApiParam(name = "beginTime", value = "注册开始时间（格式：yyyy-MM-dd）")
             @RequestParam(name = "beginTime", required = false) String beginTime,
             @ApiParam(name = "endTime", value = "注册结束时间（格式：yyyy-MM-dd）")
             @RequestParam(name = "endTime", required = false) String endTime,
             @ApiParam(name = "searchKey", value = "搜索关键字（手机号/姓名）")
             @RequestParam(name = "searchKey", required = false) String searchKey,
+            @ApiParam(name = "searchType", value = "搜索关键字类型（1：查询用户本人；2：查询直接下级（默认为1））")
+            @RequestParam(name = "searchType", required = false) Integer searchType,
             @ApiParam(name = "pageNum", value = "当前页编号")
             @RequestParam("pageNum") int pageNum,
             @ApiParam(name = "pageSize", value = "每页显示的记录数量")
@@ -106,10 +107,6 @@ public class PosUserController {
         LimitHelper limitHelper = new LimitHelper(pageNum, pageSize);
         PosUserCondition condition = new PosUserCondition();
         condition.setUserAuditStatus(userAuditStatus);
-        condition.setBindingCard(bindingCard);
-        condition.setGetPermission(getPermission);
-        condition.setTwitterPermission(isTwitter);
-        condition.setWithdrawDeposit(withdrawDeposit);
         condition.setBeginTime(beginTime);
         condition.setEndTime(endTime);
         if (!StringUtils.isEmpty(searchKey)) {
@@ -130,12 +127,21 @@ public class PosUserController {
         return ApiResult.succ(result);
     }
 
+    @RequestMapping(value = "{userId}/available", method = RequestMethod.POST)
+    @ApiOperation(value = "v2.0.0 * 启用或禁用用户", notes = "启用或禁用用户")
+    public ApiResult<NullObject> updateUserAvailable(
+            @ApiParam(name = "available", value = "true：启用；false：禁用")
+            @RequestParam("available") Boolean available,
+            @FromSession UserInfo userInfo) {
+        return null;
+    }
+
     @RequestMapping(value = "{posId}/permission", method = RequestMethod.GET)
     @ApiOperation(value = "v1.0.0 * 获取快捷收款用户的权限信息", notes = "获取快捷收款用户的权限信息")
-    public ApiResult<BaseAuthDto> getPosUserPermission(
+    public ApiResult<CustomerPermissionBasicDto> getPosUserPermission(
             @ApiParam(name = "posId", value = "快捷收款用户自增id")
             @PathVariable("posId") Long posId) {
-        return posUserService.getBaseAuthById(posId);
+        return null;//posUserService.getBaseAuthById(posId);
     }
 
     @RequestMapping(value = "{posId}/permission", method = RequestMethod.POST)
@@ -144,7 +150,7 @@ public class PosUserController {
             @ApiParam(name = "posId", value = "快捷收款用户自增id")
             @PathVariable("posId") Long posId,
             @ApiParam(name = "permissionInfo", value = "新权限信息")
-            @RequestBody BaseAuthDto permissionInfo,
+            @RequestBody CustomerPermissionBasicDto permissionInfo,
             @FromSession UserInfo userInfo) {
         boolean hasLock = false;
         ReentrantLock lock = SEG_LOCKS.getLock(posId);
@@ -155,7 +161,7 @@ public class PosUserController {
         }
         if (hasLock) {
             try {
-                return posUserService.updatePosUserAuth(posId, permissionInfo, userInfo.buildUserIdentifier());
+                return null;//posUserService.updatePosUserAuth(posId, permissionInfo, userInfo.buildUserIdentifier());
             } finally {
                 lock.unlock();
             }
@@ -163,34 +169,10 @@ public class PosUserController {
             return ApiResult.fail(CommonErrorCode.ACCESS_TIMEOUT);
         }
 
-    }
-
-    @RequestMapping(value = "brokerage/record", method = RequestMethod.POST)
-    @ApiOperation(value = "v1.0.0 * 处理提现申请", notes = "处理提现申请")
-    public ApiResult<NullObject> addPosUserGetBrokerageRecord(
-            @ApiParam(name = "brokerage", value = "提现申请处理记录")
-            @RequestBody PosUserGetBrokerageRecordDto brokerageRecord,
-            @FromSession UserInfo userInfo) {
-        boolean hasLock = false;
-        ReentrantLock lock = SEG_LOCKS.getLock(brokerageRecord.getUserId());
-        try {
-            hasLock = lock.tryLock(8L, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            LOGGER.error("处理提现申请时尝试获取锁失败！userId = " + brokerageRecord.getUserId(), e);
-        }
-        if (hasLock) {
-            try {
-                return posUserBrokerageRecordService.saveBrokerageRecord(brokerageRecord, userInfo.buildUserIdentifier());
-            } finally {
-                lock.unlock();
-            }
-        } else {
-            return ApiResult.fail(CommonErrorCode.ACCESS_TIMEOUT);
-        }
     }
 
     @RequestMapping(value = "{posId}/audit", method = RequestMethod.GET)
-    @ApiOperation(value = "v1.0.0 * 获取被审核的用户信息", notes = "获取被审核的用户信息")
+    @ApiOperation(value = "v2.0.0 * 获取被审核的用户信息", notes = "获取被审核的用户信息")
     public ApiResult<PosUserAuditInfoDto> getAuditInfo(
             @ApiParam(name = "posId", value = "快捷收款用户自增id")
             @PathVariable("posId") Long posId) {
@@ -198,7 +180,7 @@ public class PosUserController {
     }
 
     @RequestMapping(value = "{posId}/audit", method = RequestMethod.POST)
-    @ApiOperation(value = "v1.0.0 * 审核用户信息", notes = "审核用户信息")
+    @ApiOperation(value = "v2.0.0 * 审核用户信息", notes = "审核用户信息")
     public ApiResult<NullObject> auditPosUserInfo(
             @ApiParam(name = "posId", value = "被审核的快捷收款用户自增id")
             @PathVariable("posId") Long posId,
@@ -235,11 +217,11 @@ public class PosUserController {
     }
 
     @RequestMapping(value = "export", method = RequestMethod.GET)
-    @ApiOperation(value = "v1.0.0 * 导出符合条件的快捷收款用户列表", notes = "导出符合条件的快捷收款用户列表" +
+    @ApiOperation(value = "v2.0.0 * 导出符合条件的快捷收款用户列表", notes = "导出符合条件的快捷收款用户列表" +
             "（ps：该接口前端不处理返回结果，导出成功后浏览器将自动下载Excel文件）")
     public ModelAndView findAndExportPosUsers(
             @ApiParam(name = "userAuditStatus", value = "身份认证状态（0 = 未提交，1 = 未审核，2 = 已通过，3 = 未通过，null：不限）")
-            @RequestParam(name = "userAuditStatus", required = false)Integer userAuditStatus,
+            @RequestParam(name = "userAuditStatus", required = false) Integer userAuditStatus,
             @ApiParam(name = "bindingCard", value = "是否与有绑定银行卡（true：已绑定，false：未绑定，null：不限）")
             @RequestParam(name = "bindingCard", required = false) Boolean bindingCard,
             @ApiParam(name = "getPermission", value = "是否有收款权限（true：启用，false：禁用，null：不限）")
@@ -295,23 +277,23 @@ public class PosUserController {
             List<PosUserSimpleInfoVo> posUsers = pagination.getResult().stream()
                     .map(PosConverter::toPosUserSimpleInfoVo).collect(Collectors.toList());
             posUsers.forEach(posUser ->
-                xlsView.addRowValues(new Object[]{
-                        posUser.getPhone(),
-                        posUser.getName(),
-                        SimpleDateUtils.formatDate(posUser.getRegisterTime(), SimpleDateUtils.DatePattern.STANDARD_PATTERN.toString()),
-                        posUser.getUserAuditStatusDesc(),
-                        posUser.getBindingCard() ? "已绑定" : "未绑定",
-                        posUser.getBindingCard() ? posUser.getBankName() + "（" + posUser.getCardNo() + "）" : "",
-                        posUser.getBaseAuth().getGetRate().multiply(new BigDecimal(100)) + "% + " + posUser.getBaseAuth().getPoundage() + "元",
-                        posUser.getUserPosCount() + " / " + posUser.getUserPosAmount(),
-                        AuthStatusEnum.ENABLE.equals(posUser.getBaseAuth().parseGetAuth()) ? "启用" : "禁用",
-                        PosTwitterStatus.ENABLE.equals(posUser.getBaseAuth().parseTwitterStatus()) ? "是" : "否",
-                        AuthStatusEnum.ENABLE.equals(posUser.getBaseAuth().parseDevelopAuth()) ?
-                                "发展下级推客\n" + (AuthStatusEnum.ENABLE.equals(posUser.getBaseAuth().parseSpreadAuth()) ?
-                                        "发展收款客户" : "")
-                                : "",
-                        posUser.getWithdrawDepositApply() ? "是（" + posUser.getWithdrawDepositAmount() + "）" : "否"
-                }));
+                    xlsView.addRowValues(new Object[]{
+                            posUser.getPhone(),
+                            posUser.getName(),
+                            SimpleDateUtils.formatDate(posUser.getRegisterTime(), SimpleDateUtils.DatePattern.STANDARD_PATTERN.toString()),
+                            posUser.getUserAuditStatusDesc(),
+                            posUser.getBindingCard() ? "已绑定" : "未绑定",
+                            posUser.getBindingCard() ? posUser.getBankName() + "（" + posUser.getCardNo() + "）" : "",
+                            posUser.getBaseAuth().getGetRate().multiply(new BigDecimal(100)) + "% + " + posUser.getBaseAuth().getPoundage() + "元",
+                            posUser.getUserPosCount() + " / " + posUser.getUserPosAmount(),
+                            AuthStatusEnum.ENABLE.equals(posUser.getBaseAuth().parseGetAuth()) ? "启用" : "禁用",
+                            PosTwitterStatus.ENABLE.equals(posUser.getBaseAuth().parseTwitterStatus()) ? "是" : "否",
+                            AuthStatusEnum.ENABLE.equals(posUser.getBaseAuth().parseDevelopAuth()) ?
+                                    "发展下级推客\n" + (AuthStatusEnum.ENABLE.equals(posUser.getBaseAuth().parseSpreadAuth()) ?
+                                            "发展收款客户" : "")
+                                    : "",
+                            posUser.getWithdrawDepositApply() ? "是（" + posUser.getWithdrawDepositAmount() + "）" : "否"
+                    }));
         }
         return new ModelAndView(xlsView);
     }
