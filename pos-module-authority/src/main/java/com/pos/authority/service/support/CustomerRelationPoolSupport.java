@@ -4,19 +4,29 @@
 package com.pos.authority.service.support;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Queues;
+import com.pos.authority.constant.CustomerAuditStatus;
 import com.pos.authority.dao.CustomerPermissionDao;
+import com.pos.authority.dao.CustomerRelationDao;
 import com.pos.authority.dto.permission.CustomerPermissionDto;
-import com.pos.authority.dto.relation.CustomerRelationNode;
-import com.pos.authority.dto.relation.CustomerRelationTree;
+import com.pos.authority.dto.relation.CustomerRelationDto;
+import com.pos.authority.service.support.relation.CustomerRelationNode;
+import com.pos.basic.constant.RedisConstants;
+import com.pos.common.util.basic.SegmentLocks;
+import com.pos.common.util.date.SimpleDateUtils;
+import com.pos.common.util.mvc.support.LimitHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * 客户关系树支持
@@ -25,7 +35,12 @@ import java.util.concurrent.LinkedBlockingQueue;
  * @version 1.0, 2017/11/24
  */
 @Component
-public class CustomerRelationTreeSupport {
+public class CustomerRelationPoolSupport {
+
+    private final static Logger LOG = LoggerFactory.getLogger(CustomerRelationPoolSupport.class);
+
+    // 对任何关系的更新操作都需要获取相应的锁，防止并发引起的关系紊乱
+    private final static SegmentLocks SEG_LOCKS = new SegmentLocks(32, false);
 
     private static CustomerRelationNode relationTree = null;
 
@@ -34,7 +49,139 @@ public class CustomerRelationTreeSupport {
     @Resource
     private CustomerPermissionDao customerPermissionDao;
 
-    public CustomerRelationTree initializeRelationTree() {
+    @Resource
+    private CustomerRelationDao customerRelationDao;
+
+    @Resource
+    private RedisTemplate<Serializable, Serializable> redisTemplate;
+
+    /**
+     * 初始化客户关系树
+     */
+    public void initialize() {
+
+        Map<Long, CustomerRelationNode> relationMap = new HashMap<>();
+
+        // 初始化根节点信息
+        CustomerRelationNode rootNode = initializeRootNode();
+        relationMap.put(rootNode.getUserId(), rootNode);
+
+        // 查询现有关系
+        LimitHelper limitHelper = LimitHelper.create(1, Integer.MAX_VALUE, false);
+        List<CustomerRelationDto> relations = customerRelationDao.getRelations(limitHelper);
+
+        // 构建节点自身信息
+        if (!CollectionUtils.isEmpty(relations)) {
+            relations.forEach(relation -> {
+                CustomerRelationNode node = new CustomerRelationNode(relation);
+                relationMap.put(node.getUserId(), node);
+            });
+        }
+
+        // 构建节点的直接子节点信息，形成关系树
+        relationMap.forEach((Long key, CustomerRelationNode value) -> {
+            if (value != null && value.getParentUserId() != null) {
+                relationMap.get(value.getParentUserId()).getChildren().add(value.getUserId());
+            }
+        });
+
+        // 保存节点信息
+        relationMap.forEach((key, value) -> {
+            saveNodeSelfInfo(value);
+        });
+    }
+
+    /**
+     * 添加一个新用户关系到用户关系池中
+     *
+     * @param relation 用户关系
+     */
+    public void addCustomerRelation(CustomerRelationDto relation) {
+        CustomerRelationNode node = new CustomerRelationNode(relation);
+
+        // 保存节点自身信息
+        saveNodeSelfInfo(node);
+        // 把子节点添加到父节点的直接下级集合中
+        addChildToParent(node);
+    }
+
+    /**
+     * 把子节点添加到父节点的直接下级集合中
+     *
+     * @param childNode 子节点信息
+     */
+    private void addChildToParent(CustomerRelationNode childNode) {
+        // 根节点没有父节点
+        if (childNode.getParentUserId() != null) {
+            redisTemplate.opsForSet().add(
+                    RedisConstants.POS_CUSTOMER_RELATION_NODE_CHILDREN + childNode.getParentUserId(),
+                    childNode.getUserId());
+        }
+    }
+
+    /**
+     * 保存节点自身信息
+     *
+     * @param node 节点信息
+     */
+    private void saveNodeSelfInfo(CustomerRelationNode node) {
+        // 保存节点自身信息
+        Map<String, Object> nodeInfo = new HashMap<>();
+        nodeInfo.put("level", node.getLevel());
+        nodeInfo.put("withdrawRate", node.getWithdrawRate().toPlainString());
+        nodeInfo.put("extraServiceCharge", node.getWithdrawRate().toPlainString());
+        nodeInfo.put("auditStatus", node.getAuditStatus().toString());
+        nodeInfo.put("parentUserId", node.getParentUserId().toString());
+        nodeInfo.put("relationTime", SimpleDateUtils.formatDate(node.getRelationTime(), "yyyy-MM-dd HH:mm:ss"));
+        redisTemplate.opsForHash().putAll(RedisConstants.POS_CUSTOMER_RELATION_NODE + node.getUserId(), nodeInfo);
+
+        // 保存直接子节点信息
+        if (!CollectionUtils.isEmpty(node.getChildren())) {
+            redisTemplate.opsForSet().add(
+                    RedisConstants.POS_CUSTOMER_RELATION_NODE_CHILDREN + node.getUserId(),
+                    node.getChildren().toArray());
+        }
+    }
+
+    private void addNodeToTree(CustomerRelationNode node) {
+        Serializable serializable = redisTemplate.opsForValue().get(RedisConstants.POS_CUSTOMER_RELATION_TREE);
+        if (serializable == null) {
+            LOG.error("用户关系添加错误：关系树不存在");
+            throw new IllegalStateException("用户关系添加错误：关系树不存在");
+        }
+        CustomerRelationNode relationTree = (CustomerRelationNode) serializable;
+
+        CustomerRelationNode parentNode = getParentNodeByDFS(relationTree, node);
+        if (parentNode == null) {
+            LOG.error("用户关系添加错误：节点[{}]的父节点在关系树中不存在", node);
+            throw new IllegalStateException("用户关系添加错误：节点{" + node.getUserId() + "}的父节点在关系树中不存在");
+        }
+        parentNode.getChildren().add(node.getUserId());
+
+        // 保存完整关系树
+        redisTemplate.opsForValue().set(RedisConstants.POS_CUSTOMER_RELATION_TREE, relationTree);
+    }
+
+    private void buildRelationTree(CustomerRelationNode tree, CustomerRelationNode node, Map<Long, CustomerRelationNode> nodeMap) {
+        CustomerRelationNode parentInfo = nodeMap.get(node.getParentUserId());
+        // 父节点是否加入关系树（没有加入，父节点先加入关系树）
+        if (parentInfo != null) {
+            buildRelationTree(tree, parentInfo, nodeMap);
+        }
+        // 查询当前节点是否已经加入关系树，已加入不做任何处理
+        CustomerRelationNode childNode = nodeMap.get(node.getUserId());
+        if (childNode != null) {
+            // 当前节点没有加入关系树，遍历树，查找到父节点
+            CustomerRelationNode parentNode = getParentNodeByDFS(tree, node);
+            if (parentNode == null) {
+                throw new IllegalStateException("关系树初始化错误，用户" + node.getUserId() +"的上级" + node.getParentUserId() + "不再关系树中！");
+            }
+            parentNode.getChildren().add(node.getUserId());
+            nodeMap.remove(node.getUserId());
+        }
+    }
+
+    /*public CustomerRelationTree initializeRelationTree() {
         Map<Long, CustomerRelationNode> relationMap = new HashMap<>();
         List<CustomerRelationNode> relations = Lists.newArrayList();
 
@@ -88,7 +235,7 @@ public class CustomerRelationTreeSupport {
             parentNode.getChildren().put(relation.getUserId(), relation);
             relationMap.remove(relation.getUserId());
         }
-    }
+    }*/
 
     // 深度优先遍历子树，查找父节点
     private CustomerRelationNode getParentNodeByDFS(CustomerRelationNode parentTree, CustomerRelationNode childInfo) {
@@ -97,12 +244,12 @@ public class CustomerRelationTreeSupport {
         } else {
             // 深度优先遍历子树
             if (!CollectionUtils.isEmpty(parentTree.getChildren())) {
-                for(CustomerRelationNode childTree : parentTree.getChildren().values()) {
+                /*for(CustomerRelationNode childTree : parentTree.getChildren().values()) {
                     CustomerRelationNode parentNode = getParentNodeByDFS(childTree, childInfo);
                     if (parentNode != null) {
                         return parentNode;
                     }
-                }
+                }*/
             }
         }
         return null;
@@ -118,7 +265,7 @@ public class CustomerRelationTreeSupport {
                 return parentNode;
             }
             if (!CollectionUtils.isEmpty(parentNode.getChildren())) {
-                parentNode.getChildren().values().forEach(e -> breadthList.push(e.copyContainDescendant(true)));
+                // parentNode.getChildren().values().forEach(e -> breadthList.push(e.copyContainDescendant(true)));
             }
         }
 
@@ -134,7 +281,7 @@ public class CustomerRelationTreeSupport {
         LinkedList<CustomerRelationNode> breadthList = Lists.newLinkedList();
         // Queue<CustomerRelationNode> breadthQueue = new LinkedList<>();
         if (!CollectionUtils.isEmpty(relationTree.getChildren())) {
-            relationTree.getChildren().values().forEach(e -> breadthList.add(e.copyContainDescendant(true)));
+            // relationTree.getChildren().values().forEach(e -> breadthList.add(e.copyContainDescendant(true)));
         }
         while (!CollectionUtils.isEmpty(breadthList)) {
             CustomerRelationNode node = breadthList.pop();
@@ -155,7 +302,7 @@ public class CustomerRelationTreeSupport {
                 break;
             }
             if (!CollectionUtils.isEmpty(node.getChildren())) {
-                node.getChildren().values().forEach(e -> breadthList.add(e.copyContainDescendant(true)));
+                // node.getChildren().values().forEach(e -> breadthList.add(e.copyContainDescendant(true)));
             }
         }
 
@@ -167,8 +314,9 @@ public class CustomerRelationTreeSupport {
 
         rootNode.setUserId(0L);
         rootNode.setLevel(100);
-        rootNode.setWithdrawPermission(2);
         rootNode.setWithdrawRate(BigDecimal.ZERO);
+        rootNode.setExtraServiceCharge(BigDecimal.ZERO);
+        rootNode.setAuditStatus(CustomerAuditStatus.AUDITED.getCode());
 
         return rootNode;
     }

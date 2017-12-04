@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.authority.dao.CustomerStatisticsDao">
+
+    <insert id="save" parameterType="com.pos.authority.domain.CustomerStatistics">
+        INSERT INTO customer_statistics
+        (
+            user_id,
+            paid_charge,
+            children_count,
+            withdraw_amount,
+            total_brokerage,
+            withdrawal_brokerage,
+            withdrawal_brokerage_times,
+            interview_times,
+            update_time
+        ) VALUE
+        (
+            #{statistics.userId},
+            #{statistics.paidCharge},
+            #{statistics.childrenCount},
+            #{statistics.withdrawAmount},
+            #{statistics.totalBrokerage},
+            #{statistics.withdrawalBrokerage},
+            #{statistics.withdrawalBrokerageTimes},
+            #{statistics.interviewTimes},
+            NOW()
+        )
+    </insert>
+
+    <update id="incrementChildrenCount">
+        UPDATE customer_statistics
+        SET children_count = children_count + 1,
+        update_time = NOW()
+        WHERE user_id = #{userId}
+    </update>
+</mapper>

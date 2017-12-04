@@ -1,19 +1,19 @@
 /*
  * Copyright (c) 2016 ywmj.com. All Rights Reserved.
  */
-package com.pos.authority.dto.relation;
+package com.pos.authority.service.support.relation;
 
+import com.pos.authority.dto.relation.CustomerRelationDto;
 import com.pos.common.util.basic.Copyable;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 import org.springframework.beans.BeanUtils;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
- * 客户关系DTO
+ * 客户关系节点信息
  *
  * @author wangbing
  * @version 1.0, 2017/11/24
@@ -28,27 +28,48 @@ public class CustomerRelationNode implements Serializable, Comparable<CustomerRe
     @ApiModelProperty("用户等级")
     private int level;
 
-    @ApiModelProperty("用户收款权限：1 = 未启用，2 = 启用，3 = 关闭")
-    private int withdrawPermission;
-
     @ApiModelProperty("用户收款费率")
     private BigDecimal withdrawRate;
+
+    @ApiModelProperty("用户收款额外手续费")
+    private BigDecimal extraServiceCharge;
+
+    @ApiModelProperty("用户身份认证状态")
+    private Integer auditStatus;
 
     @ApiModelProperty("父用户id")
     private Long parentUserId;
 
+    @ApiModelProperty("父子关系建立时间")
+    private Date relationTime;
+
     @ApiModelProperty("直接下级用户集合")
-    private Map<Long, CustomerRelationNode> children;
+    private Set<Long> children;
 
     public CustomerRelationNode() {
-        children = new HashMap<>();
+        children = new HashSet<>();
+    }
+
+    public CustomerRelationNode(CustomerRelationDto relation) {
+        this(relation, new HashSet<>());
+    }
+
+    public CustomerRelationNode(CustomerRelationDto relation, Set<Long> children) {
+        this.userId = relation.getUserId();
+        this.level = relation.getLevel();
+        this.withdrawRate = relation.getWithdrawRate();
+        this.extraServiceCharge = relation.getExtraServiceCharge();
+        this.auditStatus = relation.getAuditStatus();
+        this.parentUserId = relation.getParentUserId();
+        this.relationTime = relation.getRelationTime();
+        this.children = children;
     }
 
     @Override
     public CustomerRelationNode copy() {
         CustomerRelationNode backup = new CustomerRelationNode();
         BeanUtils.copyProperties(this, backup);
-        backup.setChildren(new HashMap<>());
+        backup.setChildren(new HashSet<>());
         return backup;
     }
 
@@ -62,7 +83,7 @@ public class CustomerRelationNode implements Serializable, Comparable<CustomerRe
         CustomerRelationNode backup = new CustomerRelationNode();
         BeanUtils.copyProperties(this, backup);
         if (!containDescendant) {
-            backup.setChildren(new HashMap<>());
+            backup.setChildren(new HashSet<>());
         }
         return backup;
     }
@@ -97,14 +118,6 @@ public class CustomerRelationNode implements Serializable, Comparable<CustomerRe
         this.level = level;
     }
 
-    public int getWithdrawPermission() {
-        return withdrawPermission;
-    }
-
-    public void setWithdrawPermission(int withdrawPermission) {
-        this.withdrawPermission = withdrawPermission;
-    }
-
     public BigDecimal getWithdrawRate() {
         return withdrawRate;
     }
@@ -121,11 +134,35 @@ public class CustomerRelationNode implements Serializable, Comparable<CustomerRe
         this.parentUserId = parentUserId;
     }
 
-    public Map<Long, CustomerRelationNode> getChildren() {
+    public Set<Long> getChildren() {
         return children;
     }
 
-    public void setChildren(Map<Long, CustomerRelationNode> children) {
+    public void setChildren(Set<Long> children) {
         this.children = children;
+    }
+
+    public BigDecimal getExtraServiceCharge() {
+        return extraServiceCharge;
+    }
+
+    public void setExtraServiceCharge(BigDecimal extraServiceCharge) {
+        this.extraServiceCharge = extraServiceCharge;
+    }
+
+    public Integer getAuditStatus() {
+        return auditStatus;
+    }
+
+    public void setAuditStatus(Integer auditStatus) {
+        this.auditStatus = auditStatus;
+    }
+
+    public Date getRelationTime() {
+        return relationTime;
+    }
+
+    public void setRelationTime(Date relationTime) {
+        this.relationTime = relationTime;
     }
 }

@@ -28,6 +28,14 @@ public class CustomerRelation implements Serializable {
 
     private Date createTime; // 父子关系关联时间
 
+    public CustomerRelation() {
+    }
+
+    public CustomerRelation(Long userId, Long parentUserId) {
+        this.userId = userId;
+        this.parentUserId = parentUserId;
+    }
+
     public Long getId() {
         return id;
     }

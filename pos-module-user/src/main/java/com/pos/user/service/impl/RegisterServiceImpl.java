@@ -3,21 +3,16 @@
  */
 package com.pos.user.service.impl;
 
-import com.pos.basic.mq.MQMessage;
-import com.pos.basic.mq.MQReceiverType;
-import com.pos.basic.mq.MQTemplate;
 import com.pos.common.sms.constant.MemcachedPrefixType;
 import com.pos.common.sms.service.SmsService;
 import com.pos.common.util.basic.AddressUtils;
 import com.pos.common.util.basic.JsonUtils;
-import com.pos.common.util.cache.MemcachedClientUtils;
 import com.pos.common.util.exception.CommonErrorCode;
 import com.pos.common.util.exception.ErrorCode;
 import com.pos.common.util.exception.ValidationException;
 import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.common.util.security.MD5Utils;
 import com.pos.common.util.validation.FieldChecker;
-import com.pos.common.util.validation.Preconditions;
 import com.pos.common.util.validation.Validator;
 import com.pos.user.constant.CustomerType;
 import com.pos.user.constant.UserType;
@@ -35,7 +30,6 @@ import com.pos.user.dto.UserRegConfirmDto;
 import com.pos.user.dto.converter.UserDtoConverter;
 import com.pos.user.dto.customer.CustomerDto;
 import com.pos.user.dto.manager.ManagerDto;
-import com.pos.user.dto.mq.CustomerInfoMsg;
 import com.pos.user.exception.UserErrorCode;
 import com.pos.user.service.RegisterService;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -77,12 +71,6 @@ public class RegisterServiceImpl implements RegisterService {
     @Resource
     private SmsService smsService;
 
-    @Resource
-    private MemcachedClientUtils memcachedClientUtils;
-
-    @Resource
-    private MQTemplate mqTemplate;
-
     @Value("${business.register.template}")
     private String registerTemplate;
 
@@ -121,114 +109,28 @@ public class RegisterServiceImpl implements RegisterService {
             return ApiResult.fail(err);
         }
 
-        // 用户不存在的情况
         User existingUser = userDao.getByUserPhone(identity.getLoginName());
         if (existingUser == null) {
+            // 用户不存在的情况
             User user = addUser(identity.getLoginName(), identity.getLoginName(),
                     identity.getPassword(), null);
             UserClass userClass = saveUserClass(user, UserType.CUSTOMER, user.getId(), true, setLoginInfo, loginInfoDto);
             Customer customer = saveCustomer(user, customerType);
-            CustomerDto customerDto = saveCustomer2IMServer(user, userClass, customer);
+            CustomerDto customerDto = UserDtoConverter.convert2CustomerDto(user, userClass, customer);
 
             UserRegConfirmDto confirmDto = new UserRegConfirmDto();
             confirmDto.setNeedConfirm(Boolean.FALSE);
             confirmDto.setCustomerDto(customerDto);
 
-            // 发送注册推荐人消息
-            sendCustomerRegisterMessage(user.getId(), user.getUserPhone(), loginInfoDto.getRecommendId(), loginInfoDto.getRecommendType());
-
             return ApiResult.succ(confirmDto);
-        }
-
-        // 检查账户是否被删除
-        if (existingUser.isDeleted()) {
-            return ApiResult.fail(UserErrorCode.ACCOUNT_DELETED);
-        }
-
-        // 已存在C端账号的情况
-        UserClass existingUserClass = userClassDao.findClass(existingUser.getId(), UserType.CUSTOMER.getValue());
-        if (existingUserClass != null) {
+        } else {
+            // 用户已存在的情况
+            // 检查账户是否被删除
+            if (existingUser.isDeleted()) {
+                return ApiResult.fail(UserErrorCode.ACCOUNT_DELETED);
+            }
             return ApiResult.fail(UserErrorCode.USER_EXISTED);
         }
-
-        // 存在E端或B端账号，返回“错误”，让客户端确认
-        UserClass bizExistence = userClassDao.findClass(existingUser.getId(), UserType.BUSINESS.getValue());
-        UserClass empExistence = userClassDao.findClass(existingUser.getId(), UserType.EMPLOYEE.getValue());
-        if (bizExistence != null || empExistence != null) {
-            UserRegConfirmDto confirmDto = new UserRegConfirmDto();
-            confirmDto.setMessage(customerConfirmTemplate);
-            confirmDto.setNeedConfirm(Boolean.TRUE);
-            String token = RandomStringUtils.randomAlphanumeric(Integer.valueOf(randPasswordSize));
-            confirmDto.setToken(token);
-
-            memcachedClientUtils.setCacheValue(
-                    MemcachedPrefixType.CONFIRM_CUSTOMER.getPrefix() + identity.getLoginName(),
-                    Integer.valueOf(cacheExpireSeconds),
-                    token);
-
-            return ApiResult.succ(confirmDto);
-        }
-
-        // 新增Customer角色
-        UserClass userClass = saveUserClass(existingUser, UserType.CUSTOMER, existingUser.getId(), true, setLoginInfo, loginInfoDto);
-        Customer customer = saveCustomer(existingUser, customerType);
-        CustomerDto customerDto = saveCustomer2IMServer(existingUser, userClass, customer);
-
-        UserRegConfirmDto confirmDto = new UserRegConfirmDto();
-        confirmDto.setNeedConfirm(Boolean.FALSE);
-        confirmDto.setCustomerDto(customerDto);
-
-        // 发送注册推荐人消息
-        sendCustomerRegisterMessage(existingUser.getId(), existingUser.getUserPhone(), loginInfoDto.getRecommendId(), loginInfoDto.getRecommendType());
-
-        return ApiResult.succ(confirmDto);
-    }
-
-    @Override
-    public ApiResult<CustomerDto> confirmCustomerRegister(LoginInfoDto loginInfoDto, String token, boolean setLoginInfo, CustomerType customerType) {
-        IdentityInfoDto identity = loginInfoDto.getIdentityInfoDto();
-        Preconditions.checkNotNull(identity.getLoginName(), "用户手机号不能为空！");
-        try {
-            String cacheToken = memcachedClientUtils.getMemcachedClient().get(
-                    MemcachedPrefixType.CONFIRM_CUSTOMER.getPrefix() + identity.getLoginName());
-            if (!cacheToken.equals(token)) {
-                LOG.warn("[C端注册]确认失败，phoneNumber={}", identity.getLoginName());
-                return ApiResult.fail(UserErrorCode.USER_REGISTER_FAILED);
-            }
-        } catch (Exception e) {
-            LOG.warn("[C端注册]Cache已失效，phoneNumber={}", identity.getLoginName(), e);
-            return ApiResult.fail(UserErrorCode.CONFIRM_TIMEOUT);
-        }
-
-        User existingUser = userDao.getByUserPhone(identity.getLoginName());
-
-        // 新增Customer角色
-        UserClass userClass = saveUserClass(existingUser,
-                UserType.CUSTOMER, existingUser.getId(), true, setLoginInfo, loginInfoDto);
-        Customer customer = saveCustomer(existingUser, customerType);
-        CustomerDto customerDto = saveCustomer2IMServer(existingUser, userClass, customer);
-        // 发送注册推荐人消息
-        sendCustomerRegisterMessage(existingUser.getId(), existingUser.getUserPhone(), loginInfoDto.getRecommendId(), loginInfoDto.getRecommendType());
-
-        return ApiResult.succ(customerDto);
-    }
-
-    @Override
-    public ApiResult<CustomerDto> confirmCustomerRegister(LoginInfoDto loginInfoDto,boolean setLoginInfo, CustomerType customerType) {
-        IdentityInfoDto identity = loginInfoDto.getIdentityInfoDto();
-        Preconditions.checkNotNull(identity.getLoginName(), "用户手机号不能为空！");
-
-        User existingUser = userDao.getByUserPhone(identity.getLoginName());
-
-        // 新增Customer角色
-        UserClass userClass = saveUserClass(existingUser,
-                UserType.CUSTOMER, existingUser.getId(), true, setLoginInfo, loginInfoDto);
-        Customer customer = saveCustomer(existingUser, customerType);
-        CustomerDto customerDto = saveCustomer2IMServer(existingUser, userClass, customer);
-        // 发送注册推荐人消息
-        sendCustomerRegisterMessage(existingUser.getId(), existingUser.getUserPhone(), loginInfoDto.getRecommendId(), loginInfoDto.getRecommendType());
-
-        return ApiResult.succ(customerDto);
     }
 
     @Override
@@ -267,8 +169,7 @@ public class RegisterServiceImpl implements RegisterService {
         // 为用户创建M端账号
         managerDto.setId(user.getId());
         Manager manager = saveManager(managerDto);
-        // 将用户信息同步到IM
-        saveManager2IMServer(user, userClass, manager);
+
         // 发送创建成功的短信
         sendSmsNotify(UserType.MANAGER, user.getUserPhone(), notifyMessage);
 
@@ -389,29 +290,11 @@ public class RegisterServiceImpl implements RegisterService {
         return manager;
     }
 
-    private CustomerDto saveCustomer2IMServer(User user, UserClass userClass, Customer customer) {
-        CustomerDto customerDto = UserDtoConverter.convert2CustomerDto(user, userClass, customer);
-        //userServiceSupport.refresh2IMServer(customerDto);
-        return customerDto;
-    }
-
-    private ManagerDto saveManager2IMServer(User user, UserClass userClass, Manager manager) {
-        ManagerDto managerDto = UserDtoConverter.convert2ManagerDto(user, userClass, manager);
-        //userServiceSupport.refresh2IMServer(managerDto);
-        return managerDto;
-    }
-
     private void sendSmsNotify(UserType userType, String userPhone, String message) {
         ApiResult sendResult = smsService.sendMessage(userPhone, message);
         if (!sendResult.isSucc()) {
             throw new RuntimeException("新增用户账号(" + userType.getValue() + ")，发送短信通知失败");
         }
-    }
-
-    private void sendCustomerRegisterMessage(Long userId, String userPhone, Long recommendUserId, Byte recommendType) {
-        CustomerInfoMsg msg = new CustomerInfoMsg(userId, userPhone, recommendUserId, recommendType);
-        mqTemplate.sendDirectMessage(new MQMessage(MQReceiverType.POS, "pos.reg.route.key", msg));
-        LOG.info("发送一条用户注册的消息");
     }
 
 }

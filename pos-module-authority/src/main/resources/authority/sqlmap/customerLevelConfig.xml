@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.authority.dao.CustomerLevelConfigDao">
+
+    <select id="getConfigs" resultType="com.pos.authority.domain.CustomerLevelConfig">
+        SELECT
+            `id`,
+            `level`,
+            withdraw_rate AS withdrawRate,
+            extra_service_charge AS extraServiceCharge,
+            charge_limit AS chargeLimit,
+            children_limit AS childrenLimit,
+            withdraw_amount_limit AS withdrawAmountLimit,
+            available
+        FROM customer_level_config
+        WHERE available = 1
+        ORDER BY `level`
+    </select>
+
+    <select id="getLevelConfig" resultType="com.pos.authority.domain.CustomerLevelConfig">
+        SELECT
+            `id`,
+            `level`,
+            withdraw_rate AS withdrawRate,
+            extra_service_charge AS extraServiceCharge,
+            charge_limit AS chargeLimit,
+            children_limit AS childrenLimit,
+            withdraw_amount_limit AS withdrawAmountLimit,
+            available
+        FROM customer_level_config
+        WHERE available = 1
+        AND `levle` = #{level}
+    </select>
+</mapper>

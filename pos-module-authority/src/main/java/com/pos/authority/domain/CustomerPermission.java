@@ -3,6 +3,8 @@
  */
 package com.pos.authority.domain;
 
+import com.pos.authority.constant.CustomerAuditStatus;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -46,6 +48,21 @@ public class CustomerPermission implements Serializable {
     private Date updateTime; // 更新操作时间
 
     private Date createTime; // 创建时间
+
+    public CustomerPermission() {
+    }
+
+    public CustomerPermission(Long userId, CustomerLevelConfig config) {
+        this(userId, config, CustomerAuditStatus.NOT_SUBMIT);
+    }
+
+    public CustomerPermission(Long userId, CustomerLevelConfig config, CustomerAuditStatus auditStatus) {
+        this.userId = userId;
+        this.level = config.getLevel();
+        this.withdrawRate = config.getWithdrawRate();
+        this.extraServiceCharge = config.getExtraServiceCharge();
+        this.auditStatus = auditStatus.getCode();
+    }
 
     public Long getId() {
         return id;

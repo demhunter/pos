@@ -91,10 +91,9 @@ public class UserController {
     /**
      * 用户注册请求
      *
-     * @param loginInfo 注册相关信息
+     * @param registerRequestDto 注册相关信息
      * @return 注册结果
      */
-    @SuppressWarnings("all")
     @RequestMapping(value = "register", method = RequestMethod.POST)
     @ApiOperation(value = "v1.0.0 * 用户注册请求", notes = "用户注册请求")
     public ApiResult<UserRegConfirmDto> register(
@@ -121,44 +120,13 @@ public class UserController {
 
         CustomerDto customerDto = apiResult.getData().getCustomerDto();
 
+        // 发送注册推荐人消息
         sendCustomerRegisterMessage(customerDto.getId(), customerDto.getUserPhone(), loginInfoDto.getRecommendId(), loginInfoDto.getRecommendType());
+        // 自动登录
         customerDto.setUserSession(userSessionPosComponent.add(session, new UserInfo(customerDto)));
 
         apiResult.setMessage("客户注册成功！");
         return apiResult;
-    }
-
-    /**
-     * 用户确认开通角色
-     *
-     * @param registerRequestDto 注册相关信息
-     * @return 开通结果
-     */
-    @RequestMapping(value = "confirm", method = RequestMethod.POST)
-    @ApiOperation(value = "v1.0.0 * 用户确认开通角色", notes = "用户确认开通角色")
-    public ApiResult<CustomerDto> confirm(
-            @ApiParam(name = "registerRequestDto", value = "登录相关信息")
-            @RequestBody RegisterRequestDto registerRequestDto,
-            HttpServletRequest request, HttpSession session) {
-        LoginInfoDto loginInfoDto = new LoginInfoDto();
-        IdentityInfoDto identityInfoDto = new IdentityInfoDto();
-        identityInfoDto.setLoginName(registerRequestDto.getPhone());
-        identityInfoDto.setSmsCode(registerRequestDto.getSmsCode());
-        loginInfoDto.setIdentityInfoDto(identityInfoDto);
-        loginInfoDto.setIp(HttpRequestUtils.getRealRemoteAddr(request));
-
-        loginInfoDto.setRecommendId(registerRequestDto.getLeaderId());
-        loginInfoDto.setRecommendType(registerRequestDto.getType());
-        ApiResult apiResult = registerService.confirmCustomerRegister(loginInfoDto, true, CustomerType.NATURE);
-
-        if (!apiResult.isSucc()) {
-            return apiResult;
-        }
-
-        CustomerDto customerDto = customerService.findByUserPhone(registerRequestDto.getPhone(), false, false);
-        customerDto.setUserSession(userSessionPosComponent.add(session, new UserInfo(customerDto)));
-
-        return ApiResult.succ(customerDto, "客户注册成功！");
     }
 
     /**

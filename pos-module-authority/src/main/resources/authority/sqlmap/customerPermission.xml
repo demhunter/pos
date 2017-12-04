@@ -4,6 +4,25 @@
 
 <mapper namespace="com.pos.authority.dao.CustomerPermissionDao">
 
+    <select id="save" parameterType="com.pos.authority.domain.CustomerPermission">
+        INSERT INTO customer_permission
+        (
+            user_id,
+            `level`,
+            withdraw_rate,
+            extra_service_charge,
+            audit_status,
+            create_time
+        ) VALUE (
+            #{permission.userId},
+            #{permission.level},
+            #{permission.withdrawRate},
+            #{permission.extraServiceCharge},
+            #{permission.auditStatus},
+            NOW()
+        )
+    </select>
+
     <select id="query" resultType="com.pos.authority.dto.permission.CustomerPermissionDto">
         SELECT
             `id` AS `id`,

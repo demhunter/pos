@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2016 ywmj.com. All Rights Reserved.
  */
-package com.pos.authority.dto.relation;
+package com.pos.authority.service.support.relation;
 
-import com.pos.authority.dto.relation.CustomerRelationNode;
+import com.pos.authority.service.support.relation.CustomerRelationNode;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 
 import java.io.Serializable;

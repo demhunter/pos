@@ -12,7 +12,9 @@ import java.math.BigDecimal;
  * @author wangbing
  * @version 1.0, 2017/11/30
  */
-public class CustomerLevelConifg implements Serializable {
+public class CustomerLevelConfig implements Serializable {
+
+    private static final long serialVersionUID = -8134866350163939914L;
 
     private Long id;
 

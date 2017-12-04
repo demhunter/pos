@@ -3,9 +3,9 @@
  */
 package com.pos.web.pos.controller.relation;
 
-import com.pos.authority.dto.relation.CustomerRelationNode;
-import com.pos.authority.dto.relation.CustomerRelationTree;
-import com.pos.authority.service.support.CustomerRelationTreeSupport;
+import com.pos.authority.service.support.relation.CustomerRelationNode;
+import com.pos.authority.service.support.relation.CustomerRelationTree;
+import com.pos.authority.service.support.CustomerRelationPoolSupport;
 import com.pos.common.util.mvc.support.ApiResult;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
@@ -30,12 +30,13 @@ import java.util.Stack;
 public class RelationDemoController {
 
     @Resource
-    private CustomerRelationTreeSupport customerRelationTreeSupport;
+    private CustomerRelationPoolSupport customerRelationPoolSupport;
 
     @RequestMapping(value = "initialize", method = RequestMethod.GET)
     @ApiOperation(value = "v2.0.0 * 初始化", notes = "初始化")
     public ApiResult<CustomerRelationTree> explain() {
-        return ApiResult.succ(customerRelationTreeSupport.initializeRelationTree());
+        // customerRelationTreeSupport.initialize();
+        return ApiResult.succ();
     }
 
     @RequestMapping(value = "participation/{userId}", method = RequestMethod.GET)
@@ -43,6 +44,6 @@ public class RelationDemoController {
     public ApiResult<Stack<CustomerRelationNode>> brokerageParticipation(
             @ApiParam(name = "userId", value = "用户id")
             @PathVariable("userId") Long userId) {
-        return ApiResult.succ(customerRelationTreeSupport.getParticipationForBrokerage(userId));
+        return ApiResult.succ(customerRelationPoolSupport.getParticipationForBrokerage(userId));
     }
 }

@@ -16,6 +16,8 @@ import java.math.BigDecimal;
  */
 public class CustomerPermissionBasicDto implements Serializable {
 
+    private static final long serialVersionUID = -1289728022065600921L;
+
     @ApiModelProperty("自增主键id")
     private Long id;
 

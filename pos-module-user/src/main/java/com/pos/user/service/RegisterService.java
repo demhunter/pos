@@ -28,25 +28,6 @@ public interface RegisterService {
     ApiResult<UserRegConfirmDto> addCustomer(LoginInfoDto registerInfoDto, boolean setLoginInfo, CustomerType customerType);
 
     /**
-     * 已有E端或B端账号时，用户确认C端注册
-     *
-     * @param confirmInfoDto 用户确认相关的用户拓展信息
-     * @param token          token
-     * @param setLoginInfo   是否记录登录信息
-     * @return 确认结果
-     */
-    ApiResult<CustomerDto> confirmCustomerRegister(LoginInfoDto confirmInfoDto, String token, boolean setLoginInfo, CustomerType customerType);
-
-    /**
-     * 已有E端或B端账号时，用户确认C端注册
-     *
-     * @param confirmInfoDto 用户确认相关的用户拓展信息
-     * @param setLoginInfo   是否记录登录信息
-     * @return 确认结果
-     */
-    ApiResult<CustomerDto> confirmCustomerRegister(LoginInfoDto confirmInfoDto, boolean setLoginInfo, CustomerType customerType);
-
-    /**
      * 添加一个平台管理员.
      *
      * @param managerDto   管理员信息
