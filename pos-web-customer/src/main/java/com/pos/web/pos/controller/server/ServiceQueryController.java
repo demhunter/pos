@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
  * @version 1.0, 2017/12/1
  */
 @RestController
-@RequestMapping("/service")
-@Api(value = "/service", description = "v2.0.0 * Gate获取BaseUrl服务查询相关接口")
+@RequestMapping("/gate/service")
+@Api(value = "/gate/service", description = "v2.0.0 * Gate获取BaseUrl服务查询相关接口")
 public class ServiceQueryController {
 
     @RequestMapping(value = "server", method = RequestMethod.GET)
