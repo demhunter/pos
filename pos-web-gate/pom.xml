@@ -19,19 +19,12 @@
             <groupId>com.pos</groupId>
             <artifactId>pos-module-basic</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.pos</groupId>
+            <artifactId>pos-common-util</artifactId>
+        </dependency>
         <!-- module end -->
-
-        <!-- mq start -->
-        <dependency>
-            <groupId>com.rabbitmq</groupId>
-            <artifactId>amqp-client</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.amqp</groupId>
-            <artifactId>spring-rabbit</artifactId>
-        </dependency>
-        <!-- mq end -->
 
         <!-- servlet start -->
         <dependency>

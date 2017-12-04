@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2016 ywmj.com. All Rights Reserved.
  */
-package com.pos.web.gate.vo;
+package com.pos.web.pos.vo.server;
 
 import com.wordnik.swagger.annotations.ApiModelProperty;
 
