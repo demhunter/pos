@@ -5,8 +5,6 @@
 		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd"
        default-autowire="byName">
 
-    <import resource="classpath:spring/applicationContext-cache.xml"/>
-
     <bean id="requestDebugFilter" class="com.pos.common.util.web.http.RequestDebugFilter">
         <property name="enable" value="${logback.http.debug}" />
     </bean>
