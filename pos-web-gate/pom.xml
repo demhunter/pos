@@ -19,6 +19,11 @@
             <groupId>com.pos</groupId>
             <artifactId>pos-common-util</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.pos</groupId>
+            <artifactId>pos-module-basic</artifactId>
+        </dependency>
         <!-- module end -->
 
         <!-- mq start -->

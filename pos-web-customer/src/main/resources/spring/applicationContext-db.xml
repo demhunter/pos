@@ -9,7 +9,7 @@
        http://www.springframework.org/schema/tx/spring-tx.xsd">
 
     <!-- Druid 数据源 -->
-    <bean id="posDataSource" class="com.alibaba.druid.pool.DruidDataSource"
+    <bean id="customerDataSource" class="com.alibaba.druid.pool.DruidDataSource"
           init-method="init" destroy-method="close">
         <property name="url" value="${druid.url}"/>
         <property name="username" value="${druid.user}"/>
@@ -44,7 +44,7 @@
 
     <!-- 事务管理器 -->
     <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="posDataSource"/>
+        <property name="dataSource" ref="customerDataSource"/>
     </bean>
 
     <!-- 开启事务配置 -->
@@ -53,7 +53,7 @@
     <!-- MyBatis MySQL SqlSessionFactory -->
     <bean id="mySqlSqlSessionFactory" name="mySqlSqlSessionFactory"
           class="org.mybatis.spring.SqlSessionFactoryBean">
-        <property name="dataSource" ref="posDataSource"/>
+        <property name="dataSource" ref="customerDataSource"/>
         <property name="mapperLocations">
             <list>
                 <value>classpath:basic/sqlmap/*.xml</value>

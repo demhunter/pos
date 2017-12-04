@@ -17,7 +17,7 @@
     <br/>
     <br/>
 <span id="info">
-钱刷刷POS - Customer Service运行中...
+钱刷刷POS - Gate Service运行中...
 </span>
     <a href="help" target="_blank"> 查看API</a>
   </h1>

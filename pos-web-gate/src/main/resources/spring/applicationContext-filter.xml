@@ -23,47 +23,4 @@
         </property>
     </bean>
 
-    <bean id="loginFilter" class="com.pos.common.util.web.access.AccessControlFilter">
-        <property name="validator">
-            <bean class="com.pos.user.session.UserSessionPermissionValidator">
-                <constructor-arg>
-                    <ref bean="defaultRedis"/>
-                </constructor-arg>
-                <property name="httpSessionEnable" value="${user.session.httpSessionEnable}"/>
-            </bean>
-        </property>
-        <property name="rejectedHandler">
-            <bean class="com.pos.common.util.web.access.handler.ApiErrorHandler">
-                <property name="error">
-                    <bean class="com.pos.user.exception.UserNotLoginError"/>
-                </property>
-            </bean>
-        </property>
-        <property name="tokenExpiredHandler">
-            <bean class="com.pos.common.util.web.access.handler.ApiErrorHandler">
-                <property name="error">
-                    <bean class="com.pos.user.exception.UserTokenExpiredError"/>
-                </property>
-            </bean>
-        </property>
-        <property name="tokenRefreshedHandler">
-            <bean class="com.pos.common.util.web.access.handler.ApiErrorHandler">
-                <property name="error">
-                    <bean class="com.pos.user.exception.UserTokenRefreshedError"/>
-                </property>
-            </bean>
-        </property>
-        <property name="tokenLoggedOtherHandler">
-            <bean class="com.pos.common.util.web.access.handler.ApiErrorHandler">
-                <property name="error">
-                    <bean class="com.pos.user.exception.UserTokenLoggedOtherError"/>
-                </property>
-            </bean>
-        </property>
-        <property name="basePath" value="${web.customer.basePath}"/>
-        <property name="forbiddenUrls" value="${web.forbidden.paths}"/>
-        <property name="excludeMethods" value="OPTIONS"/> <!-- 如果允许AJAX跨域调用，则排除验证OPTIONS请求 -->
-        <property name="excludeUrls" value="/pos/explain,/pos/getSign,/user/.*,.+\.ico,.+\.gif,.+\.htm,.+\.html,/,/druid.*,/help.*,/api-docs.*,/pos/payCallback,/upload/getToken/url,/relation.*"/>
-    </bean>
-
 </beans>

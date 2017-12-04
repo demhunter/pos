@@ -9,7 +9,7 @@
        http://www.springframework.org/schema/tx/spring-tx.xsd">
 
     <!-- Druid 数据源 -->
-    <bean id="posDataSource" class="com.alibaba.druid.pool.DruidDataSource"
+    <bean id="gateDataSource" class="com.alibaba.druid.pool.DruidDataSource"
           init-method="init" destroy-method="close">
         <property name="url" value="${druid.url}"/>
         <property name="username" value="${druid.user}"/>
@@ -44,7 +44,7 @@
 
     <!-- 事务管理器 -->
     <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="posDataSource"/>
+        <property name="dataSource" ref="gateDataSource"/>
     </bean>
 
     <!-- 开启事务配置 -->
@@ -53,14 +53,10 @@
     <!-- MyBatis MySQL SqlSessionFactory -->
     <bean id="mySqlSqlSessionFactory" name="mySqlSqlSessionFactory"
           class="org.mybatis.spring.SqlSessionFactoryBean">
-        <property name="dataSource" ref="posDataSource"/>
+        <property name="dataSource" ref="gateDataSource"/>
         <property name="mapperLocations">
             <list>
                 <value>classpath:basic/sqlmap/*.xml</value>
-                <value>classpath:sms/sqlmap/*.xml</value>
-                <value>classpath:user/sqlmap/*.xml</value>
-                <value>classpath:pos/sqlmap/*.xml</value>
-                <value>classpath:authority/sqlmap/*.xml</value>
             </list>
         </property>
         <property name="configLocation" value="classpath:mybatis/mybatis-config.xml"/>

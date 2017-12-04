@@ -14,7 +14,6 @@ import java.io.Serializable;
  * @author wangbing
  * @version 1.0, 2017/12/1
  */
-@ApiModel("服务器信息")
 public class ServerInfoVo implements Serializable {
 
     @ApiModelProperty("当前版本号")
