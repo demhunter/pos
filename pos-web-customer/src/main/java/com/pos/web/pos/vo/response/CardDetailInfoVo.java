@@ -4,7 +4,7 @@
 package com.pos.web.pos.vo.response;
 
 import com.wordnik.swagger.annotations.ApiModelProperty;
-import com.pos.pos.dto.CreateOrderDto;
+import com.pos.transaction.dto.CreateOrderDto;
 import org.springframework.beans.BeanUtils;
 
 import java.io.Serializable;

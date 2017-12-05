@@ -5,8 +5,8 @@ package com.pos.web.pos.vo.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wordnik.swagger.annotations.ApiModelProperty;
-import com.pos.pos.domain.UserPosCard;
-import com.pos.pos.dto.card.PosCardDto;
+import com.pos.transaction.domain.UserPosCard;
+import com.pos.transaction.dto.card.PosCardDto;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
 

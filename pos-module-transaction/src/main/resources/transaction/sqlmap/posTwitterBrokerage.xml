@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.transaction.dao.PosTwitterBrokerageDao">
+
+    <insert id="save" parameterType="com.pos.transaction.domain.UserPosTwitterBrokerage">
+        INSERT INTO user_pos_twitter_brokerage (
+            record_id,
+            base_rate,
+            agent_user_id,
+            agent_rate,
+            agent_charge,
+            get_agent,
+            parent_agent_user_id,
+            parent_agent_rate,
+            parent_agent_charge,
+            get_parent_agent,
+            create_date
+        ) VALUE (
+            #{brokerage.recordId},
+            #{brokerage.baseRate},
+            #{brokerage.agentUserId},
+            #{brokerage.agentRate},
+            #{brokerage.agentCharge},
+            #{brokerage.getAgent},
+            #{brokerage.parentAgentUserId},
+            #{brokerage.parentAgentRate},
+            #{brokerage.parentAgentCharge},
+            #{brokerage.getParentAgent},
+            NOW()
+        )
+    </insert>
+
+    <select id="queryTwitterDailyStatistics" resultType="com.pos.transaction.dto.brokerage.BrokerageDailyStatisticsDto">
+        SELECT
+        DATE_FORMAT(create_date, '%Y-%m-%d') AS dateKey,
+        SUM(IF(agent_user_id = #{channelUserId}, agent_charge, 0)) AS customerBrokerage,
+        SUM(IF(parent_agent_user_id = #{channelUserId}, parent_agent_charge, 0)) AS childTwitterBrokerage
+        FROM user_pos_twitter_brokerage
+        WHERE agent_user_id = #{channelUserId} OR parent_agent_user_id = #{channelUserId}
+        GROUP BY dateKey
+        ORDER BY dateKey DESC
+        LIMIT #{limitHelper.offset}, #{limitHelper.pageSize}
+    </select>
+
+    <select id="queryTwitterCanApplyMoney" resultType="Decimal">
+        SELECT
+        customerBrokerage + childTwitterBrokerage
+        FROM (
+            SELECT
+            SUM(IF(agent_user_id = #{channelUserId} AND get_agent = 0, agent_charge, 0)) AS customerBrokerage,
+            SUM(IF(parent_agent_user_id = #{channelUserId} AND get_parent_agent = 0, parent_agent_charge, 0)) AS childTwitterBrokerage
+            FROM user_pos_twitter_brokerage
+            WHERE create_date &lt;= #{deadline}
+        ) T
+    </select>
+
+    <select id="queryTwitterDateSectionBrokerage" resultType="Decimal">
+        SELECT
+        customerBrokerage + childTwitterBrokerage
+        FROM (
+            SELECT
+            SUM(IF(agent_user_id = #{channelUserId}, agent_charge, 0)) AS customerBrokerage,
+            SUM(IF(parent_agent_user_id = #{channelUserId}, parent_agent_charge, 0)) AS childTwitterBrokerage
+            FROM user_pos_twitter_brokerage
+            WHERE create_date &gt;= #{beginTime}
+            AND create_date &lt;= #{endTime}
+        ) T
+    </select>
+
+    <update id="markAgentStatus">
+        UPDATE user_pos_twitter_brokerage
+        SET get_agent = #{toAgentStatus}
+        <if test="toAgentStatus == 2">
+            , get_agent_date = NOW()
+        </if>
+        WHERE agent_user_id = #{userId}
+        AND get_agent = #{fromAgentStatus}
+        <if test="deadline != null">
+            AND create_date &lt;= #{deadline}
+        </if>
+    </update>
+
+    <update id="markParentAgentStatus">
+        UPDATE user_pos_twitter_brokerage
+        SET get_parent_agent = #{toAgentStatus}
+        <if test="toAgentStatus == 2">
+            , get_parent_agent_date = NOW()
+        </if>
+        WHERE parent_agent_user_id = #{userId}
+        AND get_parent_agent = #{fromAgentStatus}
+        <if test="deadline != null">
+            AND create_date &lt;= #{deadline}
+        </if>
+    </update>
+
+    <select id="queryAgentBrokerageMap" resultType="com.pos.transaction.dto.twitter.TwitterBrokerageStatisticsDto">
+        SELECT
+            uptr.user_id AS userId,
+            SUM(uptb.agent_charge) AS brokerage
+        FROM user_pos_transaction_record uptr
+        LEFT JOIN user_pos_twitter_brokerage uptb ON uptb.record_id = uptr.id
+        WHERE uptr.user_id IN
+        <foreach collection="userIds" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        AND (uptr.status = 3 OR uptr.status = 4)
+        GROUP BY uptr.user_id
+    </select>
+
+    <select id="queryParentAgentBrokerageMap" resultType="com.pos.transaction.dto.twitter.TwitterBrokerageStatisticsDto">
+        SELECT
+        upji.channel_user_id AS userId,
+        SUM(uptb.parent_agent_charge) AS brokerage
+        FROM user_pos_junior_info upji
+        LEFT JOIN user_pos_transaction_record uptr ON uptr.user_id = upji.junior_user_id
+        LEFT JOIN user_pos_twitter_brokerage uptb ON uptb.record_id = uptr.id
+        WHERE upji.channel_user_id IN
+        <foreach collection="userIds" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        AND (uptr.status = 3 OR uptr.status = 4)
+        AND upji.relation_available = 1
+        GROUP BY upji.channel_user_id
+    </select>
+</mapper>

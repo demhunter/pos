@@ -21,10 +21,9 @@ import java.io.Serializable;
  * @author cc
  * @version 1.0, 2017/3/17
  */
-@Component
 public class UniqueIdGenerator {
 
-    private final static Logger logger = LoggerFactory.getLogger(UniqueIdGenerator.class);
+    /*private final static Logger logger = LoggerFactory.getLogger(UniqueIdGenerator.class);
 
     @Resource
     private RedisTemplate<Serializable, Serializable> redisTemplate;
@@ -35,7 +34,6 @@ public class UniqueIdGenerator {
     @Value("${unique_id_generator_num_limit}")
     private String uniqueIdGeneratorNumLimit; // id最大数值限制
 
-    @PostConstruct
     public void initialization() {
         Serializable value = redisTemplate.opsForValue().get(RedisConstants.UNIQUE_ID_TWELVE);
 
@@ -67,5 +65,5 @@ public class UniqueIdGenerator {
         }
 
         return String.valueOf(number);
-    }
+    }*/
 }

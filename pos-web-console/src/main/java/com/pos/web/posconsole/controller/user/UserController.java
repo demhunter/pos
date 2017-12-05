@@ -10,7 +10,7 @@ import com.wordnik.swagger.annotations.ApiParam;
 import com.pos.basic.service.SecurityService;
 import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.common.util.mvc.support.NullObject;
-import com.pos.pos.service.support.PosAdminSupport;
+import com.pos.transaction.service.support.PosAdminSupport;
 import com.pos.user.constant.UserType;
 import com.pos.user.dto.UserLoginDto;
 import com.pos.user.dto.manager.ManagerDto;

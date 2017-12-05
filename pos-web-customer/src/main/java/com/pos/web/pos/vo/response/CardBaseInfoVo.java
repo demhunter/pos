@@ -6,8 +6,8 @@ package com.pos.web.pos.vo.response;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 import com.pos.common.util.codec.Base64Utils;
 import com.pos.common.util.security.RSAUtils;
-import com.pos.pos.constants.CardTypeEnum;
-import com.pos.pos.domain.UserPosCard;
+import com.pos.transaction.constants.CardTypeEnum;
+import com.pos.transaction.domain.UserPosCard;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;

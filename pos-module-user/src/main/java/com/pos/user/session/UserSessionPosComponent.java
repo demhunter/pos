@@ -42,7 +42,7 @@ public class UserSessionPosComponent {
     private String httpSessionEnable;
 
     // 快捷收款sessionId前缀
-    private static final String SESSION_ID_KEY_PREFIX = "pos";
+    private static final String SESSION_ID_KEY_PREFIX = "transaction";
 
     public UserSession add(HttpSession httpSession, UserInfo userInfo) {
         return addOrUpdate(httpSession, userInfo, null);

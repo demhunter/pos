@@ -4,7 +4,7 @@
 package com.pos.web.posconsole.controller.repair;
 
 import com.wordnik.swagger.annotations.Api;
-import com.pos.pos.service.support.RepairPosData;
+import com.pos.transaction.service.support.RepairPosData;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 

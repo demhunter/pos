@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.transaction.dao.CustomerBrokerageDao">
+
+    <select id="getDateSectionBrokerage" resultType="Decimal">
+        SELECT
+            SUM(brokerage)
+        FROM transaction_customer_brokerage
+        WHERE ancestor_user_id = #{userId}
+        AND create_time &gt; #{begin}
+        AND create_time &lt; #{end}
+    </select>
+</mapper>

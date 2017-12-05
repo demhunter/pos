@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.transaction.dao.PosUserTransactionRecordDao">
+    <update id="markTransactionRecordAgentStatus">
+        UPDATE user_pos_transaction_record
+        SET get_agent = #{toAgentStatus}
+        WHERE agent_id = #{userId}
+        AND get_agent = #{fromAgentStatus}
+        AND complete_date IS NOT NULL
+        <if test="toAgentStatus == 1">
+            AND complete_date &lt; #{deadline}
+        </if>
+    </update>
+
+    <select id="querySpreadGeneralInfo" resultType="com.pos.transaction.dto.spread.SpreadGeneralInfoDto">
+        SELECT
+        COUNT(*) AS spreadOrderCount,
+        SUM(IF(uptr.get_agent = 0, uptr.agent_charge, 0)) AS canApplyBrokerage
+        FROM user_pos_transaction_record uptr
+        WHERE uptr.agent_id = #{user.userId}
+        AND uptr.complete_date IS NOT NULL
+    </select>
+
+    <select id="queryDailyStatistics" resultType="com.pos.transaction.dto.brokerage.BrokerageDailyStatisticsDto">
+        SELECT
+        DATE_FORMAT(uptr.complete_date, '%Y-%m-%d') AS dateKey,
+        COUNT(*) AS orderCount,
+        SUM(uptr.agent_charge) AS brokerage
+        FROM user_pos_transaction_record uptr
+        WHERE uptr.agent_id = #{user.userId}
+        AND uptr.complete_date IS NOT NULL
+        GROUP BY dateKey
+        ORDER BY uptr.complete_date DESC
+        LIMIT #{limitHelper.offset}, #{limitHelper.pageSize}
+    </select>
+
+    <select id="queryCurrentCanWithdrawDepositAmount" resultType="decimal">
+        SELECT
+        SUM(uptr.agent_charge)
+        FROM user_pos_transaction_record uptr
+        WHERE uptr.agent_id = #{user.userId}
+        AND uptr.complete_date IS NOT NULL
+        AND uptr.complete_date &lt; #{deadline}
+        AND uptr.get_agent = 0
+    </select>
+
+    <select id="queryTransactionRecordCount" resultType="int">
+        SELECT COUNT(*)
+        FROM user_pos_transaction_record uptr
+        <include refid="conditionColumns"/>
+    </select>
+
+    <select id="queryTransactionRecord" resultType="com.pos.transaction.domain.UserPosTransactionRecord">
+        SELECT
+        <include refid="recordColumns"/>
+        FROM user_pos_transaction_record uptr
+        <include refid="conditionColumns"/>
+        <if test="orderHelper != null">
+            ORDER BY ${orderHelper.fieldName} ${orderHelper.ordination}
+        </if>
+        LIMIT #{limitHelper.offset}, #{limitHelper.pageSize}
+    </select>
+
+    <select id="querySimpleStatistics" resultType="com.pos.transaction.dto.transaction.TransactionSimpleStatisticsDto">
+        SELECT
+          uptr.user_id AS userId,
+          COUNT(*) AS transactionCount,
+          SUM(uptr.amount) AS transactionAmount
+        FROM user_pos_transaction_record uptr
+        WHERE uptr.user_id IN
+        <foreach collection="userIds" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        AND (uptr.status = 3 OR uptr.status = 4)
+        GROUP BY uptr.user_id
+    </select>
+
+    <update id="updateTransactionOutCardInfo" parameterType="com.pos.transaction.domain.UserPosTransactionRecord">
+        UPDATE user_pos_transaction_record
+        SET out_card_info = #{record.outCardInfo}
+        WHERE id = #{record.id}
+    </update>
+
+    <sql id="conditionColumns">
+        <if test="condition != null">
+            <where>
+                <if test="condition.id != null">
+                    uptr.id = #{condition.id}
+                </if>
+                <if test="condition.recordNum != null">
+                    AND uptr.record_num = #{condition.recordNum}
+                </if>
+                <if test="condition.userId != null">
+                    AND uptr.user_id = #{condition.userId}
+                </if>
+                <if test="condition.includeUserIds != null">
+                    AND uptr.user_id IN
+                    <foreach collection="condition.includeUserIds" index="index" item="item" open="(" separator="," close=")">
+                        #{item}
+                    </foreach>
+                </if>
+                <if test="condition.status != null">
+                    AND uptr.status = #{condition.status}
+                </if>
+                <if test="condition.excludedStatuses != null">
+                    AND uptr.status NOT IN
+                    <foreach collection="condition.excludedStatuses" index="index" item="item" open="(" separator="," close=")">
+                        #{item}
+                    </foreach>
+                </if>
+                <if test="condition.beginDate != null">
+                    AND uptr.create_date &gt;= #{condition.beginDate}
+                </if>
+                <if test="condition.endDate != null">
+                    AND uptr.create_date &lt;= #{condition.endDate}
+                </if>
+            </where>
+        </if>
+    </sql>
+
+    <sql id="recordColumns">
+        uptr.id AS id,
+        uptr.record_num AS recordNum,
+        uptr.in_card AS inCardId,
+        uptr.out_card_info AS outCardInfo,
+        uptr.user_id AS userId,
+        uptr.amount AS amount,
+        uptr.service_charge AS serviceCharge,
+        uptr.arrival_amount AS arrivalAmount,
+        uptr.pay_charge AS payCharge,
+        uptr.pos_charge AS posCharge,
+        uptr.company_id AS companyId,
+        uptr.cost_type AS costType,
+        uptr.status AS status,
+        uptr.create_date AS createDate,
+        uptr.helibao_zhifu_num AS helibaoZhifuNum,
+        uptr.helibao_tixian_num AS helibaoTixianNum,
+        uptr.pay_date AS payDate,
+        uptr.complete_date AS completeDate
+    </sql>
+</mapper>

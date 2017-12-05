@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>pos</artifactId>
+        <groupId>com.pos</groupId>
+        <version>${pos-parent.version}</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>pos-module-transaction</artifactId>
+    <version>${pos-module-transaction.version}</version>
+
+
+    <dependencies>
+        <!-- module start -->
+        <dependency>
+            <groupId>com.pos</groupId>
+            <artifactId>pos-common-util</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.pos</groupId>
+            <artifactId>pos-module-basic</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.pos</groupId>
+            <artifactId>pos-module-user</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.pos</groupId>
+            <artifactId>pos-module-authority</artifactId>
+        </dependency>
+        <!-- module end -->
+
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcmail-jdk15</artifactId>
+            <version>1.46</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <version>1.8.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.1.15</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>6.0.35</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+            <version>3.1</version>
+        </dependency>
+    </dependencies>
+
+</project>

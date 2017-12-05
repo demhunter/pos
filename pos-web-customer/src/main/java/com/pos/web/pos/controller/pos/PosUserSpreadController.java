@@ -3,21 +3,19 @@
  */
 package com.pos.web.pos.controller.pos;
 
-import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import com.pos.common.util.mvc.resolver.FromSession;
 import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.common.util.mvc.support.LimitHelper;
 import com.pos.common.util.mvc.support.Pagination;
-import com.pos.pos.dto.spread.SpreadCustomerDto;
-import com.pos.pos.dto.spread.SpreadGeneralInfoDto;
-import com.pos.pos.service.PosUserChannelInfoService;
+import com.pos.transaction.dto.spread.SpreadCustomerDto;
+import com.pos.transaction.dto.spread.SpreadGeneralInfoDto;
+import com.pos.transaction.service.PosUserChannelInfoService;
 import com.pos.user.session.UserInfo;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 
@@ -28,8 +26,8 @@ import javax.annotation.Resource;
  * @version 1.0, 2017/8/26
  */
 /*@RestController
-@RequestMapping(value = "/pos/spread")
-@Api(value = "/pos/spread", description = "v1.0.0 * 发展收款客户相关接口")*/
+@RequestMapping(value = "/transaction/spread")
+@Api(value = "/transaction/spread", description = "v1.0.0 * 发展收款客户相关接口")*/
 @Deprecated
 public class PosUserSpreadController {
 

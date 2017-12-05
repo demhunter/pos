@@ -7,7 +7,7 @@ import com.pos.basic.mq.AbstractMQListener;
 import com.pos.basic.mq.MQMessage;
 import com.pos.common.util.basic.JsonUtils;
 import com.pos.common.util.validation.Preconditions;
-import com.pos.pos.service.PosService;
+import com.pos.transaction.service.PosService;
 import com.pos.user.dto.customer.CustomerDto;
 import com.pos.user.dto.mq.CustomerInfoMsg;
 import com.pos.user.service.CustomerService;

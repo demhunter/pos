@@ -7,7 +7,7 @@ import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import com.pos.common.util.mvc.support.ApiResult;
-import com.pos.pos.service.support.PosWeChatMediaSupport;
+import com.pos.transaction.service.support.PosWeChatMediaSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestMapping;

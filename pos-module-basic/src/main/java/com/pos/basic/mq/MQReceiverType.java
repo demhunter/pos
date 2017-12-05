@@ -23,7 +23,7 @@ public enum MQReceiverType {
 
     BUSINESS((byte) 4, "business"),
 
-    POS((byte) 5, "pos");
+    POS((byte) 5, "transaction");
 
     /**
      * 标识码

@@ -3,7 +3,6 @@
  */
 package com.pos.web.pos.controller.pos;
 
-import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import com.pos.common.util.mvc.resolver.FromSession;
@@ -11,9 +10,9 @@ import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.common.util.mvc.support.LimitHelper;
 import com.pos.common.util.mvc.support.NullObject;
 import com.pos.common.util.mvc.support.Pagination;
-import com.pos.pos.dto.develop.DevelopGeneralInfoDto;
-import com.pos.pos.dto.develop.PosUserChildChannelDto;
-import com.pos.pos.service.PosUserChannelInfoService;
+import com.pos.transaction.dto.develop.DevelopGeneralInfoDto;
+import com.pos.transaction.dto.develop.PosUserChildChannelDto;
+import com.pos.transaction.service.PosUserChannelInfoService;
 import com.pos.user.session.UserInfo;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,8 +25,8 @@ import javax.annotation.Resource;
  * @version 1.0, 2017/8/26
  */
 /*@RestController
-@RequestMapping(value = "/pos/develop")
-@Api(value = "/pos/develop", description = "v1.0.0 * 发展下级推客相关接口")*/
+@RequestMapping(value = "/transaction/develop")
+@Api(value = "/transaction/develop", description = "v1.0.0 * 发展下级推客相关接口")*/
 @Deprecated
 public class PosUserDevelopController {
 

@@ -23,7 +23,7 @@
 
         <dependency>
             <groupId>com.pos</groupId>
-            <artifactId>pos-module-pos</artifactId>
+            <artifactId>pos-module-transaction</artifactId>
         </dependency>
 
         <dependency>

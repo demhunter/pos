@@ -12,8 +12,8 @@ import com.pos.common.util.mvc.resolver.FromSession;
 import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.common.util.mvc.support.NullObject;
 import com.pos.common.util.web.http.HttpRequestUtils;
-import com.pos.pos.dto.twitter.ReferrerSimpleDto;
-import com.pos.pos.service.PosUserChannelInfoService;
+import com.pos.transaction.dto.twitter.ReferrerSimpleDto;
+import com.pos.transaction.service.PosUserChannelInfoService;
 import com.pos.user.constant.CustomerType;
 import com.pos.user.constant.UserType;
 import com.pos.user.dto.IdentityInfoDto;
@@ -232,7 +232,7 @@ public class UserController {
 
     private void sendCustomerRegisterMessage(Long userId, String userPhone, Long recommendUserId, Byte recommendType) {
         CustomerInfoMsg msg = new CustomerInfoMsg(userId, userPhone, recommendUserId, recommendType);
-        mqTemplate.sendDirectMessage(new MQMessage(MQReceiverType.POS, "pos.reg.route.key", msg));
+        mqTemplate.sendDirectMessage(new MQMessage(MQReceiverType.POS, "transaction.reg.route.key", msg));
         logger.info("发送一条用户注册的消息");
     }
 

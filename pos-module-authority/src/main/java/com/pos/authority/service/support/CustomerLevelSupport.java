@@ -16,7 +16,9 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -47,11 +49,23 @@ public class CustomerLevelSupport {
         LOG.info("当前共有{}种客户等级配置", configs.size());
         for (CustomerLevelConfig config : configs) {
             // 把等级加入到已配置等级集合中
-            redisTemplate.opsForSet().add(RedisConstants.POS_CUSTOMER_LEVELS, config.getLevel());
+            redisTemplate.opsForSet().add(RedisConstants.POS_CUSTOMER_LEVELS, config.getLevel().toString());
             // 保存当前用户等级相应的配置信息
-            redisTemplate.opsForValue().set(RedisConstants.POS_CUSTOMER_LEVEL_CONFIG + config.getLevel(), config);
+            saveLevelConfig(config);
         }
         LOG.info("客户等级配置加载完毕");
+    }
+
+    private void saveLevelConfig(CustomerLevelConfig config) {
+        Map<String, Object> configMap = new HashMap<>();
+        configMap.put("withdrawRate", config.getWithdrawRate().toPlainString());
+        configMap.put("extraServiceCharge", config.getExtraServiceCharge().toPlainString());
+        configMap.put("chargeLimit", config.getChargeLimit().toPlainString());
+        configMap.put("childrenLimit", config.getChildrenLimit().toString());
+        configMap.put("withdrawAmountLimit", config.getWithdrawAmountLimit().toPlainString());
+        configMap.put("available", config.getAvailable().toString());
+
+        redisTemplate.opsForHash().putAll(RedisConstants.POS_CUSTOMER_LEVEL_CONFIG + config.getLevel(), configMap);
     }
 
     /**

@@ -5,8 +5,8 @@ package com.pos.web.posconsole.vo.pos;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wordnik.swagger.annotations.ApiModelProperty;
-import com.pos.pos.constants.UserAuditStatus;
-import com.pos.pos.dto.auth.BaseAuthDto;
+import com.pos.transaction.constants.UserAuditStatus;
+import com.pos.transaction.dto.auth.BaseAuthDto;
 
 import java.io.Serializable;
 import java.math.BigDecimal;

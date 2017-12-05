@@ -3,7 +3,7 @@
  */
 package com.pos.web.posconsole.converter;
 
-import com.pos.pos.dto.user.PosUserIntegrateDto;
+import com.pos.transaction.dto.user.PosUserIntegrateDto;
 import com.pos.web.posconsole.vo.pos.PosUserSimpleInfoVo;
 
 import java.math.BigDecimal;

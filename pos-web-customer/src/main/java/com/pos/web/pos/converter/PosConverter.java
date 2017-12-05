@@ -3,8 +3,8 @@
  */
 package com.pos.web.pos.converter;
 
-import com.pos.pos.constants.CardTypeEnum;
-import com.pos.pos.dto.transaction.TransactionRecordDto;
+import com.pos.transaction.constants.CardTypeEnum;
+import com.pos.transaction.dto.transaction.TransactionRecordDto;
 import com.pos.web.pos.vo.response.RecordVo;
 
 import java.util.Map;

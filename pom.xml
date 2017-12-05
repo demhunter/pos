@@ -15,7 +15,7 @@
         <module>pos-module-user</module>
         <module>pos-module-data-repair</module>
         <module>pos-web-customer</module>
-        <module>pos-module-pos</module>
+        <module>pos-module-transaction</module>
         <module>pos-web-console</module>
         <module>pos-module-authority</module>
         <module>pos-web-gate</module>
@@ -28,11 +28,11 @@
         <pos-module-basic.version>2.0.0-SNAPSHOT</pos-module-basic.version>
         <pos-module-user.version>2.0.0-SNAPSHOT</pos-module-user.version>
         <pos-web-customer.version>2.0.0-SNAPSHOT</pos-web-customer.version>
-        <pos-module-pos.version>2.0.0-SNAPSHOT</pos-module-pos.version>
+        <pos-module-transaction.version>2.0.0-SNAPSHOT</pos-module-transaction.version>
         <pos-web-console.version>2.0.0-SNAPSHOT</pos-web-console.version>
         <pos-module-data-repair.version>2.0.0-SNAPSHOT</pos-module-data-repair.version>
         <pos-module-authority.version>2.0.0-SNAPSHOT</pos-module-authority.version>
-        <pos-web-agte.version>2.0.0-SNAPSHOT</pos-web-agte.version>
+        <pos-web-gate.version>2.0.0-SNAPSHOT</pos-web-gate.version>
 
         <jedis.version>2.8.1</jedis.version>
         <spring-data-redis.version>1.7.1.RELEASE</spring-data-redis.version>
@@ -109,8 +109,8 @@
 
             <dependency>
                 <groupId>com.pos</groupId>
-                <artifactId>pos-module-pos</artifactId>
-                <version>${pos-module-pos.version}</version>
+                <artifactId>pos-module-transaction</artifactId>
+                <version>${pos-module-transaction.version}</version>
             </dependency>
 
             <dependency>

@@ -8,7 +8,7 @@ import com.pos.authority.dto.level.CustomerUpgradeLevelDto;
 import com.pos.authority.service.CustomerAuthorityService;
 import com.pos.common.util.mvc.resolver.FromSession;
 import com.pos.common.util.mvc.support.ApiResult;
-import com.pos.pos.dto.CreateOrderDto;
+import com.pos.transaction.dto.CreateOrderDto;
 import com.pos.user.session.UserInfo;
 import com.pos.web.pos.vo.level.LevelUpgradeVo;
 import com.wordnik.swagger.annotations.Api;
