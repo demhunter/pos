@@ -5,14 +5,13 @@ package com.pos.authority.service.support;
 
 import com.google.common.collect.Lists;
 import com.pos.authority.constant.CustomerAuditStatus;
-import com.pos.authority.dao.CustomerPermissionDao;
 import com.pos.authority.dao.CustomerRelationDao;
 import com.pos.authority.dto.relation.CustomerRelationDto;
 import com.pos.authority.service.support.relation.CustomerRelationNode;
 import com.pos.basic.constant.RedisConstants;
-import com.pos.common.util.basic.SegmentLocks;
 import com.pos.common.util.date.SimpleDateUtils;
 import com.pos.common.util.mvc.support.LimitHelper;
+import com.pos.common.util.validation.FieldChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -35,15 +34,7 @@ public class CustomerRelationPoolSupport {
 
     private final static Logger LOG = LoggerFactory.getLogger(CustomerRelationPoolSupport.class);
 
-    // 对任何关系的更新操作都需要获取相应的锁，防止并发引起的关系紊乱
-    private final static SegmentLocks SEG_LOCKS = new SegmentLocks(32, false);
-
     private static CustomerRelationNode relationTree = null;
-
-    private Map<Long, CustomerRelationNode> relationNodeMap = new HashMap<>();
-
-    @Resource
-    private CustomerPermissionDao customerPermissionDao;
 
     @Resource
     private CustomerRelationDao customerRelationDao;
@@ -128,7 +119,7 @@ public class CustomerRelationPoolSupport {
         nodeInfo.put("extraServiceCharge", node.getWithdrawRate().toPlainString());
         nodeInfo.put("auditStatus", node.getAuditStatus().toString());
         nodeInfo.put("parentUserId", node.getParentUserId().toString());
-        nodeInfo.put("relationTime", SimpleDateUtils.formatDate(node.getRelationTime(), "yyyy-MM-dd HH:mm:ss"));
+        nodeInfo.put("relationTime", SimpleDateUtils.formatDate(node.getRelationTime(), SimpleDateUtils.DatePattern.STANDARD_PATTERN.toString()));
         redisTemplate.opsForHash().putAll(RedisConstants.POS_CUSTOMER_RELATION_NODE + node.getUserId(), nodeInfo);
 
         // 保存直接子节点信息
@@ -137,6 +128,33 @@ public class CustomerRelationPoolSupport {
                     RedisConstants.POS_CUSTOMER_RELATION_NODE_CHILDREN + node.getUserId(),
                     node.getChildren().toArray());
         }
+    }
+
+    /**
+     * 从关系池中获取指定用户信息
+     *
+     * @param userId 用户id
+     * @return 用户信息
+     */
+    public CustomerRelationDto getCustomerRelation(Long userId) {
+        FieldChecker.checkEmpty(userId, "userId");
+        Map<Object, Object> data = redisTemplate.opsForHash().entries(RedisConstants.POS_CUSTOMER_RELATION_NODE + userId);
+        if (CollectionUtils.isEmpty(data)) {
+            LOG.error("用户{}在关系池中不存在", userId);
+            return null;
+        }
+        CustomerRelationDto customerRelation = new CustomerRelationDto();
+        customerRelation.setUserId(userId);
+        customerRelation.setLevel((Integer) data.get("level"));
+        customerRelation.setWithdrawRate((BigDecimal) data.get("withdrawRate"));
+        customerRelation.setExtraServiceCharge((BigDecimal) data.get("extraServiceCharge"));
+        customerRelation.setAuditStatus((Integer) data.get("auditStatus"));
+        customerRelation.setParentUserId((Long) data.get("parentUserId"));
+        customerRelation.setRelationTime(SimpleDateUtils.parseDate(
+                (String) data.get("relationTime"),
+                SimpleDateUtils.DatePattern.STANDARD_PATTERN.toString()));
+
+        return customerRelation;
     }
 
     private void addNodeToTree(CustomerRelationNode node) {
@@ -170,7 +188,7 @@ public class CustomerRelationPoolSupport {
             // 当前节点没有加入关系树，遍历树，查找到父节点
             CustomerRelationNode parentNode = getParentNodeByDFS(tree, node);
             if (parentNode == null) {
-                throw new IllegalStateException("关系树初始化错误，用户" + node.getUserId() +"的上级" + node.getParentUserId() + "不再关系树中！");
+                throw new IllegalStateException("关系树初始化错误，用户" + node.getUserId() + "的上级" + node.getParentUserId() + "不再关系树中！");
             }
             parentNode.getChildren().add(node.getUserId());
             nodeMap.remove(node.getUserId());
@@ -285,7 +303,7 @@ public class CustomerRelationPoolSupport {
             if (!participationStack.peek().getUserId().equals(node.getParentUserId())) {
                 CustomerRelationNode parentNode = getParentNodeByBFS(node);
                 if (parentNode == null) {
-                    throw new IllegalStateException("用户" + node.getUserId() +"的上级" + node.getParentUserId() + "不再关系树中！");
+                    throw new IllegalStateException("用户" + node.getUserId() + "的上级" + node.getParentUserId() + "不再关系树中！");
                 }
                 if (!participationStack.peek().getUserId().equals(parentNode.getParentUserId())) {
                     participationStack.pop();

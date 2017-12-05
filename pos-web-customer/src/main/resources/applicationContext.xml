@@ -31,6 +31,7 @@
                 <value>classpath:redis.properties</value>
                 <value>classpath:user-config.properties</value>
                 <value>classpath:pos.properties</value>
+                <value>classpath:authority.properties</value>
             </list>
         </property>
         <property name="fileEncoding" value="UTF-8"/>

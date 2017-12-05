@@ -1,0 +1,5 @@
+moduleName            | codeSection
+pos-module-basic      | 100-199
+pos-module-user       | 300-399
+pos-module-pos        | 1800-1899
+pos-module-authority  | 1000-1099

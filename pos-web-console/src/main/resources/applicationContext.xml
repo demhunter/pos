@@ -23,6 +23,7 @@
                 <value>classpath:basic-config.properties</value>
                 <value>classpath:user-config.properties</value>
                 <value>classpath:pos.properties</value>
+                <value>classpath:authority.properties</value>
             </array>
         </property>
         <property name="fileEncoding" value="UTF-8"/>
