@@ -3,6 +3,7 @@
  */
 package com.pos.authority.dto.permission;
 
+import com.pos.authority.constant.CustomerAuditStatus;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 
 import java.io.Serializable;
@@ -50,6 +51,10 @@ public class CustomerPermissionDto extends CustomerPermissionBasicDto implements
 
     @ApiModelProperty("权限创建时间")
     private Date createTime;
+
+    public CustomerAuditStatus parseAuditStatus() {
+        return auditStatus == null ? null : CustomerAuditStatus.getEnum(auditStatus);
+    }
 
     public Integer getAuditStatus() {
         return auditStatus;

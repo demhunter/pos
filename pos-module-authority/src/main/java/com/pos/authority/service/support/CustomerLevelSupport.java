@@ -16,6 +16,7 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,9 +77,9 @@ public class CustomerLevelSupport {
      * @throws IllegalParamException 无当前等级时
      */
     public CustomerLevelConfig getLevelConfig(int level) throws IllegalParamException {
-        CustomerLevelConfig config = (CustomerLevelConfig) redisTemplate.opsForValue().get(RedisConstants.POS_CUSTOMER_LEVEL_CONFIG + level);
-
-        if (config == null) {
+        CustomerLevelConfig config;
+        Map<Object, Object> data = redisTemplate.opsForHash().entries(RedisConstants.POS_CUSTOMER_LEVEL_CONFIG + level);
+        if (CollectionUtils.isEmpty(data)) {
             // 缓存中没有相应配置，从数据库查找相应配置
             config = customerLevelConfigDao.getLevelConfig(level);
             if (config == null) {
@@ -88,7 +89,16 @@ public class CustomerLevelSupport {
             // 把等级加入到已配置等级集合中
             redisTemplate.opsForSet().add(RedisConstants.POS_CUSTOMER_LEVELS, config.getLevel());
             // 保存当前用户等级相应的配置信息
-            redisTemplate.opsForValue().set(RedisConstants.POS_CUSTOMER_LEVEL_CONFIG + config.getLevel(), config);
+            saveLevelConfig(config);
+        } else {
+            config = new CustomerLevelConfig();
+            config.setLevel(level);
+            config.setWithdrawRate((BigDecimal) data.get("withdrawRate"));
+            config.setExtraServiceCharge((BigDecimal) data.get("extraServiceCharge"));
+            config.setChargeLimit((BigDecimal) data.get("chargeLimit"));
+            config.setChildrenLimit((Integer) data.get("childrenLimit"));
+            config.setWithdrawAmountLimit((BigDecimal) data.get("withdrawAmountLimit"));
+            config.setAvailable((Boolean) data.get("available"));
         }
 
         return config;

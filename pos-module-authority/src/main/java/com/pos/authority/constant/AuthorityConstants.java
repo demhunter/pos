@@ -21,7 +21,14 @@ public class AuthorityConstants {
     @Value("${pos.withdraw.basic.rate}")
     private String posWithdrawBasicRate; // 提现的总手续费基准比例（具体数值，如0.58%为0.0058）
 
+    @Value("${pos.arrival.time}")
+    private String posArrivalTime; // 收款提现到账时间 D+0
+
     public BigDecimal getPosWithdrawBasicRate() {
         return StringUtils.isEmpty(posWithdrawBasicRate) ? BigDecimal.ZERO : new BigDecimal(posWithdrawBasicRate);
+    }
+
+    public String getPosArrivalTime() {
+        return posArrivalTime;
     }
 }

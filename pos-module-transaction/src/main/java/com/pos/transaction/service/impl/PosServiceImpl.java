@@ -3,6 +3,9 @@
  */
 package com.pos.transaction.service.impl;
 
+import com.pos.authority.constant.CustomerAuditStatus;
+import com.pos.authority.dto.permission.CustomerPermissionDto;
+import com.pos.authority.service.CustomerAuthorityService;
 import com.pos.basic.constant.RedisConstants;
 import com.pos.basic.dto.UserIdentifier;
 import com.pos.basic.service.SecurityService;
@@ -20,6 +23,7 @@ import com.pos.transaction.domain.*;
 import com.pos.transaction.dto.*;
 import com.pos.transaction.dto.card.PosCardValidInfoDto;
 import com.pos.transaction.dto.request.GetMoneyDto;
+import com.pos.transaction.exception.TransactionErrorCode;
 import com.pos.transaction.helipay.vo.*;
 import com.pos.transaction.converter.PosConverter;
 import com.pos.transaction.dto.auth.PosUserAuthDetailDto;
@@ -111,6 +115,9 @@ public class PosServiceImpl implements PosService {
 
     @Resource
     private PosUserChannelDao posUserChannelDao;
+
+    @Resource
+    private CustomerAuthorityService customerAuthorityService;
 
     // 首次登录，初始化权限信息
     private void initializeAndSaveUserPosAuth(Long userId, LoginTypeEnum type, PosUserAuthDto leaderUserPosAuth) {
@@ -425,24 +432,19 @@ public class PosServiceImpl implements PosService {
     public ApiResult<QuickGetMoneyDto> getQuickInfo(Long userId) {
         FieldChecker.checkEmpty(userId, "userId");
 
-        PosUserAuthDto auth = posAuthDao.findAuth(userId);
-        if (auth == null) {
-            return ApiResult.fail(UserErrorCode.USER_NOT_EXISTED);
+        CustomerPermissionDto permission = customerAuthorityService.getPermission(userId);
+        CustomerAuditStatus auditStatus = permission.parseAuditStatus();
+        if (CustomerAuditStatus.NOT_SUBMIT.equals(auditStatus)) {
+            return ApiResult.fail(TransactionErrorCode.AUTHORITY_AUDIT_STATUS_NOT_SUBMIT);
         }
-        if (UserAuditStatus.NOT_SUBMIT.equals(auth.parseAuditStatus())) {
-            return ApiResult.fail(PosUserErrorCode.NOT_SUBMIT_ERROR_FOR_GET);
+        if (CustomerAuditStatus.REJECTED.equals(auditStatus)) {
+            return ApiResult.fail(TransactionErrorCode.AUTHORITY_AUDIT_STATUS_REJECTED);
         }
-        if (UserAuditStatus.REJECTED.equals(auth.parseAuditStatus())) {
-            return ApiResult.fail(PosUserErrorCode.REJECTED_ERROR_FOR_GET);
-        }
-        if (!AuthStatusEnum.ENABLE.equals(auth.parseGetAuth())) {
-            return ApiResult.fail(PosUserErrorCode.PERMISSION_GET_ERROR);
-        }
+
         QuickGetMoneyDto result = new QuickGetMoneyDto();
-        result.setPoundageRate(auth.getGetRate());
-        result.setPoundage(posConstants.getPosExtraPoundage());
+        result.setPoundageRate(permission.getWithdrawRate());
+        result.setPoundage(permission.getExtraServiceCharge());
         result.setArrival(posConstants.getPosArrival());
-        //result.setCardBaseInfos(posCardDao.queryUserPosCard(userId, CardUsageEnum.OUT_CARD.getCode()));
         result.hundredPercentPoundageRate(); // 百分化费率
 
         return ApiResult.succ(result);
