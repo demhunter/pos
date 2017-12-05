@@ -3,6 +3,7 @@
  */
 package com.pos.authority.service.impl;
 
+import com.pos.authority.converter.CustomerPermissionConverter;
 import com.pos.authority.dao.CustomerPermissionDao;
 import com.pos.authority.dao.CustomerRelationDao;
 import com.pos.authority.dao.CustomerStatisticsDao;
@@ -10,6 +11,7 @@ import com.pos.authority.domain.CustomerLevelConfig;
 import com.pos.authority.domain.CustomerPermission;
 import com.pos.authority.domain.CustomerRelation;
 import com.pos.authority.domain.CustomerStatistics;
+import com.pos.authority.dto.permission.CustomerPermissionDto;
 import com.pos.authority.dto.relation.CustomerRelationDto;
 import com.pos.authority.service.CustomerAuthorityService;
 import com.pos.authority.service.support.CustomerLevelSupport;
@@ -84,7 +86,6 @@ public class CustomerAuthorityServiceImpl implements CustomerAuthorityService {
             if (parentCustomer == null) {
                 LOG.warn("客户{}的上级客户{}不存在", userId, parentUserId);
                 parentUserId = 0L;
-
             }
             CustomerRelation relation = new CustomerRelation(userId, parentUserId);
             customerRelationDao.save(relation);
@@ -110,5 +111,18 @@ public class CustomerAuthorityServiceImpl implements CustomerAuthorityService {
         relationDto.setRelationTime(new Date());
 
         return relationDto;
+    }
+
+    @Override
+    public CustomerPermissionDto getPermission(Long userId) {
+        FieldChecker.checkEmpty(userId, "userId");
+
+        CustomerPermission permission = customerPermissionDao.getPermission(userId);
+        if (permission == null) {
+            LOG.error("客户{}的权限信息不存在！", userId);
+            throw new IllegalStateException("客户" + userId + "的权限信息不存在！");
+        }
+
+        return CustomerPermissionConverter.toCustomerPermissionDto(permission);
     }
 }

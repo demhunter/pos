@@ -4,10 +4,8 @@
 package com.pos.authority.dao;
 
 import com.pos.authority.domain.CustomerPermission;
-import com.pos.authority.dto.permission.CustomerPermissionDto;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 /**
  * 客户权限DAO
@@ -25,5 +23,11 @@ public interface CustomerPermissionDao {
      */
     void save(CustomerPermission permission);
 
-    List<CustomerPermissionDto> query();
+    /**
+     * 获取指定用户的权限信息
+     *
+     * @param userId 用户id
+     * @return 权限信息
+     */
+    CustomerPermission getPermission(@Param("userId") Long userId);
 }

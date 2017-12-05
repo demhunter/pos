@@ -35,4 +35,23 @@
         INNER JOIN customer_permission cp ON cr.user_id = cp.user_id
         LIMIT #{limitHelper.offset} #{limitHelper.pageSize}
     </select>
+
+    <select id="getByChildUserId" resultType="com.pos.authority.dto.relation.CustomerRelationDto">
+        SELECT
+            cr.`id` AS `id`,
+            cr.user_id AS userId,
+            cp.`level` AS `level`,
+            cp.withdraw_rate AS withdrawRate,
+            cp.extra_service_charge AS extraServiceCharge,
+            cp.audit_status AS auditStatus,
+            cr.parent_user_id AS parentUserId,
+            cr.remark AS remark,
+            cr.update_user_id AS updateUserId,
+            cr.update_time AS updateTime,
+            cr.create_time AS relationTime
+        FROM
+        customer_relation cr
+        INNER JOIN customer_permission cp ON cr.user_id = cp.user_id
+        WHERE cr.user_id = #{childUserId}
+    </select>
 </mapper>

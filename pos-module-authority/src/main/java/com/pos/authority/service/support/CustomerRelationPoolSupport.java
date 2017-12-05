@@ -7,7 +7,6 @@ import com.google.common.collect.Lists;
 import com.pos.authority.constant.CustomerAuditStatus;
 import com.pos.authority.dao.CustomerPermissionDao;
 import com.pos.authority.dao.CustomerRelationDao;
-import com.pos.authority.dto.permission.CustomerPermissionDto;
 import com.pos.authority.dto.relation.CustomerRelationDto;
 import com.pos.authority.service.support.relation.CustomerRelationNode;
 import com.pos.basic.constant.RedisConstants;
@@ -16,7 +15,6 @@ import com.pos.common.util.date.SimpleDateUtils;
 import com.pos.common.util.mvc.support.LimitHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -25,8 +23,6 @@ import javax.annotation.Resource;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * 客户关系树支持
@@ -319,15 +315,6 @@ public class CustomerRelationPoolSupport {
         rootNode.setAuditStatus(CustomerAuditStatus.AUDITED.getCode());
 
         return rootNode;
-    }
-
-
-    private CustomerRelationNode buildCustomerRelation(CustomerPermissionDto permission) {
-        CustomerRelationNode relationNode = new CustomerRelationNode();
-
-        BeanUtils.copyProperties(permission, relationNode);
-
-        return relationNode;
     }
 
 }

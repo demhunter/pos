@@ -30,6 +30,12 @@ public class BrokerageGeneralInfoDto implements Serializable {
     @ApiModelProperty("今日收益（BigDecimal）")
     private BigDecimal todayBrokerage;
 
+    public BrokerageGeneralInfoDto() {
+        canApplyBrokerage = BigDecimal.ZERO;
+        appliedBrokerage = BigDecimal.ZERO;
+        todayBrokerage = BigDecimal.ZERO;
+    }
+
     public BigDecimal getTodayBrokerage() {
         return todayBrokerage;
     }

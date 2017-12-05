@@ -29,6 +29,11 @@
             <groupId>com.pos</groupId>
             <artifactId>pos-module-user</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.pos</groupId>
+            <artifactId>pos-module-authority</artifactId>
+        </dependency>
         <!-- module end -->
 
         <dependency>

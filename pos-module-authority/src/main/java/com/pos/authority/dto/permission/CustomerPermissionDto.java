@@ -6,81 +6,136 @@ package com.pos.authority.dto.permission;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
+import java.util.Date;
 
 /**
- * 客户权限DTO
+ * 客户权限详细DTO
  *
  * @author wangbing
  * @version 1.0, 2017/11/24
  */
-public class CustomerPermissionDto implements Serializable {
+public class CustomerPermissionDto extends CustomerPermissionBasicDto implements Serializable {
 
     private static final long serialVersionUID = 2566400720013890423L;
 
-    @ApiModelProperty("权限主键id")
-    private Long id;
+    @ApiModelProperty("身份认证状态")
+    private Integer auditStatus;
 
-    @ApiModelProperty("用户id")
-    private Long userId;
+    @ApiModelProperty("身份认证审核未通过原因")
+    private String rejectReason;
 
-    @ApiModelProperty("用户等级")
-    private int level;
+    @ApiModelProperty("真实姓名")
+    private String idCardName;
 
-    @ApiModelProperty("用户收款权限：1 = 未启用，2 = 启用，3 = 关闭")
-    private int withdrawPermission;
+    @ApiModelProperty("身份证号码")
+    private String idCardNo;
 
-    @ApiModelProperty("用户收款费率")
-    private BigDecimal withdrawRate;
+    @ApiModelProperty("身份证正面照")
+    private String idImageA;
 
-    @ApiModelProperty("父用户id")
-    private Long parentUserId;
+    @ApiModelProperty("身份证反面照")
+    private String idImageB;
 
-    public Long getId() {
-        return id;
+    @ApiModelProperty("绑定的收款银行卡id")
+    private Long posCardId;
+
+    @ApiModelProperty("绑定的收款银行卡正面照")
+    private String posCardImage;
+
+    @ApiModelProperty("更新操作人id")
+    private Long updateUserId;
+
+    @ApiModelProperty("更新操作时间")
+    private Date updateTime;
+
+    @ApiModelProperty("权限创建时间")
+    private Date createTime;
+
+    public Integer getAuditStatus() {
+        return auditStatus;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setAuditStatus(Integer auditStatus) {
+        this.auditStatus = auditStatus;
     }
 
-    public Long getUserId() {
-        return userId;
+    public String getRejectReason() {
+        return rejectReason;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setRejectReason(String rejectReason) {
+        this.rejectReason = rejectReason;
     }
 
-    public int getLevel() {
-        return level;
+    public String getIdCardName() {
+        return idCardName;
     }
 
-    public void setLevel(int level) {
-        this.level = level;
+    public void setIdCardName(String idCardName) {
+        this.idCardName = idCardName;
     }
 
-    public int getWithdrawPermission() {
-        return withdrawPermission;
+    public String getIdCardNo() {
+        return idCardNo;
     }
 
-    public void setWithdrawPermission(int withdrawPermission) {
-        this.withdrawPermission = withdrawPermission;
+    public void setIdCardNo(String idCardNo) {
+        this.idCardNo = idCardNo;
     }
 
-    public BigDecimal getWithdrawRate() {
-        return withdrawRate;
+    public String getIdImageA() {
+        return idImageA;
     }
 
-    public void setWithdrawRate(BigDecimal withdrawRate) {
-        this.withdrawRate = withdrawRate;
+    public void setIdImageA(String idImageA) {
+        this.idImageA = idImageA;
     }
 
-    public Long getParentUserId() {
-        return parentUserId;
+    public String getIdImageB() {
+        return idImageB;
     }
 
-    public void setParentUserId(Long parentUserId) {
-        this.parentUserId = parentUserId;
+    public void setIdImageB(String idImageB) {
+        this.idImageB = idImageB;
+    }
+
+    public Long getPosCardId() {
+        return posCardId;
+    }
+
+    public void setPosCardId(Long posCardId) {
+        this.posCardId = posCardId;
+    }
+
+    public String getPosCardImage() {
+        return posCardImage;
+    }
+
+    public void setPosCardImage(String posCardImage) {
+        this.posCardImage = posCardImage;
+    }
+
+    public Long getUpdateUserId() {
+        return updateUserId;
+    }
+
+    public void setUpdateUserId(Long updateUserId) {
+        this.updateUserId = updateUserId;
+    }
+
+    public Date getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
     }
 }

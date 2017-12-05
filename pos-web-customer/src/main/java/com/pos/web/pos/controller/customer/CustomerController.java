@@ -3,18 +3,21 @@
  */
 package com.pos.web.pos.controller.customer;
 
+import com.pos.authority.dto.permission.CustomerPermissionDto;
+import com.pos.authority.dto.statistics.CustomerStatisticsDto;
+import com.pos.authority.service.CustomerAuthorityService;
+import com.pos.authority.service.CustomerRelationService;
+import com.pos.authority.service.CustomerStatisticsService;
 import com.pos.common.util.mvc.resolver.FromSession;
 import com.pos.common.util.mvc.support.ApiResult;
-import com.pos.pos.constants.PosConstants;
-import com.pos.pos.constants.UserAuditStatus;
-import com.pos.pos.dto.auth.PosUserAuthDetailDto;
-import com.pos.pos.service.PosService;
-import com.pos.pos.service.PosUserTransactionRecordService;
+import com.pos.pos.dto.brokerage.BrokerageGeneralInfoDto;
+import com.pos.pos.service.CustomerBrokerageService;
 import com.pos.user.dto.customer.CustomerDto;
 import com.pos.user.exception.UserErrorCode;
 import com.pos.user.service.CustomerService;
 import com.pos.user.session.UserInfo;
 import com.pos.web.pos.vo.response.CustomerVo;
+import com.pos.web.pos.vo.response.RecommendSimpleVo;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
@@ -39,13 +42,16 @@ public class CustomerController {
     private CustomerService customerService;
 
     @Resource
-    private PosConstants posConstants;
+    private CustomerAuthorityService customerAuthorityService;
 
     @Resource
-    private PosService posService;
+    private CustomerStatisticsService customerStatisticsService;
 
     @Resource
-    private PosUserTransactionRecordService posUserTransactionRecordService;
+    private CustomerRelationService customerRelationService;
+
+    @Resource
+    private CustomerBrokerageService customerBrokerageService;
 
     @RequestMapping(value = "", method = RequestMethod.GET)
     @ApiOperation(value = "v2.0.0 获取用户信息，用以展示首页内容和我的页面的内容", notes = "获取用户信息，用以展示首页内容和我的页面的内容")
@@ -61,18 +67,30 @@ public class CustomerController {
 
     private CustomerVo fillCustomerVo(CustomerDto customer) {
         CustomerVo result = new CustomerVo();
-        customer.setHeadImage(posConstants.getPosHeadImage());
         customer.setNickName(StringUtils.isNotBlank(customer.getName()) ? customer.getName() : customer.getUserPhone());
         result.setCustomerDto(customer);
-        PosUserAuthDetailDto authDetail =
-                posService.findAuthDetail(customer.getId());
-        if (authDetail != null) {
-            result.setAuditStatus(authDetail.getAuditStatus());
-            result.setRejectReason(authDetail.getRejectReason());
+        // 用户自身权限信息
+        CustomerPermissionDto permission = customerAuthorityService.getPermission(customer.getId());
+        result.setAuditStatus(permission.getAuditStatus());
+        result.setRejectReason(permission.getRejectReason());
+        result.setCurrentLevel(permission.getLevel());
+        result.setCurrentLevelDesc("Lv" + permission.getLevel());
+        // 用户累计收款和今日收益
+        CustomerStatisticsDto statistics = customerStatisticsService.getStatistics(customer.getId());
+        if (statistics != null) {
+            result.setTotalWithdrawAmount(statistics.getWithdrawAmount());
+        }
+        BrokerageGeneralInfoDto general = customerBrokerageService.getBrokerageGeneral(customer.getId());
+        result.setTodayBrokerage(general.getTodayBrokerage());
+        // 用户的上级信息
+        CustomerDto referrer = customerRelationService.getParentCustomer(customer.getId());
+        if (referrer != null && !referrer.getId().equals(0L)) {
+            RecommendSimpleVo recommendInfo = new RecommendSimpleVo();
+            recommendInfo.setUserId(referrer.getId());
+            recommendInfo.setName(referrer.getName());
+            recommendInfo.setPhone(referrer.getUserPhone());
 
-            UserAuditStatus auditStatus = authDetail.parseAuditStatus();
-            // 没有交易记录的用户需要在快捷收款处显示小红点，引导用户点击
-            result.setShowGetRedDot(posUserTransactionRecordService.queryUserTransactionCount(customer.getId()) <= 0);
+            result.setRecommendInfo(recommendInfo);
         }
 
         return result;

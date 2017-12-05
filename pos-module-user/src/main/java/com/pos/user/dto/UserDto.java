@@ -23,7 +23,7 @@ import java.util.Date;
  */
 public abstract class UserDto {
 
-    public static final String DEFAULT_HEAD_IMAGE = "http://o8nljewkg.bkt.clouddn.com/o_1ao3jmbhk11qj1q031k9s10685qac.png?width=256&height=256";
+    public static final String DEFAULT_HEAD_IMAGE = "http://o8nljewkg.bkt.clouddn.com/o_1btehjls1153n17t9rrkgl1e9ir.png?width=138&height=138";
 
     @ApiModelProperty("用户编号")
     private Long id;

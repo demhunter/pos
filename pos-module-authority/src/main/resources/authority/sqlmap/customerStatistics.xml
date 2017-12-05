@@ -30,6 +30,22 @@
         )
     </insert>
 
+    <select id="getByUserId" resultType="com.pos.authority.dto.statistics.CustomerStatisticsDto">
+        SELECT
+            `id` AS `id`
+            user_id AS userId,
+            paid_charge AS paidCharge,
+            children_count AS childrenCount,
+            withdraw_amount AS withdrawAmount,
+            total_brokerage AS totalBrokerage,
+            withdrawal_brokerage AS withdrawalBrokerage,
+            withdrawal_brokerage_times AS withdrawalBrokerageTimes,
+            interview_times AS interviewTimes,
+            update_time AS updateTime
+        FROM customer_statistics
+        WHERE user_id = #{userId}
+    </select>
+
     <update id="incrementChildrenCount">
         UPDATE customer_statistics
         SET children_count = children_count + 1,

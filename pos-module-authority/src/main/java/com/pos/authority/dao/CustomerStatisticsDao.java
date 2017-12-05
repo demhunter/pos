@@ -4,6 +4,7 @@
 package com.pos.authority.dao;
 
 import com.pos.authority.domain.CustomerStatistics;
+import com.pos.authority.dto.statistics.CustomerStatisticsDto;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -22,6 +23,14 @@ public interface CustomerStatisticsDao {
      * @param statistics 客户统计信息
      */
     void save(@Param("statistics") CustomerStatistics statistics);
+
+    /**
+     * 根据用户id获取统计信息
+     *
+     * @param userId 用户id
+     * @return 客户统计信息
+     */
+    CustomerStatisticsDto getByUserId(@Param("userId") Long userId);
 
     /**
      * 以原子形式增加用户的直接下级客户数量（+ 1）

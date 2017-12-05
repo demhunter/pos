@@ -3,6 +3,8 @@
  */
 package com.pos.authority.service;
 
+import com.pos.authority.dto.permission.CustomerPermissionDto;
+
 /**
  * 客户权限Service
  *
@@ -18,4 +20,12 @@ public interface CustomerAuthorityService {
      * @param parentUserId 新注册用户的上级用户id
      */
     void initialize(Long userId, Long parentUserId);
+
+    /**
+     * 获取指定用户的权限信息
+     *
+     * @param userId 用户id
+     * @return 权限信息
+     */
+    CustomerPermissionDto getPermission(Long userId);
 }

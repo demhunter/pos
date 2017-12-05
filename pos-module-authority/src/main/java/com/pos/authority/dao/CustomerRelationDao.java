@@ -34,4 +34,12 @@ public interface CustomerRelationDao {
      * @return 关联关系信息列表
      */
     List<CustomerRelationDto> getRelations(@Param("limitHelper") LimitHelper limitHelper);
+
+    /**
+     * 根据用户id查询上下客户关系
+     *
+     * @param childUserId 用户id
+     * @return 上下客户关系
+     */
+    CustomerRelationDto getByChildUserId(@Param("childUserId") Long childUserId);
 }

@@ -4,7 +4,7 @@
 
 <mapper namespace="com.pos.authority.dao.CustomerPermissionDao">
 
-    <select id="save" parameterType="com.pos.authority.domain.CustomerPermission">
+    <insert id="save" parameterType="com.pos.authority.domain.CustomerPermission">
         INSERT INTO customer_permission
         (
             user_id,
@@ -21,17 +21,27 @@
             #{permission.auditStatus},
             NOW()
         )
-    </select>
+    </insert>
 
-    <select id="query" resultType="com.pos.authority.dto.permission.CustomerPermissionDto">
+    <select id="getPermission" resultType="com.pos.authority.domain.CustomerPermission">
         SELECT
-            `id` AS `id`,
+            `id`,
             user_id AS userId,
-            level AS level,
-            withdraw_permission AS withdrawPermission,
+            `level` AS `level`,
             withdraw_rate AS withdrawRate,
-            parent_user_id AS parentUserId
+            extra_service_charge AS extraServiceCharge,
+            audit_status AS auditStatus,
+            reject_reason AS rejectReason,
+            id_card_name AS idCardName,
+            id_card_no AS idCardNo,
+            id_image_a AS idImageA,
+            id_image_b AS idImageB,
+            pos_card_id AS posCardId,
+            pos_card_image AS posCardImage,
+            update_user_id AS updateUserId,
+            update_time AS updateTime,
+            create_time AS createTime
         FROM customer_permission
-        ORDER BY user_id DESC
+        WHERE user_id = #{userId}
     </select>
 </mapper>
