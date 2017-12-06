@@ -45,6 +45,7 @@ public class BankCardController {
             @ApiParam(name = "bindCardInfo", value = "绑卡信息")
             @RequestBody BindCardDto bindCardInfo,
             @FromSession UserInfo userInfo) {
+        // TODO 换绑操作日志
         return posCardService.alterWithdrawCard(userInfo.getId(), bindCardInfo);
     }
 

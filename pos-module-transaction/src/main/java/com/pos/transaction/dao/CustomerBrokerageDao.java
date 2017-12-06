@@ -3,11 +3,13 @@
  */
 package com.pos.transaction.dao;
 
+import com.pos.transaction.domain.TransactionCustomerBrokerage;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 客户佣金Dao
@@ -17,6 +19,13 @@ import java.util.Date;
  */
 @Repository
 public interface CustomerBrokerageDao {
+
+    /**
+     * 批量保存生成的交易佣金信息
+     *
+     * @param brokerages 佣金列表
+     */
+    void saveBrokerages(List<TransactionCustomerBrokerage> brokerages);
 
     /**
      * 获取指定时间范围内的用户总佣金

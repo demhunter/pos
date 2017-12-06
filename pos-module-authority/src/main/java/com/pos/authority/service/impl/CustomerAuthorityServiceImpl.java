@@ -270,6 +270,9 @@ public class CustomerAuthorityServiceImpl implements CustomerAuthorityService {
 
         customerPermissionDao.updateAuditStatus(transferContext.getUserId(), auditStatus.getCode(),
                 transferContext.getRejectReason(), transferContext.getOperatorUserId());
+
+        customerRelationPoolSupport.updateAuditStatus(transferContext.getUserId(), auditStatus);
+
         return true;
     }
 }

@@ -28,23 +28,33 @@ import java.util.List;
 public interface PosUserTransactionRecordDao {
 
     /**
-     * 标记已申请提现的记录为已提取
+     * 获取指定的交易信息
      *
-     * @param userId 用户userId
+     * @param transactionId 交易id
+     * @return 交易信息
      */
-    void markTransactionRecordAgentStatus(
-            @Param("userId") Long userId,
-            @Param("fromAgentStatus") Byte fromAgentStatus,
-            @Param("toAgentStatus") Byte toAgentStatus,
-            @Param("deadline") Date deadline);
+    UserPosTransactionRecord get(@Param("transactionId") Long transactionId);
 
     /**
-     * 查询用户推广概要信息
+     * 保存交易信息
      *
-     * @param user 用户标识
-     * @return 推广概要信息
+     * @param transaction 交易信息
      */
-    SpreadGeneralInfoDto querySpreadGeneralInfo(@Param("user") UserIdentifier user);
+    void saveNormalTransaction(@Param("transaction") UserPosTransactionRecord transaction);
+
+    /**
+     * 更新交易信息
+     *
+     * @param transaction 交易信息
+     */
+    void updateTransaction(@Param("transaction") UserPosTransactionRecord transaction);
+
+    /**
+     * 已原子形式增加交易失败次数（+1）
+     *
+     * @param transactionId 交易id
+     */
+    void incrementFailureTimes(Long transactionId);
 
     /**
      * 查询每日记录数据统计
@@ -56,17 +66,6 @@ public interface PosUserTransactionRecordDao {
     List<BrokerageDailyStatisticsDto> queryDailyStatistics(
             @Param("user") UserIdentifier user,
             @Param("limitHelper") LimitHelper limitHelper);
-
-    /**
-     * 查询到截止时间用户可提现的金额
-     *
-     * @param user     用户标识
-     * @param deadline 截止时间
-     * @return 可提现金额
-     */
-    BigDecimal queryCurrentCanWithdrawDepositAmount(
-            @Param("user") UserIdentifier user,
-            @Param("deadline") Date deadline);
 
     /**
      * 查询符合条件的交易数量
@@ -103,5 +102,6 @@ public interface PosUserTransactionRecordDao {
      *
      * @param record 交易信息
      */
+    @Deprecated
     void updateTransactionOutCardInfo(@Param("record") UserPosTransactionRecord record);
 }

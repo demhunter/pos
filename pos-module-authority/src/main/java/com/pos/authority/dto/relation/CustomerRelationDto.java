@@ -3,7 +3,9 @@
  */
 package com.pos.authority.dto.relation;
 
+import com.pos.common.util.basic.Copyable;
 import com.wordnik.swagger.annotations.ApiModelProperty;
+import org.springframework.beans.BeanUtils;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -15,7 +17,7 @@ import java.util.Date;
  * @author wangbing
  * @version 1.0, 2017/12/4
  */
-public class CustomerRelationDto implements Serializable {
+public class CustomerRelationDto implements Serializable, Copyable<CustomerRelationDto> {
 
     private static final long serialVersionUID = -4232221009446877688L;
 
@@ -51,6 +53,13 @@ public class CustomerRelationDto implements Serializable {
 
     @ApiModelProperty("父子关系建立时间")
     private Date relationTime;
+
+    @Override
+    public CustomerRelationDto copy() {
+        CustomerRelationDto backup = new CustomerRelationDto();
+        BeanUtils.copyProperties(this, backup);
+        return backup;
+    }
 
     public Long getId() {
         return id;

@@ -33,6 +33,8 @@ public class PosTransactionCondition {
 
     private Date endDate; // 创建时间-交易结束时间
 
+    private Integer transactionType; // 交易类型
+
     /**
      * 解析开始截止日期（格式：yyyy-MM-dd）
      *
@@ -114,5 +116,13 @@ public class PosTransactionCondition {
 
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
+    }
+
+    public Integer getTransactionType() {
+        return transactionType;
+    }
+
+    public void setTransactionType(Integer transactionType) {
+        this.transactionType = transactionType;
     }
 }

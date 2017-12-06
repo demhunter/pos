@@ -10,6 +10,7 @@ import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.transaction.constants.PosConstants;
 import com.pos.transaction.constants.TransactionStatusType;
 import com.pos.transaction.dao.PosDao;
+import com.pos.transaction.dao.PosUserTransactionRecordDao;
 import com.pos.transaction.domain.UserPosTransactionRecord;
 import com.pos.transaction.fsm.context.TransactionStatusTransferContext;
 import com.pos.transaction.helipay.vo.QueryOrderVo;
@@ -50,6 +51,9 @@ public class PosTransactionScheduler {
     @Resource
     private PosDao posDao;
 
+    @Resource
+    private PosUserTransactionRecordDao posUserTransactionRecordDao;
+
     @Scheduled(cron = "0 */2 * * * ?")
     public void execute() {
         log.info("-------------------->快捷收款轮询交易状态定时任务启动");
@@ -58,9 +62,9 @@ public class PosTransactionScheduler {
             if (queueSize > 0) {
                 log.info("-------------------->当前共有{}个交易待查询", queueSize);
                 // 已当前队列数据，启动轮询
-                for (long index = 0; index < queueSize ; index++) {
+                for (long index = 0; index < queueSize; index++) {
                     Long recordId = Long.valueOf(redisTemplate.opsForList().leftPop(RedisConstants.POS_TRANSACTION_WITHDRAW_QUEUE));
-                    UserPosTransactionRecord transactionRecord =posDao.queryRecordById(recordId);
+                    UserPosTransactionRecord transactionRecord = posUserTransactionRecordDao.get(recordId);
                     TransactionStatusType statusType = TransactionStatusType.getEnum(transactionRecord.getStatus());
                     // 只轮询状态处于处理中的交易
                     if (statusType.canPolling()) {

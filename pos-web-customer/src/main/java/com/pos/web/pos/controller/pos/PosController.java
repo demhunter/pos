@@ -16,6 +16,7 @@ import com.pos.common.util.web.http.HttpRequestUtils;
 import com.pos.transaction.condition.orderby.PosTransactionOrderField;
 import com.pos.transaction.condition.query.PosTransactionCondition;
 import com.pos.transaction.constants.TransactionStatusType;
+import com.pos.transaction.constants.TransactionType;
 import com.pos.transaction.dto.CreateOrderDto;
 import com.pos.transaction.dto.GetSignDto;
 import com.pos.transaction.dto.get.QuickGetMoneyDto;
@@ -95,6 +96,7 @@ public class PosController {
             @RequestBody SelectCardRequestDto selectCardRequestDto,
             @FromSession UserInfo userInfo, HttpServletRequest request) {
         String ip = HttpRequestUtils.getRealRemoteAddr(request);
+        // TODO 记录操作日志
         return posService.selectCreateRecord(userInfo.getId(), selectCardRequestDto ,ip);
     }
 
@@ -105,6 +107,7 @@ public class PosController {
             @RequestBody GetMoneyDto getMoneyRequestDto,
             @FromSession UserInfo userInfo, HttpServletRequest request) {
         String ip = HttpRequestUtils.getRealRemoteAddr(request);
+        // TODO 记录操作日志
         return posService.writeCreateRecord(getMoneyRequestDto,  userInfo.getId(), ip);
     }
 
@@ -114,6 +117,7 @@ public class PosController {
             @ApiParam(name = "recordId", value = "记录ID")
             @PathVariable("recordId") Long recordId,
             @FromSession UserInfo userInfo) {
+        // TODO 记录操作日志
         return posService.sendPayValidateSmsCode(userInfo.getId(), recordId);
     }
 
@@ -125,6 +129,7 @@ public class PosController {
             @ApiParam(name = "smsCode", value = "短信验证码")
             @RequestParam("smsCode") String smsCode,
             @FromSession UserInfo userInfo, HttpServletRequest request) {
+        // TODO 记录操作日志
         String ip = HttpRequestUtils.getRealRemoteAddr(request);
         boolean hasLock = false;
         ReentrantLock lock = SEG_LOCKS.getLock(recordId);
@@ -147,15 +152,18 @@ public class PosController {
     @RequestMapping(value = "records", method = RequestMethod.GET)
     @ApiOperation(value = "v1.0.0 * 收款记录", notes = "收款记录（* 卡号只有后四位）")
     public ApiResult<List<RecordVo>> transactionRecords(
-            @ApiParam(name = "pageNum", value = "页码，默认为1")
+            @ApiParam(name = "pageNum", value = "页码")
             @RequestParam("pageNum") int pageNum,
-            @ApiParam(name = "pageSize", value = "每页大小，默认为10")
+            @ApiParam(name = "pageSize", value = "每页大小")
             @RequestParam("pageSize") int pageSize,
             @FromSession UserInfo userInfo) {
         LimitHelper limitHelper = new LimitHelper(pageNum, pageSize);
         PosTransactionCondition condition = new PosTransactionCondition();
         condition.setUserId(userInfo.getId());
-        condition.setExcludedStatuses(Lists.newArrayList(TransactionStatusType.PREDICT_TRANSACTION.getCode()));
+        condition.setExcludedStatuses(Lists.newArrayList(
+                TransactionStatusType.ORIGIN_TRANSACTION.getCode(),
+                TransactionStatusType.PREDICT_TRANSACTION.getCode()));
+        condition.setTransactionType(TransactionType.NORMAL_WITHDRAW.getCode());
 
         List<TransactionRecordDto> records = posUserTransactionRecordService.queryUserTransactionRecord(
                 condition, PosTransactionOrderField.getPayTimeOrderHelper(), limitHelper).getData().getResult();

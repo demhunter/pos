@@ -6,6 +6,7 @@ package com.pos.authority.service.impl;
 import com.pos.authority.dao.CustomerRelationDao;
 import com.pos.authority.dto.relation.CustomerRelationDto;
 import com.pos.authority.service.CustomerRelationService;
+import com.pos.authority.service.support.CustomerRelationPoolSupport;
 import com.pos.common.util.validation.FieldChecker;
 import com.pos.user.dto.customer.CustomerDto;
 import com.pos.user.service.CustomerService;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.Queue;
 
 /**
  * 客户关系ServiceImpl
@@ -29,6 +31,9 @@ public class CustomerRelationServiceImpl implements CustomerRelationService {
 
     @Resource
     private CustomerRelationDao customerRelationDao;
+
+    @Resource
+    private CustomerRelationPoolSupport customerRelationPoolSupport;
 
     @Override
     public CustomerRelationDto getRelation(Long childUserId) {
@@ -54,5 +59,12 @@ public class CustomerRelationServiceImpl implements CustomerRelationService {
         }
 
         return parent;
+    }
+
+    @Override
+    public Queue<CustomerRelationDto> generateBrokerageParticipatorQueue(Long userId) {
+        FieldChecker.checkEmpty(userId, "userId");
+
+        return customerRelationPoolSupport.generateBrokerageParticipatorQueue(userId);
     }
 }

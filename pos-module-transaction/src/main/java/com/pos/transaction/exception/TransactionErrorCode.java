@@ -17,6 +17,14 @@ public enum TransactionErrorCode implements ErrorCode {
 
     POS_ERROR_AUTHORITY_AUDIT_STATUS_REJECTED(1101, "身份认证未通过，不能进行收款操作！"),
 
+    POS_ERROR_OUT_BANK_CARD_NOT_EXISTED(1102, "支付银行卡不存在，不能进行收款操作！"),
+
+    POS_ERROR_CARD_USER_DIFFERENCE(1103, "付款银行卡必须跟收款银行卡是同一个持卡人"),
+
+    POS_ERROR_TRANSACTION_NOT_EXISTED(1104, "交易记录不存在"),
+
+    POS_ERROR_STATUS_FOR_SMS_CODE(1105, "交易已处理，请勿重新获取短信验证码"),
+
     BIND_CARD_ERROR_AUTHORITY_AUDIT_STATUS_AUDITED(1110, "身份认证已通过，不能重复绑定收款银行卡！"),
 
     BIND_CARD_ERROR_AUTHORITY_AUDIT_STATUS_NOT_AUDIT(1111, "身份认证审核中，不能重复绑定收款银行卡！"),

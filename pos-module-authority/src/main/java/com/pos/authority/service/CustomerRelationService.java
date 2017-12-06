@@ -6,6 +6,8 @@ package com.pos.authority.service;
 import com.pos.authority.dto.relation.CustomerRelationDto;
 import com.pos.user.dto.customer.CustomerDto;
 
+import java.util.Queue;
+
 /**
  * 客户关系Service
  *
@@ -29,4 +31,13 @@ public interface CustomerRelationService {
      * @return 用户的上级用户信息
      */
     CustomerDto getParentCustomer(Long childUserId);
+
+    /**
+     * 生成参与分佣队列，队列头为交易用户信息<br>
+     * PS：当队列长度大于2时，才有相应参与分佣的上级客户<br>
+     *
+     * @param userId 交易产生用户id
+     * @return 参与分佣队列
+     */
+    Queue<CustomerRelationDto> generateBrokerageParticipatorQueue(Long userId);
 }

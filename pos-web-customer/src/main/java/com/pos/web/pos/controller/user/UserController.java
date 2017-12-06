@@ -31,6 +31,7 @@ import com.pos.user.session.UserInfo;
 import com.pos.user.session.UserSessionPosComponent;
 import com.pos.web.pos.vo.request.LoginRequestDto;
 import com.pos.web.pos.vo.request.RegisterRequestDto;
+import com.pos.web.pos.vo.user.UserUpdatePasswordVo;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
@@ -88,12 +89,6 @@ public class UserController {
         return posUserChannelInfoService.findReferrerSimpleInfo(referrerUserId);
     }
 
-    /**
-     * 用户注册请求
-     *
-     * @param registerRequestDto 注册相关信息
-     * @return 注册结果
-     */
     @RequestMapping(value = "register", method = RequestMethod.POST)
     @ApiOperation(value = "v1.0.0 * 用户注册请求", notes = "用户注册请求")
     public ApiResult<UserRegConfirmDto> register(
@@ -129,12 +124,6 @@ public class UserController {
         return apiResult;
     }
 
-    /**
-     * 用户登录接口
-     *
-     * @param loginRequestDto 登录相关信息
-     * @return 登录结果
-     */
     @RequestMapping(value = "login", method = RequestMethod.POST)
     @ApiOperation(value = "v1.0.0 * 用户登录接口", notes = "用户登录接口(wb * 只返回用户基本信息，其它信息再调用获取用户信息接口获取详细信息)")
     public ApiResult<CustomerDto> login(
@@ -144,12 +133,6 @@ public class UserController {
         return doLogin(loginRequestDto, request, true, session);
     }
 
-    /**
-     * 用户登录测试接口
-     *
-     * @param loginRequestDto 登录相关信息
-     * @return 登录结果
-     */
     @RequestMapping(value = "loginTest", method = RequestMethod.POST)
     @ApiOperation(value = "v1.0.0 * 登录测试接口", notes = "管理员登录测试接口，用于开发/测试环境下调试")
     public ApiResult<CustomerDto> loginTest(
@@ -159,11 +142,6 @@ public class UserController {
         return doLogin(loginRequestDto, request, false, session);
     }
 
-    /**
-     * 用户登出接口
-     *
-     * @return 登出结果
-     */
     @RequestMapping(value = "logout", method = RequestMethod.POST)
     @ApiOperation(value = "v1.0.0 * 用户登出接口", notes = "用户登出接口")
     public ApiResult<NullObject> logout(@FromSession UserInfo userInfo, HttpSession httpSession) {
@@ -174,12 +152,6 @@ public class UserController {
         return ApiResult.succ(null, "用户已退出！");
     }
 
-    /**
-     * 找回密码请求
-     *
-     * @param loginInfoVo 登录相关信息
-     * @return 用户信息结果
-     */
     @RequestMapping(value = "getBackPassword", method = RequestMethod.POST)
     @ApiOperation(value = "v1.0.0 * 找回密码请求", notes = "找回密码请求，找回成功后如果用户已经开通C端账号则自动登录(v1.3.3 返回自定义UserSession)")
     public ApiResult getBackPassword(
@@ -189,6 +161,17 @@ public class UserController {
         String decryptedPassword = securityService.decryptData(loginInfoVo.getPassword());
         return userService.updatePwdByPhone(loginInfoVo.getPhone(),
                 decryptedPassword, loginInfoVo.getSmsCode(), UserType.CUSTOMER);
+    }
+
+    @RequestMapping(value = "password/update", method = RequestMethod.POST)
+    @ApiOperation(value = "v2.0.0 * 修改密码", notes = "修改密码")
+    public ApiResult updatePassword(
+            @ApiParam(name = "updatePasswordVo", value = "密码更换信息")
+            @RequestBody UserUpdatePasswordVo updatePasswordVo,
+            @FromSession UserInfo userInfo) {
+        // 解密密码
+        // String decryptedPassword = securityService.decryptData(loginInfoVo.getPassword());
+        return null;
     }
 
 

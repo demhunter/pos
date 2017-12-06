@@ -55,7 +55,7 @@ public class UserPosTransactionRecord implements Serializable {
 
     private Integer failureTimes; // 交易失败次数(>0 表示存在过失败情况）
 
-    private String extra; // 交易额外信息
+    private Date updateTime; // 交易更新时间
 
     public Long getId() {
         return id;
@@ -201,11 +201,11 @@ public class UserPosTransactionRecord implements Serializable {
         this.failureTimes = failureTimes;
     }
 
-    public String getExtra() {
-        return extra;
+    public Date getUpdateTime() {
+        return updateTime;
     }
 
-    public void setExtra(String extra) {
-        this.extra = extra;
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
     }
 }

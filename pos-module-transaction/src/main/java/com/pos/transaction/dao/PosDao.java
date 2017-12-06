@@ -17,12 +17,8 @@ import java.util.List;
 @Repository
 public interface PosDao {
 
-    List<Long> getCompanyIds();
-
     List<UserPosTransactionRecord> queryRecordByUserIdAndCostType(@Param("userId") long userId, @Param("costType")
             int costType);
-
-    UserPosTransactionRecord queryRecordById(@Param("id") long id);
 
     UserPosTransactionRecord queryRecordByRecordNum(@Param("recordNum") String recordNum);
 

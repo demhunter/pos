@@ -53,11 +53,7 @@ public class StatisticsController {
             @ApiParam(name = "beginTime", value = "注册开始时间（格式：yyyy-MM-dd）")
             @RequestParam(name = "beginTime", required = false) String beginTime,
             @ApiParam(name = "endTime", value = "注册结束时间（格式：yyyy-MM-dd）")
-            @RequestParam(name = "endTime", required = false) String endTime,
-            @ApiParam(name = "pageNum", value = "当前页编号")
-            @RequestParam("pageNum") int pageNum,
-            @ApiParam(name = "pageSize", value = "每页显示的记录数量")
-            @RequestParam("pageSize") int pageSize) {
+            @RequestParam(name = "endTime", required = false) String endTime) {
         return null;
     }
 }

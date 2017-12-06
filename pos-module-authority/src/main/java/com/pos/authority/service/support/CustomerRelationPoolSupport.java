@@ -3,7 +3,6 @@
  */
 package com.pos.authority.service.support;
 
-import com.google.common.collect.Lists;
 import com.pos.authority.constant.CustomerAuditStatus;
 import com.pos.authority.dao.CustomerRelationDao;
 import com.pos.authority.dto.relation.CustomerRelationDto;
@@ -34,13 +33,14 @@ public class CustomerRelationPoolSupport {
 
     private final static Logger LOG = LoggerFactory.getLogger(CustomerRelationPoolSupport.class);
 
-    private static CustomerRelationNode relationTree = null;
-
     @Resource
     private CustomerRelationDao customerRelationDao;
 
     @Resource
     private RedisTemplate<Serializable, Serializable> redisTemplate;
+
+    @Resource
+    private CustomerLevelSupport customerLevelSupport;
 
     /**
      * 初始化客户关系树
@@ -157,7 +157,68 @@ public class CustomerRelationPoolSupport {
         return customerRelation;
     }
 
-    private void addNodeToTree(CustomerRelationNode node) {
+    /**
+     * 更新缓存中用户的身份认证审核状态
+     *
+     * @param userId      用户id
+     * @param auditStatus 目标状态
+     * @return 更新结果
+     */
+    public boolean updateAuditStatus(Long userId, CustomerAuditStatus auditStatus) {
+        FieldChecker.checkEmpty(userId, "userId");
+        FieldChecker.checkEmpty(auditStatus, "auditStatus");
+
+        redisTemplate.opsForHash().put(RedisConstants.POS_CUSTOMER_RELATION_NODE + userId, "auditStatus", auditStatus.getCode());
+
+        return true;
+    }
+
+    /**
+     * 生成参与分佣队列，队列头为交易用户信息<br>
+     * PS：当队列长度大于2时，才有相应参与分佣的上级客户<br>
+     * 分佣参与者队列生成规则：[ROOT_USER_ID：关系树最顶层用户id；MAX_LEVEL：分佣等级限制]<br>
+     * 1、当前交易用户直接加入队列，作为队列头，记录当前等级游标[cursorLevel]和父级用户id[parentUserId]；<br>
+     * 2、是否需要往上层搜索：expression = cursorLevel < MAX_LEVEL && parentUserId != ROOT_USER_ID；<br>
+     * 3、CASE_A：当expression = true时，往上搜索获取下个可能参与分佣的用户[nextParticipator]，
+     *              3.1、更新parentUserId = nextParticipator.parentUserId，
+     *              3.2、判断levelExpression = nextParticipator.level > cursorLevel，当levelExpression = true时，更新cursorLevel = nextParticipator.level
+     *              3.3、跳转至第【2】步；
+     *    CASE_B：当expression = false时，结束搜索；
+     * 4、返回分佣参与队列
+     * @param userId 交易用户id
+     * @return 分佣参与者队列
+     */
+    public Queue<CustomerRelationDto> generateBrokerageParticipatorQueue(Long userId) {
+        Queue<CustomerRelationDto> participatorQueue = new ArrayDeque<>();
+
+        // 交易所属用户加入队列
+        CustomerRelationDto transactionUser = getCustomerRelation(userId);
+        if (transactionUser == null) {
+            return participatorQueue;
+        }
+        participatorQueue.add(transactionUser);
+
+        final long ROOT_USER_ID = 0; // 关系树最顶层用户id
+        final int MAX_LEVEL = customerLevelSupport.getMaxLevelConfig().getLevel(); // 分佣等级限制
+        int cursorLevel = transactionUser.getLevel();
+        long parentUserId = transactionUser.getParentUserId();
+
+        while (cursorLevel < MAX_LEVEL && parentUserId != ROOT_USER_ID) {
+            CustomerRelationDto nextParticipator = getCustomerRelation(parentUserId);
+            if (nextParticipator == null) {
+                break;
+            }
+            parentUserId = nextParticipator.getParentUserId();
+            if (nextParticipator.getLevel() > cursorLevel) {
+                participatorQueue.add(nextParticipator);
+                cursorLevel = nextParticipator.getLevel();
+            }
+        }
+
+        return participatorQueue;
+    }
+
+    /*private void addNodeToTree(CustomerRelationNode node) {
         Serializable serializable = redisTemplate.opsForValue().get(RedisConstants.POS_CUSTOMER_RELATION_TREE);
         if (serializable == null) {
             LOG.error("用户关系添加错误：关系树不存在");
@@ -193,7 +254,7 @@ public class CustomerRelationPoolSupport {
             parentNode.getChildren().add(node.getUserId());
             nodeMap.remove(node.getUserId());
         }
-    }
+    }*/
 
     /*public CustomerRelationTree initializeRelationTree() {
         Map<Long, CustomerRelationNode> relationMap = new HashMap<>();
@@ -251,19 +312,19 @@ public class CustomerRelationPoolSupport {
         }
     }*/
 
-    // 深度优先遍历子树，查找父节点
+    /*// 深度优先遍历子树，查找父节点
     private CustomerRelationNode getParentNodeByDFS(CustomerRelationNode parentTree, CustomerRelationNode childInfo) {
         if (parentTree.getUserId().equals(childInfo.getParentUserId())) {
             return parentTree;
         } else {
             // 深度优先遍历子树
             if (!CollectionUtils.isEmpty(parentTree.getChildren())) {
-                /*for(CustomerRelationNode childTree : parentTree.getChildren().values()) {
+                *//*for(CustomerRelationNode childTree : parentTree.getChildren().values()) {
                     CustomerRelationNode parentNode = getParentNodeByDFS(childTree, childInfo);
                     if (parentNode != null) {
                         return parentNode;
                     }
-                }*/
+                }*//*
             }
         }
         return null;
@@ -321,7 +382,7 @@ public class CustomerRelationPoolSupport {
         }
 
         return participationStack;
-    }
+    }*/
 
     private CustomerRelationNode initializeRootNode() {
         CustomerRelationNode rootNode = new CustomerRelationNode();

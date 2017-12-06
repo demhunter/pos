@@ -44,6 +44,7 @@ public class RelationDemoController {
     public ApiResult<Stack<CustomerRelationNode>> brokerageParticipation(
             @ApiParam(name = "userId", value = "用户id")
             @PathVariable("userId") Long userId) {
-        return ApiResult.succ(customerRelationPoolSupport.getParticipationForBrokerage(userId));
+        // return ApiResult.succ(customerRelationPoolSupport.getParticipationForBrokerage(userId));
+        return ApiResult.succ();
     }
 }

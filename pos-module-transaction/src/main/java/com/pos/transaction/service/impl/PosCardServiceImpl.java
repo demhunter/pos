@@ -217,6 +217,7 @@ public class PosCardServiceImpl implements PosCardService {
         if (!CustomerAuditStatus.AUDITED.equals(auditStatus)) {
             ApiResult.fail(TransactionErrorCode.ALTER_BIND_CARD_ERROR_AUTHORITY_AUDIT_STATUS_AUDITED);
         }
+        // TODO 交易类型改版实现完成后增加未完成交易判断
 
         return alterWithdrawCard(permission, withdrawCard);
     }

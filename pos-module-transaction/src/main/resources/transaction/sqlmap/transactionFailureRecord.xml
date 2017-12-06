@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.transaction.dao.TransactionFailureRecordDao">
+
+    <insert id="save" parameterType="com.pos.transaction.domain.TransactionFailureRecord">
+        INSERT INTO transaction_failure_reason
+        (
+            transaction_id,
+            failure_reason,
+            create_time
+        ) VALUE
+        (
+            #{failureRecord.transactionId},
+            #{failureRecord.failureReason},
+            NOW()
+        )
+    </insert>
+</mapper>

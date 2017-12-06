@@ -20,10 +20,6 @@
         pc.last_use_date AS lastUseDate
     </sql>
 
-    <select id="getCompanyIds" resultType="LONG">
-        SELECT id FROM company
-    </select>
-
     <select id="queryRecordByUserIdAndCostType" resultType="com.pos.transaction.domain.UserPosTransactionRecord">
         SELECT
         <include refid="posRecord"/>
@@ -37,15 +33,6 @@
             AND cost_type=#{costType}
         </if>
         ORDER BY create_date
-    </select>
-
-    <select id="queryRecordById" resultType="com.pos.transaction.domain.UserPosTransactionRecord">
-        SELECT
-        <include refid="posRecord"/>
-        FROM
-        user_pos_transaction_record
-        WHERE
-        id = #{id}
     </select>
 
     <select id="queryRecordByRecordNum" resultType="com.pos.transaction.domain.UserPosTransactionRecord">
@@ -140,6 +127,7 @@
             <if test="record.outCardInfo != null">
                 out_card_info = #{record.outCardInfo},
             </if>
+            update_time = NOW()
         </set>
         WHERE id = #{record.id}
     </update>

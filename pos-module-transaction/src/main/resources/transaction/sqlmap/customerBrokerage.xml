@@ -4,6 +4,32 @@
 
 <mapper namespace="com.pos.transaction.dao.CustomerBrokerageDao">
 
+    <insert id="saveBrokerages" parameterType="com.pos.transaction.domain.TransactionCustomerBrokerage">
+        INSERT INTO transaction_customer_brokerage
+        (
+            transaction_id,
+            ancestor_user_id,
+            `level`,
+            withdraw_rate,
+            brokerage_rate,
+            brokerage,
+            status_time,
+            create_time
+        ) VALUES
+        <foreach collection="brokerages" item="item" index="index" open="" separator="," close="">
+            (
+                #{item.transactionId},
+                #{item.ancestorUserId},
+                #{item.level},
+                #{item.withdrawRate},
+                #{item.brokerageRate},
+                #{item.brokerage},
+                NOW(),
+                NOW()
+            )
+        </foreach>
+    </insert>
+
     <select id="getDateSectionBrokerage" resultType="Decimal">
         SELECT
             SUM(brokerage)

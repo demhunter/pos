@@ -6,6 +6,10 @@
     所有的状态都需要配置成STATE节点，以保持整个状态机的完整性，不然会抛出异常。
 -->
 <FSM>
+    <STATE fromState="ORIGIN_TRANSACTION">
+        <!-- 客户下单成功 -->
+        <MESSAGE action="transactionCreateSuccess" toState="PREDICT_TRANSACTION" handler="posTransactionConfirmPayHandler"/>
+    </STATE>
     <STATE fromState="PREDICT_TRANSACTION">
         <!-- 客户提交短信验证码确认支付 -->
         <MESSAGE action="confirmPayTransaction" toState="TRANSACTION_IN_PROGRESS" handler="posTransactionConfirmPayHandler"/>

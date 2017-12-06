@@ -10,7 +10,6 @@ import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.common.util.mvc.support.NullObject;
 import com.pos.transaction.dto.request.BindCardDto;
 import com.pos.transaction.service.PosCardService;
-import com.pos.transaction.service.PosService;
 import com.pos.user.session.UserInfo;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
@@ -32,9 +31,6 @@ import javax.annotation.Resource;
 @RequestMapping("/authentication")
 @Api(value = "/authentication", description = "v2.0.0 * 身份认证和结算卡绑定相关接口")
 public class AuthenticationController {
-
-    @Resource
-    private PosService posService;
 
     @Resource
     private CustomerAuthorityService customerAuthorityService;
@@ -71,37 +67,7 @@ public class AuthenticationController {
             @ApiParam(name = "bindCardInfo", value = "绑卡信息")
             @RequestBody BindCardDto bindCardInfo,
             @FromSession UserInfo userInfo) {
+        // TODO 绑卡操作日志
         return posCardService.bindWithdrawCard(userInfo.getId(), bindCardInfo);
     }
-
-//    @RequestMapping(value = "updateCard",method = RequestMethod.POST)
-//    @ApiOperation(value = "更新绑定的收款卡",notes = "更新绑定的收款卡")
-//    public ApiResult<QuickGetMoneyVo> updateBingCard(@RequestBody BindCardRequestDto bindCardRequestDto, @FromSession
-//            UserInfo userInfo) {
-//        BindCardDto bindCardDto = new BindCardDto();
-//        BeanUtils.copyProperties(bindCardRequestDto, bindCardDto);
-//        ApiResult apiResult = posService.bindCard(bindCardDto, userInfo.getId(),"UPDATE");
-//        if (apiResult.isSucc()) {
-//            long userId = userInfo.getId();
-//            List<UserPosCard> inCards = posService.queryUserCards(userId, CardUsageEnum.IN_CARD.getCode());
-//            List<UserPosCard> outCards = posService.queryUserCards(userId, CardUsageEnum.OUT_CARD.getCode());
-//            Map<String, String> logos = posService.getAllBankLogo();
-//            ApiResult<PosLoginDto> posLoginDto = posService.getUserBaseInfo(userId);
-//            if (posLoginDto.isSucc()) {
-//                GetMoneyVo getMoneyVo = new GetMoneyVo();
-//                BeanUtils.copyProperties(posLoginDto.getData(), getMoneyVo);
-//                getMoneyVo.setHeadImage(globalConstants.posHeadImage);
-//                CustomerDto customerDto = customerService.findById(userId, false, false);
-//                getMoneyVo.setNickName(StringUtils.isNotBlank(customerDto.getName()) ? customerDto.getName() :
-//                        customerDto.getUserPhone());
-//                QuickGetMoneyVo quickGetMoneyVo = new QuickGetMoneyVo(inCards, outCards, globalConstants.poundageRate,
-//                        globalConstants.poundage, globalConstants.arrival, logos, getMoneyVo);
-//                return ApiResult.succ(quickGetMoneyVo);
-//            } else {
-//                return ApiResult.fail(posLoginDto.getError(), apiResult.getMessage());
-//            }
-//        } else {
-//            return ApiResult.fail(apiResult.getError(), apiResult.getMessage());
-//        }
-//    }
 }
