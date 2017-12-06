@@ -3,11 +3,13 @@
  */
 package com.pos.web.pos.controller.authentication;
 
+import com.pos.authority.dto.identity.CustomerIdentityDto;
+import com.pos.authority.service.CustomerAuthorityService;
 import com.pos.common.util.mvc.resolver.FromSession;
 import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.common.util.mvc.support.NullObject;
 import com.pos.transaction.dto.request.BindCardDto;
-import com.pos.transaction.dto.user.PosUserIdentityDto;
+import com.pos.transaction.service.PosCardService;
 import com.pos.transaction.service.PosService;
 import com.pos.user.session.UserInfo;
 import com.wordnik.swagger.annotations.Api;
@@ -34,27 +36,33 @@ public class AuthenticationController {
     @Resource
     private PosService posService;
 
+    @Resource
+    private CustomerAuthorityService customerAuthorityService;
+
+    @Resource
+    private PosCardService posCardService;
+
     @RequestMapping(value = "identity", method = RequestMethod.GET)
     @ApiOperation(value = "v2.0.0 * 获取已提交的身份认证信息", notes = "获取已提交的身份认证信息（v2.0.0 不传持证照）")
-    public ApiResult<PosUserIdentityDto> getIdentityInfo(
+    public ApiResult<CustomerIdentityDto> getIdentityInfo(
             @FromSession UserInfo userInfo) {
-        return ApiResult.succ(posService.getIdentityInfo(userInfo.getId(), false));
+        return ApiResult.succ(customerAuthorityService.getCustomerIdentity(userInfo.getId()));
     }
 
     @RequestMapping(value = "identity", method = RequestMethod.POST)
     @ApiOperation(value = "v2.0.0 * 提交身份认证信息-1", notes = "提交身份认证信息-1（v2.0.0 不传持证照）")
     public ApiResult<NullObject> updateIdentityInfo(
             @ApiParam(name = "identityInfo", value = "身份认证信息")
-            @RequestBody PosUserIdentityDto identityInfo,
+            @RequestBody CustomerIdentityDto identityInfo,
             @FromSession UserInfo userInfo) {
-        return posService.updateIdentityInfo(userInfo.getId(), identityInfo);
+        return customerAuthorityService.updateCustomerIdentity(userInfo.getId(), identityInfo);
     }
 
     @RequestMapping(value = "bank-card", method = RequestMethod.GET)
     @ApiOperation(value = "v2.0.0 * 获取绑定的收款卡信息，身份认证信息-2", notes = "获取绑定的收款卡信息，身份认证信息-2（PS：从未绑定过收款银行卡则返回空）")
     public ApiResult<BindCardDto> getBindCardInfo(
             @FromSession UserInfo userInfo) {
-        return ApiResult.succ(posService.getBindCardInfo(userInfo.getId(), false));
+        return ApiResult.succ(posCardService.getWithdrawCard(userInfo.getId()));
     }
 
     @RequestMapping(value = "bank-card", method = RequestMethod.POST)
@@ -63,7 +71,7 @@ public class AuthenticationController {
             @ApiParam(name = "bindCardInfo", value = "绑卡信息")
             @RequestBody BindCardDto bindCardInfo,
             @FromSession UserInfo userInfo) {
-        return posService.bindCard(bindCardInfo, userInfo.getId());
+        return posCardService.bindWithdrawCard(userInfo.getId(), bindCardInfo);
     }
 
 //    @RequestMapping(value = "updateCard",method = RequestMethod.POST)

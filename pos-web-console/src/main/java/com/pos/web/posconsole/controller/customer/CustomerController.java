@@ -125,9 +125,19 @@ public class CustomerController {
         return ApiResult.succ(result);
     }
 
+    @RequestMapping(value = "{userId}", method = RequestMethod.GET)
+    @ApiOperation(value = "v2.0.0 * 获取指定用户信息", notes = "获取指定用户信息")
+    public ApiResult<Pagination<PosUserSimpleInfoVo>> getCustomer(
+            @ApiParam(name = "userId", value = "用户id")
+            @PathVariable("userId") Long userId) {
+        return null;
+    }
+
     @RequestMapping(value = "{userId}/available", method = RequestMethod.POST)
     @ApiOperation(value = "v2.0.0 * 启用或禁用用户", notes = "启用或禁用用户")
     public ApiResult<NullObject> updateUserAvailable(
+            @ApiParam(name = "userId", value = "用户id")
+            @PathVariable("userId") Long userId,
             @ApiParam(name = "available", value = "true：启用；false：禁用")
             @RequestParam("available") Boolean available,
             @FromSession UserInfo userInfo) {

@@ -40,14 +40,7 @@ public class UserPosCard implements Serializable {
 
     private Date lastUseDate;
 
-    @Deprecated
-    private String cvv2;
-
-    @Deprecated
-    private String validYear;//有效年
-
-    @Deprecated
-    private String validMonth;//有效月
+    private Boolean available; // v2.0.0 * 银行卡是否有效，在为收款银行卡时，此字段有效
 
     public Long getId() {
         return id;
@@ -129,36 +122,6 @@ public class UserPosCard implements Serializable {
         this.mobilePhone = mobilePhone;
     }
 
-    @Deprecated
-    public String getCvv2() {
-        return cvv2;
-    }
-
-    @Deprecated
-    public void setCvv2(String cvv2) {
-        this.cvv2 = cvv2;
-    }
-
-    @Deprecated
-    public String getValidYear() {
-        return validYear;
-    }
-
-    @Deprecated
-    public void setValidYear(String validYear) {
-        this.validYear = validYear;
-    }
-
-    @Deprecated
-    public String getValidMonth() {
-        return validMonth;
-    }
-
-    @Deprecated
-    public void setValidMonth(String validMonth) {
-        this.validMonth = validMonth;
-    }
-
     public String getBank() {
         return bank;
     }
@@ -173,5 +136,13 @@ public class UserPosCard implements Serializable {
 
     public void setCreateDate(Date createDate) {
         this.createDate = createDate;
+    }
+
+    public Boolean getAvailable() {
+        return available;
+    }
+
+    public void setAvailable(Boolean available) {
+        this.available = available;
     }
 }

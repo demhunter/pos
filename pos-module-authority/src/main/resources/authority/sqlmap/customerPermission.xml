@@ -44,4 +44,54 @@
         FROM customer_permission
         WHERE user_id = #{userId}
     </select>
+
+    <update id="updateCustomerIdentity" parameterType="com.pos.authority.dto.permission.CustomerPermissionDto">
+        UPDATE customer_permission
+        SET
+            <if test="permission.idCardName != null">
+                id_card_name = #{permission.idCardName},
+            </if>
+            <if test="permission.idCardNo != null">
+                id_card_no = #{permission.idCardNo},
+            </if>
+            <if test="permission.idImageA != null">
+                id_image_a = #{permission.idImageA},
+            </if>
+            <if test="permission.idImageB != null">
+                id_image_b = #{permission.idImageB},
+            </if>
+            <if test="permission.updateUserId != null">
+                update_user_id = #{permission.updateUserId},
+            </if>
+            update_time = NOW()
+        WHERE user_id = #{permission.userId}
+    </update>
+
+    <update id="updateWithdrawCard" parameterType="com.pos.authority.dto.permission.CustomerPermissionDto">
+        UPDATE customer_permission
+        SET
+            <if test="permission.posCardId != null">
+                pos_card_id = #{permission.posCardId},
+            </if>
+            <if test="permission.posCardImage != null">
+                pos_card_image = #{permission.posCardImage},
+            </if>
+            <if test="permission.updateUserId != null">
+                update_user_id = #{permission.updateUserId},
+            </if>
+            update_time = NOW()
+        WHERE user_id = #{permission.userId}
+    </update>
+
+    <update id="updateAuditStatus">
+        UPDATE customer_permission
+        SET
+            audit_status = #{status},
+            <if test="rejectReason != null and status == 3">
+                reject_reason = #{rejectReason},
+            </if>
+            update_user_id = #{updateUserId},
+            update_time = NOW()
+        WHERE user_id = #{userId}
+    </update>
 </mapper>

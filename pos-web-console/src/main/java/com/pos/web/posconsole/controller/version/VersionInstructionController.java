@@ -35,6 +35,15 @@ public class VersionInstructionController {
         return null;
     }
 
+    @RequestMapping(value = "{versionId}", method =RequestMethod.GET)
+    @ApiOperation(value = "v2.0.0 * 获取指定版本更新说明", notes = "获取指定版本更新说明")
+    public ApiResult<VersionInstructionDto> getVersionInstruction(
+            @ApiParam(name = "versionId", value = "版本更新说明id")
+            @PathVariable("versionId") Long versionId,
+            @FromSession UserInfo userInfo) {
+        return null;
+    }
+
     @RequestMapping(value = "", method = RequestMethod.POST)
     @ApiOperation(value = "v2.0.0 * 新增或更新版本更新说明", notes = "新增或更新版本更新说明")
     public ApiResult<NullObject> saveOrUpdateInstruction(
@@ -44,7 +53,7 @@ public class VersionInstructionController {
         return null;
     }
 
-    @RequestMapping(value = "{versionId}", method =RequestMethod.POST)
+    @RequestMapping(value = "{versionId}/available", method =RequestMethod.POST)
     @ApiOperation(value = "v2.0.0 * 启用或禁用版本更新说明", notes = "启用或禁用版本更新说明")
     public ApiResult<NullObject> updateAvailable(
             @ApiParam(name = "versionId", value = "版本更新说明id")

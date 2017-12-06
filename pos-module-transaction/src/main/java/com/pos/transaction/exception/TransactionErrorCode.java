@@ -13,9 +13,17 @@ import com.pos.common.util.exception.ErrorCode;
  */
 public enum TransactionErrorCode implements ErrorCode {
 
-    AUTHORITY_AUDIT_STATUS_NOT_SUBMIT(1100, "身份认证未提交，不能进行收款操作！"),
+    POS_ERROR_AUTHORITY_AUDIT_STATUS_NOT_SUBMIT(1100, "身份认证未提交，不能进行收款操作！"),
 
-    AUTHORITY_AUDIT_STATUS_REJECTED(1101, "身份认证未通过，不能进行收款操作！");
+    POS_ERROR_AUTHORITY_AUDIT_STATUS_REJECTED(1101, "身份认证未通过，不能进行收款操作！"),
+
+    BIND_CARD_ERROR_AUTHORITY_AUDIT_STATUS_AUDITED(1110, "身份认证已通过，不能重复绑定收款银行卡！"),
+
+    BIND_CARD_ERROR_AUTHORITY_AUDIT_STATUS_NOT_AUDIT(1111, "身份认证审核中，不能重复绑定收款银行卡！"),
+
+    BIND_CARD_ERROR_IDENTITY_NOT_EXISTED(1112, "身份认证信息不存在，无法绑定收款银行卡！"),
+
+    ALTER_BIND_CARD_ERROR_AUTHORITY_AUDIT_STATUS_AUDITED(1112, "身份认证信息通过审核后，才能更换收款银行卡！");
 
 
     private final int code;
@@ -29,11 +37,11 @@ public enum TransactionErrorCode implements ErrorCode {
 
     @Override
     public int getCode() {
-        return 0;
+        return code;
     }
 
     @Override
     public String getMessage() {
-        return null;
+        return message;
     }
 }

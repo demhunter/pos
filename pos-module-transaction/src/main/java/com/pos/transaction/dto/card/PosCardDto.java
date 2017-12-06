@@ -66,6 +66,9 @@ public class PosCardDto implements Serializable, Copyable {
     @ApiModelProperty("银行卡最近使用时间（Date）")
     private Date lastUseDate;
 
+    @ApiModelProperty("v2.0.0 * 银行卡是否有效，在为收款银行卡时，此字段有效（Date）")
+    private Boolean available;
+
     @JsonIgnore
     private PosCardValidInfoDto validInfo; // 下单时填写的CVV2和有效期信息
 
@@ -198,5 +201,13 @@ public class PosCardDto implements Serializable, Copyable {
 
     public void setCardUsage(Byte cardUsage) {
         this.cardUsage = cardUsage;
+    }
+
+    public Boolean getAvailable() {
+        return available;
+    }
+
+    public void setAvailable(Boolean available) {
+        this.available = available;
     }
 }

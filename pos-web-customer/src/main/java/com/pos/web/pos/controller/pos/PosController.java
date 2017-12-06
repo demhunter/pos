@@ -4,13 +4,6 @@
 package com.pos.web.pos.controller.pos;
 
 import com.google.common.collect.Lists;
-import com.pos.web.pos.converter.PosConverter;
-import com.pos.web.pos.vo.request.GetSignRequestDto;
-import com.pos.web.pos.vo.response.OnlyStringVo;
-import com.pos.web.pos.vo.response.RecordVo;
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
 import com.pos.common.util.basic.SegmentLocks;
 import com.pos.common.util.constans.GlobalConstants;
 import com.pos.common.util.exception.CommonErrorCode;
@@ -30,10 +23,16 @@ import com.pos.transaction.dto.request.GetMoneyDto;
 import com.pos.transaction.dto.transaction.SelectCardRequestDto;
 import com.pos.transaction.dto.transaction.TransactionRecordDto;
 import com.pos.transaction.helipay.vo.ConfirmPayResponseVo;
-import com.pos.transaction.service.PosCardService;
 import com.pos.transaction.service.PosService;
 import com.pos.transaction.service.PosUserTransactionRecordService;
 import com.pos.user.session.UserInfo;
+import com.pos.web.pos.converter.PosConverter;
+import com.pos.web.pos.vo.request.GetSignRequestDto;
+import com.pos.web.pos.vo.response.OnlyStringVo;
+import com.pos.web.pos.vo.response.RecordVo;
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
@@ -68,9 +67,6 @@ public class PosController {
 
     @Resource
     private PosService posService;
-
-    @Resource
-    private PosCardService posCardService;
 
     @Resource
     private PosUserTransactionRecordService posUserTransactionRecordService;

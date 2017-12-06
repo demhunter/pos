@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    有限状态机说明：
+    STATE fromState="XXX"为迁移前的状态，MESSAGE action="XXX"为动作（消息），
+    toState="XXX"为迁移后的状态，handler为动作相关的处理逻辑。
+    所有的状态都需要配置成STATE节点，以保持整个状态机的完整性，不然会抛出异常。
+-->
+<FSM>
+    <STATE fromState="NOT_SUBMIT">
+        <!-- 客户提交身份认证信息，顺序第二步提交后表示全部身份认证信息提交完毕 -->
+        <MESSAGE action="submitAll" toState="NOT_AUDIT" handler="auditSubmitAllHandler"/>
+    </STATE>
+
+    <STATE fromState="NOT_AUDIT">
+        <!-- 管理员通过用户身份认证信息审核 -->
+        <MESSAGE action="platAudited" toState="AUDITED" handler="auditPlatAuditedHandler"/>
+        <!-- 管理员不通过用户身份认证信息审核 -->
+        <MESSAGE action="platRejected" toState="REJECTED" handler="auditPlatRejectedHandler"/>
+    </STATE>
+
+    <STATE fromState="REJECTED">
+        <!-- 身份认证审核未通过，客户重新提交身份认证信息，顺序第二步提交后表示全部身份认证信息提交完毕 -->
+        <MESSAGE action="submitAll" toState="NOT_AUDIT" handler="auditSubmitAllHandler"/>
+    </STATE>
+
+    <STATE fromState="AUDITED">
+        <!-- 管理员对已审核通过的用户身份认证信息进行复审时，不通过用户身份认证信息审核 -->
+        <MESSAGE action="platRejected" toState="REJECTED" handler="auditPlatRejectedHandler"/>
+        <!-- 客户更换绑定收款银行卡 -->
+        <MESSAGE action="alterSettlement" toState="REJECTED" handler="auditAlterSettlementHandler"/>
+    </STATE>
+</FSM>

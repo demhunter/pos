@@ -435,10 +435,10 @@ public class PosServiceImpl implements PosService {
         CustomerPermissionDto permission = customerAuthorityService.getPermission(userId);
         CustomerAuditStatus auditStatus = permission.parseAuditStatus();
         if (CustomerAuditStatus.NOT_SUBMIT.equals(auditStatus)) {
-            return ApiResult.fail(TransactionErrorCode.AUTHORITY_AUDIT_STATUS_NOT_SUBMIT);
+            return ApiResult.fail(TransactionErrorCode.POS_ERROR_AUTHORITY_AUDIT_STATUS_NOT_SUBMIT);
         }
         if (CustomerAuditStatus.REJECTED.equals(auditStatus)) {
-            return ApiResult.fail(TransactionErrorCode.AUTHORITY_AUDIT_STATUS_REJECTED);
+            return ApiResult.fail(TransactionErrorCode.POS_ERROR_AUTHORITY_AUDIT_STATUS_REJECTED);
         }
 
         QuickGetMoneyDto result = new QuickGetMoneyDto();
@@ -516,6 +516,25 @@ public class PosServiceImpl implements PosService {
         return ApiResult.succ(authDetail);
     }
 
+    /**
+     * 检查用户的权限信息
+     *
+     * @param userId 用户userId
+     * @return 校验通过：返回用户权限信息；校验失败：返回错误信息
+     */
+    private ApiResult<CustomerPermissionDto> checkCustomerPerimission(Long userId) {
+        CustomerPermissionDto permission = customerAuthorityService.getPermission(userId);
+        CustomerAuditStatus auditStatus = permission.parseAuditStatus();
+        if (CustomerAuditStatus.NOT_SUBMIT.equals(auditStatus)) {
+            return ApiResult.fail(TransactionErrorCode.POS_ERROR_AUTHORITY_AUDIT_STATUS_NOT_SUBMIT);
+        }
+        if (CustomerAuditStatus.REJECTED.equals(auditStatus)) {
+            return ApiResult.fail(TransactionErrorCode.POS_ERROR_AUTHORITY_AUDIT_STATUS_REJECTED);
+        }
+
+        return ApiResult.succ(permission);
+    }
+
     private PosCardValidInfoDto buildCardValidInfo(String encryptedCvv2, String encryptedValidDate) {
         PosCardValidInfoDto validInfo = new PosCardValidInfoDto();
 
@@ -584,6 +603,12 @@ public class PosServiceImpl implements PosService {
         getMoneyDto.check("getMoneyDto", posConstants, securityService);
 
         // 身份权限验证
+        ApiResult<CustomerPermissionDto> permissionCheckResult = checkCustomerPerimission(userId);
+        if (!permissionCheckResult.isSucc()) {
+            return ApiResult.fail(permissionCheckResult.getError());
+        }
+        CustomerPermissionDto permission = permissionCheckResult.getData();
+
         ApiResult<PosUserAuthDetailDto> authCheckResult = checkUserGetAuth(userId);
         if (!authCheckResult.isSucc()) {
             return ApiResult.fail(authCheckResult.getError());

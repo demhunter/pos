@@ -3,6 +3,7 @@
  */
 package com.pos.web.pos.listener;
 
+import com.pos.authority.service.CustomerAuthorityService;
 import com.pos.basic.mq.AbstractMQListener;
 import com.pos.basic.mq.MQMessage;
 import com.pos.common.util.basic.JsonUtils;
@@ -35,18 +36,16 @@ public class CustomerRegisterListener extends AbstractMQListener {
     @Resource
     private CustomerService customerService;
 
+    @Resource
+    private CustomerAuthorityService customerAuthorityService;
+
     @Override
     public boolean messageHandler(MQMessage message) {
         Preconditions.checkArgsNotNull(message);
         CustomerInfoMsg msg = extractData(message, CustomerInfoMsg.class);
 
         LOG.info("收到一条用户注册消息，msg={}", JsonUtils.objectToJson(msg));
-        CustomerDto customerDto = customerService.findById(msg.getUserId(), false, false);
-        if (customerDto != null) {
-            posService.posLogin(customerDto, msg.getRecommendType(), msg.getRecommendId());
-        } else {
-            LOG.error("客户userId={}不存在！", msg.getUserId());
-        }
+        customerAuthorityService.initialize(msg.getUserId(), msg.getRecommendId());
 
         return true;
     }

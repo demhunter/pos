@@ -3,6 +3,7 @@
  */
 package com.pos.transaction.dto.request;
 
+import com.pos.common.util.validation.Validator;
 import com.pos.transaction.dto.card.PosCardValidInfoDto;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 import com.pos.basic.service.SecurityService;
@@ -70,7 +71,7 @@ public class GetMoneyDto implements Serializable, Copyable {
         FieldChecker.checkEmpty(this.mobilePhone, fieldPrefix + "mobilePhone");
         String mobilePhone = securityService.decryptData(this.mobilePhone);
         FieldChecker.checkEmpty(mobilePhone, fieldPrefix + "mobilePhone");
-        SimpleRegexUtils.isMobile(mobilePhone);
+        Validator.checkMobileNumber(mobilePhone);
     }
 
     @Override

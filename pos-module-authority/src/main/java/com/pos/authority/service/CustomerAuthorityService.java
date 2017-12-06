@@ -3,10 +3,14 @@
  */
 package com.pos.authority.service;
 
+import com.pos.authority.constant.CustomerAuditStatus;
+import com.pos.authority.dto.identity.CustomerIdentityDto;
 import com.pos.authority.dto.level.CustomerLevelConfigDto;
 import com.pos.authority.dto.level.CustomerUpgradeLevelDto;
 import com.pos.authority.dto.permission.CustomerPermissionDto;
+import com.pos.authority.fsm.context.AuditStatusTransferContext;
 import com.pos.common.util.mvc.support.ApiResult;
+import com.pos.common.util.mvc.support.NullObject;
 
 import java.util.List;
 
@@ -50,4 +54,37 @@ public interface CustomerAuthorityService {
      * @return 等级晋升信息
      */
     ApiResult<CustomerUpgradeLevelDto> getCustomerUpgradeInfo(Long userId, Integer targetLevel);
+
+    /**
+     * 获取用户已提交认证的实名信息
+     *
+     * @param userId 用户id
+     * @return 身份实名信息
+     */
+    CustomerIdentityDto getCustomerIdentity(Long userId);
+
+    /**
+     * 更新用户身份认证的实名信息
+     *
+     * @param userId   用户id
+     * @param identity 实名信息
+     * @return 更新结果
+     */
+    ApiResult<NullObject> updateCustomerIdentity(Long userId, CustomerIdentityDto identity);
+
+    /**
+     * 更新用户绑定过的收款银行卡
+     *
+     * @param permission 收款银行卡信息
+     * @return 更新结果
+     */
+    ApiResult<NullObject> updateWithdrawCard(CustomerPermissionDto permission);
+
+    /**
+     * 更新用户身份认证审核状态
+     *
+     * @param transferContext 状态转换上下文，包含操作信息
+     * @param auditStatus     新身份认证审核状态
+     */
+    boolean updateAuditStatus(AuditStatusTransferContext transferContext, CustomerAuditStatus auditStatus);
 }
