@@ -7,12 +7,14 @@ import com.pos.authority.constant.CustomerAuditStatus;
 import com.pos.authority.dao.CustomerRelationDao;
 import com.pos.authority.dto.relation.CustomerRelationDto;
 import com.pos.authority.service.support.relation.CustomerRelationNode;
+import com.pos.authority.service.support.relation.CustomerRelationTree;
 import com.pos.basic.constant.RedisConstants;
 import com.pos.common.util.date.SimpleDateUtils;
 import com.pos.common.util.mvc.support.LimitHelper;
 import com.pos.common.util.validation.FieldChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -21,6 +23,8 @@ import javax.annotation.Resource;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * 客户关系树支持
@@ -33,11 +37,16 @@ public class CustomerRelationPoolSupport {
 
     private final static Logger LOG = LoggerFactory.getLogger(CustomerRelationPoolSupport.class);
 
+    private final static long CUSTOMER_RELATION_TREE_CACHE_TIME = 300L; // 关系树缓存时间
+
     @Resource
     private CustomerRelationDao customerRelationDao;
 
     @Resource
     private RedisTemplate<Serializable, Serializable> redisTemplate;
+
+    @Resource
+    private RedisTemplate<String, CustomerRelationTree> relationTreeTemplate;
 
     @Resource
     private CustomerLevelSupport customerLevelSupport;
@@ -131,6 +140,37 @@ public class CustomerRelationPoolSupport {
     }
 
     /**
+     * 获取用户节点信息
+     *
+     * @param userId 用户id
+     */
+    private CustomerRelationNode getNodeInfo(Long userId) {
+        FieldChecker.checkEmpty(userId, "userId");
+        Map<Object, Object> data = redisTemplate.opsForHash().entries(RedisConstants.POS_CUSTOMER_RELATION_NODE + userId);
+        if (CollectionUtils.isEmpty(data)) {
+            LOG.error("用户{}在关系池中不存在", userId);
+            return null;
+        }
+
+        CustomerRelationNode node = new CustomerRelationNode();
+        node.setUserId(userId);
+        node.setLevel((Integer) data.get("level"));
+        node.setWithdrawRate((BigDecimal) data.get("withdrawRate"));
+        node.setExtraServiceCharge((BigDecimal) data.get("extraServiceCharge"));
+        node.setAuditStatus((Integer) data.get("auditStatus"));
+        node.setParentUserId((Long) data.get("parentUserId"));
+        node.setRelationTime(SimpleDateUtils.parseDate(
+                (String) data.get("relationTime"),
+                SimpleDateUtils.DatePattern.STANDARD_PATTERN.toString()));
+        Set<Serializable> childrenSet = redisTemplate.opsForSet().members(RedisConstants.POS_CUSTOMER_RELATION_NODE_CHILDREN + node.getUserId());
+        if (!CollectionUtils.isEmpty(childrenSet)) {
+            node.setChildren(childrenSet.stream().map(child -> (Long) child).collect(Collectors.toSet()));
+        }
+
+        return node;
+    }
+
+    /**
      * 从关系池中获取指定用户信息
      *
      * @param userId 用户id
@@ -180,11 +220,12 @@ public class CustomerRelationPoolSupport {
      * 1、当前交易用户直接加入队列，作为队列头，记录当前等级游标[cursorLevel]和父级用户id[parentUserId]；<br>
      * 2、是否需要往上层搜索：expression = cursorLevel < MAX_LEVEL && parentUserId != ROOT_USER_ID；<br>
      * 3、CASE_A：当expression = true时，往上搜索获取下个可能参与分佣的用户[nextParticipator]，
-     *              3.1、更新parentUserId = nextParticipator.parentUserId，
-     *              3.2、判断levelExpression = nextParticipator.level > cursorLevel，当levelExpression = true时，更新cursorLevel = nextParticipator.level
-     *              3.3、跳转至第【2】步；
-     *    CASE_B：当expression = false时，结束搜索；
+     * 3.1、更新parentUserId = nextParticipator.parentUserId，
+     * 3.2、判断levelExpression = nextParticipator.level > cursorLevel，当levelExpression = true时，更新cursorLevel = nextParticipator.level
+     * 3.3、跳转至第【2】步；
+     * CASE_B：当expression = false时，结束搜索；
      * 4、返回分佣参与队列
+     *
      * @param userId 交易用户id
      * @return 分佣参与者队列
      */
@@ -216,6 +257,51 @@ public class CustomerRelationPoolSupport {
         }
 
         return participatorQueue;
+    }
+
+    /**
+     * 获取以用户为根节点的关系树
+     *
+     * @param userId 用户id
+     * @return 关系树
+     */
+    public CustomerRelationTree getCustomerRelationTree(Long userId) {
+        FieldChecker.checkEmpty(userId, "userId");
+
+        // 查看缓存是否存在用户的关系树，存在则直接返回
+        CustomerRelationTree tree = relationTreeTemplate.opsForValue().get(RedisConstants.POS_CUSTOMER_RELATION_TREE + userId);
+        if (tree != null) {
+            return tree;
+        }
+        // 不存在，生成用户的关系树
+        return buildRelationTree(userId);
+    }
+
+    private CustomerRelationTree buildRelationTree(Long userId) {
+        CustomerRelationNode rootNode = getNodeInfo(userId);
+        if (rootNode == null) {
+            LOG.error("用户{}在关系池中不存在，无法生成其关系树", userId);
+            return null;
+        }
+        // 生成关系树
+        CustomerRelationTree parentTree = new CustomerRelationTree();
+        BeanUtils.copyProperties(rootNode, parentTree);
+        if (!CollectionUtils.isEmpty(rootNode.getChildren())) {
+            Map<Long, CustomerRelationTree> childrenTrees = new HashMap<>();
+            rootNode.getChildren().forEach(childUserId -> {
+                CustomerRelationTree childTree = getCustomerRelationTree(childUserId);
+                if (childTree != null) {
+                    childrenTrees.put(childUserId, childTree);
+                }
+            });
+            parentTree.setChildrenTrees(childrenTrees);
+        }
+        // 缓存生成的关系树（5 min）
+        relationTreeTemplate.opsForValue().set(
+                RedisConstants.POS_CUSTOMER_RELATION_TREE + userId, parentTree,
+                CUSTOMER_RELATION_TREE_CACHE_TIME, TimeUnit.SECONDS);
+
+        return parentTree;
     }
 
     /*private void addNodeToTree(CustomerRelationNode node) {

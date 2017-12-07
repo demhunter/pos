@@ -3,10 +3,11 @@
  */
 package com.pos.authority.service.support.relation;
 
-import com.pos.authority.service.support.relation.CustomerRelationNode;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -17,25 +18,91 @@ import java.util.Map;
  */
 public class CustomerRelationTree implements Serializable {
 
-    @ApiModelProperty("完整关系树")
-    private CustomerRelationNode relationTree;
+    @ApiModelProperty("用户id")
+    private Long userId;
 
-    @ApiModelProperty("树节点信息（包含节点自身信息[parent]，及其直接下级信息集合[children]。PS：直接下级[child]不再包含其本身[child]的直接下级集合）")
-    private Map<Long, CustomerRelationNode> treeNodeMap;
+    @ApiModelProperty("用户等级")
+    private int level;
 
-    public CustomerRelationNode getRelationTree() {
-        return relationTree;
+    @ApiModelProperty("用户收款费率")
+    private BigDecimal withdrawRate;
+
+    @ApiModelProperty("用户收款额外手续费")
+    private BigDecimal extraServiceCharge;
+
+    @ApiModelProperty("用户身份认证状态")
+    private Integer auditStatus;
+
+    @ApiModelProperty("父用户id")
+    private Long parentUserId;
+
+    @ApiModelProperty("父子关系建立时间")
+    private Date relationTime;
+
+    @ApiModelProperty("直接下级集合（子树集合）")
+    private Map<Long, CustomerRelationTree> childrenTrees;
+
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setRelationTree(CustomerRelationNode relationTree) {
-        this.relationTree = relationTree;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
-    public Map<Long, CustomerRelationNode> getTreeNodeMap() {
-        return treeNodeMap;
+    public int getLevel() {
+        return level;
     }
 
-    public void setTreeNodeMap(Map<Long, CustomerRelationNode> treeNodeMap) {
-        this.treeNodeMap = treeNodeMap;
+    public void setLevel(int level) {
+        this.level = level;
+    }
+
+    public BigDecimal getWithdrawRate() {
+        return withdrawRate;
+    }
+
+    public void setWithdrawRate(BigDecimal withdrawRate) {
+        this.withdrawRate = withdrawRate;
+    }
+
+    public BigDecimal getExtraServiceCharge() {
+        return extraServiceCharge;
+    }
+
+    public void setExtraServiceCharge(BigDecimal extraServiceCharge) {
+        this.extraServiceCharge = extraServiceCharge;
+    }
+
+    public Integer getAuditStatus() {
+        return auditStatus;
+    }
+
+    public void setAuditStatus(Integer auditStatus) {
+        this.auditStatus = auditStatus;
+    }
+
+    public Long getParentUserId() {
+        return parentUserId;
+    }
+
+    public void setParentUserId(Long parentUserId) {
+        this.parentUserId = parentUserId;
+    }
+
+    public Date getRelationTime() {
+        return relationTime;
+    }
+
+    public void setRelationTime(Date relationTime) {
+        this.relationTime = relationTime;
+    }
+
+    public Map<Long, CustomerRelationTree> getChildrenTrees() {
+        return childrenTrees;
+    }
+
+    public void setChildrenTrees(Map<Long, CustomerRelationTree> childrenTrees) {
+        this.childrenTrees = childrenTrees;
     }
 }

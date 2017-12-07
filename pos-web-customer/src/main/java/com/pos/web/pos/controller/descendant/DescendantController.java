@@ -3,6 +3,8 @@
  */
 package com.pos.web.pos.controller.descendant;
 
+import com.pos.authority.dto.statistics.DescendantStatisticsDto;
+import com.pos.authority.service.CustomerStatisticsService;
 import com.pos.common.util.mvc.resolver.FromSession;
 import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.common.util.mvc.support.NullObject;
@@ -15,6 +17,8 @@ import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
+
 /**
  * 下级相关接口
  *
@@ -26,11 +30,14 @@ import org.springframework.web.bind.annotation.*;
 @Api(value = "/descendant", description = "v2.0.0 * 下级相关接口")
 public class DescendantController {
 
+    @Resource
+    private CustomerStatisticsService customerStatisticsService;
+
     @RequestMapping(value = "general", method = RequestMethod.GET)
     @ApiOperation(value = "v2.0.0 * 下级概要统计", notes = "下级概要统计")
-    public ApiResult<DescendantStatisticsVo> getGeneralStatistics(
+    public ApiResult<DescendantStatisticsDto> getGeneralStatistics(
             @FromSession UserInfo userInfo) {
-        return null;
+        return ApiResult.succ(customerStatisticsService.getDescendantStatistics(userInfo.getId()));
     }
 
     @RequestMapping(value = "children", method = RequestMethod.GET)
@@ -40,6 +47,10 @@ public class DescendantController {
             @RequestParam(name = "childLevel", required = false) Integer childLevel,
             @ApiParam(name = "searchKey", value = "搜索关键字（姓名或备注）")
             @RequestParam(name = "searchKey", required = false) String searchKey,
+            @ApiParam(name = "pageNum", value = "页码")
+            @RequestParam("pageNum") int pageNum,
+            @ApiParam(name = "pageSize", value = "每页大小")
+            @RequestParam("pageSize") int pageSize,
             @FromSession UserInfo userInfo) {
         return null;
     }
