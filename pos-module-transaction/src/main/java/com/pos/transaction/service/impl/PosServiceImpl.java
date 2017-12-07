@@ -718,7 +718,7 @@ public class PosServiceImpl implements PosService {
         transaction.setPayDate(currentTime);
         posUserTransactionRecordDao.updateTransaction(transaction);
         // 发起提现
-        SettlementCardWithdrawVo settlement = buildSettlementCardWithdrawVo(transaction, arrivalAmount);
+        SettlementCardWithdrawVo settlement = buildSettlementCardWithdrawVo(transaction);
         ApiResult<SettlementCardWithdrawResponseVo> withdrawResult = quickPayApi.settlementCardWithdraw(settlement);
         if (withdrawResult.isSucc()) {
             // 发起提现成功，加入交易轮询队列，由定时任务轮询处理交易状态
@@ -734,15 +734,14 @@ public class PosServiceImpl implements PosService {
         return withdrawResult;
     }
 
-    public SettlementCardWithdrawVo buildSettlementCardWithdrawVo(
-            UserPosTransactionRecord transactionRecord, BigDecimal arrivalAmount) {
+    public SettlementCardWithdrawVo buildSettlementCardWithdrawVo(UserPosTransactionRecord transactionRecord) {
         SettlementCardWithdrawVo settlement = new SettlementCardWithdrawVo();
 
         settlement.setP1_bizType("SettlementCardWithdraw");
         settlement.setP2_customerNumber(posConstants.getHelibaoMerchantNO());
         settlement.setP3_userId(String.valueOf(transactionRecord.getUserId()));
         settlement.setP4_orderId(transactionRecord.getRecordNum());
-        settlement.setP5_amount(arrivalAmount.toString());
+        settlement.setP5_amount(transactionRecord.getArrivalAmount().toString());
         settlement.setP6_feeType("PAYER");
 
         return settlement;
@@ -825,18 +824,6 @@ public class PosServiceImpl implements PosService {
         posUserTransactionRecordDao.saveNormalTransaction(transaction);
 
         return transaction;
-    }
-
-    private UserPosTransactionRecord saveTransactionRecord(
-            PosUserAuthDetailDto authDetail, CreateOrderVo createOrderVo, BigDecimal amount) {
-        UserPosTransactionRecord userPosTransactionRecord = new UserPosTransactionRecord();
-        userPosTransactionRecord.setInCardId(authDetail.getPosCardId());
-        userPosTransactionRecord.setRecordNum(createOrderVo.getP4_orderId());
-        userPosTransactionRecord.setUserId(authDetail.getUserId());
-        userPosTransactionRecord.setAmount(amount);
-        userPosTransactionRecord.setStatus(TransactionStatusType.PREDICT_TRANSACTION.getCode());
-        posDao.addUserPosRecord(userPosTransactionRecord);
-        return userPosTransactionRecord;
     }
 
     private CreateOrderVo buildCreateOrderVo(UserPosTransactionRecord originTransaction, PosCardDto outCard, String ip) {
@@ -991,7 +978,7 @@ public class PosServiceImpl implements PosService {
             return ApiResult.fail(PosUserErrorCode.TRANSACTION_STATUS_ERROR);
         }
         // 重发提现请求
-        SettlementCardWithdrawVo settlement = buildSettlementCardWithdrawVo(record, record.getArrivalAmount());
+        SettlementCardWithdrawVo settlement = buildSettlementCardWithdrawVo(record);
         ApiResult<SettlementCardWithdrawResponseVo> withdrawResult = quickPayApi.settlementCardWithdraw(settlement);
         if (withdrawResult.isSucc()) {
             // 状态变更
@@ -1008,5 +995,71 @@ public class PosServiceImpl implements PosService {
         }
 
         return ApiResult.succ();
+    }
+
+    @Override
+    public ApiResult<BigDecimal> withdrawBrokerage(CustomerPermissionDto permission, BigDecimal brokerage) {
+        FieldChecker.checkEmpty(permission, "permission");
+        FieldChecker.checkMinValue(brokerage, BigDecimal.ZERO, "brokerage");
+
+        UserPosTransactionRecord transaction = buildAndSaveOriginBrokerageTransaction(permission, brokerage);
+
+        return payBrokerageToUser(transaction);
+    }
+
+    /**
+     * 支付佣金到用户收款银行卡
+     *
+     * @param transaction 佣金交易
+     * @return 佣金金额
+     */
+    private ApiResult<BigDecimal> payBrokerageToUser(UserPosTransactionRecord transaction) {
+        SettlementCardWithdrawVo settlement = buildSettlementCardWithdrawVo(transaction);
+
+        ApiResult<SettlementCardWithdrawResponseVo> withdrawResult = quickPayApi.settlementCardWithdraw(settlement);
+        if (withdrawResult.isSucc()) {
+            // 发起提现成功，加入交易轮询队列，由定时任务轮询处理交易状态
+            redisTemplate.opsForList().rightPush(RedisConstants.POS_TRANSACTION_WITHDRAW_QUEUE, transaction.getId().toString());
+            return ApiResult.succ(transaction.getArrivalAmount());
+        } else {
+            // 发起提现失败，更新交易状态-交易失败
+            // TODO 记录交易失败信息
+            log.error("佣金提现交易{}失败，原因：{}", transaction.getId(), withdrawResult.getMessage());
+            TransactionStatusType statusType = TransactionStatusType.getEnum(transaction.getStatus());
+            TransactionStatusTransferContext context = new TransactionStatusTransferContext();
+            context.setRecordId(transaction.getId());
+            FSM fsm = PosFSMFactory.newPosTransactionInstance(statusType.toString(), context);
+            fsm.processFSM("withdrawFailed");
+            return ApiResult.fail(withdrawResult.getError(), withdrawResult.getMessage());
+        }
+    }
+
+    /**
+     * 构建和保存一个佣金提现交易
+     *
+     * @param permission 客户权限信息
+     * @param brokerage  佣金金额
+     * @return 交易原始信息
+     */
+    private UserPosTransactionRecord buildAndSaveOriginBrokerageTransaction(
+            CustomerPermissionDto permission, BigDecimal brokerage) {
+        UserPosTransactionRecord transaction = new UserPosTransactionRecord();
+
+        transaction.setRecordNum(UUIDUnsigned32.randomUUIDString());
+        transaction.setTransactionType(TransactionType.BROKERAGE_WITHDRAW.getCode());
+        transaction.setInCardId(permission.getPosCardId());
+        transaction.setUserId(permission.getUserId());
+        transaction.setAmount(brokerage);
+        transaction.setArrivalAmount(brokerage);
+        BigDecimal posCharge = brokerage
+                .multiply(posConstants.getHelibaoTixianRate())
+                .add(posConstants.getHelibaoTixianMoney())
+                .setScale(2, BigDecimal.ROUND_UP);
+        transaction.setPosCharge(posCharge);
+        transaction.setStatus(TransactionStatusType.TRANSACTION_IN_PROGRESS.getCode());
+
+        posUserTransactionRecordDao.saveBrokerageTransaction(transaction);
+
+        return transaction;
     }
 }

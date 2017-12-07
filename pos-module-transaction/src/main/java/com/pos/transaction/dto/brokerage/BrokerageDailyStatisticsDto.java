@@ -3,7 +3,6 @@
  */
 package com.pos.transaction.dto.brokerage;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 
 import java.io.Serializable;
@@ -27,14 +26,6 @@ public class BrokerageDailyStatisticsDto implements Serializable {
     @ApiModelProperty("是否为月份统计（true：当前项为月份的统计）")
     private boolean monthStatistics;
 
-    @Deprecated
-    @JsonIgnore
-    private BigDecimal childTwitterBrokerage;
-
-    @Deprecated
-    @JsonIgnore
-    private BigDecimal customerBrokerage;
-
     public boolean isMonthStatistics() {
         return monthStatistics;
     }
@@ -49,22 +40,6 @@ public class BrokerageDailyStatisticsDto implements Serializable {
 
     public void setBrokerage(BigDecimal brokerage) {
         this.brokerage = brokerage;
-    }
-
-    public BigDecimal getChildTwitterBrokerage() {
-        return childTwitterBrokerage;
-    }
-
-    public void setChildTwitterBrokerage(BigDecimal childTwitterBrokerage) {
-        this.childTwitterBrokerage = childTwitterBrokerage;
-    }
-
-    public BigDecimal getCustomerBrokerage() {
-        return customerBrokerage;
-    }
-
-    public void setCustomerBrokerage(BigDecimal customerBrokerage) {
-        this.customerBrokerage = customerBrokerage;
     }
 
     public Date getDateKey() {

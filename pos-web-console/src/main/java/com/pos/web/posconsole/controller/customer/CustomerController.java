@@ -230,27 +230,27 @@ public class CustomerController {
     public ModelAndView findAndExportPosUsers(
             @ApiParam(name = "userAuditStatus", value = "身份认证状态（0 = 未提交，1 = 未审核，2 = 已通过，3 = 未通过，null：不限）")
             @RequestParam(name = "userAuditStatus", required = false) Integer userAuditStatus,
-            @ApiParam(name = "bindingCard", value = "是否与有绑定银行卡（true：已绑定，false：未绑定，null：不限）")
-            @RequestParam(name = "bindingCard", required = false) Boolean bindingCard,
-            @ApiParam(name = "getPermission", value = "是否有收款权限（true：启用，false：禁用，null：不限）")
-            @RequestParam(name = "getPermission", required = false) Boolean getPermission,
-            @ApiParam(name = "isTwitter", value = "是否是推客（true：是推客，false：不是推客，null：不限）")
-            @RequestParam(name = "isTwitter", required = false) Boolean isTwitter,
-            @ApiParam(name = "withdrawDeposit", value = "是否存在提现申请（true：是，false：否，null：不限）")
-            @RequestParam(name = "withdrawDeposit", required = false) Boolean withdrawDeposit,
+            @ApiParam(name = "level", value = "用户等级（1 = Lv1，2 = Lv2，3 = Lv3，4：Lv4）")
+            @RequestParam(name = "level", required = false) Integer level,
+            @ApiParam(name = "userAvailable", value = "账号状态（true：启用，false：禁用）")
+            @RequestParam(name = "userAvailable", required = false) Boolean userAvailable,
+            @ApiParam(name = "existedInterview", value = "是否有回访记录（true：有，false：没有）")
+            @RequestParam(name = "existedInterview", required = false) Boolean existedInterview,
             @ApiParam(name = "beginTime", value = "注册开始时间（格式：yyyy-MM-dd）")
             @RequestParam(name = "beginTime", required = false) String beginTime,
             @ApiParam(name = "endTime", value = "注册结束时间（格式：yyyy-MM-dd）")
             @RequestParam(name = "endTime", required = false) String endTime,
             @ApiParam(name = "searchKey", value = "搜索关键字（手机号/姓名）")
-            @RequestParam(name = "searchKey", required = false) String searchKey) {
+            @RequestParam(name = "searchKey", required = false) String searchKey,
+            @ApiParam(name = "searchType", value = "搜索关键字类型（1：查询用户本人；2：查询直接下级（默认为1））")
+            @RequestParam(name = "searchType", required = false) Integer searchType) {
         LimitHelper limitHelper = new LimitHelper(1, Integer.MAX_VALUE, false);
         PosUserCondition condition = new PosUserCondition();
         condition.setUserAuditStatus(userAuditStatus);
-        condition.setBindingCard(bindingCard);
+        /*condition.setBindingCard(bindingCard);
         condition.setGetPermission(getPermission);
         condition.setTwitterPermission(isTwitter);
-        condition.setWithdrawDeposit(withdrawDeposit);
+        condition.setWithdrawDeposit(withdrawDeposit);*/
         condition.setBeginTime(beginTime);
         condition.setEndTime(endTime);
         XlsView xlsView;

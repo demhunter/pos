@@ -38,4 +38,35 @@
         AND create_time &gt; #{begin}
         AND create_time &lt; #{end}
     </select>
+
+    <select id="queryDailyBrokerage" resultType="com.pos.transaction.dto.brokerage.BrokerageDailyStatisticsDto">
+        SELECT
+            DATE_FORMAT(create_time, '%Y-%m-%d') AS dateKey,
+            SUM(brokerage) AS brokerage
+        FROM transaction_customer_brokerage
+        WHERE ancestor_user_id = #{userId}
+        GROUP BY dateKey
+        ORDER BY dateKey DESC
+        LIMIT #{limitHelper.offset}, #{limitHelper.pageSize}
+    </select>
+
+    <select id="queryCanWithdrawBrokerage" resultType="decimal">
+        SELECT
+            SUM(brokerage)
+        FROM transaction_customer_brokerage
+        WHERE ancestor_user_id = #{userId}
+        AND create_time &lt; #{deadline}
+    </select>
+
+    <update id="markBrokerageStatus">
+        UPDATE transaction_customer_brokerage
+        SET
+            status = #{toStatus},
+            status_time = NOW()
+        WHERE user_id = #{userId}
+        AND status = #{fromStatus}
+        <if test="deadline != null">
+            create_time &lt; #{deadline}
+        </if>
+    </update>
 </mapper>

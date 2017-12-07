@@ -43,6 +43,13 @@ public interface PosUserTransactionRecordDao {
     void saveNormalTransaction(@Param("transaction") UserPosTransactionRecord transaction);
 
     /**
+     * 保存佣金提现交易
+     *
+     * @param transaction 交易信息
+     */
+    void saveBrokerageTransaction(@Param("transaction") UserPosTransactionRecord transaction);
+
+    /**
      * 更新交易信息
      *
      * @param transaction 交易信息

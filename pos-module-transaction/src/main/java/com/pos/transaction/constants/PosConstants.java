@@ -97,6 +97,15 @@ public class PosConstants {
     @Value("${qiniu.bucket.image.address}")
     private String qiniuBucketImageAddress; // 七牛图片空间地址
 
+    /* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
+
+    @Value("${pos.brokerage.withdraw.down.limit}")
+    private String brokerageWithdrawDownLimit; // 推客佣金提现金额下限
+
+    public BigDecimal getBrokerageWithdrawDownLimit() {
+        return StringUtils.isEmpty(brokerageWithdrawDownLimit) ? BigDecimal.ZERO : new BigDecimal(brokerageWithdrawDownLimit);
+    }
+
     public BigDecimal getHelibaoPoundageRate() {
         return StringUtils.isEmpty(helibaoPoundageRate) ? BigDecimal.ZERO : new BigDecimal(helibaoPoundageRate);
     }

@@ -31,7 +31,11 @@ public enum TransactionErrorCode implements ErrorCode {
 
     BIND_CARD_ERROR_IDENTITY_NOT_EXISTED(1112, "身份认证信息不存在，无法绑定收款银行卡！"),
 
-    ALTER_BIND_CARD_ERROR_AUTHORITY_AUDIT_STATUS_AUDITED(1112, "身份认证信息通过审核后，才能更换收款银行卡！");
+    ALTER_BIND_CARD_ERROR_AUTHORITY_AUDIT_STATUS_AUDITED(1113, "身份认证信息通过审核后，才能更换收款银行卡！"),
+
+    BROKERAGE_ERROR_AUTHORITY_AUDIT_STATUS(1120, "没有通过实名认证，不能申请佣金提现！"),
+
+    BROKERAGE_ERROR_BROKERAGE_NOT_ENOUGH(1121, "可提现余额达到%s元，才能申请提现！");
 
 
     private final int code;

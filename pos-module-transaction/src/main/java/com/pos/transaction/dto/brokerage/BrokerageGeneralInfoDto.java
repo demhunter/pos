@@ -3,7 +3,6 @@
  */
 package com.pos.transaction.dto.brokerage;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 
 import java.io.Serializable;
@@ -22,10 +21,6 @@ public class BrokerageGeneralInfoDto implements Serializable {
 
     @ApiModelProperty("累计提现金额（BigDecimal）")
     private BigDecimal appliedBrokerage;
-
-    @Deprecated
-    @JsonIgnore
-    private BigDecimal currentApplyMoney;
 
     @ApiModelProperty("今日收益（BigDecimal）")
     private BigDecimal todayBrokerage;
@@ -58,13 +53,5 @@ public class BrokerageGeneralInfoDto implements Serializable {
 
     public void setAppliedBrokerage(BigDecimal appliedBrokerage) {
         this.appliedBrokerage = appliedBrokerage;
-    }
-
-    public BigDecimal getCurrentApplyMoney() {
-        return currentApplyMoney;
-    }
-
-    public void setCurrentApplyMoney(BigDecimal currentApplyMoney) {
-        this.currentApplyMoney = currentApplyMoney;
     }
 }

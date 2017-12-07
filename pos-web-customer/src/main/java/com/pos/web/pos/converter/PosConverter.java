@@ -5,6 +5,7 @@ package com.pos.web.pos.converter;
 
 import com.pos.transaction.constants.CardTypeEnum;
 import com.pos.transaction.dto.transaction.TransactionRecordDto;
+import com.pos.web.pos.vo.brokerage.BrokerageAppliedRecordVo;
 import com.pos.web.pos.vo.response.RecordVo;
 
 import java.util.Map;
@@ -33,6 +34,18 @@ public class PosConverter {
             vo.setCardType(cardType == null ? null : cardType.getDesc());
             vo.setBankLogo(logoMap.get(dto.getOutCardInfo().getBankCode()));
         }
+
+        return vo;
+    }
+
+    public static BrokerageAppliedRecordVo toBrokerageAppliedRecordVo(TransactionRecordDto dto) {
+        BrokerageAppliedRecordVo vo = new BrokerageAppliedRecordVo();
+
+        vo.setId(dto.getId());
+        vo.setAmount(dto.getAmount());
+        vo.setStatus(dto.getStatus());
+        vo.setStatusDesc(dto.parseTransactionStatus().getDesc());
+        vo.setCreateTime(dto.getCreateDate());
 
         return vo;
     }

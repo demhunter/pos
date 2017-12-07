@@ -38,6 +38,33 @@
         )
     </insert>
 
+    <insert id="saveBrokerageTransaction" parameterType="com.pos.transaction.domain.UserPosTransactionRecord"
+            useGeneratedKeys="true" keyProperty="transaction.id">
+        INSERT INTO user_pos_transaction_record
+        (
+            record_num,
+            transaction_type,
+            in_card,
+            user_id,
+            amount,
+            arrival_amount,
+            pos_charge,
+            status,
+            create_date
+        ) VALUE
+        (
+            #{transaction.recordNum},
+            #{transaction.transactionType}
+            #{transaction.inCardId},
+            #{transaction.userId},
+            #{transaction.amount},
+            #{transaction.arrivalAmount},
+            #{transaction.posCharge},
+            #{transaction.status},
+            NOW()
+        )
+    </insert>
+
     <update id="updateTransaction">
         UPDATE user_pos_transaction_record
         <set>

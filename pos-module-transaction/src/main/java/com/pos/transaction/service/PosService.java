@@ -3,6 +3,7 @@
  */
 package com.pos.transaction.service;
 
+import com.pos.authority.dto.permission.CustomerPermissionDto;
 import com.pos.basic.dto.UserIdentifier;
 import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.common.util.mvc.support.NullObject;
@@ -25,6 +26,7 @@ import com.pos.transaction.helipay.vo.ConfirmPayResponseVo;
 import com.pos.transaction.dto.transaction.TransactionHandledInfoDto;
 import com.pos.user.dto.customer.CustomerDto;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 /**
@@ -172,4 +174,13 @@ public interface PosService {
      * @return 操作结果
      */
     ApiResult<NullObject> againPayToPosUserForFailed(Long recordId, UserIdentifier operator);
+
+    /**
+     * 发起佣金提现交易
+     *
+     * @param permission 佣金提现发起者信息
+     * @param brokerage  佣金提现金额
+     * @return 提现结果
+     */
+    ApiResult<BigDecimal> withdrawBrokerage(CustomerPermissionDto permission, BigDecimal brokerage);
 }

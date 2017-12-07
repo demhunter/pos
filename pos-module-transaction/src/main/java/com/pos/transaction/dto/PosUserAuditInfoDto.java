@@ -24,6 +24,9 @@ public class PosUserAuditInfoDto implements Serializable {
     @ApiModelProperty("用户绑卡信息")
     private BindCardDto bindCardInfo;
 
+    @ApiModelProperty("审核不通过原因")
+    private String rejectReason;
+
     @ApiModelProperty("更新时间-即更新Key，通过比对此字段校验审核数据是否有变动，在审核时需要回传此字段")
     private Date updateKey;
 
@@ -49,5 +52,13 @@ public class PosUserAuditInfoDto implements Serializable {
 
     public void setBindCardInfo(BindCardDto bindCardInfo) {
         this.bindCardInfo = bindCardInfo;
+    }
+
+    public String getRejectReason() {
+        return rejectReason;
+    }
+
+    public void setRejectReason(String rejectReason) {
+        this.rejectReason = rejectReason;
     }
 }

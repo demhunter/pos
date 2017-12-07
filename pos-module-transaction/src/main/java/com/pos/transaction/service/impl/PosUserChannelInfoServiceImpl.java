@@ -106,7 +106,7 @@ public class PosUserChannelInfoServiceImpl implements PosUserChannelInfoService 
         UserPosChannelInfo channelInfo = posUserChannelDao.get(channelUserId);
         BrokerageGeneralInfoDto result = new BrokerageGeneralInfoDto();
         result.setAppliedBrokerage(channelInfo.getTotalMoney());
-        result.setCurrentApplyMoney(channelInfo.getApplyMoney());
+        // result.setCurrentApplyMoney(channelInfo.getApplyMoney());
         // 维护数据一致性，设置查询和状态更新的截止时间
         Date deadline = new Date();
         // 获取推客可提现余额

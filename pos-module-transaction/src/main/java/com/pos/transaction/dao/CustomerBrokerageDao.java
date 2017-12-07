@@ -3,7 +3,9 @@
  */
 package com.pos.transaction.dao;
 
+import com.pos.common.util.mvc.support.LimitHelper;
 import com.pos.transaction.domain.TransactionCustomerBrokerage;
+import com.pos.transaction.dto.brokerage.BrokerageDailyStatisticsDto;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -39,4 +41,40 @@ public interface CustomerBrokerageDao {
             @Param("userId") Long userId,
             @Param("begin") Date begin,
             @Param("end") Date end);
+
+    /**
+     * 查询用户每日收益
+     *
+     * @param userId      用户id
+     * @param limitHelper 分页参数
+     * @return 每日收益
+     */
+    List<BrokerageDailyStatisticsDto> queryDailyBrokerage(
+            @Param("userId") Long userId,
+            @Param("limitHelper") LimitHelper limitHelper);
+
+    /**
+     * 查询用户到截止日期的可提现佣金
+     *
+     * @param userId   用户id
+     * @param deadline 截止日期
+     * @return 可提现佣金
+     */
+    BigDecimal queryCanWithdrawBrokerage(
+            @Param("userId") Long userId,
+            @Param("deadline") Date deadline);
+
+    /**
+     * 更新客户佣金提取状态
+     *
+     * @param userId     用户id
+     * @param fromStatus 初始状态
+     * @param toStatus   目标状态
+     * @param deadline   截止日期
+     */
+    void markBrokerageStatus(
+            @Param("userId") Long userId,
+            @Param("fromStatus") Integer fromStatus,
+            @Param("toStatus") Integer toStatus,
+            @Param("deadline") Date deadline);
 }
