@@ -59,4 +59,11 @@ public interface CustomerPermissionDao {
             @Param("status") Integer status,
             @Param("rejectReason") String rejectReason,
             @Param("updateUserId") Long updateUserId);
+
+    /**
+     * 更新用户等级收款配置信息
+     *
+     * @param permission 等级收款配置信息
+     */
+    void updateLevelConfig(CustomerPermissionDto permission);
 }

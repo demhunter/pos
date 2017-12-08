@@ -128,6 +128,15 @@ public class CustomerLevelSupport {
      * @return 配置信息
      */
     public CustomerLevelConfig getMaxLevelConfig() {
+        return getLevelConfig(getMaxLevel());
+    }
+
+    /**
+     * 获取服务器支持的最大等级
+     *
+     * @return 最大等级
+     */
+    public Integer getMaxLevel() {
         Set<Integer> levelSet = getLevels();
 
         Integer maxLevel = 1;
@@ -136,8 +145,7 @@ public class CustomerLevelSupport {
                 maxLevel = level;
             }
         }
-
-        return getLevelConfig(maxLevel);
+        return maxLevel;
     }
 
     /**

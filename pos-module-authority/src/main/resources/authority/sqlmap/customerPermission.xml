@@ -94,4 +94,15 @@
             update_time = NOW()
         WHERE user_id = #{userId}
     </update>
+
+    <update id="updateLevelConfig" parameterType="com.pos.authority.dto.permission.CustomerPermissionDto">
+        UPDATE customer_permission
+        SET
+            `level` = #{permission.level},
+            withdraw_rate = #{permission.withdrawRate},
+            extra_serivce_charge = #{permission.extraServiceChage},
+            update_user_id = #{updateUserId},
+            update_time = NOW()
+        WHERE user_id = #{permission.userId}
+    </update>
 </mapper>

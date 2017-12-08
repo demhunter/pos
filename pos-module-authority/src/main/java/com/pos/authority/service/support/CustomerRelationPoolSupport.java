@@ -5,6 +5,7 @@ package com.pos.authority.service.support;
 
 import com.pos.authority.constant.CustomerAuditStatus;
 import com.pos.authority.dao.CustomerRelationDao;
+import com.pos.authority.dto.permission.CustomerPermissionDto;
 import com.pos.authority.dto.relation.CustomerRelationDto;
 import com.pos.authority.service.support.relation.CustomerRelationNode;
 import com.pos.authority.service.support.relation.CustomerRelationTree;
@@ -209,6 +210,25 @@ public class CustomerRelationPoolSupport {
         FieldChecker.checkEmpty(auditStatus, "auditStatus");
 
         redisTemplate.opsForHash().put(RedisConstants.POS_CUSTOMER_RELATION_NODE + userId, "auditStatus", auditStatus.getCode());
+
+        return true;
+    }
+
+    /**
+     * 更新用户等级收款配置信息
+     *
+     * @param permission 等级收款配置信息
+     * @return 更新结果
+     */
+    public boolean updateLevelConfig(CustomerPermissionDto permission) {
+        FieldChecker.checkEmpty(permission, "permission");
+
+        Map<String, Object> nodeInfo = new HashMap<>();
+        nodeInfo.put("level", permission.getLevel());
+        nodeInfo.put("withdrawRate", permission.getWithdrawRate().toPlainString());
+        nodeInfo.put("extraServiceCharge", permission.getWithdrawRate().toPlainString());
+
+        redisTemplate.opsForHash().putAll(RedisConstants.POS_CUSTOMER_RELATION_NODE + permission.getUserId(), nodeInfo);
 
         return true;
     }

@@ -3,25 +3,6 @@
  */
 package com.pos.transaction.service.support;
 
-import com.pos.basic.service.SecurityService;
-import com.pos.common.util.basic.JsonUtils;
-import com.pos.common.util.mvc.support.ApiResult;
-import com.pos.common.util.mvc.support.LimitHelper;
-import com.pos.common.util.mvc.support.NullObject;
-import com.pos.transaction.dao.PosUserTransactionRecordDao;
-import com.pos.transaction.domain.UserPosTransactionRecord;
-import com.pos.transaction.dto.PosOutCardInfoDto;
-import org.apache.commons.lang3.StringUtils;
-import org.codehaus.jackson.type.TypeReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-
-import javax.annotation.Resource;
-import java.util.List;
-
 /**
  * 清洗POS交易数据
  * <p>
@@ -31,11 +12,9 @@ import java.util.List;
  * @author wangbing
  * @version 1.0, 2017/10/25
  */
-@Component
-@Transactional(rollbackFor = Exception.class)
 public class RepairPosData {
 
-    private final static Logger logger = LoggerFactory.getLogger(RepairPosData.class);
+    /*private final static Logger logger = LoggerFactory.getLogger(RepairPosData.class);
 
     @Resource
     private PosUserTransactionRecordDao posUserTransactionRecordDao;
@@ -66,5 +45,5 @@ public class RepairPosData {
         }
         logger.info("------------------------->修复快捷收款交易记录的付款银行卡数据结束");
         return ApiResult.succ();
-    }
+    }*/
 }

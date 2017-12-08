@@ -18,6 +18,7 @@ import com.pos.transaction.dto.get.QuickGetMoneyDto;
 import com.pos.transaction.dto.identity.IdentifyInfoDto;
 import com.pos.transaction.dto.request.BindCardDto;
 import com.pos.transaction.dto.request.GetMoneyDto;
+import com.pos.transaction.dto.request.LevelUpgradeDto;
 import com.pos.transaction.dto.transaction.SelectCardRequestDto;
 import com.pos.transaction.dto.user.PosUserIdentityDto;
 import com.pos.transaction.fsm.context.AuditStatusTransferContext;
@@ -109,6 +110,8 @@ public interface PosService {
      */
     ApiResult<NullObject> confirmPay(Long userId, String smsCode, Long recordId, String ip);
 
+    ApiResult<NullObject> confirmUpgradeLevel(Long userId, String smsCode, Long recordId, String ip);
+
     /**
      * 支付回调
      *
@@ -183,4 +186,14 @@ public interface PosService {
      * @return 提现结果
      */
     ApiResult<BigDecimal> withdrawBrokerage(CustomerPermissionDto permission, BigDecimal brokerage);
+
+    /**
+     * 创建一个等级晋升支付交易
+     *
+     * @param userId           用户id
+     * @param levelUpgradeInfo 等级晋升支付信息
+     * @param ip               用户IP地址
+     * @return 交易信息
+     */
+    ApiResult<CreateOrderDto> createLevelUpgradeTransaction(Long userId, LevelUpgradeDto levelUpgradeInfo, String ip);
 }

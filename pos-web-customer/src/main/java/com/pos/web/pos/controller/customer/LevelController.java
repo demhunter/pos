@@ -8,7 +8,10 @@ import com.pos.authority.dto.level.CustomerUpgradeLevelDto;
 import com.pos.authority.service.CustomerAuthorityService;
 import com.pos.common.util.mvc.resolver.FromSession;
 import com.pos.common.util.mvc.support.ApiResult;
+import com.pos.common.util.web.http.HttpRequestUtils;
 import com.pos.transaction.dto.CreateOrderDto;
+import com.pos.transaction.dto.request.LevelUpgradeDto;
+import com.pos.transaction.service.PosService;
 import com.pos.user.session.UserInfo;
 import com.pos.web.pos.vo.level.LevelUpgradeVo;
 import com.wordnik.swagger.annotations.Api;
@@ -17,6 +20,7 @@ import com.wordnik.swagger.annotations.ApiParam;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -33,20 +37,14 @@ public class LevelController {
     @Resource
     private CustomerAuthorityService customerAuthorityService;
 
+    @Resource
+    private PosService posService;
+
     @RequestMapping(value = "", method = RequestMethod.GET)
     @ApiOperation(value = "v2.0.0 * 获取等级列表和当前用户等级", notes = "获取等级列表和当前用户等级（v2.0.0 用于“我要升级”页面展示）")
     public ApiResult<List<CustomerLevelConfigDto>> getLevelConfigs(
             @FromSession UserInfo userInfo) {
         return customerAuthorityService.getLevels(userInfo.getId());
-    }
-
-    @RequestMapping(value = "upgrade", method = RequestMethod.POST)
-    @ApiOperation(value = "v2.0.0 * 客户支付晋升服务费晋升到指定等级", notes = "客户支付晋升服务费晋升到指定等级")
-    public ApiResult<CreateOrderDto> upgradeLevel(
-            @ApiParam(name = "levelUpgrade", value = "晋升信息")
-            @RequestBody LevelUpgradeVo levelUpgrade,
-            @FromSession UserInfo userInfo) {
-        return null;
     }
 
     @RequestMapping(value = "upgrade", method = RequestMethod.GET)

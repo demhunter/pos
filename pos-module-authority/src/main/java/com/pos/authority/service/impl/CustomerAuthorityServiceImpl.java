@@ -185,13 +185,13 @@ public class CustomerAuthorityServiceImpl implements CustomerAuthorityService {
         }
         // 校验用户当前等级是否已达到或超过目标等级
         if (currentInfo.getLevel().compareTo(targetLevel) >= 0) {
-            return ApiResult.fail(AuthorityErrorCode.LEVEL_TARGET_IS_ARRIVED);
+            return ApiResult.fail(AuthorityErrorCode.UPGRADE_ERROR_TARGET_IS_ARRIVED);
         }
         // 校验目标等级是否可以通过普通升级达到
         CustomerLevelConfigDto targetConfig = CustomerLevelConverter
                 .toCustomerLevelConfigDto(customerLevelSupport.getLevelConfig(targetLevel));
         if (!targetConfig.getCanUpgrade()) {
-            return ApiResult.fail(AuthorityErrorCode.LEVEL_TARGET_IS_UNREACHABLE);
+            return ApiResult.fail(AuthorityErrorCode.UPGRADE_ERROR_TARGET_IS_UNREACHABLE);
         }
         // 查询用户晋升等级已支付的服务费
         CustomerStatisticsDto statistics = customerStatisticsDao.getByUserId(userId);
@@ -274,5 +274,16 @@ public class CustomerAuthorityServiceImpl implements CustomerAuthorityService {
         customerRelationPoolSupport.updateAuditStatus(transferContext.getUserId(), auditStatus);
 
         return true;
+    }
+
+    @Override
+    public void upgradeLevel(CustomerPermissionDto permission, CustomerLevelConfig targetLevelConfig, Long operatorUserId) {
+        permission.setLevel(targetLevelConfig.getLevel());
+        permission.setWithdrawRate(targetLevelConfig.getWithdrawRate());
+        permission.setExtraServiceCharge(targetLevelConfig.getExtraServiceCharge());
+        permission.setUpdateUserId(operatorUserId);
+
+        customerPermissionDao.updateLevelConfig(permission);
+        customerRelationPoolSupport.updateLevelConfig(permission);
     }
 }

@@ -13,9 +13,13 @@ import com.pos.common.util.exception.ErrorCode;
  */
 public enum AuthorityErrorCode implements ErrorCode {
 
-    LEVEL_TARGET_IS_ARRIVED(1000, "您已达到或超过目标等级，无需晋升！"),
+    UPGRADE_ERROR_TARGET_IS_ARRIVED(1000, "您已达到或超过目标等级，无需晋升！"),
 
-    LEVEL_TARGET_IS_UNREACHABLE(1001, "目标等级不能通过升级达到，请咨询平台客服！"),
+    UPGRADE_ERROR_TARGET_IS_UNREACHABLE(1001, "目标等级不能通过升级达到，请咨询平台客服！"),
+
+    UPGRADE_ERROR_AUDIT_STATUS_FOR_PAY(1002, "身份认证未通过，不能进行付费升级！"),
+
+    UPGRADE_ERROR_CHARGE_NOT_ENOUGH(1003, "支付金额不足以升级到目标等级"),
 
     AUDIT_STATUS_AUDITED_FOR_UPDATE(1010, "身份认证已通过，不允许修改实名信息"),
 

@@ -8,6 +8,8 @@ import com.pos.authority.dto.statistics.CustomerStatisticsDto;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
+
 /**
  * 客户统计信息Dao
  *
@@ -38,4 +40,34 @@ public interface CustomerStatisticsDao {
      * @param userId 用户id
      */
     void incrementChildrenCount(@Param("userId") Long userId);
+
+    /**
+     * 已原子形式累计用户支付的等级晋升服务费
+     *
+     * @param userId     用户id
+     * @param paidCharge 晋升服务费
+     */
+    void incrementPaidCharge(
+            @Param("userId") Long userId,
+            @Param("paidCharge") BigDecimal paidCharge);
+
+    /**
+     * 已原子形式累计用户收款金额
+     *
+     * @param userId         用户id
+     * @param withdrawAmount 收款金额
+     */
+    void incrementWithdrawAmount(
+            @Param("userId") Long userId,
+            @Param("withdrawAmount") BigDecimal withdrawAmount);
+
+    /**
+     * 以原子形式累计用户佣金提现金额和提现次数
+     *
+     * @param userId              用户id
+     * @param withdrawalBrokerage 佣金提现金额
+     */
+    void incrementWithdrawalBrokerage(
+            @Param("userId") Long userId,
+            @Param("withdrawalBrokerage") BigDecimal withdrawalBrokerage);
 }

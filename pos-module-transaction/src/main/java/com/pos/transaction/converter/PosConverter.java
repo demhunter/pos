@@ -3,6 +3,7 @@
  */
 package com.pos.transaction.converter;
 
+import com.pos.authority.dto.permission.CustomerPermissionDto;
 import com.pos.common.util.basic.JsonUtils;
 import com.pos.transaction.domain.UserPosTransactionRecord;
 import com.pos.transaction.dto.PosOutCardInfoDto;
@@ -10,6 +11,7 @@ import com.pos.transaction.dto.card.PosCardDto;
 import com.pos.transaction.dto.request.GetMoneyDto;
 import com.pos.transaction.constants.CardUsageEnum;
 import com.pos.transaction.domain.UserPosCard;
+import com.pos.transaction.dto.request.LevelUpgradeDto;
 import com.pos.transaction.dto.transaction.TransactionRecordDto;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.type.TypeReference;
@@ -50,6 +52,19 @@ public class PosConverter {
         dto.setIdCardNo(getMoneyDto.getIdCardNO());
         dto.setCardNO(getMoneyDto.getCardNO());
         dto.setMobilePhone(getMoneyDto.getMobilePhone());
+        dto.setCardUsage(CardUsageEnum.OUT_CARD.getCode());
+
+        return dto;
+    }
+
+    public static PosCardDto toPosCardDto(CustomerPermissionDto permission, LevelUpgradeDto levelUpgradeInfo) {
+        PosCardDto dto = new PosCardDto();
+
+        dto.setUserId(permission.getUserId());
+        dto.setName(permission.getIdCardName());
+        dto.setIdCardNo(permission.getIdCardNo());
+        dto.setCardNO(levelUpgradeInfo.getBankCardNo());
+        dto.setMobilePhone(levelUpgradeInfo.getMobilePhone());
         dto.setCardUsage(CardUsageEnum.OUT_CARD.getCode());
 
         return dto;

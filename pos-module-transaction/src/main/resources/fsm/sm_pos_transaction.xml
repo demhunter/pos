@@ -13,6 +13,8 @@
     <STATE fromState="PREDICT_TRANSACTION">
         <!-- 客户提交短信验证码确认支付 -->
         <MESSAGE action="confirmPayTransaction" toState="TRANSACTION_IN_PROGRESS" handler="posTransactionConfirmPayHandler"/>
+        <!-- 客户提交短信验证码确认支付等级晋升服务费成功 -->
+        <MESSAGE action="confirmUpgradeLevel" toState="TRANSACTION_SUCCESS" handler="posTransactionConfirmPayHandler"/>
     </STATE>
 
     <STATE fromState="TRANSACTION_IN_PROGRESS">

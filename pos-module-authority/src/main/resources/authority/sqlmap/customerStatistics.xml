@@ -52,4 +52,26 @@
         update_time = NOW()
         WHERE user_id = #{userId}
     </update>
+
+    <update id="incrementPaidCharge">
+        UPDATE customer_statistics
+        SET paid_charge = paid_charge + #{paidCharge},
+        update_time = NOW()
+        WHERE user_id = #{userId}
+    </update>
+
+    <update id="incrementWithdrawAmount">
+        UPDATE customer_statistics
+        SET withdraw_amount = withdraw_amount + #{withdrawAmount},
+        update_time = NOW()
+        WHERE user_id = #{userId}
+    </update>
+
+    <update id="incrementWithdrawalBrokerage">
+        UPDATE customer_statistics
+        SET withdrawal_brokerage = withdrawal_brokerage + #{withdrawalBrokerage},
+        withdrawal_brokerage_times = withdrawal_brokerage_times + 1,
+        update_time = NOW()
+        WHERE user_id = #{userId}
+    </update>
 </mapper>

@@ -50,6 +50,13 @@ public interface PosUserTransactionRecordDao {
     void saveBrokerageTransaction(@Param("transaction") UserPosTransactionRecord transaction);
 
     /**
+     * 保存等级晋升交易
+     *
+     * @param transaction 交易信息
+     */
+    void saveUpgradeTransaction(@Param("transaction") UserPosTransactionRecord transaction);
+
+    /**
      * 更新交易信息
      *
      * @param transaction 交易信息
@@ -105,10 +112,8 @@ public interface PosUserTransactionRecordDao {
 
     /**
      * 更新用户付款银行卡信息<br>
-     * PS：仅在数据修复时调用
      *
      * @param record 交易信息
      */
-    @Deprecated
     void updateTransactionOutCardInfo(@Param("record") UserPosTransactionRecord record);
 }

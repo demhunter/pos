@@ -127,7 +127,7 @@ public class CustomerController {
 
     @RequestMapping(value = "{userId}", method = RequestMethod.GET)
     @ApiOperation(value = "v2.0.0 * 获取指定用户信息", notes = "获取指定用户信息")
-    public ApiResult<Pagination<PosUserSimpleInfoVo>> getCustomer(
+    public ApiResult<PosUserSimpleInfoVo> getCustomer(
             @ApiParam(name = "userId", value = "用户id")
             @PathVariable("userId") Long userId) {
         return null;

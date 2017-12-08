@@ -4,6 +4,7 @@
 package com.pos.authority.service;
 
 import com.pos.authority.constant.CustomerAuditStatus;
+import com.pos.authority.domain.CustomerLevelConfig;
 import com.pos.authority.dto.identity.CustomerIdentityDto;
 import com.pos.authority.dto.level.CustomerLevelConfigDto;
 import com.pos.authority.dto.level.CustomerUpgradeLevelDto;
@@ -87,4 +88,13 @@ public interface CustomerAuthorityService {
      * @param auditStatus     新身份认证审核状态
      */
     boolean updateAuditStatus(AuditStatusTransferContext transferContext, CustomerAuditStatus auditStatus);
+
+    /**
+     * 用户等级晋升
+     *
+     * @param permission        用户当前权限等级信息
+     * @param targetLevelConfig 晋升目标等级配置
+     * @param operatorUserId    等级晋升操作人id
+     */
+    void upgradeLevel(CustomerPermissionDto permission, CustomerLevelConfig targetLevelConfig, Long operatorUserId);
 }

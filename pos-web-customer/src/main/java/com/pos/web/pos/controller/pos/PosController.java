@@ -21,6 +21,7 @@ import com.pos.transaction.dto.CreateOrderDto;
 import com.pos.transaction.dto.GetSignDto;
 import com.pos.transaction.dto.get.QuickGetMoneyDto;
 import com.pos.transaction.dto.request.GetMoneyDto;
+import com.pos.transaction.dto.request.LevelUpgradeDto;
 import com.pos.transaction.dto.transaction.SelectCardRequestDto;
 import com.pos.transaction.dto.transaction.TransactionRecordDto;
 import com.pos.transaction.helipay.vo.ConfirmPayResponseVo;
@@ -97,7 +98,7 @@ public class PosController {
             @FromSession UserInfo userInfo, HttpServletRequest request) {
         String ip = HttpRequestUtils.getRealRemoteAddr(request);
         // TODO 记录操作日志
-        return posService.selectCreateRecord(userInfo.getId(), selectCardRequestDto ,ip);
+        return posService.selectCreateRecord(userInfo.getId(), selectCardRequestDto, ip);
     }
 
     @RequestMapping(value = "writeCard", method = RequestMethod.POST)
@@ -108,7 +109,18 @@ public class PosController {
             @FromSession UserInfo userInfo, HttpServletRequest request) {
         String ip = HttpRequestUtils.getRealRemoteAddr(request);
         // TODO 记录操作日志
-        return posService.writeCreateRecord(getMoneyRequestDto,  userInfo.getId(), ip);
+        return posService.writeCreateRecord(getMoneyRequestDto, userInfo.getId(), ip);
+    }
+
+    @RequestMapping(value = "level/upgrade", method = RequestMethod.POST)
+    @ApiOperation(value = "v2.0.0 * 客户支付晋升服务费晋升到指定等级--等级晋升服务费下单", notes = "客户支付晋升服务费晋升到指定等级--等级晋升服务费下单")
+    public ApiResult<CreateOrderDto> upgradeLevel(
+            @ApiParam(name = "levelUpgrade", value = "晋升信息")
+            @RequestBody LevelUpgradeDto levelUpgrade,
+            @FromSession UserInfo userInfo,
+            HttpServletRequest request) {
+        String ip = HttpRequestUtils.getRealRemoteAddr(request);
+        return posService.createLevelUpgradeTransaction(userInfo.getId(), levelUpgrade, ip);
     }
 
     @RequestMapping(value = "getSmsCode/{recordId}", method = RequestMethod.POST)
@@ -119,6 +131,34 @@ public class PosController {
             @FromSession UserInfo userInfo) {
         // TODO 记录操作日志
         return posService.sendPayValidateSmsCode(userInfo.getId(), recordId);
+    }
+
+    @RequestMapping(value = "level/upgrade/confirm", method = RequestMethod.POST)
+    @ApiOperation(value = "v2.0.0 * 客户支付晋升服务费晋升到指定等级--确认支付等级晋升服务费", notes = "客户支付晋升服务费晋升到指定等级--确认支付等级晋升服务费")
+    public ApiResult<NullObject> confirmUpgradeLevel(
+            @ApiParam(name = "recordId", value = "记录ID")
+            @RequestParam("recordId") Long recordId,
+            @ApiParam(name = "smsCode", value = "短信验证码")
+            @RequestParam("smsCode") String smsCode,
+            @FromSession UserInfo userInfo, HttpServletRequest request) {
+        // TODO 记录操作日志
+        String ip = HttpRequestUtils.getRealRemoteAddr(request);
+        boolean hasLock = false;
+        ReentrantLock lock = SEG_LOCKS.getLock(recordId);
+        try {
+            hasLock = lock.tryLock(8L, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            LOG.error("确认支付等级晋升服务费时尝试获取锁失败！recordId = " + recordId, e);
+        }
+        if (hasLock) {
+            try {
+                return posService.confirmUpgradeLevel(userInfo.getId(), smsCode, recordId, ip);
+            } finally {
+                lock.unlock();
+            }
+        } else {
+            return ApiResult.fail(CommonErrorCode.ACCESS_TIMEOUT);
+        }
     }
 
     @RequestMapping(value = "getMoney/{recordId}", method = RequestMethod.POST)
@@ -179,21 +219,21 @@ public class PosController {
     //合利宝的回调
     @RequestMapping(value = "payCallback", method = RequestMethod.POST)
     public void posCallback(
-            @RequestParam(name = "rt1_bizType", required = false)String rt1_bizType,
-            @RequestParam(name = "rt2_retCode", required = false)String rt2_retCode,
-            @RequestParam(name = "rt3_retMsg", required = false)String rt3_retMsg,
-            @RequestParam(name = "rt4_customerNumber", required = false)String rt4_customerNumber,
-            @RequestParam(name = "rt5_orderId", required = false)String rt5_orderId,
-            @RequestParam(name = "rt6_serialNumber", required = false)String rt6_serialNumber,
-            @RequestParam(name = "rt7_completeDate", required = false)String rt7_completeDate,
-            @RequestParam(name = "rt8_orderAmount", required = false)String rt8_orderAmount,
-            @RequestParam(name = "rt9_orderStatus", required = false)String rt9_orderStatus,
-            @RequestParam(name = "rt10_bindId", required = false)String rt10_bindId,
-            @RequestParam(name = "rt11_bankId", required = false)String rt11_bankId,
-            @RequestParam(name = "rt12_onlineCardType", required = false)String rt12_onlineCardType,
-            @RequestParam(name = "rt13_cardAfterFour", required = false)String rt13_cardAfterFour,
-            @RequestParam(name = "rt14_userId", required = false)String rt14_userId,
-            @RequestParam(name = "sign", required = false)String sign,
+            @RequestParam(name = "rt1_bizType", required = false) String rt1_bizType,
+            @RequestParam(name = "rt2_retCode", required = false) String rt2_retCode,
+            @RequestParam(name = "rt3_retMsg", required = false) String rt3_retMsg,
+            @RequestParam(name = "rt4_customerNumber", required = false) String rt4_customerNumber,
+            @RequestParam(name = "rt5_orderId", required = false) String rt5_orderId,
+            @RequestParam(name = "rt6_serialNumber", required = false) String rt6_serialNumber,
+            @RequestParam(name = "rt7_completeDate", required = false) String rt7_completeDate,
+            @RequestParam(name = "rt8_orderAmount", required = false) String rt8_orderAmount,
+            @RequestParam(name = "rt9_orderStatus", required = false) String rt9_orderStatus,
+            @RequestParam(name = "rt10_bindId", required = false) String rt10_bindId,
+            @RequestParam(name = "rt11_bankId", required = false) String rt11_bankId,
+            @RequestParam(name = "rt12_onlineCardType", required = false) String rt12_onlineCardType,
+            @RequestParam(name = "rt13_cardAfterFour", required = false) String rt13_cardAfterFour,
+            @RequestParam(name = "rt14_userId", required = false) String rt14_userId,
+            @RequestParam(name = "sign", required = false) String sign,
             HttpServletResponse response) {
         ConfirmPayResponseVo confirmPayResponseVo = new ConfirmPayResponseVo();
         confirmPayResponseVo.setRt1_bizType(rt1_bizType);
