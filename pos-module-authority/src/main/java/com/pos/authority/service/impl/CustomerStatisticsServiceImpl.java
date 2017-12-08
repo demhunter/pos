@@ -71,7 +71,8 @@ public class CustomerStatisticsServiceImpl implements CustomerStatisticsService 
                 pushAllChildren(breadthList, tree);
                 DescendantLevelStatisticsDto levelStatistics = levelStatisticsMap.get(tree.getLevel());
                 if (levelStatistics == null) {
-                    levelStatistics = levelStatisticsMap.putIfAbsent(tree.getLevel(), new DescendantLevelStatisticsDto(tree.getLevel()));
+                    levelStatisticsMap.putIfAbsent(tree.getLevel(), new DescendantLevelStatisticsDto(tree.getLevel()));
+                    levelStatistics = levelStatisticsMap.get(tree.getLevel());
                 }
                 // 统计直接下级和间接下级
                 if (userId.equals(tree.getParentUserId())) {

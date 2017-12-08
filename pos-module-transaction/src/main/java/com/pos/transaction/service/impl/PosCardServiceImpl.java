@@ -104,7 +104,7 @@ public class PosCardServiceImpl implements PosCardService {
         // 查询权限获取绑卡信息
         CustomerPermissionDto permission = customerAuthorityService.getPermission(userId);
         PosCardDto withdrawCard = null;
-        if (permission.getPosCardId() == null) {
+        if (permission.getPosCardId() != null) {
             // 查询绑定的收款银行卡信息
             withdrawCard = posCardDao.getUserPosCard(permission.getPosCardId());
         }

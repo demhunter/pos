@@ -206,11 +206,11 @@ public class CustomerRelationPoolSupport {
         }
         CustomerRelationDto customerRelation = new CustomerRelationDto();
         customerRelation.setUserId(userId);
-        customerRelation.setLevel((Integer) data.get("level"));
-        customerRelation.setWithdrawRate((BigDecimal) data.get("withdrawRate"));
-        customerRelation.setExtraServiceCharge((BigDecimal) data.get("extraServiceCharge"));
-        customerRelation.setAuditStatus((Integer) data.get("auditStatus"));
-        customerRelation.setParentUserId((Long) data.get("parentUserId"));
+        customerRelation.setLevel(Integer.valueOf((String) data.get("level")));
+        customerRelation.setWithdrawRate(new BigDecimal((String) data.get("withdrawRate")));
+        customerRelation.setExtraServiceCharge(new BigDecimal((String) data.get("extraServiceCharge")));
+        customerRelation.setAuditStatus(Integer.valueOf((String) data.get("auditStatus")));
+        customerRelation.setParentUserId(Long.valueOf((String) data.get("parentUserId")));
         customerRelation.setRelationTime(SimpleDateUtils.parseDate(
                 (String) data.get("relationTime"),
                 SimpleDateUtils.DatePattern.STANDARD_PATTERN.toString()));

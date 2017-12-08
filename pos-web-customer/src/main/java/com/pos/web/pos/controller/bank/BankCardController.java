@@ -26,7 +26,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/bank/card")
-@Api(value = "/bank/card", description = "v2.0.0 * 佣金相关接口")
+@Api(value = "/bank/card", description = "v2.0.0 * 银行卡管理相关接口")
 public class BankCardController {
 
     @Resource
