@@ -24,6 +24,7 @@ import com.pos.authority.dto.statistics.CustomerStatisticsDto;
 import com.pos.authority.exception.AuthorityErrorCode;
 import com.pos.authority.fsm.context.AuditStatusTransferContext;
 import com.pos.authority.service.CustomerAuthorityService;
+import com.pos.authority.service.CustomerStatisticsService;
 import com.pos.authority.service.support.CustomerLevelSupport;
 import com.pos.authority.service.support.CustomerRelationPoolSupport;
 import com.pos.basic.service.SecurityService;
@@ -63,6 +64,9 @@ public class CustomerAuthorityServiceImpl implements CustomerAuthorityService {
     private SecurityService securityService;
 
     @Resource
+    private CustomerStatisticsService customerStatisticsService;
+
+    @Resource
     private CustomerLevelSupport customerLevelSupport;
 
     @Resource
@@ -87,7 +91,7 @@ public class CustomerAuthorityServiceImpl implements CustomerAuthorityService {
         CustomerDto newCustomer = customerService.findById(userId, true, true);
         if (newCustomer == null) {
             LOG.error("客户{}不存在，无法初始化权限和客户关系", userId);
-        } else if (newCustomer.isAvailable()) {
+        } else if (!newCustomer.isAvailable()) {
             LOG.error("客户{}已被禁用，无法初始化权限和客户关系", userId);
         } else if (newCustomer.isDeleted()) {
             LOG.error("客户{}已被删除，无法初始化权限和客户关系", userId);
@@ -117,7 +121,7 @@ public class CustomerAuthorityServiceImpl implements CustomerAuthorityService {
             customerRelationPoolSupport.addCustomerRelation(buildRelationDto(permission, relation));
 
             // 更新父客户的直接下级客户数量统计
-            customerStatisticsDao.incrementChildrenCount(parentUserId);
+            customerStatisticsService.incrementChildrenCount(parentUserId);
         }
     }
 

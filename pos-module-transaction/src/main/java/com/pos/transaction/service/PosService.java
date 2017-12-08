@@ -4,6 +4,7 @@
 package com.pos.transaction.service;
 
 import com.pos.authority.dto.permission.CustomerPermissionDto;
+import com.pos.authority.fsm.context.AuditStatusTransferContext;
 import com.pos.basic.dto.UserIdentifier;
 import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.common.util.mvc.support.NullObject;
@@ -12,20 +13,14 @@ import com.pos.transaction.constants.UserAuditStatus;
 import com.pos.transaction.dto.CreateOrderDto;
 import com.pos.transaction.dto.GetSignDto;
 import com.pos.transaction.dto.PosUserAuditInfoDto;
-import com.pos.transaction.dto.auth.PosUserAuthDetailDto;
-import com.pos.transaction.dto.auth.PosUserAuthDto;
 import com.pos.transaction.dto.get.QuickGetMoneyDto;
 import com.pos.transaction.dto.identity.IdentifyInfoDto;
-import com.pos.transaction.dto.request.BindCardDto;
 import com.pos.transaction.dto.request.GetMoneyDto;
 import com.pos.transaction.dto.request.LevelUpgradeDto;
 import com.pos.transaction.dto.transaction.SelectCardRequestDto;
-import com.pos.transaction.dto.user.PosUserIdentityDto;
-import com.pos.transaction.fsm.context.AuditStatusTransferContext;
+import com.pos.transaction.dto.transaction.TransactionHandledInfoDto;
 import com.pos.transaction.fsm.context.TransactionStatusTransferContext;
 import com.pos.transaction.helipay.vo.ConfirmPayResponseVo;
-import com.pos.transaction.dto.transaction.TransactionHandledInfoDto;
-import com.pos.user.dto.customer.CustomerDto;
 
 import java.math.BigDecimal;
 import java.util.Map;

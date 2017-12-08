@@ -20,6 +20,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -38,6 +39,8 @@ public class CustomerRelationPoolSupport {
 
     private final static Logger LOG = LoggerFactory.getLogger(CustomerRelationPoolSupport.class);
 
+    private final static Long CUSTOMER_ROOT_NODE_USER_ID = 0L; // 根节点用户id
+
     private final static long CUSTOMER_RELATION_TREE_CACHE_TIME = 300L; // 关系树缓存时间
 
     @Resource
@@ -51,6 +54,15 @@ public class CustomerRelationPoolSupport {
 
     @Resource
     private CustomerLevelSupport customerLevelSupport;
+
+    @PostConstruct
+    private void initializeCustomerRoot() {
+        CustomerRelationNode rootNode = getNodeInfo(CUSTOMER_ROOT_NODE_USER_ID);
+        if (rootNode == null) {
+            rootNode = initializeRootNode();
+            saveNodeSelfInfo(rootNode);
+        }
+    }
 
     /**
      * 初始化客户关系树
@@ -112,7 +124,7 @@ public class CustomerRelationPoolSupport {
         if (childNode.getParentUserId() != null) {
             redisTemplate.opsForSet().add(
                     RedisConstants.POS_CUSTOMER_RELATION_NODE_CHILDREN + childNode.getParentUserId(),
-                    childNode.getUserId());
+                    childNode.getUserId().toString());
         }
     }
 
@@ -124,12 +136,16 @@ public class CustomerRelationPoolSupport {
     private void saveNodeSelfInfo(CustomerRelationNode node) {
         // 保存节点自身信息
         Map<String, Object> nodeInfo = new HashMap<>();
-        nodeInfo.put("level", node.getLevel());
+        nodeInfo.put("level", String.valueOf(node.getLevel()));
         nodeInfo.put("withdrawRate", node.getWithdrawRate().toPlainString());
         nodeInfo.put("extraServiceCharge", node.getWithdrawRate().toPlainString());
         nodeInfo.put("auditStatus", node.getAuditStatus().toString());
-        nodeInfo.put("parentUserId", node.getParentUserId().toString());
-        nodeInfo.put("relationTime", SimpleDateUtils.formatDate(node.getRelationTime(), SimpleDateUtils.DatePattern.STANDARD_PATTERN.toString()));
+        if (node.getParentUserId() != null) {
+            nodeInfo.put("parentUserId", node.getParentUserId().toString());
+        }
+        if (node.getRelationTime() != null) {
+            nodeInfo.put("relationTime", SimpleDateUtils.formatDate(node.getRelationTime(), SimpleDateUtils.DatePattern.STANDARD_PATTERN.toString()));
+        }
         redisTemplate.opsForHash().putAll(RedisConstants.POS_CUSTOMER_RELATION_NODE + node.getUserId(), nodeInfo);
 
         // 保存直接子节点信息
@@ -155,17 +171,21 @@ public class CustomerRelationPoolSupport {
 
         CustomerRelationNode node = new CustomerRelationNode();
         node.setUserId(userId);
-        node.setLevel((Integer) data.get("level"));
-        node.setWithdrawRate((BigDecimal) data.get("withdrawRate"));
-        node.setExtraServiceCharge((BigDecimal) data.get("extraServiceCharge"));
-        node.setAuditStatus((Integer) data.get("auditStatus"));
-        node.setParentUserId((Long) data.get("parentUserId"));
-        node.setRelationTime(SimpleDateUtils.parseDate(
-                (String) data.get("relationTime"),
-                SimpleDateUtils.DatePattern.STANDARD_PATTERN.toString()));
+        node.setLevel(Integer.valueOf((String) data.get("level")));
+        node.setWithdrawRate(new BigDecimal((String) data.get("withdrawRate")));
+        node.setExtraServiceCharge(new BigDecimal((String) data.get("extraServiceCharge")));
+        node.setAuditStatus(Integer.valueOf((String) data.get("auditStatus")));
+        if (data.get("parentUserId") != null) {
+            node.setParentUserId(Long.valueOf((String) data.get("parentUserId")));
+        }
+        if (data.get("relationTime") != null) {
+            node.setRelationTime(SimpleDateUtils.parseDate(
+                    (String) data.get("relationTime"),
+                    SimpleDateUtils.DatePattern.STANDARD_PATTERN.toString()));
+        }
         Set<Serializable> childrenSet = redisTemplate.opsForSet().members(RedisConstants.POS_CUSTOMER_RELATION_NODE_CHILDREN + node.getUserId());
         if (!CollectionUtils.isEmpty(childrenSet)) {
-            node.setChildren(childrenSet.stream().map(child -> (Long) child).collect(Collectors.toSet()));
+            node.setChildren(childrenSet.stream().map(child -> Long.valueOf((String) child)).collect(Collectors.toSet()));
         }
 
         return node;
@@ -209,7 +229,7 @@ public class CustomerRelationPoolSupport {
         FieldChecker.checkEmpty(userId, "userId");
         FieldChecker.checkEmpty(auditStatus, "auditStatus");
 
-        redisTemplate.opsForHash().put(RedisConstants.POS_CUSTOMER_RELATION_NODE + userId, "auditStatus", auditStatus.getCode());
+        redisTemplate.opsForHash().put(RedisConstants.POS_CUSTOMER_RELATION_NODE + userId, "auditStatus", String.valueOf(auditStatus.getCode()));
 
         return true;
     }
@@ -224,7 +244,7 @@ public class CustomerRelationPoolSupport {
         FieldChecker.checkEmpty(permission, "permission");
 
         Map<String, Object> nodeInfo = new HashMap<>();
-        nodeInfo.put("level", permission.getLevel());
+        nodeInfo.put("level", permission.getLevel().toString());
         nodeInfo.put("withdrawRate", permission.getWithdrawRate().toPlainString());
         nodeInfo.put("extraServiceCharge", permission.getWithdrawRate().toPlainString());
 

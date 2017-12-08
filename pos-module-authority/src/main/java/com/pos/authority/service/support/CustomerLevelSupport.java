@@ -93,12 +93,12 @@ public class CustomerLevelSupport {
         } else {
             config = new CustomerLevelConfig();
             config.setLevel(level);
-            config.setWithdrawRate((BigDecimal) data.get("withdrawRate"));
-            config.setExtraServiceCharge((BigDecimal) data.get("extraServiceCharge"));
-            config.setChargeLimit((BigDecimal) data.get("chargeLimit"));
-            config.setChildrenLimit((Integer) data.get("childrenLimit"));
-            config.setWithdrawAmountLimit((BigDecimal) data.get("withdrawAmountLimit"));
-            config.setAvailable((Boolean) data.get("available"));
+            config.setWithdrawRate(new BigDecimal((String) data.get("withdrawRate")));
+            config.setExtraServiceCharge(new BigDecimal((String) data.get("extraServiceCharge")));
+            config.setChargeLimit(new BigDecimal((String) data.get("chargeLimit")));
+            config.setChildrenLimit(Integer.valueOf((String) data.get("childrenLimit")));
+            config.setWithdrawAmountLimit(new BigDecimal((String) data.get("withdrawAmountLimit")));
+            config.setAvailable(Boolean.valueOf((String) data.get("available")));
         }
 
         return config;
@@ -160,7 +160,7 @@ public class CustomerLevelSupport {
             throw new IllegalStateException("系统没有配置客户等级!");
         }
 
-        return set.stream().map(e -> (Integer) e).collect(Collectors.toSet());
+        return set.stream().map(e -> Integer.valueOf((String) e)).collect(Collectors.toSet());
     }
 
 }

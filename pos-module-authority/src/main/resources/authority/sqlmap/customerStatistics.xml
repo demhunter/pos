@@ -32,7 +32,7 @@
 
     <select id="getByUserId" resultType="com.pos.authority.dto.statistics.CustomerStatisticsDto">
         SELECT
-            `id` AS `id`
+            `id` AS `id`,
             user_id AS userId,
             paid_charge AS paidCharge,
             children_count AS childrenCount,

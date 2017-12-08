@@ -20,17 +20,6 @@ public class PosFSMFactory {
     private static final Logger logger = LoggerFactory.getLogger(PosFSMFactory.class);
 
     /**
-     * 产生新的收款用户身份认证审核状态机实例
-     *
-     * @param currentState 当前状态String
-     * @param context      用户身份认证审核Context
-     * @return 用户身份认证审核状态机
-     */
-    public static FSM newPosAuditInstance(String currentState, Object context) {
-        return generateInstance("fsm/sm_pos_audit.xml", currentState, context);
-    }
-
-    /**
      * 产生新的快捷收款交易状态状态机实例
      *
      * @param currentState 当前状态String

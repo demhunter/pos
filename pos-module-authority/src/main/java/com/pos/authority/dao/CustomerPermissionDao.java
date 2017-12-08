@@ -22,7 +22,7 @@ public interface CustomerPermissionDao {
      *
      * @param permission 权限信息
      */
-    void save(CustomerPermission permission);
+    void save(@Param("permission") CustomerPermission permission);
 
     /**
      * 获取指定用户的权限信息
@@ -65,5 +65,5 @@ public interface CustomerPermissionDao {
      *
      * @param permission 等级收款配置信息
      */
-    void updateLevelConfig(CustomerPermissionDto permission);
+    void updateLevelConfig(@Param("permission") CustomerPermissionDto permission);
 }

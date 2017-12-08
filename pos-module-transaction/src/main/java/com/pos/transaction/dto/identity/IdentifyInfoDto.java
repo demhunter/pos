@@ -3,9 +3,9 @@
  */
 package com.pos.transaction.dto.identity;
 
+import com.pos.authority.fsm.context.AuditStatusTransferContext;
 import com.pos.common.util.exception.IllegalParamException;
 import com.pos.common.util.validation.FieldChecker;
-import com.pos.transaction.fsm.context.AuditStatusTransferContext;
 
 import java.io.Serializable;
 import java.util.Date;

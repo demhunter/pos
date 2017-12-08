@@ -100,8 +100,8 @@
         SET
             `level` = #{permission.level},
             withdraw_rate = #{permission.withdrawRate},
-            extra_serivce_charge = #{permission.extraServiceChage},
-            update_user_id = #{updateUserId},
+            extra_service_charge = #{permission.extraServiceCharge},
+            update_user_id = #{permission.updateUserId},
             update_time = NOW()
         WHERE user_id = #{permission.userId}
     </update>

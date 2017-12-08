@@ -6,14 +6,17 @@ package com.pos.web.pos.controller.relation;
 import com.pos.authority.service.support.relation.CustomerRelationNode;
 import com.pos.authority.service.support.relation.CustomerRelationTree;
 import com.pos.authority.service.support.CustomerRelationPoolSupport;
+import com.pos.basic.mq.MQMessage;
+import com.pos.basic.mq.MQReceiverType;
+import com.pos.basic.mq.MQTemplate;
 import com.pos.common.util.mvc.support.ApiResult;
+import com.pos.user.dto.mq.CustomerInfoMsg;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.Stack;
@@ -32,11 +35,26 @@ public class RelationDemoController {
     @Resource
     private CustomerRelationPoolSupport customerRelationPoolSupport;
 
-    @RequestMapping(value = "initialize", method = RequestMethod.GET)
-    @ApiOperation(value = "v2.0.0 * 初始化", notes = "初始化")
-    public ApiResult<CustomerRelationTree> explain() {
-        // customerRelationTreeSupport.initialize();
+    @Resource
+    private MQTemplate mqTemplate;
+
+    private final static Logger logger = LoggerFactory.getLogger(RelationDemoController.class);
+
+    @RequestMapping(value = "register/message", method = RequestMethod.GET)
+    @ApiOperation(value = "v2.0.0 * 发送注册MQ消息", notes = "发送注册MQ消息")
+    public ApiResult<CustomerRelationTree> explain(
+            @RequestParam(name = "userId", required = false) Long userId,
+            @RequestParam(name = "userPhone", required = false) String userPhone,
+            @RequestParam(name = "recommendUserId", required = false) Long recommendUserId,
+            @RequestParam(name = "recommendType", required = false) Byte recommendType) {
+        sendCustomerRegisterMessage(userId, userPhone, recommendUserId, recommendType);
         return ApiResult.succ();
+    }
+
+    private void sendCustomerRegisterMessage(Long userId, String userPhone, Long recommendUserId, Byte recommendType) {
+        CustomerInfoMsg msg = new CustomerInfoMsg(userId, userPhone, recommendUserId, recommendType);
+        mqTemplate.sendDirectMessage(new MQMessage(MQReceiverType.POS, "pos.reg.route.key", msg));
+        logger.info("发送一条用户注册的消息");
     }
 
     @RequestMapping(value = "participation/{userId}", method = RequestMethod.GET)

@@ -9,6 +9,8 @@ import com.pos.authority.dto.level.CustomerUpgradeLevelDto;
 import com.pos.authority.dto.permission.CustomerPermissionDto;
 import com.pos.authority.dto.relation.CustomerRelationDto;
 import com.pos.authority.exception.AuthorityErrorCode;
+import com.pos.authority.fsm.AuthorityFSMFactory;
+import com.pos.authority.fsm.context.AuditStatusTransferContext;
 import com.pos.authority.service.CustomerAuthorityService;
 import com.pos.authority.service.CustomerRelationService;
 import com.pos.authority.service.CustomerStatisticsService;
@@ -42,14 +44,12 @@ import com.pos.transaction.dto.transaction.TransactionHandledInfoDto;
 import com.pos.transaction.exception.PosUserErrorCode;
 import com.pos.transaction.exception.TransactionErrorCode;
 import com.pos.transaction.fsm.PosFSMFactory;
-import com.pos.transaction.fsm.context.AuditStatusTransferContext;
 import com.pos.transaction.fsm.context.TransactionStatusTransferContext;
 import com.pos.transaction.helipay.action.QuickPayApi;
 import com.pos.transaction.helipay.vo.*;
 import com.pos.transaction.service.PosService;
 import com.pos.user.dao.UserDao;
 import com.pos.user.exception.UserErrorCode;
-import jdk.nashorn.internal.ir.IfNode;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
@@ -192,7 +192,7 @@ public class PosServiceImpl implements PosService {
         }
         // FSM 状态机变更
         AuditStatusTransferContext transferContext = identifyInfo.buildStatusTransferContext();
-        FSM fsm = PosFSMFactory.newPosAuditInstance(authDetail.parseAuditStatus().toString(), transferContext);
+        FSM fsm = AuthorityFSMFactory.newAuditInstance(authDetail.parseAuditStatus().toString(), transferContext);
         if (identifyInfo.isAllowed()) {
             fsm.processFSM("platAudited");
         } else {

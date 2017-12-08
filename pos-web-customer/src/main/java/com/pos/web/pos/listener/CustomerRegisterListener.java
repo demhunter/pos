@@ -8,10 +8,7 @@ import com.pos.basic.mq.AbstractMQListener;
 import com.pos.basic.mq.MQMessage;
 import com.pos.common.util.basic.JsonUtils;
 import com.pos.common.util.validation.Preconditions;
-import com.pos.transaction.service.PosService;
-import com.pos.user.dto.customer.CustomerDto;
 import com.pos.user.dto.mq.CustomerInfoMsg;
-import com.pos.user.service.CustomerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -29,12 +26,6 @@ import javax.annotation.Resource;
 public class CustomerRegisterListener extends AbstractMQListener {
 
     private final static Logger LOG = LoggerFactory.getLogger(CustomerRegisterListener.class);
-
-    @Resource
-    private PosService posService;
-
-    @Resource
-    private CustomerService customerService;
 
     @Resource
     private CustomerAuthorityService customerAuthorityService;
