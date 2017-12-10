@@ -9,7 +9,7 @@
     <import resource="rabbit-queues.xml"/>
 
     <!-- 交换器和绑定关系 -->
-    <rabbit:fanout-exchange name="posconsole.fanout.exchange" durable="true" auto-delete="false">
+    <rabbit:fanout-exchange name="pos.console.fanout.exchange" durable="true" auto-delete="false">
     </rabbit:fanout-exchange>
 
 </beans>

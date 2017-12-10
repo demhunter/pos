@@ -4,9 +4,14 @@
 package com.pos.web.pos.controller.pos;
 
 import com.google.common.collect.Lists;
+import com.pos.basic.constant.OperationType;
+import com.pos.basic.dto.operation.mq.OperationMsg;
+import com.pos.basic.mq.MQReceiverType;
+import com.pos.basic.service.OperationLogService;
 import com.pos.common.util.basic.SegmentLocks;
 import com.pos.common.util.constans.GlobalConstants;
 import com.pos.common.util.exception.CommonErrorCode;
+import com.pos.common.util.exception.ValidationException;
 import com.pos.common.util.mvc.resolver.FromSession;
 import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.common.util.mvc.support.LimitHelper;
@@ -43,6 +48,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -52,12 +58,12 @@ import java.util.stream.Collectors;
 /**
  * 支付业务相关接口
  *
- * @author 睿智
- * @version 1.0, 2017/8/22
+ * @author wangbing
+ * @version 2.0, 2017/12/9
  */
 @RestController
 @RequestMapping("/pos")
-@Api(value = "/pos", description = "v1.0.0 * 支付业务相关接口")
+@Api(value = "/pos", description = "v2.0.0 * 支付业务相关接口")
 public class PosController {
 
     private final static Logger LOG = LoggerFactory.getLogger(PosController.class);
@@ -73,6 +79,8 @@ public class PosController {
     @Resource
     private PosUserTransactionRecordService posUserTransactionRecordService;
 
+    @Resource
+    private OperationLogService operationLogService;
 
     @RequestMapping(value = "explain", method = RequestMethod.GET)
     @ApiOperation(value = "v1.0.0 * 功能说明", notes = "功能说明的地址")
@@ -97,8 +105,56 @@ public class PosController {
             @RequestBody SelectCardRequestDto selectCardRequestDto,
             @FromSession UserInfo userInfo, HttpServletRequest request) {
         String ip = HttpRequestUtils.getRealRemoteAddr(request);
-        // TODO 记录操作日志
-        return posService.selectCreateRecord(userInfo.getId(), selectCardRequestDto, ip);
+
+        // 敏感操作，记录操作日志
+        OperationMsg msg = OperationMsg.create(userInfo.buildUserIdentifier(), OperationType.EPOS.选卡下单);
+        Map<String, Object> requestMap = new HashMap<>();
+        requestMap.put("ip", ip);
+        requestMap.put("RequestBody", selectCardRequestDto);
+        msg.addFailureRequestInfo(requestMap);
+
+        ApiResult<CreateOrderDto> result;
+        // 敏感操作，加锁
+        boolean hasLock = false;
+        ReentrantLock lock = SEG_LOCKS.getLock(userInfo.getId());
+        try {
+            hasLock = lock.tryLock(5L, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            LOG.error("用户{}选卡下单时尝试获取锁失败！", userInfo.getId());
+        }
+        try {
+            if (hasLock) {
+                // 执行敏感操作
+                result = posService.selectCreateRecord(userInfo.getId(), selectCardRequestDto, ip);
+                if (!result.isSucc()) {
+                    msg.operateFailure();
+                    msg.setFailReason(result.getMessage());
+                } else {
+                    msg.operateSuccess();
+                }
+            } else {
+                result = ApiResult.fail(CommonErrorCode.ACCESS_TIMEOUT);
+                msg.operateFailure();
+                msg.setFailReason("超时错误");
+            }
+        } catch (ValidationException validationException) {
+            msg.operateFailure();
+            msg.setFailReason("参数错误");
+            msg.setException(validationException);
+            throw validationException;
+        } catch (Exception e) {
+            msg.operateFailure();
+            msg.setFailReason("服务器内部错误");
+            msg.setException(e);
+            throw e;
+        } finally {
+            if (hasLock) {
+                lock.unlock();
+            }
+            // 发送操作消息
+            operationLogService.sendOperationMsg(msg, MQReceiverType.POS_CUSTOMER);
+        }
+        return result;
     }
 
     @RequestMapping(value = "writeCard", method = RequestMethod.POST)
@@ -108,8 +164,57 @@ public class PosController {
             @RequestBody GetMoneyDto getMoneyRequestDto,
             @FromSession UserInfo userInfo, HttpServletRequest request) {
         String ip = HttpRequestUtils.getRealRemoteAddr(request);
-        // TODO 记录操作日志
-        return posService.writeCreateRecord(getMoneyRequestDto, userInfo.getId(), ip);
+
+        // 敏感操作，记录操作日志
+        OperationMsg msg = OperationMsg.create(userInfo.buildUserIdentifier(), OperationType.EPOS.填卡下单);
+        Map<String, Object> requestMap = new HashMap<>();
+        requestMap.put("ip", ip);
+        requestMap.put("RequestBody", getMoneyRequestDto);
+        msg.addFailureRequestInfo(requestMap);
+
+        ApiResult<CreateOrderDto> result;
+        // 敏感操作，加锁
+        boolean hasLock = false;
+        ReentrantLock lock = SEG_LOCKS.getLock(userInfo.getId());
+        try {
+            hasLock = lock.tryLock(5L, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            LOG.error("用户{}填卡下单时尝试获取锁失败！", userInfo.getId());
+        }
+        try {
+            if (hasLock) {
+                // 执行敏感操作
+                result = posService.writeCreateRecord(getMoneyRequestDto, userInfo.getId(), ip);
+                if (!result.isSucc()) {
+                    msg.operateFailure();
+                    msg.setFailReason(result.getMessage());
+                } else {
+                    msg.operateSuccess();
+                }
+            } else {
+                result = ApiResult.fail(CommonErrorCode.ACCESS_TIMEOUT);
+                msg.operateFailure();
+                msg.setFailReason("超时错误");
+            }
+        } catch (ValidationException validationException) {
+            msg.operateFailure();
+            msg.setFailReason("参数错误");
+            msg.setException(validationException);
+            throw validationException;
+        } catch (Exception e) {
+            msg.operateFailure();
+            msg.setFailReason("服务器内部错误");
+            msg.setException(e);
+            throw e;
+        } finally {
+            if (hasLock) {
+                lock.unlock();
+            }
+            // 发送操作消息
+            operationLogService.sendOperationMsg(msg, MQReceiverType.POS_CUSTOMER);
+        }
+
+        return result;
     }
 
     @RequestMapping(value = "level/upgrade", method = RequestMethod.POST)
@@ -120,17 +225,114 @@ public class PosController {
             @FromSession UserInfo userInfo,
             HttpServletRequest request) {
         String ip = HttpRequestUtils.getRealRemoteAddr(request);
-        return posService.createLevelUpgradeTransaction(userInfo.getId(), levelUpgrade, ip);
+
+        // 敏感操作，记录操作日志
+        OperationMsg msg = OperationMsg.create(userInfo.buildUserIdentifier(), OperationType.LevelUpgrade.提交等级晋升请求);
+        Map<String, Object> requestMap = new HashMap<>();
+        requestMap.put("ip", ip);
+        requestMap.put("RequestBody", levelUpgrade);
+        msg.addFailureRequestInfo(requestMap);
+
+        ApiResult<CreateOrderDto> result;
+        // 敏感操作，加锁
+        boolean hasLock = false;
+        ReentrantLock lock = SEG_LOCKS.getLock(userInfo.getId());
+        try {
+            hasLock = lock.tryLock(5L, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            LOG.error("用户{}提交等级晋升请求时尝试获取锁失败！", userInfo.getId());
+        }
+        try {
+            if (hasLock) {
+                // 执行敏感操作
+                result = posService.createLevelUpgradeTransaction(userInfo.getId(), levelUpgrade, ip);
+                if (!result.isSucc()) {
+                    msg.operateFailure();
+                    msg.setFailReason(result.getMessage());
+                } else {
+                    msg.operateSuccess();
+                }
+            } else {
+                result = ApiResult.fail(CommonErrorCode.ACCESS_TIMEOUT);
+                msg.operateFailure();
+                msg.setFailReason("超时错误");
+            }
+        } catch (ValidationException validationException) {
+            msg.operateFailure();
+            msg.setFailReason("参数错误");
+            msg.setException(validationException);
+            throw validationException;
+        } catch (Exception e) {
+            msg.operateFailure();
+            msg.setFailReason("服务器内部错误");
+            msg.setException(e);
+            throw e;
+        } finally {
+            if (hasLock) {
+                lock.unlock();
+            }
+            // 发送操作消息
+            operationLogService.sendOperationMsg(msg, MQReceiverType.POS_CUSTOMER);
+        }
+
+        return result;
     }
 
     @RequestMapping(value = "getSmsCode/{recordId}", method = RequestMethod.POST)
-    @ApiOperation(value = "v1.0.0 * 快捷收款-3，提现时获取验证码", notes = "提现时获取验证码")
+    @ApiOperation(value = "v2.0.0 * 获取支付验证码", notes = "获取支付验证码")
     public ApiResult<NullObject> getSmsCode(
             @ApiParam(name = "recordId", value = "记录ID")
             @PathVariable("recordId") Long recordId,
             @FromSession UserInfo userInfo) {
-        // TODO 记录操作日志
-        return posService.sendPayValidateSmsCode(userInfo.getId(), recordId);
+        // 敏感操作，记录操作日志
+        OperationMsg msg = OperationMsg.create(userInfo.buildUserIdentifier(), OperationType.EPOS.获取支付验证码);
+        Map<String, Object> requestMap = new HashMap<>();
+        requestMap.put("recordId", recordId);
+        msg.addFailureRequestInfo(requestMap);
+
+        ApiResult<NullObject> result;
+        // 敏感操作，加锁
+        boolean hasLock = false;
+        ReentrantLock lock = SEG_LOCKS.getLock(recordId);
+        try {
+            hasLock = lock.tryLock(5L, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            LOG.error("用户{}获取支付验证码时尝试获取锁失败！recordId = {}", userInfo.getId(), recordId);
+        }
+        try {
+            if (hasLock) {
+                // 执行敏感操作
+                result = posService.sendPayValidateSmsCode(userInfo.getId(), recordId);
+                if (!result.isSucc()) {
+                    msg.operateFailure();
+                    msg.setFailReason(result.getMessage());
+                } else {
+                    msg.operateSuccess();
+                }
+            } else {
+                result = ApiResult.fail(CommonErrorCode.ACCESS_TIMEOUT);
+                msg.operateFailure();
+                msg.setFailReason("超时错误");
+            }
+        } catch (ValidationException validationException) {
+            msg.operateFailure();
+            msg.setFailReason("参数错误");
+            msg.setException(validationException);
+            throw validationException;
+        } catch (Exception e) {
+            msg.operateFailure();
+            msg.setFailReason("服务器内部错误");
+            msg.setException(e);
+            throw e;
+        } finally {
+            if (hasLock) {
+                lock.unlock();
+            }
+            // 发送操作消息
+            operationLogService.sendOperationMsg(msg, MQReceiverType.POS_CUSTOMER);
+        }
+
+        return result;
     }
 
     @RequestMapping(value = "level/upgrade/confirm", method = RequestMethod.POST)
@@ -141,24 +343,57 @@ public class PosController {
             @ApiParam(name = "smsCode", value = "短信验证码")
             @RequestParam("smsCode") String smsCode,
             @FromSession UserInfo userInfo, HttpServletRequest request) {
-        // TODO 记录操作日志
         String ip = HttpRequestUtils.getRealRemoteAddr(request);
+
+        // 敏感操作，记录操作日志
+        OperationMsg msg = OperationMsg.create(userInfo.buildUserIdentifier(), OperationType.LevelUpgrade.确认付款晋升);
+        Map<String, Object> requestMap = new HashMap<>();
+        requestMap.put("recordId", recordId);
+        requestMap.put("smsCode", smsCode);
+        msg.addFailureRequestInfo(requestMap);
+
+        ApiResult<NullObject> result;
+        // 敏感操作，加锁
         boolean hasLock = false;
         ReentrantLock lock = SEG_LOCKS.getLock(recordId);
         try {
-            hasLock = lock.tryLock(8L, TimeUnit.SECONDS);
+            hasLock = lock.tryLock(5L, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
-            LOG.error("确认支付等级晋升服务费时尝试获取锁失败！recordId = " + recordId, e);
+            LOG.error("用户{}确认付款晋升时尝试获取锁失败！recordId = {}", userInfo.getId(), recordId);
         }
-        if (hasLock) {
-            try {
-                return posService.confirmUpgradeLevel(userInfo.getId(), smsCode, recordId, ip);
-            } finally {
+        try {
+            if (hasLock) {
+                // 执行敏感操作
+                result = posService.confirmUpgradeLevel(userInfo.getId(), smsCode, recordId, ip);
+                if (!result.isSucc()) {
+                    msg.operateFailure();
+                    msg.setFailReason(result.getMessage());
+                } else {
+                    msg.operateSuccess();
+                }
+            } else {
+                result = ApiResult.fail(CommonErrorCode.ACCESS_TIMEOUT);
+                msg.operateFailure();
+                msg.setFailReason("超时错误");
+            }
+        } catch (ValidationException validationException) {
+            msg.operateFailure();
+            msg.setFailReason("参数错误");
+            msg.setException(validationException);
+            throw validationException;
+        } catch (Exception e) {
+            msg.operateFailure();
+            msg.setFailReason("服务器内部错误");
+            msg.setException(e);
+            throw e;
+        } finally {
+            if (hasLock) {
                 lock.unlock();
             }
-        } else {
-            return ApiResult.fail(CommonErrorCode.ACCESS_TIMEOUT);
+            // 发送操作消息
+            operationLogService.sendOperationMsg(msg, MQReceiverType.POS_CUSTOMER);
         }
+        return result;
     }
 
     @RequestMapping(value = "getMoney/{recordId}", method = RequestMethod.POST)
@@ -169,24 +404,58 @@ public class PosController {
             @ApiParam(name = "smsCode", value = "短信验证码")
             @RequestParam("smsCode") String smsCode,
             @FromSession UserInfo userInfo, HttpServletRequest request) {
-        // TODO 记录操作日志
         String ip = HttpRequestUtils.getRealRemoteAddr(request);
+
+        // 敏感操作，记录操作日志
+        OperationMsg msg = OperationMsg.create(userInfo.buildUserIdentifier(), OperationType.EPOS.提现到用户);
+        Map<String, Object> requestMap = new HashMap<>();
+        requestMap.put("ip", ip);
+        requestMap.put("smsCode", smsCode);
+        msg.addFailureRequestInfo(requestMap);
+
+        ApiResult<NullObject> result;
+        // 敏感操作，加锁
         boolean hasLock = false;
         ReentrantLock lock = SEG_LOCKS.getLock(recordId);
         try {
-            hasLock = lock.tryLock(8L, TimeUnit.SECONDS);
+            hasLock = lock.tryLock(5L, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
-            LOG.error("快捷收款提现时尝试获取锁失败！recordId = " + recordId, e);
+            LOG.error("用户{}收款提现时尝试获取锁失败！recordId = {}", userInfo.getId(), recordId);
         }
-        if (hasLock) {
-            try {
-                return posService.confirmPay(userInfo.getId(), smsCode, recordId, ip);
-            } finally {
+        try {
+            if (hasLock) {
+                // 执行敏感操作
+                result = posService.confirmPay(userInfo.getId(), smsCode, recordId, ip);
+                if (!result.isSucc()) {
+                    msg.operateFailure();
+                    msg.setFailReason(result.getMessage());
+                } else {
+                    msg.operateSuccess();
+                }
+            } else {
+                result = ApiResult.fail(CommonErrorCode.ACCESS_TIMEOUT);
+                msg.operateFailure();
+                msg.setFailReason("超时错误");
+            }
+        } catch (ValidationException validationException) {
+            msg.operateFailure();
+            msg.setFailReason("参数错误");
+            msg.setException(validationException);
+            throw validationException;
+        } catch (Exception e) {
+            msg.operateFailure();
+            msg.setFailReason("服务器内部错误");
+            msg.setException(e);
+            throw e;
+        } finally {
+            if (hasLock) {
                 lock.unlock();
             }
-        } else {
-            return ApiResult.fail(CommonErrorCode.ACCESS_TIMEOUT);
+            // 发送操作消息
+            operationLogService.sendOperationMsg(msg, MQReceiverType.POS_CUSTOMER);
         }
+
+        return result;
     }
 
     @RequestMapping(value = "records", method = RequestMethod.GET)

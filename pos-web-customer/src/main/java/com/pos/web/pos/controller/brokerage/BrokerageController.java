@@ -4,6 +4,13 @@
 package com.pos.web.pos.controller.brokerage;
 
 import com.google.common.collect.Lists;
+import com.pos.basic.constant.OperationType;
+import com.pos.basic.dto.operation.mq.OperationMsg;
+import com.pos.basic.mq.MQReceiverType;
+import com.pos.basic.service.OperationLogService;
+import com.pos.common.util.basic.SegmentLocks;
+import com.pos.common.util.exception.CommonErrorCode;
+import com.pos.common.util.exception.ValidationException;
 import com.pos.common.util.mvc.resolver.FromSession;
 import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.common.util.mvc.support.LimitHelper;
@@ -23,6 +30,8 @@ import com.pos.web.pos.vo.brokerage.BrokerageAppliedRecordVo;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -31,7 +40,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 /**
@@ -45,11 +58,18 @@ import java.util.stream.Collectors;
 @Api(value = "/brokerage", description = "v2.0.0 * 佣金相关接口")
 public class BrokerageController {
 
+    private final static Logger LOG = LoggerFactory.getLogger(BrokerageController.class);
+
+    private final static SegmentLocks SEG_LOCKS = new SegmentLocks(32, false);
+
     @Resource
     private CustomerBrokerageService customerBrokerageService;
 
     @Resource
     private PosUserTransactionRecordService posUserTransactionRecordService;
+
+    @Resource
+    private OperationLogService operationLogService;
 
     @RequestMapping(value = "general", method = RequestMethod.GET)
     @ApiOperation(value = "v2.0.0 * 获取佣金简要统计信息", notes = "获取佣金简要统计信息")
@@ -74,7 +94,52 @@ public class BrokerageController {
     @ApiOperation(value = "v2.0.0 * 申请提现", notes = "申请提现，不传金额，后端计算，申请提交成功返回申请提现的金额")
     public ApiResult<BigDecimal> addWithdrawDepositApply(
             @FromSession UserInfo userInfo) {
-        return customerBrokerageService.withdrawBrokerage(userInfo.getId());
+        // 敏感操作，记录操作日志
+        OperationMsg msg = OperationMsg.create(userInfo.buildUserIdentifier(), OperationType.BrokerageWithdraw.发起佣金提现);
+
+        ApiResult<BigDecimal> result;
+        // 敏感操作，加锁
+        boolean hasLock = false;
+        ReentrantLock lock = SEG_LOCKS.getLock(userInfo.getId());
+        try {
+            hasLock = lock.tryLock(5L, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            LOG.error("用户{}发起佣金提现时尝试获取锁失败！", userInfo.getId());
+        }
+        try {
+            if (hasLock) {
+                // 执行敏感操作
+                result = customerBrokerageService.withdrawBrokerage(userInfo.getId());
+                if (!result.isSucc()) {
+                    msg.operateFailure();
+                    msg.setFailReason(result.getMessage());
+                } else {
+                    msg.operateSuccess();
+                }
+            } else {
+                result = ApiResult.fail(CommonErrorCode.ACCESS_TIMEOUT);
+                msg.operateFailure();
+                msg.setFailReason("超时错误");
+            }
+        } catch (ValidationException validationException) {
+            msg.operateFailure();
+            msg.setFailReason("参数错误");
+            msg.setException(validationException);
+            throw validationException;
+        } catch (Exception e) {
+            msg.operateFailure();
+            msg.setFailReason("服务器内部错误");
+            msg.setException(e);
+            throw e;
+        } finally {
+            if (hasLock) {
+                lock.unlock();
+            }
+            // 发送操作消息
+            operationLogService.sendOperationMsg(msg, MQReceiverType.POS_CUSTOMER);
+        }
+
+        return result;
     }
 
     @RequestMapping(value = "applied/record", method = RequestMethod.GET)

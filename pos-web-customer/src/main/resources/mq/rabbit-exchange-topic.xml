@@ -9,7 +9,7 @@
     <import resource="rabbit-queues.xml"/>
 
     <!-- 交换器和绑定关系 -->
-    <rabbit:topic-exchange name="pos.topic.exchange" durable="true" auto-delete="false">
+    <rabbit:topic-exchange name="pos.customer.topic.exchange" durable="true" auto-delete="false">
     </rabbit:topic-exchange>
 
 </beans>

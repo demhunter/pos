@@ -8,19 +8,16 @@ import com.pos.authority.dto.level.CustomerUpgradeLevelDto;
 import com.pos.authority.service.CustomerAuthorityService;
 import com.pos.common.util.mvc.resolver.FromSession;
 import com.pos.common.util.mvc.support.ApiResult;
-import com.pos.common.util.web.http.HttpRequestUtils;
-import com.pos.transaction.dto.CreateOrderDto;
-import com.pos.transaction.dto.request.LevelUpgradeDto;
-import com.pos.transaction.service.PosService;
 import com.pos.user.session.UserInfo;
-import com.pos.web.pos.vo.level.LevelUpgradeVo;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -36,9 +33,6 @@ public class LevelController {
 
     @Resource
     private CustomerAuthorityService customerAuthorityService;
-
-    @Resource
-    private PosService posService;
 
     @RequestMapping(value = "", method = RequestMethod.GET)
     @ApiOperation(value = "v2.0.0 * 获取等级列表和当前用户等级", notes = "获取等级列表和当前用户等级（v2.0.0 用于“我要升级”页面展示）")

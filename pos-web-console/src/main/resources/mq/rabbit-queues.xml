@@ -6,4 +6,5 @@
 
     <!-- 队列 -->
     <rabbit:queue name="posconsole.demo.queue" durable="true" auto-delete="false" exclusive="false"/>
+    <rabbit:queue name="pos.log.operation.queue" durable="true" auto-delete="false" exclusive="false"/>
 </beans>

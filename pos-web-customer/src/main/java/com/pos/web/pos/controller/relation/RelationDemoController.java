@@ -3,23 +3,26 @@
  */
 package com.pos.web.pos.controller.relation;
 
-import com.pos.authority.service.support.relation.CustomerRelationNode;
 import com.pos.authority.service.support.relation.CustomerRelationTree;
-import com.pos.authority.service.support.CustomerRelationPoolSupport;
+import com.pos.basic.constant.OperationType;
+import com.pos.basic.dto.UserIdentifier;
+import com.pos.basic.dto.operation.mq.OperationMsg;
 import com.pos.basic.mq.MQMessage;
 import com.pos.basic.mq.MQReceiverType;
 import com.pos.basic.mq.MQTemplate;
+import com.pos.basic.service.OperationLogService;
 import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.user.dto.mq.CustomerInfoMsg;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import java.util.Stack;
 
 /**
  * 关系DemoController
@@ -33,10 +36,10 @@ import java.util.Stack;
 public class RelationDemoController {
 
     @Resource
-    private CustomerRelationPoolSupport customerRelationPoolSupport;
+    private MQTemplate mqTemplate;
 
     @Resource
-    private MQTemplate mqTemplate;
+    private OperationLogService operationLogService;
 
     private final static Logger logger = LoggerFactory.getLogger(RelationDemoController.class);
 
@@ -53,16 +56,24 @@ public class RelationDemoController {
 
     private void sendCustomerRegisterMessage(Long userId, String userPhone, Long recommendUserId, Byte recommendType) {
         CustomerInfoMsg msg = new CustomerInfoMsg(userId, userPhone, recommendUserId, recommendType);
-        mqTemplate.sendDirectMessage(new MQMessage(MQReceiverType.POS, "pos.reg.route.key", msg));
+        mqTemplate.sendDirectMessage(new MQMessage(MQReceiverType.POS_CUSTOMER, "pos.reg.route.key", msg));
         logger.info("发送一条用户注册的消息");
     }
 
-    @RequestMapping(value = "participation/{userId}", method = RequestMethod.GET)
-    @ApiOperation(value = "v2.0.0 * 获取参与分佣的用户栈", notes = "成功返回，则栈顶一定为交易用户信息，栈底一定为根节点")
-    public ApiResult<Stack<CustomerRelationNode>> brokerageParticipation(
-            @ApiParam(name = "userId", value = "用户id")
-            @PathVariable("userId") Long userId) {
-        // return ApiResult.succ(customerRelationPoolSupport.getParticipationForBrokerage(userId));
+    @RequestMapping(value = "operation/message/succ", method = RequestMethod.GET)
+    @ApiOperation(value = "v2.0.0 * 发送操作成功消息", notes = "发送操作成功消息")
+    public ApiResult<CustomerRelationTree> operationMessage(
+            @RequestParam(name = "userId") Long userId,
+            @RequestParam(name = "operationType") int operationType,
+            @RequestParam(name = "operationDetailType") int operationDetailType) {
+        UserIdentifier userIdentifier = new UserIdentifier(userId, "c");
+        OperationType.SubOperationType operation = OperationType.getSubOperation(operationType, operationDetailType);
+
+        OperationMsg operationMsg = OperationMsg.create(userIdentifier, operation);
+        operationMsg.operateSuccess();
+
+        operationLogService.sendOperationMsg(operationMsg, MQReceiverType.POS_CUSTOMER);
+
         return ApiResult.succ();
     }
 }

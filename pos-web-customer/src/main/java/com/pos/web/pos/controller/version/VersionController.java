@@ -3,7 +3,6 @@
  */
 package com.pos.web.pos.controller.version;
 
-import com.pos.basic.dto.version.VersionInstructionDto;
 import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.web.pos.vo.version.VersionVo;
 import com.wordnik.swagger.annotations.Api;

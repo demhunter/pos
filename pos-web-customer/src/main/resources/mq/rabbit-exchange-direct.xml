@@ -9,10 +9,11 @@
     <import resource="rabbit-queues.xml"/>
 
     <!-- 交换器和绑定关系 -->
-    <rabbit:direct-exchange name="pos.direct.exchange" durable="true" auto-delete="false">
+    <rabbit:direct-exchange name="pos.customer.direct.exchange" durable="true" auto-delete="false">
         <rabbit:bindings>
             <rabbit:binding queue="pos.demo.queue" key="demo.route.key"/>
             <rabbit:binding queue="pos.customer.reg.queue" key="pos.reg.route.key"/>
+            <rabbit:binding queue="pos.log.operation.queue" key="pos.log.operation.route.key"/>
         </rabbit:bindings>
     </rabbit:direct-exchange>
 

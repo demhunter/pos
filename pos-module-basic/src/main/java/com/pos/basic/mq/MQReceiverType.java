@@ -15,15 +15,9 @@ import java.util.Objects;
  */
 public enum MQReceiverType {
 
-    CONSOLE((byte) 1, "console"),
+    POS_CUSTOMER((byte) 1, "pos.customer"),
 
-    CUSTOMER((byte) 2, "customer"),
-
-    EMPLOYEE((byte) 3, "employee"),
-
-    BUSINESS((byte) 4, "business"),
-
-    POS((byte) 5, "pos");
+    POS_CONSOLE((byte) 2, "pos.console");
 
     /**
      * 标识码

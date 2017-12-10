@@ -37,9 +37,9 @@
     </bean>
 
     <!-- 生产者配置 交换器模板 -->
-    <rabbit:template id="directTemplate" exchange="posconsole.direct.exchange" connection-factory="mqConnectionFactory" message-converter="jsonMessageConverter" reply-timeout="2000" retry-template="retryTemplate"/>
-    <rabbit:template id="topicTemplate" exchange="posconsole.fanout.exchange" connection-factory="mqConnectionFactory" message-converter="jsonMessageConverter" reply-timeout="2000" retry-template="retryTemplate"/>
-    <rabbit:template id="fanoutTemplate" exchange="posconsole.topic.exchange" connection-factory="mqConnectionFactory" message-converter="jsonMessageConverter" reply-timeout="2000" retry-template="retryTemplate"/>
+    <rabbit:template id="directTemplate" exchange="pos.console.direct.exchange" connection-factory="mqConnectionFactory" message-converter="jsonMessageConverter" reply-timeout="2000" retry-template="retryTemplate"/>
+    <rabbit:template id="topicTemplate" exchange="pos.console.fanout.exchange" connection-factory="mqConnectionFactory" message-converter="jsonMessageConverter" reply-timeout="2000" retry-template="retryTemplate"/>
+    <rabbit:template id="fanoutTemplate" exchange="pos.console.topic.exchange" connection-factory="mqConnectionFactory" message-converter="jsonMessageConverter" reply-timeout="2000" retry-template="retryTemplate"/>
 
     <!-- 消费者配置 -->
     <rabbit:annotation-driven/>
