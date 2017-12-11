@@ -4,6 +4,7 @@
 package com.pos.user.session;
 
 import com.google.common.base.Strings;
+import com.pos.basic.dto.UserIdentifier;
 import com.pos.common.util.basic.UUIDUnsigned32;
 import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.common.util.security.MD5Utils;
@@ -27,6 +28,7 @@ import java.util.Calendar;
  * @version 1.0, 2017/2/10
  */
 @Component
+@SuppressWarnings("all")
 public class UserSessionComponent {
 
     public static final String SESSION_ID_KEY = "session-id";
@@ -40,6 +42,9 @@ public class UserSessionComponent {
 
     @Value("${user.session.httpSessionEnable}")
     private String httpSessionEnable;
+
+    // 快捷收款sessionId前缀
+    private static final String SESSION_ID_KEY_PREFIX = "pos";
 
     public UserSession add(HttpSession httpSession, UserInfo userInfo) {
         return addOrUpdate(httpSession, userInfo, null);
@@ -103,8 +108,19 @@ public class UserSessionComponent {
         }
     }
 
+    /**
+     * 强制踢人下线
+     *
+     * @param userInfo 被踢用户
+     */
+    public void kickUser(UserInfo userInfo) {
+        if (userInfo != null) {
+            defaultRedis.delete(getSessionKey(userInfo));
+        }
+    }
+
     private String getSessionKey(UserInfo userInfo) {
-        return userInfo.getUserType() + userInfo.getId();
+        return SESSION_ID_KEY_PREFIX + userInfo.getUserType() + userInfo.getId();
     }
 
     private boolean isHttpSessionEnable() {

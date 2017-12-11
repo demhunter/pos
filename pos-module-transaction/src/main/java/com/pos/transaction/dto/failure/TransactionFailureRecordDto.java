@@ -8,6 +8,8 @@ import com.wordnik.swagger.annotations.ApiModelProperty;
 import java.io.Serializable;
 
 /**
+ * 交易失败信息Dto
+ *
  * @author wangbing
  * @version 1.0, 2017/12/1
  */

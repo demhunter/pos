@@ -4,10 +4,13 @@
 package com.pos.authority.service.impl;
 
 import com.google.common.collect.Lists;
+import com.pos.authority.condition.oerderby.CustomerIntegrateOrderField;
+import com.pos.authority.condition.query.CustomerIntegrateCondition;
 import com.pos.authority.constant.AuthorityConstants;
 import com.pos.authority.constant.CustomerAuditStatus;
 import com.pos.authority.converter.CustomerLevelConverter;
 import com.pos.authority.converter.CustomerPermissionConverter;
+import com.pos.authority.dao.CustomerIntegrateDao;
 import com.pos.authority.dao.CustomerPermissionDao;
 import com.pos.authority.dao.CustomerRelationDao;
 import com.pos.authority.dao.CustomerStatisticsDao;
@@ -15,9 +18,12 @@ import com.pos.authority.domain.CustomerLevelConfig;
 import com.pos.authority.domain.CustomerPermission;
 import com.pos.authority.domain.CustomerRelation;
 import com.pos.authority.domain.CustomerStatistics;
+import com.pos.authority.dto.CustomerEnumsDto;
+import com.pos.authority.dto.customer.CustomerIntegrateInfoDto;
 import com.pos.authority.dto.identity.CustomerIdentityDto;
 import com.pos.authority.dto.level.CustomerLevelConfigDto;
 import com.pos.authority.dto.level.CustomerUpgradeLevelDto;
+import com.pos.authority.dto.permission.CustomerPermissionBasicDto;
 import com.pos.authority.dto.permission.CustomerPermissionDto;
 import com.pos.authority.dto.relation.CustomerRelationDto;
 import com.pos.authority.dto.statistics.CustomerStatisticsDto;
@@ -27,13 +33,17 @@ import com.pos.authority.service.CustomerAuthorityService;
 import com.pos.authority.service.CustomerStatisticsService;
 import com.pos.authority.service.support.CustomerLevelSupport;
 import com.pos.authority.service.support.CustomerRelationPoolSupport;
+import com.pos.basic.dto.CommonEnumDto;
+import com.pos.basic.dto.UserIdentifier;
 import com.pos.basic.service.SecurityService;
-import com.pos.common.util.mvc.support.ApiResult;
-import com.pos.common.util.mvc.support.NullObject;
+import com.pos.common.util.mvc.support.*;
 import com.pos.common.util.validation.FieldChecker;
+import com.pos.user.constant.UserType;
 import com.pos.user.dto.customer.CustomerDto;
 import com.pos.user.exception.UserErrorCode;
 import com.pos.user.service.CustomerService;
+import com.pos.user.session.UserInfo;
+import com.pos.user.session.UserSessionComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -44,6 +54,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 客户权限ServiceImpl
@@ -82,7 +94,13 @@ public class CustomerAuthorityServiceImpl implements CustomerAuthorityService {
     private CustomerStatisticsDao customerStatisticsDao;
 
     @Resource
+    private CustomerIntegrateDao customerIntegrateDao;
+
+    @Resource
     private AuthorityConstants authorityConstants;
+
+    @Resource
+    private UserSessionComponent userSessionComponent;
 
     @Override
     public void initialize(Long userId, Long parentUserId) {
@@ -151,6 +169,28 @@ public class CustomerAuthorityServiceImpl implements CustomerAuthorityService {
         }
 
         return CustomerPermissionConverter.toCustomerPermissionDto(permission);
+    }
+
+    @Override
+    public CustomerPermissionBasicDto getPermissionBasicInfo(Long userId) {
+        FieldChecker.checkEmpty(userId, "userId");
+
+        CustomerPermission permission = customerPermissionDao.getPermission(userId);
+        if (permission == null) {
+            LOG.error("客户{}的权限信息不存在！", userId);
+            throw new IllegalStateException("客户" + userId + "的权限信息不存在！");
+        }
+
+        return CustomerPermissionConverter.toCustomerPermissionBasicDto(permission);
+    }
+
+    @Override
+    public ApiResult<NullObject> updatePermission(CustomerPermissionBasicDto basicPermission, UserIdentifier operator) {
+        FieldChecker.checkEmpty(basicPermission, "basicPermission");
+        FieldChecker.checkEmpty(operator, "operator");
+
+
+        return null;
     }
 
     @Override
@@ -289,5 +329,77 @@ public class CustomerAuthorityServiceImpl implements CustomerAuthorityService {
 
         customerPermissionDao.updateLevelConfig(permission);
         customerRelationPoolSupport.updateLevelConfig(permission);
+    }
+
+    @Override
+    public ApiResult<CustomerEnumsDto> queryPosCustomerEnums() {
+        CustomerEnumsDto result = new CustomerEnumsDto();
+
+        List<CommonEnumDto> auditStatusTypes = Stream.of(CustomerAuditStatus.values())
+                .map(e -> new CommonEnumDto((byte) e.getCode(), e.getDesc()))
+                .collect(Collectors.toList());
+        result.setAuditStatusTypes(auditStatusTypes);
+
+        Set<Integer> levels = customerLevelSupport.getLevels();
+        final String lvStr = "Lv";
+        List<CommonEnumDto> levelTypes = levels.stream()
+                .map(e -> new CommonEnumDto(e.byteValue(), lvStr + e)).collect(Collectors.toList());
+        result.setLevelTypes(levelTypes);
+
+        return ApiResult.succ(result);
+    }
+
+    @Override
+    public Pagination<CustomerIntegrateInfoDto> queryCustomerIntegrates(CustomerIntegrateCondition condition, OrderHelper orderHelper, LimitHelper limitHelper) {
+        FieldChecker.checkEmpty(condition, "condition");
+        FieldChecker.checkEmpty(limitHelper, "limitHelper");
+        if (orderHelper != null) {
+            orderHelper.validate(CustomerIntegrateOrderField.getInstance());
+        }
+
+        int totalCount = customerIntegrateDao.getCustomerIntegrateCount(condition);
+
+        Pagination<CustomerIntegrateInfoDto> result = Pagination.newInstance(limitHelper, totalCount);
+        if (totalCount > 0) {
+            List<CustomerIntegrateInfoDto> customers = customerIntegrateDao.queryCustomerIntegrates(
+                    condition, orderHelper, limitHelper);
+            result.setResult(customers);
+        }
+        return result;
+    }
+
+    @Override
+    public CustomerIntegrateInfoDto findCustomerIntegrate(Long userId) {
+        FieldChecker.checkEmpty(userId, "userId");
+
+        return customerIntegrateDao.findCustomerIntegrate(userId);
+    }
+
+    @Override
+    public ApiResult<NullObject> updateUserAvailable(Long userId, Boolean available, UserIdentifier operator) {
+        FieldChecker.checkEmpty(userId, "userId");
+        FieldChecker.checkEmpty(available, "available");
+        FieldChecker.checkEmpty(operator, "operator");
+
+        CustomerDto customer = customerService.findById(userId, true, true);
+        if (customer == null) {
+            return ApiResult.fail(UserErrorCode.USER_NOT_EXISTED);
+        }
+
+        if (!available) {
+            // 禁用用户，把在线的用户踢下线
+            UserInfo kickedUser =  new UserInfo();
+            kickedUser.setId(userId);
+            kickedUser.setUserType(UserType.CUSTOMER.getValue());
+            userSessionComponent.kickUser(kickedUser);
+        }
+
+        if (!available.equals(customer.isAvailable())) {
+            CustomerDto afterCustomer = customer.copy();
+            afterCustomer.setAvailable(available);
+             customerService.update(customer, afterCustomer);
+        }
+
+        return ApiResult.succ();
     }
 }

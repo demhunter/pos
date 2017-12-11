@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.authority.dao.CustomerIntegrateDao">
+
+    <select id="getCustomerIntegrateCount" resultType="int"
+            parameterType="com.pos.authority.condition.query.CustomerIntegrateCondition">
+        SELECT COUNT(*)
+        FROM `user` u
+        INNER JOIN user_class AS uc ON uc.user_id = u.id AND uc.user_type = 'c'
+        INNER JOIN customer_permission AS cp ON cp.user_id = uc.user_id
+        INNER JOIN customer_relation AS cr ON cr.user_id = cp.user_id
+        INNER JOIN customer_statistics AS cs ON cs.user_id = cr.user_id
+        <include refid="integrateCondition"/>
+    </select>
+
+    <select id="queryCustomerIntegrates" resultType="com.pos.authority.dto.customer.CustomerIntegrateInfoDto">
+        SELECT
+        <include refid="integrateColumns"/>
+        FROM `user` u
+        INNER JOIN user_class AS uc ON uc.user_id = u.id AND uc.user_type = 'c'
+        INNER JOIN customer_permission AS cp ON cp.user_id = uc.user_id
+        INNER JOIN customer_relation AS cr ON cr.user_id = cp.user_id
+        INNER JOIN customer_statistics AS cs ON cs.user_id = cr.user_id
+        LEFT JOIN `user` AS parent ON parent.id = cr.parent_user_id
+        <include refid="integrateCondition"/>
+        <if test="orderHelper != null">
+            ORDER BY ${orderHelper.fieldName} ${orderHelper.ordination}
+        </if>
+        LIMIT #{limitHelper.offset}, #{limitHelper.pageSize}
+    </select>
+
+    <select id="findCustomerIntegrate" resultType="com.pos.authority.dto.customer.CustomerIntegrateInfoDto">
+        SELECT
+        <include refid="integrateColumns"/>
+        FROM `user` u
+        INNER JOIN user_class AS uc ON uc.user_id = u.id AND uc.user_type = 'c'
+        INNER JOIN customer_permission AS cp ON cp.user_id = uc.user_id
+        INNER JOIN customer_relation AS cr ON cr.user_id = cp.user_id
+        INNER JOIN customer_statistics AS cs ON cs.user_id = cr.user_id
+        LEFT JOIN `user` AS parent ON parent.id = cr.parent_user_id
+        WHERE cp.user_id = #{userId}
+    </select>
+
+    <sql id="integrateColumns">
+        cp.id AS `id`,
+        cp.user_id AS userId,
+        u.`name` AS `name`,
+        u.user_phone AS phone,
+        uc.create_time AS registerTime,
+        uc.available AS userAvailable,
+        cr.parent_user_id AS parentUserId,
+        parent.`name` AS parentName,
+        parent.user_phone AS parentPhone,
+        cp.audit_status AS userAuditStatus,
+        cp.`level` AS `level`,
+        cp.withdraw_rate AS withdrawRate,
+        cp.extra_service_charge AS extraServiceCharge,
+        cp.pos_card_id AS posCardId,
+        cs.withdraw_amount_times AS userPosCount,
+        cs.withdraw_amount AS userPosAmount,
+        cs.children_count AS childrenCount,
+        cs.total_brokerage - cs.withdrawal_brokerage AS currentBrokerage,
+        cs.withdrawal_brokerage AS appliedBrokerage,
+        cs.withdrawal_brokerage_times AS brokerageAppliedCount,
+        cs.interview_times AS interviewCount
+    </sql>
+
+    <sql id="integrateCondition">
+        <where>
+            <if test="condition.userId != null">
+                cp.user_id = #{condition.userId}
+            </if>
+            <if test="condition.auditStatus != null">
+                AND cp.audit_status = #{condition.auditStatus}
+            </if>
+            <if test="condition.level != null">
+                AND cp.level = #{condition.level}
+            </if>
+            <if test="condition.enable != null">
+                AND uc.available = #{condition.enable}
+            </if>
+            <if test="condition.interviewed != null">
+                <choose>
+                    <when test="condition.interviewed">
+                        AND cs.interview_times &gt; 0
+                    </when>
+                    <otherwise>
+                        AND cs.interview_times &lt;= 0
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="condition.beginTime != null">
+                AND uc.create_time &gt;= #{condition.beginTime}
+            </if>
+            <if test="condition.endTime != null">
+                AND uc.create_time &lt;= #{condition.endTime}
+            </if>
+            <if test="condition.includeUserIds != null">
+                AND
+                <choose>
+                    <when test="condition.includeUserIdsType = 1">
+                        cp.user_id
+                    </when>
+                    <when test="condition.includeUserIdsType = 2">
+                        cr.parent_user_id
+                    </when>
+                    <otherwise>
+                        cp.user_id
+                    </otherwise>
+                </choose>
+                IN
+                <foreach collection="condition.includeUserIds" item="item" index="index" open="(" separator=","
+                         close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </sql>
+</mapper>

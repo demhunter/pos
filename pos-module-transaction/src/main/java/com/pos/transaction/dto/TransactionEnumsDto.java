@@ -4,6 +4,7 @@
 package com.pos.transaction.dto;
 
 import com.pos.transaction.constants.PayModeEnum;
+import com.pos.transaction.constants.TransactionStatusType;
 import com.pos.transaction.constants.UserAuditStatus;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 import com.pos.basic.dto.CommonEnumDto;
@@ -19,25 +20,25 @@ import java.util.stream.Stream;
  * @author wangbing
  * @version 1.0, 2017/8/25
  */
-public class PosEnumsDto implements Serializable {
+public class TransactionEnumsDto implements Serializable {
 
     @ApiModelProperty("快捷收款打款方式枚举")
     private List<CommonEnumDto> payToolTypes;
 
-    @ApiModelProperty("身份认证审核状态枚举")
-    private List<CommonEnumDto> userAuditStatusTypes;
+    @ApiModelProperty("交易状态枚举")
+    private List<CommonEnumDto> transactionStatusTypes;
 
-    private static final PosEnumsDto instance = new PosEnumsDto();
+    private static final TransactionEnumsDto instance = new TransactionEnumsDto();
 
-    public static PosEnumsDto getInstance() {
+    public static TransactionEnumsDto getInstance() {
         return instance;
     }
 
-    private PosEnumsDto() {
+    private TransactionEnumsDto() {
         payToolTypes = Stream.of(PayModeEnum.values())
                 .map(e -> new CommonEnumDto(e.getCode(), e.getDesc()))
                 .collect(Collectors.toList());
-        userAuditStatusTypes = Stream.of(UserAuditStatus.values())
+        transactionStatusTypes = Stream.of(TransactionStatusType.values())
                 .map(e -> new CommonEnumDto((byte) e.getCode(), e.getDesc()))
                 .collect(Collectors.toList());
     }
@@ -46,7 +47,7 @@ public class PosEnumsDto implements Serializable {
         return payToolTypes;
     }
 
-    public List<CommonEnumDto> getUserAuditStatusTypes() {
-        return userAuditStatusTypes;
+    public List<CommonEnumDto> getTransactionStatusTypes() {
+        return transactionStatusTypes;
     }
 }

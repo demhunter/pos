@@ -4,8 +4,11 @@
 package com.pos.transaction.dao;
 
 import com.pos.transaction.domain.TransactionFailureRecord;
+import com.pos.transaction.dto.failure.TransactionFailureRecordDto;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 /**
  * 交易失败记录Dao
@@ -22,4 +25,12 @@ public interface TransactionFailureRecordDao {
      * @param failureRecord 交易失败信息
      */
     void save(@Param("failureRecord") TransactionFailureRecord failureRecord);
+
+    /**
+     * 查询交易的失败记录
+     *
+     * @param transactionId 交易id
+     * @return 交易失败信息
+     */
+    List<TransactionFailureRecordDto> queryFailureRecords(@Param("transactionId") Long transactionId);
 }

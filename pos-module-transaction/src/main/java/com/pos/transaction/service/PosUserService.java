@@ -3,11 +3,11 @@
  */
 package com.pos.transaction.service;
 
-import com.pos.common.util.mvc.support.*;
 import com.pos.basic.dto.UserIdentifier;
+import com.pos.common.util.mvc.support.*;
 import com.pos.transaction.condition.query.PosUserCondition;
-import com.pos.transaction.dto.user.PosUserIntegrateDto;
 import com.pos.transaction.dto.auth.BaseAuthDto;
+import com.pos.transaction.dto.user.PosUserIntegrateDto;
 
 /**
  * 快捷收款用户Service

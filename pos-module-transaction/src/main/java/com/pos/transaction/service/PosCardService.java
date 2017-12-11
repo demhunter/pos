@@ -9,6 +9,7 @@ import com.pos.transaction.dto.card.PosCardDto;
 import com.pos.transaction.dto.request.BindCardDto;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * POS 银行卡相关Service
@@ -68,4 +69,22 @@ public interface PosCardService {
      * @return 操作结果（卡信息不存在，卡用户信息不等，不是转出卡都会返回失败：银行卡信息不存在）
      */
     ApiResult<NullObject> deleteOutBankCard(Long cardId, Long userId);
+
+    /**
+     * 查询指定的银行卡信息
+     *
+     * @param cardIds   银行卡id列表
+     * @param decrypted 是否解密数据
+     * @return 银行卡信息
+     */
+    Map<Long, PosCardDto> queryBankCards(List<Long> cardIds, boolean decrypted);
+
+    /**
+     * 解密银行卡信息<br/>
+     * 此解密返回一个新的对象，需要调用者接收并保存，原对象不变
+     *
+     * @param source 需要被解密的银行卡
+     * @return 解密后的银行卡信息
+     */
+    void decryptPosCardInfo(PosCardDto source);
 }

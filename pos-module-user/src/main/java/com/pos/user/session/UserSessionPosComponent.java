@@ -30,7 +30,6 @@ import static com.pos.user.session.UserSessionComponent.SESSION_ID_KEY;
  * @version 1.0, 2017/10/20
  */
 @Component
-@SuppressWarnings("all")
 public class UserSessionPosComponent {
 
     private static final Logger LOG = LoggerFactory.getLogger(UserSessionPosComponent.class);

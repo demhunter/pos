@@ -47,6 +47,7 @@ import com.pos.transaction.fsm.PosFSMFactory;
 import com.pos.transaction.fsm.context.TransactionStatusTransferContext;
 import com.pos.transaction.helipay.action.QuickPayApi;
 import com.pos.transaction.helipay.vo.*;
+import com.pos.transaction.service.PosCardService;
 import com.pos.transaction.service.PosService;
 import com.pos.user.dao.UserDao;
 import com.pos.user.exception.UserErrorCode;
@@ -139,6 +140,9 @@ public class PosServiceImpl implements PosService {
 
     @Resource
     private CustomerStatisticsService customerStatisticsService;
+
+    @Resource
+    private PosCardService posCardService;
 
     @Override
     public boolean updateAuditStatus(AuditStatusTransferContext transferContext, UserAuditStatus auditStatus) {
@@ -253,8 +257,10 @@ public class PosServiceImpl implements PosService {
 
         // 解密被加密的数据
         PosCardDto inCard = posCardDao.getUserPosCard(permission.getPosCardId());
-        PosCardDto decryptedInCard = decryptPosCardInfo(inCard);
-        PosCardDto decryptedOutCard = decryptPosCardInfo(outCard);
+        PosCardDto decryptedInCard = inCard.copy();
+        posCardService.decryptPosCardInfo(decryptedInCard);
+        PosCardDto decryptedOutCard = outCard.copy();
+        posCardService.decryptPosCardInfo(decryptedOutCard);
 
         // 付款银行卡和收款银行卡所有人必须相同：姓名和身份证号相同
         if (!decryptedInCard.getName().equals(decryptedOutCard.getName())
@@ -326,24 +332,6 @@ public class PosServiceImpl implements PosService {
     }
 
     /**
-     * 解密银行卡信息<br/>
-     * 此解密返回一个新的对象，需要调用者接收并保存，原对象不变
-     *
-     * @param source 需要被解密的银行卡
-     * @return 解密后的银行卡信息
-     */
-    private PosCardDto decryptPosCardInfo(PosCardDto source) {
-        PosCardDto target = source.copy();
-
-        target.setName(securityService.decryptData(target.getName()));
-        target.setIdCardNo(securityService.decryptData(target.getIdCardNo()));
-        target.setCardNO(securityService.decryptData(target.getCardNO()));
-        target.setMobilePhone(securityService.decryptData(target.getMobilePhone()));
-
-        return target;
-    }
-
-    /**
      * 解密GetMoneyDto信息<br/>
      * 此解密返回一个新的对象，需要调用者接收并保存，原对象不变
      *
@@ -386,7 +374,8 @@ public class PosServiceImpl implements PosService {
         // 银行卡校验
         PosCardDto inCard = posCardDao.getUserPosCard(permission.getPosCardId());
         // 解密被加密的数据
-        PosCardDto decryptedInCard = decryptPosCardInfo(inCard);
+        PosCardDto decryptedInCard = inCard.copy();
+        posCardService.decryptPosCardInfo(decryptedInCard);
         GetMoneyDto decryptedGetMoneyDto = decryptGetMoneyInfo(getMoneyDto);
         // 付款银行卡和收款银行卡所有人必须相同：姓名和身份证号相同
         if (!decryptedInCard.getName().equals(decryptedGetMoneyDto.getName())
@@ -399,7 +388,8 @@ public class PosServiceImpl implements PosService {
         List<PosCardDto> outCards = posCardDao.queryUserPosCard(userId, CardUsageEnum.OUT_CARD.getCode());
         if (!CollectionUtils.isEmpty(outCards)) {
             for (PosCardDto card : outCards) {
-                PosCardDto decryptedOutCard = decryptPosCardInfo(card);
+                PosCardDto decryptedOutCard = card.copy();
+                posCardService.decryptPosCardInfo(decryptedOutCard);
                 if (decryptedOutCard.getCardNO().equals(decryptedGetMoneyDto.getCardNO())) {
                     outCard = card;
                     break;
@@ -419,7 +409,10 @@ public class PosServiceImpl implements PosService {
         // 下单填入CVV2和有效期信息
         outCard.setValidInfo(decryptedGetMoneyDto.buildValidInfo());
 
-        return createRecord(permission, decryptPosCardInfo(outCard), getMoneyDto.getAmount(), ip);
+        PosCardDto decryptedOutCard = outCard.copy();
+        posCardService.decryptPosCardInfo(decryptedOutCard);
+
+        return createRecord(permission, decryptedOutCard, getMoneyDto.getAmount(), ip);
     }
 
     @Override
@@ -1014,11 +1007,11 @@ public class PosServiceImpl implements PosService {
 
         UserPosTransactionRecord record = posUserTransactionRecordDao.get(recordId);
         if (record == null) {
-            return ApiResult.fail(PosUserErrorCode.TRANSACTION_RECORD_NOT_EXISTED);
+            return ApiResult.fail(TransactionErrorCode.POS_ERROR_TRANSACTION_NOT_EXISTED);
         }
         TransactionStatusType statusType = TransactionStatusType.getEnum(record.getStatus());
         if (!TransactionStatusType.TRANSACTION_FAILED.equals(statusType)) {
-            return ApiResult.fail(PosUserErrorCode.TRANSACTION_STATUS_ERROR);
+            return ApiResult.fail(TransactionErrorCode.POS_ERROR_TRANSACTION_STATUS_ERROR);
         }
         UserPosTransactionHandledInfo saveInfo = new UserPosTransactionHandledInfo();
         BeanUtils.copyProperties(handledInfo, saveInfo);
@@ -1049,11 +1042,11 @@ public class PosServiceImpl implements PosService {
         // 交易校验
         UserPosTransactionRecord record = posUserTransactionRecordDao.get(recordId);
         if (record == null) {
-            return ApiResult.fail(PosUserErrorCode.TRANSACTION_RECORD_NOT_EXISTED);
+            return ApiResult.fail(TransactionErrorCode.POS_ERROR_TRANSACTION_NOT_EXISTED);
         }
         TransactionStatusType statusType = TransactionStatusType.getEnum(record.getStatus());
         if (!TransactionStatusType.TRANSACTION_FAILED.equals(statusType)) {
-            return ApiResult.fail(PosUserErrorCode.TRANSACTION_STATUS_ERROR);
+            return ApiResult.fail(TransactionErrorCode.POS_ERROR_TRANSACTION_STATUS_ERROR);
         }
         // 重发提现请求
         SettlementCardWithdrawVo settlement = buildSettlementCardWithdrawVo(record);
@@ -1067,8 +1060,8 @@ public class PosServiceImpl implements PosService {
             // 发起提现成功，加入交易轮询队列，由定时任务轮询处理交易状态
             redisTemplate.opsForList().rightPush(RedisConstants.POS_TRANSACTION_WITHDRAW_QUEUE, recordId.toString());
         } else {
-            // 发起提现失败，更新交易状态-交易失败
-            log.error("失败交易{}重发提现请求失败。原因：{}", recordId, withdrawResult.getMessage());
+            // 发起提现失败，更新交易状态-交易失败，累计失败次数、保存失败信息
+            recordTransactionFailureInfo(record, withdrawResult.getMessage());
             return ApiResult.fail(withdrawResult.getError(), withdrawResult.getMessage());
         }
 
@@ -1176,7 +1169,8 @@ public class PosServiceImpl implements PosService {
         List<PosCardDto> outCards = posCardDao.queryUserPosCard(userId, CardUsageEnum.OUT_CARD.getCode());
         if (!CollectionUtils.isEmpty(outCards)) {
             for (PosCardDto card : outCards) {
-                PosCardDto decryptedOutCard = decryptPosCardInfo(card);
+                PosCardDto decryptedOutCard = card.copy();
+                posCardService.decryptPosCardInfo(decryptedOutCard);
                 if (decryptedOutCard.getCardNO().equals(decryptedBankCardNo)) {
                     outCard = card;
                     break;

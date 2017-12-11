@@ -3,7 +3,6 @@
  */
 package com.pos.transaction.dto.transaction;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.pos.transaction.constants.TransactionStatusType;
 import com.pos.transaction.dto.PosOutCardInfoDto;
 import com.pos.transaction.dto.card.PosCardDto;
@@ -60,15 +59,7 @@ public class TransactionRecordDto implements Serializable {
     @ApiModelProperty("提现手续费（平台支付给用户时，支付公司扣除的）")
     private BigDecimal posCharge;
 
-    @Deprecated
-    @JsonIgnore
-    private Long companyId;
-
-    @Deprecated
-    @JsonIgnore
-    private Integer costType;
-
-    @ApiModelProperty("状态：0 = 已下单，1 = 交易处理中，2 = 交易失败，3 = 交易成功，4 = 已手动处理")
+    @ApiModelProperty("状态：-1 = 已创建，0 = 已下单，1 = 交易处理中，2 = 交易失败，3 = 交易成功，4 = 已手动处理(v2.0.0 * -1 = 已创建)")
     private Integer status;
 
     @ApiModelProperty("状态描述")
@@ -94,6 +85,9 @@ public class TransactionRecordDto implements Serializable {
 
     @ApiModelProperty("v2.0.0 * 交易失败次数")
     private Integer failureTimes;
+
+    @ApiModelProperty("v2.0.0 * 交易更新时间")
+    private Date updateTime;
 
     public TransactionStatusType parseTransactionStatus() {
         return status == null ? null : TransactionStatusType.getEnum(status);
@@ -211,30 +205,6 @@ public class TransactionRecordDto implements Serializable {
         this.posCharge = posCharge;
     }
 
-    @Deprecated
-    @JsonIgnore
-    public Long getCompanyId() {
-        return companyId;
-    }
-
-    @Deprecated
-    @JsonIgnore
-    public void setCompanyId(Long companyId) {
-        this.companyId = companyId;
-    }
-
-    @Deprecated
-    @JsonIgnore
-    public Integer getCostType() {
-        return costType;
-    }
-
-    @Deprecated
-    @JsonIgnore
-    public void setCostType(Integer costType) {
-        this.costType = costType;
-    }
-
     public Integer getStatus() {
         return status;
     }
@@ -281,5 +251,13 @@ public class TransactionRecordDto implements Serializable {
 
     public void setHelibaoTixianNum(String helibaoTixianNum) {
         this.helibaoTixianNum = helibaoTixianNum;
+    }
+
+    public Date getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
     }
 }

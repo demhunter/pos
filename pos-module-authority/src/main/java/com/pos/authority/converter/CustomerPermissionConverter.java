@@ -6,6 +6,7 @@ package com.pos.authority.converter;
 import com.pos.authority.constant.CustomerAuditStatus;
 import com.pos.authority.domain.CustomerPermission;
 import com.pos.authority.dto.identity.CustomerIdentityDto;
+import com.pos.authority.dto.permission.CustomerPermissionBasicDto;
 import com.pos.authority.dto.permission.CustomerPermissionDto;
 import org.springframework.beans.BeanUtils;
 
@@ -19,6 +20,14 @@ public class CustomerPermissionConverter {
 
     public static CustomerPermissionDto toCustomerPermissionDto(CustomerPermission permission) {
         CustomerPermissionDto dto = new CustomerPermissionDto();
+
+        BeanUtils.copyProperties(permission, dto);
+
+        return dto;
+    }
+
+    public static CustomerPermissionBasicDto toCustomerPermissionBasicDto(CustomerPermission permission) {
+        CustomerPermissionBasicDto dto = new CustomerPermissionBasicDto();
 
         BeanUtils.copyProperties(permission, dto);
 

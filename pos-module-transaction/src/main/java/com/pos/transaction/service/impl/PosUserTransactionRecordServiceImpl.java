@@ -14,8 +14,10 @@ import com.pos.common.util.validation.FieldChecker;
 import com.pos.transaction.condition.query.PosTransactionCondition;
 import com.pos.transaction.converter.PosConverter;
 import com.pos.transaction.dao.PosCardDao;
+import com.pos.transaction.dao.TransactionFailureRecordDao;
 import com.pos.transaction.domain.UserPosTransactionRecord;
 import com.pos.transaction.dto.card.PosCardDto;
+import com.pos.transaction.dto.failure.TransactionFailureRecordDto;
 import com.pos.transaction.service.PosUserTransactionRecordService;
 import com.pos.transaction.condition.orderby.PosTransactionOrderField;
 import com.pos.transaction.dao.PosUserTransactionRecordDao;
@@ -46,6 +48,9 @@ public class PosUserTransactionRecordServiceImpl implements PosUserTransactionRe
 
     @Resource
     private PosCardDao posCardDao;
+
+    @Resource
+    private TransactionFailureRecordDao transactionFailureRecordDao;
 
     @Resource
     private CustomerService customerService;
@@ -132,5 +137,13 @@ public class PosUserTransactionRecordServiceImpl implements PosUserTransactionRe
         target.setMobilePhone(securityService.decryptData(target.getMobilePhone()));
 
         return target;
+    }
+
+    @Override
+    public ApiResult<List<TransactionFailureRecordDto>> queryFailureRecords(Long transactionId) {
+        FieldChecker.checkEmpty(transactionId, "transactionId");
+
+
+        return ApiResult.succ(transactionFailureRecordDao.queryFailureRecords(transactionId));
     }
 }

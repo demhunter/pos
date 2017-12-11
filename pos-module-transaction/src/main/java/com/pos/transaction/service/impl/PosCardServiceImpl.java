@@ -32,9 +32,12 @@ import com.pos.user.domain.User;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -297,5 +300,34 @@ public class PosCardServiceImpl implements PosCardService {
         }
         posCardDao.delete(cardId);
         return ApiResult.succ();
+    }
+
+    @Override
+    public Map<Long, PosCardDto> queryBankCards(List<Long> cardIds, boolean decrypted) {
+        FieldChecker.checkEmpty(cardIds, "cardIds");
+
+        Map<Long, PosCardDto> result = new HashMap<>();
+
+        List<PosCardDto> list = posCardDao.queryByCardIds(cardIds);
+        if (!CollectionUtils.isEmpty(result)) {
+            list.forEach(card -> {
+                if (decrypted) {
+                    decryptPosCardInfo(card);
+                }
+                result.put(card.getId(), card);
+            });
+        }
+
+        return result;
+    }
+
+    @Override
+    public void decryptPosCardInfo(PosCardDto source) {
+        FieldChecker.checkEmpty(source, "source");
+
+        source.setName(securityService.decryptData(source.getName()));
+        source.setIdCardNo(securityService.decryptData(source.getIdCardNo()));
+        source.setCardNO(securityService.decryptData(source.getCardNO()));
+        source.setMobilePhone(securityService.decryptData(source.getMobilePhone()));
     }
 }

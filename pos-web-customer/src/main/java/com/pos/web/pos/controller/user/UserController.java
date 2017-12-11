@@ -28,6 +28,7 @@ import com.pos.user.service.LoginService;
 import com.pos.user.service.RegisterService;
 import com.pos.user.service.UserService;
 import com.pos.user.session.UserInfo;
+import com.pos.user.session.UserSessionComponent;
 import com.pos.user.session.UserSessionPosComponent;
 import com.pos.web.pos.vo.request.LoginRequestDto;
 import com.pos.web.pos.vo.request.RegisterRequestDto;
@@ -73,7 +74,7 @@ public class UserController {
     private SecurityService securityService;
 
     @Resource
-    private UserSessionPosComponent userSessionPosComponent;
+    private UserSessionComponent userSessionComponent;
 
     @Resource
     private PosUserChannelInfoService posUserChannelInfoService;
@@ -118,7 +119,7 @@ public class UserController {
         // 发送注册推荐人消息
         sendCustomerRegisterMessage(customerDto.getId(), customerDto.getUserPhone(), loginInfoDto.getRecommendId(), loginInfoDto.getRecommendType());
         // 自动登录
-        customerDto.setUserSession(userSessionPosComponent.add(session, new UserInfo(customerDto)));
+        customerDto.setUserSession(userSessionComponent.add(session, new UserInfo(customerDto)));
 
         apiResult.setMessage("客户注册成功！");
         return apiResult;
@@ -148,7 +149,7 @@ public class UserController {
         if (userInfo == null) {
             return ApiResult.fail(UserErrorCode.USER_NOT_LOGIN);
         }
-        userSessionPosComponent.remove(httpSession, userInfo);
+        userSessionComponent.remove(httpSession, userInfo);
         return ApiResult.succ(null, "用户已退出！");
     }
 
@@ -205,7 +206,7 @@ public class UserController {
         ApiResult<CustomerDto> apiResult = (ApiResult<CustomerDto>) loginService.login(userLoginDto, loginInfoDto);
 
         if (apiResult.isSucc()) {
-            apiResult.getData().setUserSession(userSessionPosComponent.add(session, new UserInfo(apiResult.getData())));
+            apiResult.getData().setUserSession(userSessionComponent.add(session, new UserInfo(apiResult.getData())));
             apiResult.getData().setHeadImage(globalConstants.posHeadImage);
             apiResult.getData().setNickName(StringUtils.isNotBlank(apiResult.getData().getName()) ? apiResult.getData().getName() : apiResult.getData().getUserPhone());
         }

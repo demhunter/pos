@@ -10,6 +10,7 @@ import com.pos.common.util.mvc.support.OrderHelper;
 import com.pos.common.util.mvc.support.Pagination;
 import com.pos.transaction.condition.query.PosTransactionCondition;
 import com.pos.transaction.dto.brokerage.BrokerageDailyStatisticsDto;
+import com.pos.transaction.dto.failure.TransactionFailureRecordDto;
 import com.pos.transaction.dto.transaction.TransactionRecordDto;
 
 import java.util.List;
@@ -49,4 +50,12 @@ public interface PosUserTransactionRecordService {
      */
     ApiResult<Pagination<TransactionRecordDto>> queryUserTransactionRecord(
             PosTransactionCondition condition, OrderHelper orderHelper, LimitHelper limitHelper);
+
+    /**
+     * 交易的失败记录列表
+     *
+     * @param transactionId 交易id
+     * @return 失败记录列表
+     */
+    ApiResult<List<TransactionFailureRecordDto>> queryFailureRecords(Long transactionId);
 }

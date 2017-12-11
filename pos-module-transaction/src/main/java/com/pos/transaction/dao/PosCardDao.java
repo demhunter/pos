@@ -30,7 +30,7 @@ public interface PosCardDao {
     /**
      * 查询用户的银行卡信息
      *
-     * @param userId 用户userId
+     * @param userId    用户userId
      * @param cardUsage 银行卡的使用类型 {@link CardUsageEnum#code}
      * @return 银行卡信息列表
      */
@@ -67,4 +67,12 @@ public interface PosCardDao {
      * @param card 银行卡信息
      */
     void update(@Param("card") UserPosCard card);
+
+    /**
+     * 查询指定的银行卡信息
+     *
+     * @param cardIds 银行卡id列表
+     * @return 银行卡信息
+     */
+    List<PosCardDto> queryByCardIds(@Param("cardIds") List<Long> cardIds);
 }

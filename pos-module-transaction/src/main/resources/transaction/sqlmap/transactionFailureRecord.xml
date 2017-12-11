@@ -17,4 +17,14 @@
             NOW()
         )
     </insert>
+
+    <select id="queryFailureRecords" resultType="com.pos.transaction.dto.failure.TransactionFailureRecordDto">
+        SELECT
+            `id`,
+            transaction_id AS transactionId,
+            failure_reason AS failureReason,
+            create_time AS createTime
+        FROM transaction_failure_reason
+        WHERE transaction_id = #{transactionId}
+    </select>
 </mapper>

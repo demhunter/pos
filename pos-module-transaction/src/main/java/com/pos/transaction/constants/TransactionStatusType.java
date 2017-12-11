@@ -16,7 +16,7 @@ import java.util.Objects;
  */
 public enum TransactionStatusType implements CommonIntEnum {
 
-    ORIGIN_TRANSACTION(-1, "原始订单"),
+    ORIGIN_TRANSACTION(-1, "已创建"),
 
     PREDICT_TRANSACTION(0, "已下单"),
 

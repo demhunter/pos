@@ -3,7 +3,18 @@
  */
 package com.pos.web.console.controller.customer;
 
+import com.google.common.collect.Lists;
+import com.pos.authority.condition.oerderby.CustomerIntegrateOrderField;
+import com.pos.authority.condition.query.CustomerIntegrateCondition;
+import com.pos.authority.dto.CustomerEnumsDto;
+import com.pos.authority.dto.customer.CustomerIntegrateInfoDto;
 import com.pos.authority.dto.permission.CustomerPermissionBasicDto;
+import com.pos.authority.dto.statistics.DescendantStatisticsDto;
+import com.pos.authority.service.CustomerAuthorityService;
+import com.pos.authority.service.CustomerStatisticsService;
+import com.pos.transaction.dto.card.PosCardDto;
+import com.pos.transaction.service.PosCardService;
+import com.pos.user.exception.UserErrorCode;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
@@ -17,14 +28,10 @@ import com.pos.common.util.mvc.support.NullObject;
 import com.pos.common.util.mvc.support.Pagination;
 import com.pos.common.util.mvc.view.XlsStyle;
 import com.pos.common.util.mvc.view.XlsView;
-import com.pos.transaction.condition.orderby.PosUserOrderField;
-import com.pos.transaction.condition.query.PosUserCondition;
 import com.pos.transaction.constants.AuthStatusEnum;
 import com.pos.transaction.constants.PosTwitterStatus;
-import com.pos.transaction.dto.PosEnumsDto;
 import com.pos.transaction.dto.PosUserAuditInfoDto;
 import com.pos.transaction.dto.identity.IdentifyInfoDto;
-import com.pos.transaction.dto.user.PosUserIntegrateDto;
 import com.pos.transaction.service.PosService;
 import com.pos.transaction.service.PosUserBrokerageRecordService;
 import com.pos.transaction.service.PosUserService;
@@ -42,6 +49,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
@@ -73,10 +81,19 @@ public class CustomerController {
     @Resource
     private PosService posService;
 
+    @Resource
+    private CustomerAuthorityService customerAuthorityService;
+
+    @Resource
+    private CustomerStatisticsService customerStatisticsService;
+
+    @Resource
+    private PosCardService posCardService;
+
     @RequestMapping(value = "enum", method = RequestMethod.GET)
-    @ApiOperation(value = "v1.0.0 * 获取快捷收款相关枚举信息", notes = "获取快捷收款相关枚举信息")
-    public ApiResult<PosEnumsDto> queryPosEnums() {
-        return ApiResult.succ(PosEnumsDto.getInstance());
+    @ApiOperation(value = "v2.0.0 * 获取用户相关枚举信息", notes = "获取用户相关枚举信息")
+    public ApiResult<CustomerEnumsDto> queryPosEnums() {
+        return customerAuthorityService.queryPosCustomerEnums();
     }
 
     @RequestMapping(value = "", method = RequestMethod.GET)
@@ -97,14 +114,17 @@ public class CustomerController {
             @ApiParam(name = "searchKey", value = "搜索关键字（手机号/姓名）")
             @RequestParam(name = "searchKey", required = false) String searchKey,
             @ApiParam(name = "searchType", value = "搜索关键字类型（1：查询用户本人；2：查询直接下级（默认为1））")
-            @RequestParam(name = "searchType", required = false) Integer searchType,
+            @RequestParam(name = "searchType", required = false, defaultValue = "1") Integer searchType,
             @ApiParam(name = "pageNum", value = "当前页编号")
             @RequestParam("pageNum") int pageNum,
             @ApiParam(name = "pageSize", value = "每页显示的记录数量")
             @RequestParam("pageSize") int pageSize) {
         LimitHelper limitHelper = new LimitHelper(pageNum, pageSize);
-        PosUserCondition condition = new PosUserCondition();
-        condition.setUserAuditStatus(userAuditStatus);
+        CustomerIntegrateCondition condition = new CustomerIntegrateCondition();
+        condition.setAuditStatus(userAuditStatus);
+        condition.setLevel(level);
+        condition.setEnable(userAvailable);
+        condition.setInterviewed(existedInterview);
         condition.setBeginTime(beginTime);
         condition.setEndTime(endTime);
         if (!StringUtils.isEmpty(searchKey)) {
@@ -113,12 +133,18 @@ public class CustomerController {
                 return ApiResult.succ(Pagination.newInstance(limitHelper, 0));
             }
             condition.setIncludeUserIds(includeUserIds);
+            condition.setIncludeUserIdsType(searchType);
         }
-        Pagination<PosUserIntegrateDto> pagination = posUserService.queryPosUsers(condition, PosUserOrderField.getDefaultOrderHelper(), limitHelper);
+
+        Pagination<CustomerIntegrateInfoDto> pagination = customerAuthorityService.queryCustomerIntegrates(
+                condition, CustomerIntegrateOrderField.getDefaultOrderHelper(), limitHelper);
         Pagination<PosUserSimpleInfoVo> result = Pagination.newInstance(limitHelper, pagination.getTotalCount());
         if (pagination.getTotalCount() > 0 && !CollectionUtils.isEmpty(pagination.getResult())) {
             List<PosUserSimpleInfoVo> posUsers = pagination.getResult().stream()
                     .map(PosConverter::toPosUserSimpleInfoVo).collect(Collectors.toList());
+            // 填充银行卡信息和间接下级统计
+            fillCardInfoAndDescendantStatistics(posUsers);
+
             result.setResult(posUsers);
         }
 
@@ -130,7 +156,23 @@ public class CustomerController {
     public ApiResult<PosUserSimpleInfoVo> getCustomer(
             @ApiParam(name = "userId", value = "用户id")
             @PathVariable("userId") Long userId) {
-        return null;
+        CustomerIntegrateInfoDto integrateInfoDto = customerAuthorityService.findCustomerIntegrate(userId);
+        if (integrateInfoDto == null) {
+            return ApiResult.fail(UserErrorCode.USER_NOT_EXISTED);
+        }
+        PosUserSimpleInfoVo result = PosConverter.toPosUserSimpleInfoVo(integrateInfoDto);
+
+        if (result.getBindingCard()) {
+            PosCardDto card = posCardService.queryBankCards(Lists.newArrayList(result.getPosCardId()), true).get(result.getPosCardId());
+            if (card != null) {
+                result.setBankName(card.getBankName());
+                result.setCardNo(card.getCardNO());
+            }
+        }
+        DescendantStatisticsDto descendantStatistics = customerStatisticsService.getDescendantStatistics(userId);
+        result.setDescendantCount(descendantStatistics.getDescendantCount());
+
+        return ApiResult.succ(result);
     }
 
     @RequestMapping(value = "{userId}/available", method = RequestMethod.POST)
@@ -141,15 +183,15 @@ public class CustomerController {
             @ApiParam(name = "available", value = "true：启用；false：禁用")
             @RequestParam("available") Boolean available,
             @FromSession UserInfo userInfo) {
-        return null;
+        return customerAuthorityService.updateUserAvailable(userId, available, userInfo.buildUserIdentifier());
     }
 
-    @RequestMapping(value = "{posId}/permission", method = RequestMethod.GET)
+    @RequestMapping(value = "{userId}/permission", method = RequestMethod.GET)
     @ApiOperation(value = "v2.0.0 * 获取快捷收款用户的权限信息", notes = "获取快捷收款用户的权限信息")
     public ApiResult<CustomerPermissionBasicDto> getPosUserPermission(
-            @ApiParam(name = "posId", value = "快捷收款用户自增id")
-            @PathVariable("posId") Long posId) {
-        return null;//posUserService.getBaseAuthById(posId);
+            @ApiParam(name = "userId", value = "用户id")
+            @PathVariable("userId") Long userId) {
+        return ApiResult.succ(customerAuthorityService.getPermissionBasicInfo(userId));
     }
 
     @RequestMapping(value = "{posId}/permission", method = RequestMethod.POST)
@@ -244,65 +286,110 @@ public class CustomerController {
             @RequestParam(name = "searchKey", required = false) String searchKey,
             @ApiParam(name = "searchType", value = "搜索关键字类型（1：查询用户本人；2：查询直接下级（默认为1））")
             @RequestParam(name = "searchType", required = false) Integer searchType) {
+        XlsView xlsView;
         LimitHelper limitHelper = new LimitHelper(1, Integer.MAX_VALUE, false);
-        PosUserCondition condition = new PosUserCondition();
-        condition.setUserAuditStatus(userAuditStatus);
-        /*condition.setBindingCard(bindingCard);
-        condition.setGetPermission(getPermission);
-        condition.setTwitterPermission(isTwitter);
-        condition.setWithdrawDeposit(withdrawDeposit);*/
+        CustomerIntegrateCondition condition = new CustomerIntegrateCondition();
+        condition.setAuditStatus(userAuditStatus);
+        condition.setLevel(level);
+        condition.setEnable(userAvailable);
+        condition.setInterviewed(existedInterview);
         condition.setBeginTime(beginTime);
         condition.setEndTime(endTime);
-        XlsView xlsView;
         if (!StringUtils.isEmpty(searchKey)) {
             List<Long> includeUserIds = userService.queryUserIds(searchKey);
             if (CollectionUtils.isEmpty(includeUserIds)) {
-                xlsView = new XlsView(0, new String[]
-                        {"手机号", "姓名", "注册快捷收款时间", "身份认证信息", "收款银行卡",
-                                "收款银行卡信息", "收款手续费率", "收款笔数/金额", "快捷收款权限",
-                                "是否是推客", "推客权限", "存在提现申请"})
-                        .setXlsStyle(new XlsStyle().setSheetName("快捷收款用户列表").setColumnWidth(17));
+                xlsView = new XlsView(0, getRawNames())
+                        .setXlsStyle(new XlsStyle().setSheetName("快捷收款用户列表").setColumnWidth(20));
                 return new ModelAndView(xlsView);
             }
             condition.setIncludeUserIds(includeUserIds);
+            condition.setIncludeUserIdsType(searchType);
         }
-        Pagination<PosUserIntegrateDto> pagination = posUserService.queryPosUsers(condition, PosUserOrderField.getDefaultOrderHelper(), limitHelper);
-        xlsView = new XlsView(pagination.getTotalCount(), new String[]{
-                "手机号",
-                "姓名",
-                "注册快捷收款时间",
-                "身份认证信息",
-                "收款银行卡",
-                "收款银行卡信息",
-                "收款手续费率",
-                "收款笔数/金额",
-                "快捷收款权限",
-                "是否是推客",
-                "推客权限",
-                "存在提现申请"
-        }).setXlsStyle(new XlsStyle().setSheetName("快捷收款用户列表").setColumnWidth(17));
+
+        Pagination<CustomerIntegrateInfoDto> pagination = customerAuthorityService.queryCustomerIntegrates(
+                condition, CustomerIntegrateOrderField.getDefaultOrderHelper(), limitHelper);
+        xlsView = new XlsView(pagination.getTotalCount(), getRawNames())
+                .setXlsStyle(new XlsStyle().setSheetName("快捷收款用户列表").setColumnWidth(20));
         if (pagination.getTotalCount() > 0 && !CollectionUtils.isEmpty(pagination.getResult())) {
             List<PosUserSimpleInfoVo> posUsers = pagination.getResult().stream()
                     .map(PosConverter::toPosUserSimpleInfoVo).collect(Collectors.toList());
-            posUsers.forEach(posUser ->
-                    xlsView.addRowValues(new Object[]{
-                            posUser.getPhone(),
-                            posUser.getName(),
-                            SimpleDateUtils.formatDate(posUser.getRegisterTime(), SimpleDateUtils.DatePattern.STANDARD_PATTERN.toString()),
-                            posUser.getUserAuditStatusDesc(),
-                            posUser.getBindingCard() ? "已绑定" : "未绑定",
-                            posUser.getBindingCard() ? posUser.getBankName() + "（" + posUser.getCardNo() + "）" : "",
-                            posUser.getBaseAuth().getGetRate().multiply(new BigDecimal(100)) + "% + " + posUser.getBaseAuth().getPoundage() + "元",
-                            posUser.getUserPosCount() + " / " + posUser.getUserPosAmount(),
-                            AuthStatusEnum.ENABLE.equals(posUser.getBaseAuth().parseGetAuth()) ? "启用" : "禁用",
-                            PosTwitterStatus.ENABLE.equals(posUser.getBaseAuth().parseTwitterStatus()) ? "是" : "否",
-                            AuthStatusEnum.ENABLE.equals(posUser.getBaseAuth().parseDevelopAuth()) ?
-                                    "发展下级推客\n" + (AuthStatusEnum.ENABLE.equals(posUser.getBaseAuth().parseSpreadAuth()) ?
-                                            "发展收款客户" : "")
-                                    : "",
-                            posUser.getWithdrawDepositApply() ? "是（" + posUser.getWithdrawDepositAmount() + "）" : "否"
-                    }));
+            // 填充银行卡信息和间接下级统计
+            fillCardInfoAndDescendantStatistics(posUsers);
+
+            posUsers.forEach(posUser -> xlsView.addRowValues(getRawValues(posUser)));
         }
+
         return new ModelAndView(xlsView);
+    }
+
+    private String[] getRawNames() {
+        return new String[]{
+                "姓名",
+                "手机号",
+                "注册时间",
+                "上级姓名",
+                "上级手机号",
+                "实名认证",
+                "结算银行名称",
+                "结算银行卡卡号",
+                "用户等级",
+                "收款手续费率",
+                "收款笔数",
+                "收款金额",
+                "直接下级",
+                "间接下级",
+                "可提现佣金",
+                "佣金提现次数",
+                "已提现佣金金额",
+                "状态",
+                "回访次数"
+        };
+    }
+
+    private Object[] getRawValues(PosUserSimpleInfoVo posUser) {
+        return new Object[]{
+                posUser.getName(),
+                posUser.getPhone(),
+                SimpleDateUtils.formatDate(posUser.getRegisterTime(), SimpleDateUtils.DatePattern.STANDARD_PATTERN.toString()),
+                posUser.getExistedParent() ? posUser.getParentName() : "-",
+                posUser.getExistedParent() ? posUser.getParentPhone() : "-",
+                posUser.getUserAuditStatusDesc(),
+                posUser.getBindingCard() ? posUser.getBankName() : "-",
+                posUser.getBindingCard() ? posUser.getCardNo() : "-",
+                "Lv" + posUser.getLevel(),
+                posUser.getWithdrawRate().multiply(new BigDecimal(100)) + "% + " + posUser.getExtraServiceCharge() + "元",
+                posUser.getUserPosCount(),
+                posUser.getUserPosAmount(),
+                posUser.getChildrenCount(),
+                posUser.getDescendantCount(),
+                posUser.getCurrentBrokerage(),
+                posUser.getBrokerageAppliedCount(),
+                posUser.getAppliedBrokerage(),
+                posUser.getUserAvailable() ? "启用" : "禁用",
+                posUser.getInterviewCount()
+        };
+    }
+
+    // 填充银行卡信息和间接下级统计
+    private void fillCardInfoAndDescendantStatistics(List<PosUserSimpleInfoVo> posUsers) {
+        List<Long> posCardIds = posUsers.stream()
+                .filter(PosUserSimpleInfoVo::getBindingCard)
+                .map(PosUserSimpleInfoVo::getPosCardId).collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(posCardIds)) {
+            Map<Long, PosCardDto> cardMap = posCardService.queryBankCards(posCardIds, true);
+            if (!CollectionUtils.isEmpty(cardMap)) {
+                posUsers.forEach(e -> {
+                    DescendantStatisticsDto descendantStatistics = customerStatisticsService.getDescendantStatistics(e.getUserId());
+                    e.setDescendantCount(descendantStatistics.getDescendantCount());
+                    if (e.getBindingCard()) {
+                        PosCardDto card = cardMap.get(e.getPosCardId());
+                        if (card != null) {
+                            e.setBankName(card.getBankName());
+                            e.setCardNo(card.getCardNO());
+                        }
+                    }
+                });
+            }
+        }
     }
 }

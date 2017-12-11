@@ -3,10 +3,8 @@
  */
 package com.pos.web.console.vo.pos;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.pos.authority.constant.CustomerAuditStatus;
 import com.wordnik.swagger.annotations.ApiModelProperty;
-import com.pos.transaction.constants.UserAuditStatus;
-import com.pos.transaction.dto.auth.BaseAuthDto;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -55,11 +53,16 @@ public class PosUserSimpleInfoVo implements Serializable {
 
     @ApiModelProperty("身份认证审核状态描述")
     public String getUserAuditStatusDesc() {
-        return userAuditStatus == null ? "" : UserAuditStatus.getEnum(userAuditStatus).getDesc();
+        return userAuditStatus == null ? "" : CustomerAuditStatus.getEnum(userAuditStatus).getDesc();
     }
 
     @ApiModelProperty("是否绑定收款银行卡（true：已绑定，false：未绑定）")
-    private Boolean bindingCard;
+    public Boolean getBindingCard() {
+        return posCardId != null;
+    }
+
+    @ApiModelProperty("绑定的结算卡id")
+    private Long posCardId;
 
     @ApiModelProperty("银行名称，仅当bindingCard = true时有效")
     private String bankName;
@@ -100,21 +103,13 @@ public class PosUserSimpleInfoVo implements Serializable {
     @ApiModelProperty("v2.0.0 * 回访次数")
     private Integer interviewCount;
 
-    @Deprecated
-    @JsonIgnore
-    private BigDecimal totalWithdrawDepositAmount;
+    public Long getPosCardId() {
+        return posCardId;
+    }
 
-    @Deprecated
-    @JsonIgnore
-    private Boolean withdrawDepositApply;
-
-    @Deprecated
-    @JsonIgnore
-    private BigDecimal withdrawDepositAmount;
-
-    @Deprecated
-    @JsonIgnore
-    private BaseAuthDto baseAuth;
+    public void setPosCardId(Long posCardId) {
+        this.posCardId = posCardId;
+    }
 
     public Integer getInterviewCount() {
         return interviewCount;
@@ -244,14 +239,6 @@ public class PosUserSimpleInfoVo implements Serializable {
         this.userPosAmount = userPosAmount;
     }
 
-    public BaseAuthDto getBaseAuth() {
-        return baseAuth;
-    }
-
-    public void setBaseAuth(BaseAuthDto baseAuth) {
-        this.baseAuth = baseAuth;
-    }
-
     public String getBankName() {
         return bankName;
     }
@@ -274,30 +261,6 @@ public class PosUserSimpleInfoVo implements Serializable {
 
     public void setUserAuditStatus(Integer userAuditStatus) {
         this.userAuditStatus = userAuditStatus;
-    }
-
-    public BigDecimal getTotalWithdrawDepositAmount() {
-        return totalWithdrawDepositAmount;
-    }
-
-    public void setTotalWithdrawDepositAmount(BigDecimal totalWithdrawDepositAmount) {
-        this.totalWithdrawDepositAmount = totalWithdrawDepositAmount;
-    }
-
-    public Boolean getWithdrawDepositApply() {
-        return withdrawDepositApply;
-    }
-
-    public void setWithdrawDepositApply(Boolean withdrawDepositApply) {
-        this.withdrawDepositApply = withdrawDepositApply;
-    }
-
-    public BigDecimal getWithdrawDepositAmount() {
-        return withdrawDepositAmount;
-    }
-
-    public void setWithdrawDepositAmount(BigDecimal withdrawDepositAmount) {
-        this.withdrawDepositAmount = withdrawDepositAmount;
     }
 
     public Long getId() {
@@ -338,13 +301,5 @@ public class PosUserSimpleInfoVo implements Serializable {
 
     public void setRegisterTime(Date registerTime) {
         this.registerTime = registerTime;
-    }
-
-    public Boolean getBindingCard() {
-        return bindingCard;
-    }
-
-    public void setBindingCard(Boolean bindingCard) {
-        this.bindingCard = bindingCard;
     }
 }

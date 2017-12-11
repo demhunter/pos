@@ -3,15 +3,19 @@
  */
 package com.pos.authority.service;
 
+import com.pos.authority.condition.query.CustomerIntegrateCondition;
 import com.pos.authority.constant.CustomerAuditStatus;
 import com.pos.authority.domain.CustomerLevelConfig;
+import com.pos.authority.dto.CustomerEnumsDto;
+import com.pos.authority.dto.customer.CustomerIntegrateInfoDto;
 import com.pos.authority.dto.identity.CustomerIdentityDto;
 import com.pos.authority.dto.level.CustomerLevelConfigDto;
 import com.pos.authority.dto.level.CustomerUpgradeLevelDto;
+import com.pos.authority.dto.permission.CustomerPermissionBasicDto;
 import com.pos.authority.dto.permission.CustomerPermissionDto;
 import com.pos.authority.fsm.context.AuditStatusTransferContext;
-import com.pos.common.util.mvc.support.ApiResult;
-import com.pos.common.util.mvc.support.NullObject;
+import com.pos.basic.dto.UserIdentifier;
+import com.pos.common.util.mvc.support.*;
 
 import java.util.List;
 
@@ -38,6 +42,23 @@ public interface CustomerAuthorityService {
      * @return 权限信息
      */
     CustomerPermissionDto getPermission(Long userId);
+
+    /**
+     * 获取指定用户的权限基础信息
+     *
+     * @param userId 用户id
+     * @return 权限基础信息
+     */
+    CustomerPermissionBasicDto getPermissionBasicInfo(Long userId);
+
+    /**
+     * 更新用户收款权限相关信息
+     *
+     * @param basicPermission 新信息
+     * @param operator        更新操作人标识
+     * @return 操作结果
+     */
+    ApiResult<NullObject> updatePermission(CustomerPermissionBasicDto basicPermission, UserIdentifier operator);
 
     /**
      * 获取等级配置信息列表
@@ -97,4 +118,39 @@ public interface CustomerAuthorityService {
      * @param operatorUserId    等级晋升操作人id
      */
     void upgradeLevel(CustomerPermissionDto permission, CustomerLevelConfig targetLevelConfig, Long operatorUserId);
+
+    /**
+     * 查询与用户相关的枚举
+     *
+     * @return 用户相关的枚举
+     */
+    ApiResult<CustomerEnumsDto> queryPosCustomerEnums();
+
+    /**
+     * 按条件查询用户聚合数据列表
+     *
+     * @param condition   查询条件
+     * @param orderHelper 排序参数
+     * @param limitHelper 分页参数
+     * @return 聚合数据
+     */
+    Pagination<CustomerIntegrateInfoDto> queryCustomerIntegrates(CustomerIntegrateCondition condition, OrderHelper orderHelper, LimitHelper limitHelper);
+
+    /**
+     * 查询指定用户的聚合数据
+     *
+     * @param userId 用户id
+     * @return 聚合数据
+     */
+    CustomerIntegrateInfoDto findCustomerIntegrate(Long userId);
+
+    /**
+     * 启用或禁用用户
+     *
+     * @param userId    用户od
+     * @param available true：启用；false：禁用
+     * @param operator  操作人用户标识
+     * @return 操作结果
+     */
+    ApiResult<NullObject> updateUserAvailable(Long userId, Boolean available, UserIdentifier operator);
 }

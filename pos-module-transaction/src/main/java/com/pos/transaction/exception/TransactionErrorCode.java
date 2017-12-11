@@ -23,6 +23,8 @@ public enum TransactionErrorCode implements ErrorCode {
 
     POS_ERROR_TRANSACTION_NOT_EXISTED(1104, "交易记录不存在"),
 
+    POS_ERROR_TRANSACTION_STATUS_ERROR(1105, "交易状态错误，不能执行此操作"),
+
     POS_ERROR_STATUS_FOR_SMS_CODE(1105, "交易已处理，请勿重新获取短信验证码"),
 
     BIND_CARD_ERROR_AUTHORITY_AUDIT_STATUS_AUDITED(1110, "身份认证已通过，不能重复绑定收款银行卡！"),
