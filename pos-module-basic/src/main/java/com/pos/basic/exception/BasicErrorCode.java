@@ -18,7 +18,9 @@ public enum BasicErrorCode implements ErrorCode {
 
     QINIU_UPLOAD_ERROR(103, "上传失败"),
 
-    QINIU_UPLOAD_IMAGE_ERROR(104, "图片上传失败");
+    QINIU_UPLOAD_IMAGE_ERROR(104, "图片上传失败"),
+
+    POPULARIZATION_DOCUMENT_NOT_EXISTED(110, "推广文案不存在");
 
     private final int code;
 

@@ -3,9 +3,13 @@
  */
 package com.pos.web.console.controller.popularization;
 
+import com.pos.basic.condition.orderby.PopularizationOrderField;
+import com.pos.basic.condition.query.PopularizationCondition;
 import com.pos.basic.dto.popularization.PopularizationDocumentDto;
+import com.pos.basic.service.PopularizationService;
 import com.pos.common.util.mvc.resolver.FromSession;
 import com.pos.common.util.mvc.support.ApiResult;
+import com.pos.common.util.mvc.support.LimitHelper;
 import com.pos.common.util.mvc.support.NullObject;
 import com.pos.common.util.mvc.support.Pagination;
 import com.pos.user.session.UserInfo;
@@ -13,6 +17,8 @@ import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
 
 /**
  * 文案推广相关接口
@@ -24,6 +30,9 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/popularization/document")
 @Api(value = "/popularization/document", description = "v2.0.0 * 文案推广相关接口")
 public class PopularizationController {
+
+    @Resource
+    private PopularizationService popularizationService;
 
     @RequestMapping(value = "", method = RequestMethod.GET)
     @ApiOperation(value = "v2.0.0 * 获取推广文案列表", notes = "获取推广文案列表")
@@ -38,7 +47,15 @@ public class PopularizationController {
             @RequestParam("pageNum") int pageNum,
             @ApiParam(name = "pageSize", value = "每页显示的记录数量")
             @RequestParam("pageSize") int pageSize) {
-        return null;
+        PopularizationCondition condition = new PopularizationCondition();
+        condition.setBeginTime(beginTime);
+        condition.setEndTime(endTime);
+        condition.setSearchKey(searchKey);
+
+        LimitHelper limitHelper = LimitHelper.create(pageNum, pageSize);
+
+        return popularizationService.queryDocuments(
+                condition, PopularizationOrderField.getDefaultOrderHelper(), limitHelper);
     }
 
     @RequestMapping(value = "", method = RequestMethod.POST)
@@ -47,7 +64,7 @@ public class PopularizationController {
             @ApiParam(name = "document", value = "推广文案信息")
             @RequestBody PopularizationDocumentDto document,
             @FromSession UserInfo userInfo) {
-        return null;
+        return popularizationService.addOrUpdateDocument(document, userInfo.buildUserIdentifier());
     }
 
     @RequestMapping(value = "{documentId}", method = RequestMethod.GET)
@@ -55,7 +72,7 @@ public class PopularizationController {
     public ApiResult<PopularizationDocumentDto> getDocument(
             @ApiParam(name = "documentId", value = "推广文案id")
             @PathVariable("documentId") Long documentId) {
-        return null;
+        return popularizationService.findDocument(documentId);
     }
 
     @RequestMapping(value = "{documentId}/available", method = RequestMethod.POST)
@@ -64,8 +81,9 @@ public class PopularizationController {
             @ApiParam(name = "documentId", value = "推广文案id")
             @PathVariable("documentId") Long documentId,
             @ApiParam(name = "available", value = "true：启用；false：禁用")
-            @RequestParam("available") Boolean available) {
-        return null;
+            @RequestParam("available") Boolean available,
+            @FromSession UserInfo userInfo) {
+        return popularizationService.updateDocumentAvailable(documentId, available, userInfo.buildUserIdentifier());
     }
 
 }

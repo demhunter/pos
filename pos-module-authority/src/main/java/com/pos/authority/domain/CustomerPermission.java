@@ -17,6 +17,8 @@ import java.util.Date;
  */
 public class CustomerPermission implements Serializable {
 
+    private static final long serialVersionUID = 5973965509689270719L;
+
     private Long id; // 自增主键id
 
     private Long userId; // 用户id

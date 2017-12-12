@@ -3,6 +3,7 @@
  */
 package com.pos.basic.dto.popularization;
 
+import com.pos.common.util.validation.FieldChecker;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 
 import java.io.Serializable;
@@ -31,6 +32,14 @@ public class PopularizationDocumentDto implements Serializable {
 
     @ApiModelProperty("创建时间")
     private Date createTime;
+
+    /**
+     * 新增或更新时必填字段检查
+     */
+    public void check() {
+        FieldChecker.checkMaxLength(document, 700, "document");
+        FieldChecker.checkMaxSize(images, 9, "图片", "张数");
+    }
 
     public Long getId() {
         return id;
