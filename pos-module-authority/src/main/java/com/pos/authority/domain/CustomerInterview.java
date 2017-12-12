@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2016 ywmj.com. All Rights Reserved.
  */
-package com.pos.basic.domain;
+package com.pos.authority.domain;
 
 import java.io.Serializable;
 import java.util.Date;

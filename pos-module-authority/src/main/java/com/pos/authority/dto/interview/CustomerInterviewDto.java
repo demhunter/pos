@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2016 ywmj.com. All Rights Reserved.
  */
-package com.pos.basic.dto.interview;
+package com.pos.authority.dto.interview;
 
 import com.wordnik.swagger.annotations.ApiModelProperty;
 

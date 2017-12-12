@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.authority.dao.CustomerInterviewDao">
+
+    <insert id="save" parameterType="com.pos.authority.dto.interview.CustomerInterviewDto">
+        INSERT INTO customer_interview
+        (
+            user_id,
+            content,
+            create_user_id,
+            create_time
+        ) VALUE
+        (
+            #{interview.userId},
+            #{interview.content},
+            #{interview.createUserId},
+            NOW()
+        )
+    </insert>
+
+    <select id="queryInterviews" resultType="com.pos.authority.dto.interview.CustomerInterviewDto">
+        SELECT
+            `id` AS `id`,
+            user_id AS userId,
+            content AS content,
+            create_user_id AS createUserId,
+            create_time AS createTime
+        FROM customer_interview
+        WHERE user_id = #{userId}
+        ORDER BY create_time DESC
+    </select>
+</mapper>
