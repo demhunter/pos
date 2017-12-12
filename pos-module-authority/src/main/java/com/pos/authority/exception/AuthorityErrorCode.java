@@ -21,9 +21,19 @@ public enum AuthorityErrorCode implements ErrorCode {
 
     UPGRADE_ERROR_CHARGE_NOT_ENOUGH(1003, "支付金额不足以升级到目标等级"),
 
-    AUDIT_STATUS_AUDITED_FOR_UPDATE(1010, "身份认证已通过，不允许修改实名信息"),
+    UPGRADE_ERROR_LEVEL_LESS_THAN_CURRENT(1004, "目前等级只能晋升，不能降低"),
 
-    AUDIT_STATUS_NOT_AUDIT_FOR_UPDATE(1011, "身份认证审核中，不允许修改实名信息！");
+    UPGRADE_ERROR_GREATER_THAN_MAX(1005, "晋升等级不能超过当前系统的最大等级"),
+
+    UPGRADE_ERROR_RATE_LESS_THAN_LIMIT(1006, "提现手续费率不能低于最低下限"),
+
+    UPGRADE_ERROR_EXTRA_LESS_THAN_LIMIT(1007, "提现额外手续费不能低于最低下限"),
+
+    AUDIT_STATUS_ERROR_AUDITED_FOR_UPDATE(1010, "身份认证已通过，不允许修改实名信息"),
+
+    AUDIT_STATUS_ERROR_NOT_AUDIT_FOR_UPDATE(1011, "身份认证审核中，不允许修改实名信息！"),
+
+    AUDIT_STATUS_ERROR_NOU_SUBMIT_FOR_AUTHORIZE(1012, "实行认证信息未提交！");
 
     private final int code;
 

@@ -101,21 +101,23 @@ public class CustomerStatisticsServiceImpl implements CustomerStatisticsService 
     public void incrementChildrenCount(Long parentUserId) {
         FieldChecker.checkEmpty(parentUserId, "parentUserId");
 
-        CustomerStatisticsDto statistics = customerStatisticsDao.getByUserId(parentUserId);
-        CustomerPermissionDto permission = customerAuthorityService.getPermission(parentUserId);
+        if (parentUserId != 0) {
+            CustomerStatisticsDto statistics = customerStatisticsDao.getByUserId(parentUserId);
+            CustomerPermissionDto permission = customerAuthorityService.getPermission(parentUserId);
 
-        statistics.setChildrenCount(statistics.getChildrenCount() + 1);
+            statistics.setChildrenCount(statistics.getChildrenCount() + 1);
 
-        Integer maxLevel = customerLevelSupport.getMaxLevel();
-        CustomerLevelConfig nextLevelConfig = null;
-        if (permission.getLevel() < maxLevel) {
-            nextLevelConfig = customerLevelSupport.getLevelConfig(permission.getLevel() + 1);
-        }
-        if (nextLevelConfig != null) {
-            if (statistics.getChildrenCount() >= nextLevelConfig.getChildrenLimit()
-                    && nextLevelConfig.getChildrenLimit() > 0) {
-                // 已支付等级晋升服务费达到限额，晋升等级
-                customerAuthorityService.upgradeLevel(permission, nextLevelConfig, parentUserId);
+            Integer maxLevel = customerLevelSupport.getMaxLevel();
+            CustomerLevelConfig nextLevelConfig = null;
+            if (permission.getLevel() < maxLevel) {
+                nextLevelConfig = customerLevelSupport.getLevelConfig(permission.getLevel() + 1);
+            }
+            if (nextLevelConfig != null) {
+                if (statistics.getChildrenCount() >= nextLevelConfig.getChildrenLimit()
+                        && nextLevelConfig.getChildrenLimit() > 0) {
+                    // 已支付等级晋升服务费达到限额，晋升等级
+                    customerAuthorityService.upgradeLevel(permission, nextLevelConfig, parentUserId);
+                }
             }
         }
     }

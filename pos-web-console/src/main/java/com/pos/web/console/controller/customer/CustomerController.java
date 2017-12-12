@@ -6,18 +6,17 @@ package com.pos.web.console.controller.customer;
 import com.google.common.collect.Lists;
 import com.pos.authority.condition.oerderby.CustomerIntegrateOrderField;
 import com.pos.authority.condition.query.CustomerIntegrateCondition;
+import com.pos.authority.constant.CustomerAuditStatus;
+import com.pos.authority.converter.CustomerPermissionConverter;
 import com.pos.authority.dto.CustomerEnumsDto;
 import com.pos.authority.dto.customer.CustomerIntegrateInfoDto;
+import com.pos.authority.dto.identity.CustomerIdentityDto;
 import com.pos.authority.dto.permission.CustomerPermissionBasicDto;
+import com.pos.authority.dto.permission.CustomerPermissionDto;
 import com.pos.authority.dto.statistics.DescendantStatisticsDto;
+import com.pos.authority.exception.AuthorityErrorCode;
 import com.pos.authority.service.CustomerAuthorityService;
 import com.pos.authority.service.CustomerStatisticsService;
-import com.pos.transaction.dto.card.PosCardDto;
-import com.pos.transaction.service.PosCardService;
-import com.pos.user.exception.UserErrorCode;
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
 import com.pos.common.util.basic.SegmentLocks;
 import com.pos.common.util.date.SimpleDateUtils;
 import com.pos.common.util.exception.CommonErrorCode;
@@ -28,17 +27,22 @@ import com.pos.common.util.mvc.support.NullObject;
 import com.pos.common.util.mvc.support.Pagination;
 import com.pos.common.util.mvc.view.XlsStyle;
 import com.pos.common.util.mvc.view.XlsView;
-import com.pos.transaction.constants.AuthStatusEnum;
-import com.pos.transaction.constants.PosTwitterStatus;
 import com.pos.transaction.dto.PosUserAuditInfoDto;
+import com.pos.transaction.dto.card.PosCardDto;
 import com.pos.transaction.dto.identity.IdentifyInfoDto;
+import com.pos.transaction.service.PosCardService;
 import com.pos.transaction.service.PosService;
 import com.pos.transaction.service.PosUserBrokerageRecordService;
 import com.pos.transaction.service.PosUserService;
+import com.pos.user.exception.UserErrorCode;
 import com.pos.user.service.UserService;
 import com.pos.user.session.UserInfo;
 import com.pos.web.console.converter.PosConverter;
+import com.pos.web.console.vo.audit.CustomerAuditInfoVo;
 import com.pos.web.console.vo.pos.PosUserSimpleInfoVo;
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -194,24 +198,24 @@ public class CustomerController {
         return ApiResult.succ(customerAuthorityService.getPermissionBasicInfo(userId));
     }
 
-    @RequestMapping(value = "{posId}/permission", method = RequestMethod.POST)
+    @RequestMapping(value = "{userId}/permission", method = RequestMethod.POST)
     @ApiOperation(value = "v2.0.0 * 更改快捷收款用户的权限信息", notes = "更改快捷收款用户的权限信息")
     public ApiResult<NullObject> updatePosUserPermission(
-            @ApiParam(name = "posId", value = "快捷收款用户自增id")
-            @PathVariable("posId") Long posId,
+            @ApiParam(name = "userId", value = "快捷收款用户自增id")
+            @PathVariable("userId") Long userId,
             @ApiParam(name = "permissionInfo", value = "新权限信息")
             @RequestBody CustomerPermissionBasicDto permissionInfo,
             @FromSession UserInfo userInfo) {
         boolean hasLock = false;
-        ReentrantLock lock = SEG_LOCKS.getLock(posId);
+        ReentrantLock lock = SEG_LOCKS.getLock(userId);
         try {
             hasLock = lock.tryLock(8L, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
-            LOGGER.error("更改快捷收款用户的权限信息时尝试获取锁失败！posId = " + posId, e);
+            LOGGER.error("更改快捷收款用户的权限信息时尝试获取锁失败！userId = " + userId, e);
         }
         if (hasLock) {
             try {
-                return null;//posUserService.updatePosUserAuth(posId, permissionInfo, userInfo.buildUserIdentifier());
+                return customerAuthorityService.updatePermission(permissionInfo, userInfo.buildUserIdentifier());
             } finally {
                 lock.unlock();
             }
@@ -221,12 +225,27 @@ public class CustomerController {
 
     }
 
-    @RequestMapping(value = "{posId}/audit", method = RequestMethod.GET)
+    @RequestMapping(value = "{userId}/audit", method = RequestMethod.GET)
     @ApiOperation(value = "v2.0.0 * 获取被审核的用户信息", notes = "获取被审核的用户信息")
-    public ApiResult<PosUserAuditInfoDto> getAuditInfo(
-            @ApiParam(name = "posId", value = "快捷收款用户自增id")
-            @PathVariable("posId") Long posId) {
-        return posService.getAuditInfo(posId, true);
+    public ApiResult<CustomerAuditInfoVo> getAuditInfo(
+            @ApiParam(name = "userId", value = "快捷收款用户自增id")
+            @PathVariable("userId") Long userId) {
+
+        CustomerPermissionDto permission = customerAuthorityService.getPermission(userId);
+        if (permission == null) {
+            return ApiResult.fail(UserErrorCode.USER_NOT_EXISTED);
+        }
+        if (CustomerAuditStatus.NOT_SUBMIT.equals(permission.parseAuditStatus())) {
+            return ApiResult.fail(AuthorityErrorCode.AUDIT_STATUS_ERROR_NOU_SUBMIT_FOR_AUTHORIZE);
+        }
+
+        CustomerAuditInfoVo result = new CustomerAuditInfoVo();
+
+        CustomerIdentityDto identityInfo = CustomerPermissionConverter.buildCustomerIdentity(permission);
+
+
+        posService.getAuditInfo(userId, true);
+        return null;//posService.getAuditInfo(userId, true);
     }
 
     @RequestMapping(value = "{posId}/audit", method = RequestMethod.POST)

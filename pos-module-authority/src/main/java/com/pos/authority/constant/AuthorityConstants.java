@@ -24,11 +24,25 @@ public class AuthorityConstants {
     @Value("${pos.arrival.time}")
     private String posArrivalTime; // 收款提现到账时间 D+0
 
+    @Value("${pos.withdraw.rate.down.limit}")
+    private String posWithdrawRateDownLimit; // 提现手续费下限
+
+    @Value("${pos.extra.service.charge.down.limit}")
+    private String posExtraServiceChargeDownLimit; // 提现额外手续费下限
+
     public BigDecimal getPosWithdrawBasicRate() {
         return StringUtils.isEmpty(posWithdrawBasicRate) ? BigDecimal.ZERO : new BigDecimal(posWithdrawBasicRate);
     }
 
     public String getPosArrivalTime() {
         return posArrivalTime;
+    }
+
+    public BigDecimal getPosWithdrawRateDownLimit() {
+        return StringUtils.isEmpty(posWithdrawRateDownLimit) ? BigDecimal.ZERO : new BigDecimal(posWithdrawRateDownLimit);
+    }
+
+    public BigDecimal getPosExtraServiceChargeDownLimit() {
+        return StringUtils.isEmpty(posExtraServiceChargeDownLimit) ? BigDecimal.ZERO : new BigDecimal(posExtraServiceChargeDownLimit);
     }
 }

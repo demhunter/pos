@@ -188,9 +188,31 @@ public class CustomerAuthorityServiceImpl implements CustomerAuthorityService {
     public ApiResult<NullObject> updatePermission(CustomerPermissionBasicDto basicPermission, UserIdentifier operator) {
         FieldChecker.checkEmpty(basicPermission, "basicPermission");
         FieldChecker.checkEmpty(operator, "operator");
+        basicPermission.check("basicPermission");
+        operator.check("operator");
 
+        CustomerPermissionDto permission = getPermission(basicPermission.getUserId());
+        if (basicPermission.getLevel().compareTo(permission.getLevel()) < 0) {
+            return ApiResult.fail(AuthorityErrorCode.UPGRADE_ERROR_LEVEL_LESS_THAN_CURRENT);
+        }
 
-        return null;
+        CustomerLevelConfig maxLevelConfig = customerLevelSupport.getMaxLevelConfig();
+        if (basicPermission.getLevel().compareTo(maxLevelConfig.getLevel()) > 0) {
+            return ApiResult.fail(AuthorityErrorCode.UPGRADE_ERROR_GREATER_THAN_MAX);
+        }
+
+        if (basicPermission.getWithdrawRate().compareTo(authorityConstants.getPosWithdrawRateDownLimit()) < 0) {
+            return ApiResult.fail(AuthorityErrorCode.UPGRADE_ERROR_RATE_LESS_THAN_LIMIT);
+        }
+
+        if (basicPermission.getExtraServiceCharge().compareTo(authorityConstants.getPosExtraServiceChargeDownLimit()) < 0) {
+            return ApiResult.fail(AuthorityErrorCode.UPGRADE_ERROR_EXTRA_LESS_THAN_LIMIT);
+        }
+
+        customerPermissionDao.updateLevelConfig(permission);
+        customerRelationPoolSupport.updateLevelConfig(permission);
+
+        return ApiResult.succ();
     }
 
     @Override
@@ -264,6 +286,11 @@ public class CustomerAuthorityServiceImpl implements CustomerAuthorityService {
     }
 
     @Override
+    public void decryptedCustomerIdentity(CustomerIdentityDto identity) {
+
+    }
+
+    @Override
     public ApiResult<NullObject> updateCustomerIdentity(Long userId, CustomerIdentityDto identity) {
         FieldChecker.checkEmpty(userId, "userId");
         FieldChecker.checkEmpty(identity, "identity");
@@ -274,9 +301,9 @@ public class CustomerAuthorityServiceImpl implements CustomerAuthorityService {
         // 已审核和待审核状态不允许更新实名信息，审核未通过的只允许修改身份证正反面图片
         CustomerAuditStatus auditStatus = permission.parseAuditStatus();
         if (CustomerAuditStatus.AUDITED.equals(auditStatus)) {
-            return ApiResult.fail(AuthorityErrorCode.AUDIT_STATUS_AUDITED_FOR_UPDATE);
+            return ApiResult.fail(AuthorityErrorCode.AUDIT_STATUS_ERROR_AUDITED_FOR_UPDATE);
         } else if (CustomerAuditStatus.NOT_AUDIT.equals(auditStatus)) {
-            return ApiResult.fail(AuthorityErrorCode.AUDIT_STATUS_NOT_AUDIT_FOR_UPDATE);
+            return ApiResult.fail(AuthorityErrorCode.AUDIT_STATUS_ERROR_NOT_AUDIT_FOR_UPDATE);
         } else if (CustomerAuditStatus.NOT_SUBMIT.equals(auditStatus)) {
             // 未提交状态设置姓名和身份证号
             permission.setIdCardName(identity.getRealName());

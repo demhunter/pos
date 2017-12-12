@@ -3,6 +3,8 @@
  */
 package com.pos.authority.dto.permission;
 
+import com.pos.common.util.exception.ValidationException;
+import com.pos.common.util.validation.FieldChecker;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 
 import java.io.Serializable;
@@ -32,6 +34,14 @@ public class CustomerPermissionBasicDto implements Serializable {
 
     @ApiModelProperty("用户提现额外手续费")
     private BigDecimal extraServiceCharge;
+
+    public void check(String fieldPrefix) throws ValidationException {
+        fieldPrefix = fieldPrefix == null ? "" : fieldPrefix + ".";
+        FieldChecker.checkEmpty(userId, fieldPrefix + "userId");
+        FieldChecker.checkEmpty(level, fieldPrefix + "level");
+        FieldChecker.checkEmpty(withdrawRate, fieldPrefix + "withdrawRate");
+        FieldChecker.checkEmpty(extraServiceCharge, fieldPrefix + "extraServiceCharge");
+    }
 
     public Long getId() {
         return id;

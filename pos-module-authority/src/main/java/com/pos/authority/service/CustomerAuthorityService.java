@@ -86,6 +86,13 @@ public interface CustomerAuthorityService {
     CustomerIdentityDto getCustomerIdentity(Long userId);
 
     /**
+     * 解密身份认证数据
+     *
+     * @param identity 身份认证信息
+     */
+    void decryptedCustomerIdentity(CustomerIdentityDto identity);
+
+    /**
      * 更新用户身份认证的实名信息
      *
      * @param userId   用户id
