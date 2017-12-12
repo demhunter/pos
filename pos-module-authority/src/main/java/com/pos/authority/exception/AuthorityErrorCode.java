@@ -29,11 +29,13 @@ public enum AuthorityErrorCode implements ErrorCode {
 
     UPGRADE_ERROR_EXTRA_LESS_THAN_LIMIT(1007, "提现额外手续费不能低于最低下限"),
 
-    AUDIT_STATUS_ERROR_AUDITED_FOR_UPDATE(1010, "身份认证已通过，不允许修改实名信息"),
+    AUDIT_STATUS_ERROR_AUDITED_FOR_UPDATE(1010, "实名认证已通过，不允许修改实名信息"),
 
-    AUDIT_STATUS_ERROR_NOT_AUDIT_FOR_UPDATE(1011, "身份认证审核中，不允许修改实名信息！"),
+    AUDIT_STATUS_ERROR_NOT_AUDIT_FOR_UPDATE(1011, "实名认证审核中，不允许修改实名信息！"),
 
-    AUDIT_STATUS_ERROR_NOU_SUBMIT_FOR_AUTHORIZE(1012, "实行认证信息未提交！");
+    AUDIT_STATUS_ERROR_NOU_SUBMIT_FOR_AUTHORIZE(1012, "实名认证信息未提交！"),
+
+    AUDIT_STATUS_ERROR_IDENTITY_DATED(1013, "用户实名认证信息已过时，请刷新过后重新审核！");
 
     private final int code;
 

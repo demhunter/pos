@@ -69,7 +69,7 @@ public class PosCardServiceImpl implements PosCardService {
     private PosConstants posConstants;
 
     @Override
-    public BindCardDto getWithdrawCard(Long userId) {
+    public BindCardDto getWithdrawCard(Long userId, boolean decrypted) {
         FieldChecker.checkEmpty(userId, "userId");
 
         // 查询权限获取绑卡信息
@@ -81,6 +81,9 @@ public class PosCardServiceImpl implements PosCardService {
 
             // 查询绑定的收款银行卡信息
             PosCardDto posCard = posCardDao.getUserPosCard(permission.getPosCardId());
+            if (decrypted) {
+                decryptPosCardInfo(posCard);
+            }
             if (posCard != null && userId.equals(posCard.getUserId())
                     && CardUsageEnum.IN_CARD.equals(posCard.parseCardUsage())) {
                 withdrawCard.setPosCardId(permission.getPosCardId());

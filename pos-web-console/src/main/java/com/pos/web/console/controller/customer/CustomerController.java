@@ -11,6 +11,7 @@ import com.pos.authority.converter.CustomerPermissionConverter;
 import com.pos.authority.dto.CustomerEnumsDto;
 import com.pos.authority.dto.customer.CustomerIntegrateInfoDto;
 import com.pos.authority.dto.identity.CustomerIdentityDto;
+import com.pos.authority.dto.identity.IdentifyInfoDto;
 import com.pos.authority.dto.permission.CustomerPermissionBasicDto;
 import com.pos.authority.dto.permission.CustomerPermissionDto;
 import com.pos.authority.dto.statistics.DescendantStatisticsDto;
@@ -27,9 +28,7 @@ import com.pos.common.util.mvc.support.NullObject;
 import com.pos.common.util.mvc.support.Pagination;
 import com.pos.common.util.mvc.view.XlsStyle;
 import com.pos.common.util.mvc.view.XlsView;
-import com.pos.transaction.dto.PosUserAuditInfoDto;
 import com.pos.transaction.dto.card.PosCardDto;
-import com.pos.transaction.dto.identity.IdentifyInfoDto;
 import com.pos.transaction.service.PosCardService;
 import com.pos.transaction.service.PosService;
 import com.pos.transaction.service.PosUserBrokerageRecordService;
@@ -75,15 +74,6 @@ public class CustomerController {
 
     @Resource
     private UserService userService;
-
-    @Resource
-    private PosUserService posUserService;
-
-    @Resource
-    private PosUserBrokerageRecordService posUserBrokerageRecordService;
-
-    @Resource
-    private PosService posService;
 
     @Resource
     private CustomerAuthorityService customerAuthorityService;
@@ -201,7 +191,7 @@ public class CustomerController {
     @RequestMapping(value = "{userId}/permission", method = RequestMethod.POST)
     @ApiOperation(value = "v2.0.0 * 更改快捷收款用户的权限信息", notes = "更改快捷收款用户的权限信息")
     public ApiResult<NullObject> updatePosUserPermission(
-            @ApiParam(name = "userId", value = "快捷收款用户自增id")
+            @ApiParam(name = "userId", value = "用户id")
             @PathVariable("userId") Long userId,
             @ApiParam(name = "permissionInfo", value = "新权限信息")
             @RequestBody CustomerPermissionBasicDto permissionInfo,
@@ -228,7 +218,7 @@ public class CustomerController {
     @RequestMapping(value = "{userId}/audit", method = RequestMethod.GET)
     @ApiOperation(value = "v2.0.0 * 获取被审核的用户信息", notes = "获取被审核的用户信息")
     public ApiResult<CustomerAuditInfoVo> getAuditInfo(
-            @ApiParam(name = "userId", value = "快捷收款用户自增id")
+            @ApiParam(name = "userId", value = "用户id")
             @PathVariable("userId") Long userId) {
 
         CustomerPermissionDto permission = customerAuthorityService.getPermission(userId);
@@ -240,19 +230,25 @@ public class CustomerController {
         }
 
         CustomerAuditInfoVo result = new CustomerAuditInfoVo();
+        result.setUpdateKey(permission.getUpdateTime());
+        if (CustomerAuditStatus.REJECTED.equals(permission.parseAuditStatus())) {
+            result.setRejectReason(permission.getRejectReason());
+        }
 
         CustomerIdentityDto identityInfo = CustomerPermissionConverter.buildCustomerIdentity(permission);
+        customerAuthorityService.decryptedCustomerIdentity(identityInfo);
+        result.setIdentityInfo(identityInfo);
 
+        result.setBindCardInfo(posCardService.getWithdrawCard(userId, true));
 
-        posService.getAuditInfo(userId, true);
-        return null;//posService.getAuditInfo(userId, true);
+        return ApiResult.succ(result);
     }
 
-    @RequestMapping(value = "{posId}/audit", method = RequestMethod.POST)
+    @RequestMapping(value = "{userId}/audit", method = RequestMethod.POST)
     @ApiOperation(value = "v1.0.0 * 审核用户信息", notes = "审核用户信息")
     public ApiResult<NullObject> auditPosUserInfo(
-            @ApiParam(name = "posId", value = "被审核的快捷收款用户自增id")
-            @PathVariable("posId") Long posId,
+            @ApiParam(name = "userId", value = "用户id")
+            @PathVariable("userId") Long userId,
             @ApiParam(name = "allowed", value = "是否通过审核（true：通过审核，false：不通过审核）")
             @RequestParam("allowed") Boolean allowed,
             @ApiParam(name = "updateKey", value = "更新Key，通过比对此字段校验审核数据是否有变动，在审核时需要回传此字段（时间戳格式）")
@@ -261,22 +257,22 @@ public class CustomerController {
             @RequestParam(name = "rejectReason", required = false) String rejectReason,
             @FromSession UserInfo userInfo) {
         IdentifyInfoDto identifyInfo = new IdentifyInfoDto();
-        identifyInfo.setPosAuthId(posId);
+        identifyInfo.setUserId(userId);
         identifyInfo.setAllowed(allowed);
         identifyInfo.setRejectReason(rejectReason);
         identifyInfo.setOperatorUserId(userInfo.getId());
         identifyInfo.setUpdateKey(updateKey);
 
         boolean hasLock = false;
-        ReentrantLock lock = SEG_LOCKS.getLock(posId);
+        ReentrantLock lock = SEG_LOCKS.getLock(userId);
         try {
             hasLock = lock.tryLock(8L, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
-            LOGGER.error("审核用户信息时尝试获取锁失败！posId = " + posId, e);
+            LOGGER.error("审核用户信息时尝试获取锁失败！posId = " + userId, e);
         }
         if (hasLock) {
             try {
-                return posService.identifyPosUserInfo(identifyInfo);
+                return customerAuthorityService.identifyPosUserInfo(identifyInfo);
             } finally {
                 lock.unlock();
             }

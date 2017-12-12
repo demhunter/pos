@@ -21,6 +21,7 @@ import com.pos.authority.domain.CustomerStatistics;
 import com.pos.authority.dto.CustomerEnumsDto;
 import com.pos.authority.dto.customer.CustomerIntegrateInfoDto;
 import com.pos.authority.dto.identity.CustomerIdentityDto;
+import com.pos.authority.dto.identity.IdentifyInfoDto;
 import com.pos.authority.dto.level.CustomerLevelConfigDto;
 import com.pos.authority.dto.level.CustomerUpgradeLevelDto;
 import com.pos.authority.dto.permission.CustomerPermissionBasicDto;
@@ -28,6 +29,7 @@ import com.pos.authority.dto.permission.CustomerPermissionDto;
 import com.pos.authority.dto.relation.CustomerRelationDto;
 import com.pos.authority.dto.statistics.CustomerStatisticsDto;
 import com.pos.authority.exception.AuthorityErrorCode;
+import com.pos.authority.fsm.AuthorityFSMFactory;
 import com.pos.authority.fsm.context.AuditStatusTransferContext;
 import com.pos.authority.service.CustomerAuthorityService;
 import com.pos.authority.service.CustomerStatisticsService;
@@ -36,6 +38,7 @@ import com.pos.authority.service.support.CustomerRelationPoolSupport;
 import com.pos.basic.dto.CommonEnumDto;
 import com.pos.basic.dto.UserIdentifier;
 import com.pos.basic.service.SecurityService;
+import com.pos.basic.sm.fsm.FSM;
 import com.pos.common.util.mvc.support.*;
 import com.pos.common.util.validation.FieldChecker;
 import com.pos.user.constant.UserType;
@@ -50,6 +53,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -287,7 +291,10 @@ public class CustomerAuthorityServiceImpl implements CustomerAuthorityService {
 
     @Override
     public void decryptedCustomerIdentity(CustomerIdentityDto identity) {
+        FieldChecker.checkEmpty(identity, "identity");
 
+        identity.setRealName(securityService.decryptData(identity.getRealName()));
+        identity.setIdCardNo(securityService.decryptData(identity.getIdCardNo()));
     }
 
     @Override
@@ -425,6 +432,30 @@ public class CustomerAuthorityServiceImpl implements CustomerAuthorityService {
             CustomerDto afterCustomer = customer.copy();
             afterCustomer.setAvailable(available);
              customerService.update(customer, afterCustomer);
+        }
+
+        return ApiResult.succ();
+    }
+
+    @Override
+    public ApiResult<NullObject> identifyPosUserInfo(IdentifyInfoDto identifyInfo) {
+        FieldChecker.checkEmpty(identifyInfo, "identifyInfo");
+        identifyInfo.check("identifyInfo");
+
+        CustomerPermissionDto permission = getPermission(identifyInfo.getUserId());
+        if (!identifyInfo.getUpdateKey().equals(permission.getUpdateTime())) {
+            return ApiResult.fail(AuthorityErrorCode.AUDIT_STATUS_ERROR_IDENTITY_DATED);
+        }
+        if (CustomerAuditStatus.NOT_SUBMIT.equals(permission.parseAuditStatus())) {
+            return ApiResult.fail(AuthorityErrorCode.AUDIT_STATUS_ERROR_NOU_SUBMIT_FOR_AUTHORIZE);
+        }
+        // FSM 状态机变更
+        AuditStatusTransferContext transferContext = identifyInfo.buildStatusTransferContext();
+        FSM fsm = AuthorityFSMFactory.newAuditInstance(permission.parseAuditStatus().toString(), transferContext);
+        if (identifyInfo.isAllowed()) {
+            fsm.processFSM("platAudited");
+        } else {
+            fsm.processFSM("platRejected");
         }
 
         return ApiResult.succ();

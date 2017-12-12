@@ -22,10 +22,11 @@ public interface PosCardService {
     /**
      * 获取用户绑定的收款银行卡
      *
-     * @param userId 用户id
+     * @param userId    用户id
+     * @param decrypted true：需要解密返回，false：不需要解密返回
      * @return 绑定的收款银行卡信息
      */
-    BindCardDto getWithdrawCard(Long userId);
+    BindCardDto getWithdrawCard(Long userId, boolean decrypted);
 
     /**
      * 获取用户绑定的收款银行卡，返回收款银行卡具体信息

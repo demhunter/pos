@@ -9,6 +9,7 @@ import com.pos.authority.domain.CustomerLevelConfig;
 import com.pos.authority.dto.CustomerEnumsDto;
 import com.pos.authority.dto.customer.CustomerIntegrateInfoDto;
 import com.pos.authority.dto.identity.CustomerIdentityDto;
+import com.pos.authority.dto.identity.IdentifyInfoDto;
 import com.pos.authority.dto.level.CustomerLevelConfigDto;
 import com.pos.authority.dto.level.CustomerUpgradeLevelDto;
 import com.pos.authority.dto.permission.CustomerPermissionBasicDto;
@@ -160,4 +161,12 @@ public interface CustomerAuthorityService {
      * @return 操作结果
      */
     ApiResult<NullObject> updateUserAvailable(Long userId, Boolean available, UserIdentifier operator);
+
+    /**
+     * 管理员审核用户身份认证信息
+     *
+     * @param identifyInfo 审核操作信息
+     * @return 审核操作结果
+     */
+    ApiResult<NullObject> identifyPosUserInfo(IdentifyInfoDto identifyInfo);
 }

@@ -78,7 +78,7 @@ public class AuthenticationController {
     @ApiOperation(value = "v2.0.0 * 获取绑定的收款卡信息，身份认证信息-2", notes = "获取绑定的收款卡信息，身份认证信息-2（PS：从未绑定过收款银行卡则返回空）")
     public ApiResult<BindCardDto> getBindCardInfo(
             @FromSession UserInfo userInfo) {
-        return ApiResult.succ(posCardService.getWithdrawCard(userInfo.getId()));
+        return ApiResult.succ(posCardService.getWithdrawCard(userInfo.getId(), false));
     }
 
     @RequestMapping(value = "bank-card", method = RequestMethod.POST)
