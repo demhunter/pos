@@ -13,6 +13,7 @@ import java.io.Serializable;
  */
 public class TransactionFailureRecord implements Serializable {
 
+    private static final long serialVersionUID = -7110518141485438288L;
     private Long id; // 自增主键id
 
     private Long transactionId; // 交易id

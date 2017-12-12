@@ -18,6 +18,7 @@ import java.util.List;
  */
 public class PopularizationDocumentDto implements Serializable {
 
+    private static final long serialVersionUID = -5090694475617474318L;
     @ApiModelProperty("自增主键id（更新时必传此参数）")
     private Long id;
 

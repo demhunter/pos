@@ -16,6 +16,7 @@ import java.io.Serializable;
  */
 public class BrandIdsDto implements Serializable {
 
+    private static final long serialVersionUID = 7363433470432271766L;
     /**
      * 品牌编号
      */

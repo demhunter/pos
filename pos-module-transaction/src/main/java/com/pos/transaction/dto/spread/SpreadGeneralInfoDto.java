@@ -17,6 +17,7 @@ import java.math.BigDecimal;
  */
 public class SpreadGeneralInfoDto implements Serializable {
 
+    private static final long serialVersionUID = -776095851516341328L;
     @ApiModelProperty("用户id")
     private Long userId;
 

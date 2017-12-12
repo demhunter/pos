@@ -15,6 +15,7 @@ import java.io.Serializable;
  */
 public class DevelopGeneralInfoVo implements Serializable {
 
+    private static final long serialVersionUID = 1441788049758802955L;
     @ApiModelProperty("累计发展人数")
     private Integer developCount;
 

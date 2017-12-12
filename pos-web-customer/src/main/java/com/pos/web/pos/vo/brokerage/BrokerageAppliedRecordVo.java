@@ -17,6 +17,7 @@ import java.util.Date;
  */
 public class BrokerageAppliedRecordVo implements Serializable {
 
+    private static final long serialVersionUID = -9181632892840933587L;
     @ApiModelProperty("id")
     private Long id;
 

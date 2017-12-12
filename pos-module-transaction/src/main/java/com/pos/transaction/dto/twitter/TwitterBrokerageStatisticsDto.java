@@ -16,6 +16,7 @@ import java.math.BigDecimal;
  */
 public class TwitterBrokerageStatisticsDto implements Serializable {
 
+    private static final long serialVersionUID = -8603980864602745856L;
     @ApiModelProperty("下级客户（或推客的userId）")
     private Long userId;
 

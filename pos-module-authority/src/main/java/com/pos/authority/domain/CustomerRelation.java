@@ -14,6 +14,7 @@ import java.util.Date;
  */
 public class CustomerRelation implements Serializable {
 
+    private static final long serialVersionUID = 7332936506235305609L;
     private Long id; // 自增主键id
 
     private Long userId; // 子用户id

@@ -13,6 +13,7 @@ import java.io.Serializable;
  */
 public class ManagerListCondition implements Serializable {
 
+    private static final long serialVersionUID = -4763833929329571196L;
     private Byte userDetailType; // 用户细分类型
 
     private String name; // 按员工姓名进行模糊搜索

@@ -15,27 +15,17 @@ import java.io.Serializable;
  */
 public class UserExtensionInfoDto implements Serializable {
 
-    /**
-     * 设备唯一码
-     */
+    private static final long serialVersionUID = -7575050227245414787L;
+
     @ApiModelProperty("设备唯一码")
     private String equipmentNo;
 
-    /**
-     * 机型
-     */
     @ApiModelProperty("机型")
     private String equipmentModel;
 
-    /**
-     * 操作系统版本信息
-     */
     @ApiModelProperty("操作系统版本信息")
     private String systemInfo;
 
-    /**
-     * 网络类型
-     */
     @ApiModelProperty("网络类型")
     private String netType;
 

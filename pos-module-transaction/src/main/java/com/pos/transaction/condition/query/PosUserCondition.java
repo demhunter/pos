@@ -17,7 +17,7 @@ import java.util.List;
  * @author wangbing
  * @version 1.0, 2017/8/25
  */
-public class PosUserCondition implements Serializable {
+public class PosUserCondition {
 
     @ApiModelProperty("自增id")
     private Long id;

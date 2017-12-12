@@ -15,6 +15,7 @@ import java.io.Serializable;
  */
 public class ServerInfoVo implements Serializable {
 
+    private static final long serialVersionUID = 333097626667588657L;
     @ApiModelProperty("当前版本号")
     private String currentVersion;
 

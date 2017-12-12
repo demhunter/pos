@@ -21,6 +21,7 @@ import java.util.Date;
  */
 public class PosUserIntegrateDto implements Serializable{
 
+    private static final long serialVersionUID = -6753840503202892871L;
     /***********************快捷收款用户权限信息***************************/
     @ApiModelProperty("自增id")
     private Long id;

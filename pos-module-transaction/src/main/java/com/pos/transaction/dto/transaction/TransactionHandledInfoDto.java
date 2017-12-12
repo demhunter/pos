@@ -21,6 +21,7 @@ import java.util.Date;
  */
 public class TransactionHandledInfoDto implements Serializable {
 
+    private static final long serialVersionUID = -8571274535606357068L;
     @ApiModelProperty("自增id")
     private Long id;
 

@@ -21,6 +21,7 @@ import java.util.Date;
  */
 public class PosUserAuthDto extends BaseAuthDto implements Serializable {
 
+    private static final long serialVersionUID = 6708300964062556288L;
     @ApiModelProperty("自增id")
     private Long id;
 

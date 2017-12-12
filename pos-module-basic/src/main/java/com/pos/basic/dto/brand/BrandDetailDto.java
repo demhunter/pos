@@ -17,6 +17,7 @@ import java.util.List;
  */
 public class BrandDetailDto implements Serializable {
 
+    private static final long serialVersionUID = -6477370138361905079L;
     /**
      * 一级品牌名
      */

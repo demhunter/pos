@@ -19,6 +19,7 @@ import java.util.List;
  */
 public class ArticleUnitDto implements Serializable {
 
+    private static final long serialVersionUID = -802917910076157308L;
     /**
      * 标题
      */

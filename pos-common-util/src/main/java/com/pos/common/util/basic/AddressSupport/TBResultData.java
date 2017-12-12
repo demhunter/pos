@@ -11,6 +11,7 @@ import java.io.Serializable;
  */
 public class TBResultData implements Serializable {
 
+    private static final long serialVersionUID = 4868138164315395604L;
     private Byte code; //数据请求是否成功
 
     private Object data;//ip解析数据

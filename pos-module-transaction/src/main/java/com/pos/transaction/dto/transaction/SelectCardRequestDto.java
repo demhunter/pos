@@ -17,6 +17,7 @@ import java.math.BigDecimal;
  */
 public class SelectCardRequestDto implements Serializable {
 
+    private static final long serialVersionUID = 5970918799889131734L;
     @ApiModelProperty("卡的ID")
     private Long id;
 

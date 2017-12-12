@@ -20,6 +20,7 @@ import java.math.BigDecimal;
  */
 public class LevelUpgradeDto implements Serializable {
 
+    private static final long serialVersionUID = 6314941923284682072L;
     @ApiModelProperty("晋升目标等级")
     private Integer targetLevel;
 

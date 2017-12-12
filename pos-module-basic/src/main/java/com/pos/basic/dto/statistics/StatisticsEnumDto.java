@@ -23,6 +23,7 @@ import java.util.stream.Stream;
  */
 public class StatisticsEnumDto implements Serializable {
 
+    private static final long serialVersionUID = 8948457177382542137L;
     /**
      * {@link PhoneSystemType}
      */

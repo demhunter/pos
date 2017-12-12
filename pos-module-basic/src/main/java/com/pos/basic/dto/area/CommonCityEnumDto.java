@@ -14,6 +14,7 @@ import java.io.Serializable;
  */
 public class CommonCityEnumDto implements Serializable {
 
+    private static final long serialVersionUID = 6639901937953449960L;
     @ApiModelProperty("编码（int）")
     private Long code;
 

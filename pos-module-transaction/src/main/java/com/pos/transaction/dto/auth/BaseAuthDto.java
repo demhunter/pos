@@ -18,6 +18,7 @@ import java.math.BigDecimal;
  */
 public class BaseAuthDto implements Serializable {
 
+    private static final long serialVersionUID = 7151955630766129494L;
     @ApiModelProperty("收款功能（1=未启用 2=启用 3==关闭）")
     private Integer get;
 

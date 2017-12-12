@@ -19,6 +19,7 @@ import java.io.Serializable;
  */
 public class CustomerIdentityDto implements Serializable {
 
+    private static final long serialVersionUID = 2524195574240350339L;
     @ApiModelProperty("真实姓名")
     private String realName;
 

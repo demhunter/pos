@@ -18,6 +18,7 @@ import java.util.Date;
  */
 public class PosUserAuditInfoDto implements Serializable {
 
+    private static final long serialVersionUID = 5512984425320651426L;
     @ApiModelProperty("用户身份信息")
     private PosUserIdentityDto identityInfo;
 

@@ -15,6 +15,7 @@ import java.util.Date;
  */
 public class CustomerStatistics implements Serializable {
 
+    private static final long serialVersionUID = 6639807665932319760L;
     private Long id; // 自增主键id
 
     private Long userId; // 用户id

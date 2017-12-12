@@ -16,6 +16,8 @@ import java.math.BigDecimal;
  */
 public class CardDetailInfoVo implements Serializable{
 
+    private static final long serialVersionUID = -1729659542433983025L;
+
     @ApiModelProperty("金额")
     private BigDecimal amount;
 

@@ -15,6 +15,7 @@ import java.io.Serializable;
  */
 public class DescendantLevelStatisticsVo implements Serializable {
 
+    private static final long serialVersionUID = -5085283403665572028L;
     @ApiModelProperty("等级")
     private Integer level;
 

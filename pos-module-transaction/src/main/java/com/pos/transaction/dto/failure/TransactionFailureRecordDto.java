@@ -15,6 +15,7 @@ import java.io.Serializable;
  */
 public class TransactionFailureRecordDto implements Serializable {
 
+    private static final long serialVersionUID = 7264110539689111282L;
     @ApiModelProperty("自增主键id")
     private Long id;
 

@@ -17,6 +17,7 @@ import java.util.Date;
  */
 public class StatisticsDailyVo implements Serializable {
 
+    private static final long serialVersionUID = 871949511813318121L;
     @ApiModelProperty("日期")
     private Date dateKey;
 

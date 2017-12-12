@@ -15,6 +15,7 @@ import java.io.Serializable;
  */
 public class UserUpdatePasswordVo implements Serializable {
 
+    private static final long serialVersionUID = 5025383242529628870L;
     @ApiModelProperty("旧密码")
     private String oldPassword;
 

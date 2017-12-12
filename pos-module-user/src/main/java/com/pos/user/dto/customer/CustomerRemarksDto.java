@@ -15,6 +15,7 @@ import java.io.Serializable;
  */
 public class CustomerRemarksDto implements Serializable {
 
+    private static final long serialVersionUID = -7401711348387105943L;
     @ApiModelProperty("客户ID")
     private Long customerId;
 

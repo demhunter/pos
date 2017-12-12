@@ -16,6 +16,7 @@ import java.math.BigDecimal;
  */
 public class LevelConfigVo implements Serializable {
 
+    private static final long serialVersionUID = -2100436081151395903L;
     @ApiModelProperty("等级")
     private Integer level;
 

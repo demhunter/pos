@@ -3,14 +3,17 @@
  */
 package com.pos.authority.fsm.context;
 
+import java.io.Serializable;
+
 /**
  * AuditStatusTransferContext，参见sm_pos_audit.xml
  *
  * @author wangbing
  * @version 1.0, 2017/10/17
  */
-public class AuditStatusTransferContext {
+public class AuditStatusTransferContext implements Serializable {
 
+    private static final long serialVersionUID = -7181779850373467544L;
     // user_pos_auth主键id
     private Long posAuthId;
 

@@ -21,6 +21,7 @@ import static com.pos.common.util.date.SimpleDateUtils.HourMinSecondFormat.TODAY
  */
 public class CustomerConsoleListCondition implements Serializable {
 
+    private static final long serialVersionUID = -8755984227100132019L;
     private List<Long> userIds;
 
     private Byte customerType;

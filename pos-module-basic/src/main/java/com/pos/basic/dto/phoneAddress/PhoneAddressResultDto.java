@@ -13,6 +13,7 @@ import java.io.Serializable;
  */
 public class PhoneAddressResultDto implements Serializable {
 
+    private static final long serialVersionUID = -2992643063201929985L;
     private Integer showapi_res_code; // 返回码，0为成功，其他失败。失败时不扣点数
 
     private String showapi_res_error; // 错误信息

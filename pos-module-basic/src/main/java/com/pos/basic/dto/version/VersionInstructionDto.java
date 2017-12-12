@@ -16,6 +16,7 @@ import java.util.Date;
  */
 public class VersionInstructionDto implements Serializable {
 
+    private static final long serialVersionUID = 4499608623026553391L;
     @ApiModelProperty("自增主键id（做更新操作时，必传此字段）")
     private Long id;
 

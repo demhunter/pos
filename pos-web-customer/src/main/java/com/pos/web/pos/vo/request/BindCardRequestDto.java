@@ -11,6 +11,7 @@ import java.io.Serializable;
  */
 public class BindCardRequestDto implements Serializable {
 
+    private static final long serialVersionUID = 6546700650829298285L;
     private String cardNO;
 
     private String name;

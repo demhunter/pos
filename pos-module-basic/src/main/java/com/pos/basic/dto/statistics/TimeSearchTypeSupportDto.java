@@ -23,6 +23,7 @@ import java.util.Date;
  */
 public class TimeSearchTypeSupportDto implements Serializable {
 
+    private static final long serialVersionUID = 7100245929195962982L;
     @ApiModelProperty("开始时间(Date)")
     private Date beginTime;
 

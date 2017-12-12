@@ -11,6 +11,7 @@ import java.io.Serializable;
  */
 public class SinaData implements Serializable {
 
+    private static final long serialVersionUID = 3046855902224000931L;
     private Byte ret;//请求是否成功
 
     private String start;//ip起始区间

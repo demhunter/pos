@@ -17,6 +17,7 @@ import java.util.Map;
  */
 public class StatisticsGeneralVo implements Serializable {
 
+    private static final long serialVersionUID = -3366366138822791103L;
     @ApiModelProperty("注册用户数")
     private Long customerCount;
 

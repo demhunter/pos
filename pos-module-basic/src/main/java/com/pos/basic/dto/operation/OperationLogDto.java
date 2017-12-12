@@ -16,6 +16,7 @@ import java.util.Date;
  */
 public class OperationLogDto implements Serializable {
 
+    private static final long serialVersionUID = -381869435165397773L;
     @ApiModelProperty("操作uuid")
     private String uuid;
 

@@ -16,6 +16,7 @@ import java.math.BigDecimal;
  */
 public class PosUserChannelDto extends PosUserSimpleChannelDto implements Serializable {
 
+    private static final long serialVersionUID = 3951175246696162890L;
     @ApiModelProperty("累计已提现金额")
     private BigDecimal totalWithdrawDeposit;
 

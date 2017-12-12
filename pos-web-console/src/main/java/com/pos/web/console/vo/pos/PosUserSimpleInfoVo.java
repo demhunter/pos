@@ -18,6 +18,7 @@ import java.util.Date;
  */
 public class PosUserSimpleInfoVo implements Serializable {
 
+    private static final long serialVersionUID = 7106160506043998247L;
     @ApiModelProperty("自增id")
     private Long id;
 

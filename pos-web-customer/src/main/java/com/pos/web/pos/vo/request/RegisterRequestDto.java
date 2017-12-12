@@ -13,6 +13,7 @@ import java.io.Serializable;
  */
 public class RegisterRequestDto implements Serializable {
 
+    private static final long serialVersionUID = -4660480413685948476L;
     @ApiModelProperty("手机号")
     private String phone;
 

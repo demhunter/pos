@@ -16,6 +16,7 @@ import java.io.Serializable;
  */
 public class UserRegConfirmDto implements Serializable {
 
+    private static final long serialVersionUID = -3429136510291785558L;
     /**
      * 是否需要用户确认开通角色
      */

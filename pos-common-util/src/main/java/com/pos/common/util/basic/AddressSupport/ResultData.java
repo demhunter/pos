@@ -11,6 +11,7 @@ import java.io.Serializable;
  */
 public class ResultData implements Serializable {
 
+    private static final long serialVersionUID = -3111325452151347413L;
     private String country;//国家
 
     private String country_id; //国家ID

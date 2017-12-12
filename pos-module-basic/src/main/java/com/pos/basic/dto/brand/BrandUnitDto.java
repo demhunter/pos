@@ -18,6 +18,7 @@ import java.io.Serializable;
 @ApiModel
 public class BrandUnitDto implements Serializable {
 
+    private static final long serialVersionUID = 6304270747689134561L;
     @ApiModelProperty("品牌编号")
     private Long id;
 

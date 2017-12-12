@@ -13,6 +13,7 @@ import java.io.Serializable;
  */
 public class UpdateRemarkDto implements Serializable {
 
+    private static final long serialVersionUID = -1044801293703709241L;
     @ApiModelProperty("渠道商用户ID")
     private long channelUserId;
 

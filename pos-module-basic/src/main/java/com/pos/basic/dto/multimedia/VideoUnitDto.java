@@ -18,6 +18,7 @@ import java.io.Serializable;
  */
 public class VideoUnitDto implements Serializable {
 
+    private static final long serialVersionUID = 8628153980504653519L;
     /**
      * 视频时长
      */

@@ -16,6 +16,7 @@ import java.util.Date;
  */
 public class ChildInfoVo implements Serializable {
 
+    private static final long serialVersionUID = 3146725497200520714L;
     @ApiModelProperty("下级用户id")
     private Long userId;
 

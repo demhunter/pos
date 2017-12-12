@@ -16,6 +16,7 @@ import java.io.Serializable;
  */
 public class BrandSimpleDto implements Serializable {
 
+    private static final long serialVersionUID = -2249514816520721010L;
     /**
      * 品牌logo（url）
      */

@@ -16,6 +16,7 @@ import java.math.BigDecimal;
  */
 public class CustomerLevelInfoVo implements Serializable {
 
+    private static final long serialVersionUID = 3607357503861104302L;
     @ApiModelProperty("用户id")
     private Long userId;
 

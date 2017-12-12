@@ -12,6 +12,7 @@ import java.util.List;
  */
 public class CaseMaterialDto implements Serializable {
 
+    private static final long serialVersionUID = 4985857559297666317L;
     /**
      * 标题id（用于枚举时）(int)
      */

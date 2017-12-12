@@ -24,6 +24,7 @@ import java.math.BigDecimal;
  */
 public class GetMoneyDto implements Serializable, Copyable {
 
+    private static final long serialVersionUID = -3338699869297851272L;
     @ApiModelProperty("金额（BigDecimal, 下单金额）")
     private BigDecimal amount;
 

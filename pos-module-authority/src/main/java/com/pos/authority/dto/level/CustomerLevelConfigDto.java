@@ -20,6 +20,7 @@ public class CustomerLevelConfigDto implements Serializable, Comparable<Customer
 
     // 计算分润佣金的基础金额
     private final static BigDecimal BASIC_POS_AMOUNT = new BigDecimal("10000000.00");
+    private static final long serialVersionUID = 2958430855483946490L;
 
     @ApiModelProperty("等级")
     private Integer level;

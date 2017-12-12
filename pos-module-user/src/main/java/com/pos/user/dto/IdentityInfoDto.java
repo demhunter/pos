@@ -15,6 +15,7 @@ import java.io.Serializable;
  */
 public class IdentityInfoDto implements Serializable {
 
+    private static final long serialVersionUID = -4060540489670114623L;
     /**
      * 用户登录或注册用户名
      */

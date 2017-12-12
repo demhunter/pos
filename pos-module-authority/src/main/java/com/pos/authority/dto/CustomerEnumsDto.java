@@ -20,6 +20,7 @@ import java.util.stream.Stream;
  */
 public class CustomerEnumsDto implements Serializable {
 
+    private static final long serialVersionUID = 5697044967211519796L;
     @ApiModelProperty("身份认证审核状态枚举")
     private List<CommonEnumDto> auditStatusTypes;
 

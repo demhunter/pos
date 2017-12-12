@@ -15,6 +15,7 @@ import java.io.Serializable;
  */
 public class PosWeChatMediaDto implements Serializable {
 
+    private static final long serialVersionUID = -4273368495122132944L;
     private String errcode; // 错误码
 
     private String errmsg; // 错误信息

@@ -17,6 +17,7 @@ import java.util.Date;
  */
 public class ServiceContentDto implements Serializable {
 
+    private static final long serialVersionUID = -3365113377246983075L;
     @ApiModelProperty(value = "ID")
     private Long id;
 

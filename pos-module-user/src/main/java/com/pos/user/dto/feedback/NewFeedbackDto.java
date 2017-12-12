@@ -21,6 +21,7 @@ import java.util.List;
 @ApiModel
 public class NewFeedbackDto implements Serializable {
 
+    private static final long serialVersionUID = 1352868435723013146L;
     @ApiModelProperty("设备唯一ID")
     private String deviceId;
 

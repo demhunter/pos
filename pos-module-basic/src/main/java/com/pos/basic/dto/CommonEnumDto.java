@@ -16,6 +16,7 @@ import java.io.Serializable;
  */
 public class CommonEnumDto implements Serializable {
 
+    private static final long serialVersionUID = -6742491189670719708L;
     @ApiModelProperty("编码（int）")
     private Byte code;
 

@@ -18,6 +18,7 @@ import java.util.Date;
  */
 public class IdentifyInfoDto implements Serializable {
 
+    private static final long serialVersionUID = -6211315242671389153L;
     private Long userId; // 被审核用户id
 
     private boolean allowed; // 审核结果：true = 通过审核，false = 不通过审核

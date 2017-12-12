@@ -13,6 +13,7 @@ import java.io.Serializable;
  */
 public class GetMoneyRequestDto implements Serializable {
 
+    private static final long serialVersionUID = 5133507563510412620L;
     @ApiModelProperty("金额")
     private String amount;
 

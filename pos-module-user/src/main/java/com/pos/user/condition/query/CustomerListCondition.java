@@ -11,6 +11,7 @@ import java.io.Serializable;
  */
 public class CustomerListCondition implements Serializable {
 
+    private static final long serialVersionUID = 440451379955644866L;
     private Long companyId;
 
     private String queryKey;

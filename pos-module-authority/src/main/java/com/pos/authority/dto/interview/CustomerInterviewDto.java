@@ -16,6 +16,7 @@ import java.util.Date;
  */
 public class CustomerInterviewDto implements Serializable {
 
+    private static final long serialVersionUID = -4238908908471502284L;
     @ApiModelProperty("自增主键id")
     private Long id;
 

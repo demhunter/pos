@@ -13,6 +13,7 @@ import java.util.List;
  */
 public class BaiDuData implements Serializable {
 
+    private static final long serialVersionUID = 9033582441630503457L;
     private Byte status;//状态
 
     private Long t;//时间戳

@@ -13,6 +13,7 @@ import java.io.Serializable;
  */
 public class QiNiuTokenVo implements Serializable {
 
+    private static final long serialVersionUID = -6641479219038128309L;
     private String uptoken;
 
     public String getUptoken() {

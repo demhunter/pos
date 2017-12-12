@@ -20,6 +20,7 @@ import java.util.Date;
  */
 public class TransactionRecordDto implements Serializable {
 
+    private static final long serialVersionUID = -6616545448577001557L;
     @ApiModelProperty("交易记录自增id")
     private Long id;
 

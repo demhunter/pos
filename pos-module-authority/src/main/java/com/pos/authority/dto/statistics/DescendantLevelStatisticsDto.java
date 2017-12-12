@@ -15,6 +15,7 @@ import java.io.Serializable;
  */
 public class DescendantLevelStatisticsDto implements Serializable, Comparable<DescendantLevelStatisticsDto> {
 
+    private static final long serialVersionUID = -5764358829041058906L;
     @ApiModelProperty("等级")
     private Integer level;
 

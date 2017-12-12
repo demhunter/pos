@@ -14,6 +14,7 @@ import java.util.Date;
  */
 public class PopularizationDocument implements Serializable {
 
+    private static final long serialVersionUID = 2440364287870340460L;
     private Long id; // 自增主键id
 
     private String document;  // 推广文本

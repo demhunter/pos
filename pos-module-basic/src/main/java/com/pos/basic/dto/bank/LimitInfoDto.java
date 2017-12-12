@@ -17,6 +17,7 @@ import java.math.BigDecimal;
  */
 public class LimitInfoDto implements Serializable {
 
+    private static final long serialVersionUID = 3047552396452356746L;
     /**
      * 单笔限额
      */

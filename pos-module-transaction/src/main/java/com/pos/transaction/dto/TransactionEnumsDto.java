@@ -22,6 +22,7 @@ import java.util.stream.Stream;
  */
 public class TransactionEnumsDto implements Serializable {
 
+    private static final long serialVersionUID = 7103177362147899525L;
     @ApiModelProperty("快捷收款打款方式枚举")
     private List<CommonEnumDto> payToolTypes;
 

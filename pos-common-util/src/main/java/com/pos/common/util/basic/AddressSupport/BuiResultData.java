@@ -13,6 +13,7 @@ import java.io.Serializable;
  */
 public class BuiResultData implements Serializable {
 
+    private static final long serialVersionUID = -5292845460738409343L;
     private String location;//地址
 
     private String titlecont;//查询方式

@@ -16,6 +16,7 @@ import java.math.BigDecimal;
  */
 public class QuickGetMoneyDto implements Serializable {
 
+    private static final long serialVersionUID = 3172514225463876695L;
     @ApiModelProperty("手续费率（BigDecimal，具体数值如0.0058，返给前端是百分化的数值）")
     private BigDecimal poundageRate;
 

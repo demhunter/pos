@@ -19,6 +19,7 @@ import java.util.List;
  */
 public class PicUnitDto implements Serializable {
 
+    private static final long serialVersionUID = 780527641747519903L;
     /**
      * 标题id（用于枚举时）(int)
      */

@@ -16,6 +16,7 @@ import java.math.BigDecimal;
  */
 public class BrokerageGeneralInfoDto implements Serializable {
 
+    private static final long serialVersionUID = 2622089332602403639L;
     @ApiModelProperty("可提现余额（BigDecimal）")
     private BigDecimal canApplyBrokerage;
 

@@ -16,6 +16,7 @@ import java.util.List;
  */
 public class DescendantStatisticsVo implements Serializable {
 
+    private static final long serialVersionUID = 7673420372481200980L;
     @ApiModelProperty("下级总数")
     private Integer totalDescendantCount;
 

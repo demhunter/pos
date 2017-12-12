@@ -21,6 +21,7 @@ import java.util.Date;
  */
 public class PosUserGetBrokerageRecordDto implements Serializable {
 
+    private static final long serialVersionUID = 5089369775305451416L;
     @ApiModelProperty("记录自增id（新增提现申请处理时，不填此字段）")
     private Long id;
 

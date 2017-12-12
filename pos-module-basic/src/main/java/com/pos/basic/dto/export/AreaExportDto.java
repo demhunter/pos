@@ -15,6 +15,7 @@ import java.io.Serializable;
  */
 public class AreaExportDto implements Serializable {
 
+    private static final long serialVersionUID = -5578533783080935969L;
     private Long id;
 
     private String name;

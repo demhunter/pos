@@ -16,6 +16,7 @@ import java.math.BigDecimal;
  */
 public class CreateOrderDto implements Serializable{
 
+    private static final long serialVersionUID = -7963797684437564688L;
     @ApiModelProperty("金额(BigDecimal，下单金额)")
     private BigDecimal amount;
 

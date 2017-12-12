@@ -23,6 +23,7 @@ import java.util.List;
 @ApiModel
 public class UserFeedbackDto implements Serializable {
 
+    private static final long serialVersionUID = -5627866382872422016L;
     @ApiModelProperty("反馈意见编号")
     private Long id;
 

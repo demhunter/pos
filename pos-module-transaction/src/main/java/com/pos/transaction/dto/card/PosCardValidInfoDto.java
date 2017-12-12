@@ -13,6 +13,8 @@ import java.io.Serializable;
  */
 public class PosCardValidInfoDto implements Serializable {
 
+    private static final long serialVersionUID = -5077933435804626554L;
+
     private String cvv2;
 
     private String validYear;//有效年

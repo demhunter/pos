@@ -17,6 +17,7 @@ import java.util.Date;
  */
 public class BrokerageDailyStatisticsDto implements Serializable {
 
+    private static final long serialVersionUID = 1151499505026543976L;
     @ApiModelProperty("日期(date)")
     private Date dateKey;
 

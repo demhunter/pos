@@ -16,6 +16,7 @@ import java.util.List;
  */
 public class CityExportDto implements Serializable {
 
+    private static final long serialVersionUID = -8606679537890790906L;
     private Long id;
 
     private String name;

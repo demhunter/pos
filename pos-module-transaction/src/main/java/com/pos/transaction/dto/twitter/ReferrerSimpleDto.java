@@ -15,6 +15,7 @@ import java.io.Serializable;
  */
 public class ReferrerSimpleDto implements Serializable {
 
+    private static final long serialVersionUID = -5717034652275822001L;
     @ApiModelProperty("推荐人UserId")
     private Long userId;
 

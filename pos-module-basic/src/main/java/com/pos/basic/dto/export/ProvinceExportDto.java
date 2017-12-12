@@ -16,6 +16,7 @@ import java.util.List;
  */
 public class ProvinceExportDto implements Serializable {
 
+    private static final long serialVersionUID = 2190404013743723027L;
     private Long id;
 
     private String name;

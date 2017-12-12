@@ -16,6 +16,7 @@ import java.math.BigDecimal;
  */
 public class PosUserChildChannelDto extends PosUserSimpleChannelDto implements Serializable {
 
+    private static final long serialVersionUID = 3005482682225160934L;
     @ApiModelProperty("备注")
     private String channelRemark;
 

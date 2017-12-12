@@ -21,6 +21,7 @@ import java.util.Date;
  */
 public class PosUserAuthDetailDto extends PosUserAuthDto implements Serializable {
 
+    private static final long serialVersionUID = 5101871378316232847L;
     @ApiModelProperty("银行卡号")
     private String bankCardNO;
 

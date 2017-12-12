@@ -17,6 +17,7 @@ import java.util.Map;
  */
 public class BrandCollectionDto implements Serializable {
 
+    private static final long serialVersionUID = 4462533936985659499L;
     @ApiModelProperty("品牌类型编号")
     private Integer id;
 

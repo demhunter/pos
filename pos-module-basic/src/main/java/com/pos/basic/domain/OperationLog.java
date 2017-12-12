@@ -18,6 +18,7 @@ public class OperationLog implements Serializable {
 
     private static final String CUSTOMER_TYPE = "c";
     private static final String MANAGER_TYPE = "m";
+    private static final long serialVersionUID = 4185711279173710191L;
 
     private String uuid; // 操作uuid
 

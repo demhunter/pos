@@ -15,6 +15,7 @@ import java.io.Serializable;
  */
 public class LoginRequestDto implements Serializable {
 
+    private static final long serialVersionUID = -7918839686436084148L;
     @ApiModelProperty("手机号")
     private String phone;
 

@@ -18,6 +18,7 @@ import java.util.Map;
  */
 public class CustomerRelationTree implements Serializable {
 
+    private static final long serialVersionUID = 8216572303405649715L;
     @ApiModelProperty("用户id")
     private Long userId;
 

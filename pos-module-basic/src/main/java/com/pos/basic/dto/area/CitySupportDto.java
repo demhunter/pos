@@ -15,6 +15,7 @@ import java.io.Serializable;
  */
 public class CitySupportDto implements Serializable {
 
+    private static final long serialVersionUID = 1948580808436926317L;
     @ApiModelProperty("城市id")
     private Long id;
 

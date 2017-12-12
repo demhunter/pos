@@ -15,6 +15,7 @@ import java.util.Date;
  */
 public class TransactionCustomerBrokerage implements Serializable {
 
+    private static final long serialVersionUID = -5865043392389931415L;
     private Long id; // 自增主键id
 
     private Long transactionId; // 交易id
