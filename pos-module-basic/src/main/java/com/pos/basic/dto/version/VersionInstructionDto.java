@@ -3,6 +3,7 @@
  */
 package com.pos.basic.dto.version;
 
+import com.pos.common.util.validation.FieldChecker;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 
 import java.io.Serializable;
@@ -40,6 +41,14 @@ public class VersionInstructionDto implements Serializable {
 
     @ApiModelProperty("创建时间")
     private Date createTime;
+
+    /**
+     * 新增或更新时必填字段校验
+     */
+    public void check() {
+        FieldChecker.checkEmpty(version, "version");
+        FieldChecker.checkMinMaxLength(instruction, 1, 200, "instruction");
+    }
 
     public Long getId() {
         return id;

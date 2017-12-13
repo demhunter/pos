@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.basic.dao.AppVersionConfigDao">
+
+    <select id="getConfig" resultType="com.pos.basic.domain.AppVersionConfig" >
+        SELECT
+        <include refid="allColumns" />
+        FROM app_version_config
+        LIMIT 0, 1
+    </select>
+
+    <sql id="allColumns">
+        `id` as `id`,
+        current_version as currentVersion,
+        min_version as minVersion,
+        current_url as currentUrl,
+        latest_url as latestUrl,
+        latest_android_url as latestAndroidUrl,
+        latest_android_md5 as latestAndroidMd5
+    </sql>
+
+</mapper>

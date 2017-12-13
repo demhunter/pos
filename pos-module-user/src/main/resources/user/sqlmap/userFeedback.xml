@@ -9,7 +9,7 @@
         user_feedback (user_id, device_id, device_os, device_model, app_type, app_version, content, images, create_time)
         VALUES
         (#{uf.userId}, #{uf.deviceId}, #{uf.deviceOS}, #{uf.deviceModel},
-        #{uf.appType}, #{uf.appVersion}, #{uf.content}, #{uf.images}, #{uf.createTime});
+        #{uf.appType}, #{uf.appVersionConfig}, #{uf.content}, #{uf.images}, #{uf.createTime});
     </insert>
 
     <select id="getTotal" resultType="int">
@@ -33,7 +33,7 @@
         uf.device_os as deviceOS,
         uf.device_model as deviceModel,
         uf.app_type as appType,
-        uf.app_version as appVersion,
+        uf.app_version as appVersionConfig,
         uf.content as content,
         uf.images as imagesStr,
         uf.create_time as createTime,

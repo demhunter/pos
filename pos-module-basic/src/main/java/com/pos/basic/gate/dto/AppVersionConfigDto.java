@@ -3,6 +3,7 @@
  */
 package com.pos.basic.gate.dto;
 
+import com.pos.basic.dto.version.VersionDto;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 import com.pos.common.util.basic.PrintableBeanUtils;
 
@@ -12,35 +13,26 @@ import java.io.Serializable;
  * APP版本配置的DTO.
  *
  * @author wayne
- * @version 1.0, 2016/8/16
+ * @version 2.0, 2016/12/13
  */
-public class AppVersionDto implements Serializable {
+public class AppVersionConfigDto implements Serializable {
 
     private static final long serialVersionUID = -2052642969341733705L;
 
     @ApiModelProperty("配置编号")
     private Long id;
 
-    @ApiModelProperty("APP类型：c = 客户端app，e = 业者端app")
-    private String appType;
-
     @ApiModelProperty("当前生产环境运行的版本号")
-    private String curVersion;
+    private String currentVersion;
 
     @ApiModelProperty("支持的最小版本号，低于该版本号必须升级APP")
     private String minVersion;
 
     @ApiModelProperty("当前生产环境的访问地址")
-    private String curUrl;
+    private String currentUrl;
 
     @ApiModelProperty("最新版本的访问地址（一般情况下，该值不为空，表示有新版本处于审核/测试中）")
     private String latestUrl;
-
-    @ApiModelProperty("当前生产环境连接第三方IM平台的Key")
-    private String curImKey;
-
-    @ApiModelProperty("最新版本连接第三方IM平台的Key（值说明同latestUrl）")
-    private String latestImKey;
 
     @ApiModelProperty("最新版本的官方下载地址（安卓）")
     private String latestAndroidUrl;
@@ -48,31 +40,27 @@ public class AppVersionDto implements Serializable {
     @ApiModelProperty("最新版本的官方下载文件的MD5（安卓）")
     private String latestAndroidMd5;
 
-    @ApiModelProperty("当前生产环境的WEB访问地址,H5使用")
-    private String webUrl;
+    /**
+     * 解析当前版本号
+     *
+     * @return 当前版本号
+     */
+    public VersionDto parseCurrentVersion() {
+        return VersionDto.parse(currentVersion);
+    }
 
-    @ApiModelProperty("当前预发布环境的WEB访问地址，H5使用，测试用")
-    private String prewebUrl;
+    /**
+     * 解析最小版本号
+     *
+     * @return 最小版本号
+     */
+    public VersionDto parseMinVersion() {
+        return VersionDto.parse(minVersion);
+    }
 
     @Override
     public String toString() {
         return PrintableBeanUtils.toString(this);
-    }
-
-    public String getPrewebUrl() {
-        return prewebUrl;
-    }
-
-    public void setPrewebUrl(String prewebUrl) {
-        this.prewebUrl = prewebUrl;
-    }
-
-    public String getWebUrl() {
-        return webUrl;
-    }
-
-    public void setWebUrl(String webUrl) {
-        this.webUrl = webUrl;
     }
 
     public Long getId() {
@@ -83,20 +71,12 @@ public class AppVersionDto implements Serializable {
         this.id = id;
     }
 
-    public String getAppType() {
-        return appType;
+    public String getCurrentVersion() {
+        return currentVersion;
     }
 
-    public void setAppType(String appType) {
-        this.appType = appType;
-    }
-
-    public String getCurVersion() {
-        return curVersion;
-    }
-
-    public void setCurVersion(String curVersion) {
-        this.curVersion = curVersion;
+    public void setCurrentVersion(String currentVersion) {
+        this.currentVersion = currentVersion;
     }
 
     public String getMinVersion() {
@@ -107,12 +87,12 @@ public class AppVersionDto implements Serializable {
         this.minVersion = minVersion;
     }
 
-    public String getCurUrl() {
-        return curUrl;
+    public String getCurrentUrl() {
+        return currentUrl;
     }
 
-    public void setCurUrl(String curUrl) {
-        this.curUrl = curUrl;
+    public void setCurrentUrl(String currentUrl) {
+        this.currentUrl = currentUrl;
     }
 
     public String getLatestUrl() {
@@ -121,22 +101,6 @@ public class AppVersionDto implements Serializable {
 
     public void setLatestUrl(String latestUrl) {
         this.latestUrl = latestUrl;
-    }
-
-    public String getCurImKey() {
-        return curImKey;
-    }
-
-    public void setCurImKey(String curImKey) {
-        this.curImKey = curImKey;
-    }
-
-    public String getLatestImKey() {
-        return latestImKey;
-    }
-
-    public void setLatestImKey(String latestImKey) {
-        this.latestImKey = latestImKey;
     }
 
     public String getLatestAndroidUrl() {

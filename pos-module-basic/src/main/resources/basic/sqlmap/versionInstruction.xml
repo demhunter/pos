@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.basic.dao.VersionInstructionDao">
+
+    <select id="findByVersion" resultType="com.pos.basic.domain.VersionInstruction">
+        SELECT
+        <include refid="instructionColumns"/>
+        FROM version_instruction
+        WHERE version = #{version}
+    </select>
+
+    <select id="findById" resultType="com.pos.basic.domain.VersionInstruction">
+        SELECT
+        <include refid="instructionColumns"/>
+        FROM version_instruction
+        WHERE `id` = #{instructionId}
+    </select>
+
+    <insert id="save" parameterType="com.pos.basic.domain.VersionInstruction">
+        INSERT INTO version_instruction
+        (
+            version,
+            instruction,
+            available,
+            create_user_id AS createUserId,
+            create_time AS createTime
+        ) VALUE
+        (
+            #{instruction.version},
+            #{instruction.instruction},
+            #{instruction.available},
+            #{instruction.createUserId},
+            NOW()
+        )
+    </insert>
+
+    <update id="update" parameterType="com.pos.basic.domain.VersionInstruction">
+        UPDATE version_instruction
+        SET version = #{instruction.version},
+        instruction = #{instruction.instruction},
+        update_user_id = #{instruction.updateUserId},
+        update_time = NOW()
+        WHERE `id` = #{instruction.id}
+    </update>
+
+    <update id="updateAvailable">
+        UPDATE version_instruction
+        SET available = #{available}
+        update_user_id = #{updateUserId},
+        update_time = NOW()
+        WHERE `id` = #{instructionId}
+    </update>
+
+    <select id="queryCount" resultType="int">
+        SELECT COUNT(*)
+        FROM version_instruction
+        <if test="available != null">
+            WHERE available = #{available}
+        </if>
+    </select>
+
+    <select id="queryInstructions" resultType="com.pos.basic.domain.VersionInstruction">
+        SELECT
+        <include refid="instructionColumns"/>
+        FROM version_instruction
+        <if test="available != null">
+            WHERE available = #{available}
+        </if>
+        ORDER BY create_time DESC
+        LIMIT #{limitHelper.offset}, #{limitHelper.pageSize}
+    </select>
+
+    <sql id="instructionColumns">
+        `id`,
+        version,
+        instruction,
+        available,
+        update_user_id AS updateUserId,
+        update_time AS updateTime,
+        create_user_id AS createUserId,
+        create_time AS createTime
+    </sql>
+</mapper>

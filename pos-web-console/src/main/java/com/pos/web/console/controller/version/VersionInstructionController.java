@@ -4,8 +4,11 @@
 package com.pos.web.console.controller.version;
 
 import com.pos.basic.dto.version.VersionInstructionDto;
+import com.pos.basic.exception.BasicErrorCode;
+import com.pos.basic.service.VersionInstructionService;
 import com.pos.common.util.mvc.resolver.FromSession;
 import com.pos.common.util.mvc.support.ApiResult;
+import com.pos.common.util.mvc.support.LimitHelper;
 import com.pos.common.util.mvc.support.NullObject;
 import com.pos.common.util.mvc.support.Pagination;
 import com.pos.user.session.UserInfo;
@@ -13,6 +16,8 @@ import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
 
 /**
  * 版本更新说明相关接口
@@ -25,6 +30,9 @@ import org.springframework.web.bind.annotation.*;
 @Api(value = "/version", description = "v2.0.0 * 版本更新说明相关接口")
 public class VersionInstructionController {
 
+    @Resource
+    private VersionInstructionService versionInstructionService;
+
     @RequestMapping(value = "", method = RequestMethod.GET)
     @ApiOperation(value = "v2.0.0 * 获取版本更新说明列表", notes = "获取版本更新说明列表")
     public ApiResult<Pagination<VersionInstructionDto>> getVersionInstructions(
@@ -32,16 +40,19 @@ public class VersionInstructionController {
             @RequestParam("pageNum") int pageNum,
             @ApiParam(name = "pageSize", value = "每页显示的记录数量")
             @RequestParam("pageSize") int pageSize) {
-        return null;
+        return versionInstructionService.queryInstructions(null, LimitHelper.create(pageNum, pageSize));
     }
 
     @RequestMapping(value = "{versionId}", method =RequestMethod.GET)
     @ApiOperation(value = "v2.0.0 * 获取指定版本更新说明", notes = "获取指定版本更新说明")
     public ApiResult<VersionInstructionDto> getVersionInstruction(
             @ApiParam(name = "versionId", value = "版本更新说明id")
-            @PathVariable("versionId") Long versionId,
-            @FromSession UserInfo userInfo) {
-        return null;
+            @PathVariable("versionId") Long versionId) {
+        VersionInstructionDto instruction = versionInstructionService.findInstruction(versionId);
+        if (instruction == null) {
+            return ApiResult.fail(BasicErrorCode.VERSION_INSTRUCTION_ERROR_NOT_EXISTED);
+        }
+        return ApiResult.succ(instruction);
     }
 
     @RequestMapping(value = "", method = RequestMethod.POST)
@@ -50,7 +61,7 @@ public class VersionInstructionController {
             @ApiParam(name = "instruction", value = "版本更新说明内容")
             @RequestBody VersionInstructionDto instruction,
             @FromSession UserInfo userInfo) {
-        return null;
+        return versionInstructionService.saveOrUpdateInstruction(instruction, userInfo.buildUserIdentifier());
     }
 
     @RequestMapping(value = "{versionId}/available", method =RequestMethod.POST)
@@ -61,6 +72,6 @@ public class VersionInstructionController {
             @ApiParam(name = "available", value = "true：启用；false：禁用")
             @RequestParam("available") Boolean available,
             @FromSession UserInfo userInfo) {
-        return null;
+        return versionInstructionService.updateAvailable(versionId, available, userInfo.buildUserIdentifier());
     }
 }

@@ -20,7 +20,13 @@ public enum BasicErrorCode implements ErrorCode {
 
     QINIU_UPLOAD_IMAGE_ERROR(104, "图片上传失败"),
 
-    POPULARIZATION_DOCUMENT_NOT_EXISTED(110, "推广文案不存在");
+    POPULARIZATION_DOCUMENT_NOT_EXISTED(110, "推广文案不存在"),
+
+    VERSION_INSTRUCTION_ERROR_DUPLICATE_VERSION(120, "版本介绍已存在"),
+
+    VERSION_INSTRUCTION_ERROR_NOT_EXISTED(121, "版本介绍不存在"),
+
+    VERSION_CONFIG_ERROR_NOT_EXISTED(131, "服务器尚未添加APP版本控制信息");
 
     private final int code;
 

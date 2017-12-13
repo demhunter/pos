@@ -3,7 +3,7 @@
  */
 package com.pos.basic.dao;
 
-import com.pos.basic.domain.AppVersion;
+import com.pos.basic.domain.AppVersionConfig;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -13,8 +13,7 @@ import org.springframework.stereotype.Repository;
  * @version 1.0, 2016/8/16
  */
 @Repository
-public interface AppVersionDao {
+public interface AppVersionConfigDao {
 
-    AppVersion findByAppType(String appType);
-
+    AppVersionConfig getConfig();
 }
