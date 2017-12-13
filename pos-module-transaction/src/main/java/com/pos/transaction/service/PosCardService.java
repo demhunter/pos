@@ -37,6 +37,14 @@ public interface PosCardService {
     ApiResult<PosCardDto> findWithdrawCard(Long userId);
 
     /**
+     * 查询用户是否可以更换结算银行卡
+     *
+     * @param userId 用户id
+     * @return 是否可以更换
+     */
+    ApiResult<NullObject> querySettlementCanAlter(Long userId);
+
+    /**
      * 绑定收款银行卡
      *
      * @param userId       用户userId

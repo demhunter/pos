@@ -59,6 +59,13 @@ public class BankCardController {
         return posCardService.findWithdrawCard(userInfo.getId());
     }
 
+    @RequestMapping(value = "settlement/can-alter", method = RequestMethod.GET)
+    @ApiOperation(value = "v2.0.0 * 当前结算银行卡是否可以更换", notes = "当前结算银行卡是否可以更换")
+    public ApiResult<NullObject> querySettlementCanAlter(
+            @FromSession UserInfo userInfo) {
+        return posCardService.querySettlementCanAlter(userInfo.getId());
+    }
+
     @RequestMapping(value = "settlement", method = RequestMethod.POST)
     @ApiOperation(value = "v2.0.0 * 更换当前绑定的结算银行卡", notes = "更换当前绑定的结算银行卡")
     public ApiResult<NullObject> updateSettlementBankCard(

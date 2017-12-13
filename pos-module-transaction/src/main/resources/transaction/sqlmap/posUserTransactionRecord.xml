@@ -228,6 +228,12 @@
                 <if test="condition.transactionType != null">
                     AND uptr.transaction_type = #{condition.transactionType}
                 </if>
+                <if test="condition.excludeTransactionTypes != null">
+                    AND uptr.transaction_type NOT IN
+                    <foreach collection="condition.excludeTransactionTypes" index="index" item="item" open="(" separator="," close=")">
+                        #{item}
+                    </foreach>
+                </if>
             </where>
         </if>
     </sql>

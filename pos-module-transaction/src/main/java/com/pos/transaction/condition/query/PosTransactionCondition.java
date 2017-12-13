@@ -35,6 +35,8 @@ public class PosTransactionCondition {
 
     private Integer transactionType; // 交易类型
 
+    private List<Integer> excludeTransactionTypes; // 排除的交易类型
+
     /**
      * 解析开始截止日期（格式：yyyy-MM-dd）
      *
@@ -124,5 +126,13 @@ public class PosTransactionCondition {
 
     public void setTransactionType(Integer transactionType) {
         this.transactionType = transactionType;
+    }
+
+    public List<Integer> getExcludeTransactionTypes() {
+        return excludeTransactionTypes;
+    }
+
+    public void setExcludeTransactionTypes(List<Integer> excludeTransactionTypes) {
+        this.excludeTransactionTypes = excludeTransactionTypes;
     }
 }

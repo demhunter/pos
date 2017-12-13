@@ -3,6 +3,7 @@
  */
 package com.pos.transaction.service.impl;
 
+import com.google.common.collect.Lists;
 import com.pos.authority.constant.CustomerAuditStatus;
 import com.pos.authority.dto.permission.CustomerPermissionDto;
 import com.pos.authority.fsm.AuthorityFSMFactory;
@@ -11,14 +12,16 @@ import com.pos.authority.service.CustomerAuthorityService;
 import com.pos.basic.service.SecurityService;
 import com.pos.basic.sm.fsm.FSM;
 import com.pos.common.util.mvc.support.ApiResult;
+import com.pos.common.util.mvc.support.LimitHelper;
 import com.pos.common.util.mvc.support.NullObject;
 import com.pos.common.util.validation.FieldChecker;
-import com.pos.transaction.constants.BankCodeNameEnum;
-import com.pos.transaction.constants.CardTypeEnum;
-import com.pos.transaction.constants.CardUsageEnum;
-import com.pos.transaction.constants.PosConstants;
+import com.pos.transaction.condition.orderby.PosTransactionOrderField;
+import com.pos.transaction.condition.query.PosTransactionCondition;
+import com.pos.transaction.constants.*;
 import com.pos.transaction.dao.PosCardDao;
+import com.pos.transaction.dao.PosUserTransactionRecordDao;
 import com.pos.transaction.domain.UserPosCard;
+import com.pos.transaction.domain.UserPosTransactionRecord;
 import com.pos.transaction.dto.card.PosCardDto;
 import com.pos.transaction.dto.request.BindCardDto;
 import com.pos.transaction.exception.PosUserErrorCode;
@@ -68,6 +71,9 @@ public class PosCardServiceImpl implements PosCardService {
     @Resource
     private PosConstants posConstants;
 
+    @Resource
+    private PosUserTransactionRecordDao posUserTransactionRecordDao;
+
     @Override
     public BindCardDto getWithdrawCard(Long userId, boolean decrypted) {
         FieldChecker.checkEmpty(userId, "userId");
@@ -116,6 +122,48 @@ public class PosCardServiceImpl implements PosCardService {
         }
 
         return ApiResult.succ(withdrawCard);
+    }
+
+    @Override
+    public ApiResult<NullObject> querySettlementCanAlter(Long userId) {
+        FieldChecker.checkEmpty(userId, "userId");
+
+        CustomerPermissionDto permission = customerAuthorityService.getPermission(userId);
+        return querySettlementCanAlter(permission);
+    }
+
+    private ApiResult<NullObject> querySettlementCanAlter(CustomerPermissionDto permission) {
+        FieldChecker.checkEmpty(permission, "permission");
+
+        CustomerAuditStatus auditStatus = permission.parseAuditStatus();
+        if (!CustomerAuditStatus.AUDITED.equals(auditStatus)) {
+            return ApiResult.fail(TransactionErrorCode.ALTER_BIND_CARD_ERROR_AUTHORITY_AUDIT_STATUS_AUDITED);
+        }
+
+        PosTransactionCondition condition = new PosTransactionCondition();
+        condition.setUserId(permission.getUserId());
+        condition.setExcludedStatuses(Lists.newArrayList(
+                TransactionStatusType.ORIGIN_TRANSACTION.getCode(),
+                TransactionStatusType.PREDICT_TRANSACTION.getCode(),
+                TransactionStatusType.TRANSACTION_HANDLED_SUCCESS.getCode(),
+                TransactionStatusType.TRANSACTION_SUCCESS.getCode()));
+        condition.setExcludeTransactionTypes(Lists.newArrayList(
+                TransactionType.LEVEL_UPGRADE.getCode()));
+
+        List<UserPosTransactionRecord> transactions = posUserTransactionRecordDao.queryTransactionRecord(
+                condition, PosTransactionOrderField.getDefaultOrderHelper(), LimitHelper.create(1, Integer.MAX_VALUE, false));
+        if (!CollectionUtils.isEmpty(transactions)) {
+            for (UserPosTransactionRecord transaction : transactions) {
+                TransactionType type = TransactionType.getEnum(transaction.getTransactionType());
+                if (TransactionType.NORMAL_WITHDRAW.equals(type)) {
+                    return ApiResult.fail(TransactionErrorCode.ALTER_BIND_CARD_ERROR_NORMAL_TRANSACTION);
+                } else if (TransactionType.BROKERAGE_WITHDRAW.equals(type)) {
+                    return ApiResult.fail(TransactionErrorCode.ALTER_BIND_CARD_ERROR_BROKERAGE_TRANSACTION);
+                }
+            }
+        }
+
+        return ApiResult.succ();
     }
 
     @Override
@@ -220,11 +268,10 @@ public class PosCardServiceImpl implements PosCardService {
         withdrawCard.check("withdrawCard", securityService);
 
         CustomerPermissionDto permission = customerAuthorityService.getPermission(userId);
-        CustomerAuditStatus auditStatus = permission.parseAuditStatus();
-        if (!CustomerAuditStatus.AUDITED.equals(auditStatus)) {
-            ApiResult.fail(TransactionErrorCode.ALTER_BIND_CARD_ERROR_AUTHORITY_AUDIT_STATUS_AUDITED);
+        ApiResult<NullObject> result = querySettlementCanAlter(permission);
+        if (!result.isSucc()) {
+            return result;
         }
-        // TODO 交易类型改版实现完成后增加未完成交易判断
 
         return alterWithdrawCard(permission, withdrawCard);
     }
