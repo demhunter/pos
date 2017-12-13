@@ -16,7 +16,7 @@ import java.util.stream.Stream;
  */
 public enum CustomerIntegrateOrderField implements OrderField {
 
-    CREATE_TIME("createDate");
+    REGISTER_TIME("registerTime");
 
     private String value;
 
@@ -33,7 +33,7 @@ public enum CustomerIntegrateOrderField implements OrderField {
     }
 
     public static OrderHelper getDefaultOrderHelper() {
-        return new OrderHelper(CREATE_TIME.getValue(), false);
+        return new OrderHelper(REGISTER_TIME.getValue(), false);
     }
 
     @Override

@@ -150,7 +150,7 @@ public class PosCardServiceImpl implements PosCardService {
         customerAuthorityService.updateWithdrawCard(permission);
         // FSM 更新用户身份信息审核状态
         FSM fsm = AuthorityFSMFactory.newAuditInstance(permission.parseAuditStatus().toString(),
-                new AuditStatusTransferContext(permission.getId(), permission.getUserId(), permission.getUserId()));
+                new AuditStatusTransferContext(permission.getUserId(), permission.getUserId()));
         fsm.processFSM("submitAll");
         return ApiResult.succ();
     }
@@ -199,7 +199,7 @@ public class PosCardServiceImpl implements PosCardService {
             customerAuthorityService.updateWithdrawCard(permission);
             // FSM 更新用户身份信息审核状态
             FSM fsm = AuthorityFSMFactory.newAuditInstance(permission.parseAuditStatus().toString(),
-                    new AuditStatusTransferContext(permission.getId(), permission.getUserId(), permission.getUserId()));
+                    new AuditStatusTransferContext(permission.getUserId(), permission.getUserId()));
             fsm.processFSM("submitAll");
             // 更新用户姓名
             User user = userDao.getById(permission.getUserId());
@@ -274,7 +274,7 @@ public class PosCardServiceImpl implements PosCardService {
             customerAuthorityService.updateWithdrawCard(permission);
             // FSM 更新用户身份信息审核状态
             FSM fsm = AuthorityFSMFactory.newAuditInstance(permission.parseAuditStatus().toString(),
-                    new AuditStatusTransferContext(permission.getId(), permission.getUserId(), permission.getUserId()));
+                    new AuditStatusTransferContext(permission.getUserId(), permission.getUserId()));
             fsm.processFSM("alterSettlement");
 
             return ApiResult.succ();

@@ -14,10 +14,8 @@ import java.io.Serializable;
 public class AuditStatusTransferContext implements Serializable {
 
     private static final long serialVersionUID = -7181779850373467544L;
-    // user_pos_auth主键id
-    private Long posAuthId;
 
-    // 权限相关用户id
+    // 权限用户id
     private Long userId;
 
     // 状态变更操作人userId
@@ -26,19 +24,13 @@ public class AuditStatusTransferContext implements Serializable {
     // 如果审核不通过，此字段为不通过原因
     private String rejectReason;
 
-    public AuditStatusTransferContext(Long posAuthId, Long operatorUserId) {
-        this.posAuthId = posAuthId;
-        this.operatorUserId = operatorUserId;
-    }
-
-    public AuditStatusTransferContext(Long posAuthId, Long userId, Long operatorUserId) {
-        this.posAuthId = posAuthId;
+    public AuditStatusTransferContext(Long userId, Long operatorUserId) {
         this.userId = userId;
         this.operatorUserId = operatorUserId;
     }
 
-    public AuditStatusTransferContext(Long posAuthId, Long operatorUserId, String rejectReason) {
-        this.posAuthId = posAuthId;
+    public AuditStatusTransferContext(Long userId, Long operatorUserId, String rejectReason) {
+        this.userId = userId;
         this.operatorUserId = operatorUserId;
         this.rejectReason = rejectReason;
     }
@@ -49,14 +41,6 @@ public class AuditStatusTransferContext implements Serializable {
 
     public void setUserId(Long userId) {
         this.userId = userId;
-    }
-
-    public Long getPosAuthId() {
-        return posAuthId;
-    }
-
-    public void setPosAuthId(Long posAuthId) {
-        this.posAuthId = posAuthId;
     }
 
     public Long getOperatorUserId() {

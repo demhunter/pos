@@ -340,7 +340,7 @@ public class CustomerAuthorityServiceImpl implements CustomerAuthorityService {
         // 参数校验
         FieldChecker.checkEmpty(transferContext, "transferContext");
         FieldChecker.checkEmpty(auditStatus, "auditStatus");
-        FieldChecker.checkEmpty(transferContext.getPosAuthId(), "posAuthId");
+        FieldChecker.checkEmpty(transferContext.getUserId(), "userId");
         FieldChecker.checkEmpty(transferContext.getOperatorUserId(), "operatorUserId");
         if (CustomerAuditStatus.REJECTED.equals(auditStatus)) {
             FieldChecker.checkEmpty(transferContext.getRejectReason(), "rejectReason");

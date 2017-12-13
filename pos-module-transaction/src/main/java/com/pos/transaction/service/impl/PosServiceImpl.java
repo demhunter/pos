@@ -149,13 +149,13 @@ public class PosServiceImpl implements PosService {
         // 参数校验
         FieldChecker.checkEmpty(transferContext, "transferContext");
         FieldChecker.checkEmpty(auditStatus, "auditStatus");
-        FieldChecker.checkEmpty(transferContext.getPosAuthId(), "posAuthId");
+        FieldChecker.checkEmpty(transferContext.getUserId(), "userId");
         FieldChecker.checkEmpty(transferContext.getOperatorUserId(), "operatorUserId");
         if (UserAuditStatus.REJECTED.equals(auditStatus)) {
             FieldChecker.checkEmpty(transferContext.getRejectReason(), "rejectReason");
         }
 
-        posAuthDao.updateAuditStatus(transferContext.getPosAuthId(), auditStatus.getCode(),
+        posAuthDao.updateAuditStatus(transferContext.getUserId(), auditStatus.getCode(),
                 transferContext.getRejectReason(), transferContext.getOperatorUserId());
         return true;
     }
