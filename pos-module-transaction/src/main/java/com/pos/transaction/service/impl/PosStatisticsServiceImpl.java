@@ -157,7 +157,7 @@ public class PosStatisticsServiceImpl implements PosStatisticsService {
     @Override
     public void initializeDailyStatistics() {
         LocalDate endDate = LocalDate.now().minusDays(1);
-        LocalDate beginDate = LocalDate.of(2017, 8, 1);
+        LocalDate beginDate = LocalDate.of(2017, 9, 1);
 
         // 获取开始截止时间
         Date end = Date.from(endDate.atTime(LocalTime.MAX).atZone(ZoneId.systemDefault()).toInstant());

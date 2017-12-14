@@ -25,7 +25,7 @@ public interface RegisterService {
      * @param setLoginInfo    是否记录登录信息
      * @return 新增结果
      */
-    ApiResult<UserRegConfirmDto> addCustomer(LoginInfoDto registerInfoDto, boolean setLoginInfo, CustomerType customerType);
+    ApiResult<CustomerDto> addCustomer(LoginInfoDto registerInfoDto, boolean setLoginInfo, CustomerType customerType);
 
     /**
      * 添加一个平台管理员.

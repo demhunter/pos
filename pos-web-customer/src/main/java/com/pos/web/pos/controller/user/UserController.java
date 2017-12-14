@@ -91,8 +91,8 @@ public class UserController {
     }
 
     @RequestMapping(value = "register", method = RequestMethod.POST)
-    @ApiOperation(value = "v1.0.0 * 用户注册请求", notes = "用户注册请求")
-    public ApiResult<UserRegConfirmDto> register(
+    @ApiOperation(value = "v2.0.0 * 用户注册请求", notes = "用户注册请求，返回值修改为CustomerDto")
+    public ApiResult<CustomerDto> register(
             @ApiParam(name = "registerRequestDto", value = "注册相关信息")
             @RequestBody RegisterRequestDto registerRequestDto,
             HttpServletRequest request, HttpSession session) {
@@ -108,14 +108,9 @@ public class UserController {
         loginInfoDto.setIp(HttpRequestUtils.getRealRemoteAddr(request));
         loginInfoDto.setRecommendId(registerRequestDto.getLeaderId());
         loginInfoDto.setRecommendType(registerRequestDto.getType());
-        ApiResult<UserRegConfirmDto> apiResult = registerService.addCustomer(loginInfoDto, true, CustomerType.NATURE);
+        ApiResult<CustomerDto> apiResult = registerService.addCustomer(loginInfoDto, true, CustomerType.NATURE);
 
-        if (!apiResult.isSucc() || (apiResult.getData() != null && (apiResult.getData()).getNeedConfirm())) {
-            return apiResult;
-        }
-
-        CustomerDto customerDto = apiResult.getData().getCustomerDto();
-
+        CustomerDto customerDto = apiResult.getData();
         // 发送注册推荐人消息
         sendCustomerRegisterMessage(customerDto.getId(), customerDto.getUserPhone(), loginInfoDto.getRecommendId(), loginInfoDto.getRecommendType());
         // 自动登录
@@ -154,14 +149,24 @@ public class UserController {
     }
 
     @RequestMapping(value = "getBackPassword", method = RequestMethod.POST)
-    @ApiOperation(value = "v1.0.0 * 找回密码请求", notes = "找回密码请求，找回成功后如果用户已经开通C端账号则自动登录(v1.3.3 返回自定义UserSession)")
-    public ApiResult getBackPassword(
+    @ApiOperation(value = "v2.0.0 * 找回密码请求", notes = "找回密码请求，找回成功后自动登录（返回值修改为CustomerDto）")
+    public ApiResult<CustomerDto> getBackPassword(
             @ApiParam(name = "loginInfoVo", value = "登录相关信息")
-            @RequestBody RegisterRequestDto loginInfoVo) {
+            @RequestBody RegisterRequestDto loginInfoVo,
+            HttpServletRequest request, HttpSession session) {
         // 解密密码
         String decryptedPassword = securityService.decryptData(loginInfoVo.getPassword());
-        return userService.updatePwdByPhone(loginInfoVo.getPhone(),
+        ApiResult<NullObject> result = userService.updatePwdByPhone(loginInfoVo.getPhone(),
                 decryptedPassword, loginInfoVo.getSmsCode(), UserType.CUSTOMER);
+        if (!result.isSucc()) {
+            return ApiResult.fail(result.getError(), result.getMessage());
+        }
+
+        LoginRequestDto loginRequestDto = new LoginRequestDto();
+        loginRequestDto.setPhone(loginInfoVo.getPhone());
+        loginRequestDto.setPassword(loginInfoVo.getPassword());
+
+        return doLogin(loginRequestDto, request, true, session);
     }
 
     @RequestMapping(value = "password/update", method = RequestMethod.POST)
@@ -170,9 +175,12 @@ public class UserController {
             @ApiParam(name = "updatePasswordVo", value = "密码更换信息")
             @RequestBody UserUpdatePasswordVo updatePasswordVo,
             @FromSession UserInfo userInfo) {
+        updatePasswordVo.check();
         // 解密密码
-        // String decryptedPassword = securityService.decryptData(loginInfoVo.getPassword());
-        return null;
+        String decryptedOldPassword = securityService.decryptData(updatePasswordVo.getOldPassword());
+        String decryptedNewPassword = securityService.decryptData(updatePasswordVo.getNewPassword());
+
+        return userService.updatePwdById(userInfo.getId(), decryptedOldPassword, decryptedNewPassword);
     }
 
 

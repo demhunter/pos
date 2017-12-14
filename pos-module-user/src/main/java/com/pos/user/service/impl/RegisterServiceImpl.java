@@ -102,7 +102,7 @@ public class RegisterServiceImpl implements RegisterService {
     String cacheExpireSeconds;
 
     @Override
-    public ApiResult<UserRegConfirmDto> addCustomer(LoginInfoDto loginInfoDto, boolean setLoginInfo, CustomerType customerType) {
+    public ApiResult<CustomerDto> addCustomer(LoginInfoDto loginInfoDto, boolean setLoginInfo, CustomerType customerType) {
         IdentityInfoDto identity = loginInfoDto.getIdentityInfoDto();
         ErrorCode err = checkAddCustomer(identity.getLoginName(), identity.getPassword(), identity.getSmsCode());
         if (err != null) {
@@ -118,11 +118,7 @@ public class RegisterServiceImpl implements RegisterService {
             Customer customer = saveCustomer(user, customerType);
             CustomerDto customerDto = UserDtoConverter.convert2CustomerDto(user, userClass, customer);
 
-            UserRegConfirmDto confirmDto = new UserRegConfirmDto();
-            confirmDto.setNeedConfirm(Boolean.FALSE);
-            confirmDto.setCustomerDto(customerDto);
-
-            return ApiResult.succ(confirmDto);
+            return ApiResult.succ(customerDto);
         } else {
             // 用户已存在的情况
             // 检查账户是否被删除

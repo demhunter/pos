@@ -143,9 +143,9 @@
             brokerage_withdraw_times,
             brokerage_service_charge
         ) VALUES
-        <foreach collection="dailies" index="index" item="item" open="" separator="," close="">
+        <foreach collection="dailies" item="item" index="index" open="" separator="," close="">
         (
-            #{item.date},
+            #{item.dateKey},
             #{item.posCustomerCount},
             #{item.posTransactionCount},
             #{item.posAmount},

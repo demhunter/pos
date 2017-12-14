@@ -3,6 +3,7 @@
  */
 package com.pos.web.pos.vo.user;
 
+import com.pos.common.util.validation.FieldChecker;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 
 import java.io.Serializable;
@@ -21,6 +22,11 @@ public class UserUpdatePasswordVo implements Serializable {
 
     @ApiModelProperty("新密码密码")
     private String newPassword;
+
+    public void check() {
+        FieldChecker.checkEmpty(oldPassword, "oldPassword");
+        FieldChecker.checkEmpty(newPassword, "newPassword");
+    }
 
     public String getOldPassword() {
         return oldPassword;
