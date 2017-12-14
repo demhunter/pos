@@ -183,4 +183,12 @@ public class CustomerStatisticsServiceImpl implements CustomerStatisticsService 
 
         customerStatisticsDao.incrementWithdrawalBrokerage(userId, brokerage);
     }
+
+    @Override
+    public void incrementBrokerage(Long userId, BigDecimal brokerage) {
+        FieldChecker.checkEmpty(userId, "userId");
+        FieldChecker.checkEmpty(brokerage, "brokerage");
+
+        customerStatisticsDao.incrementBrokerage(userId, brokerage);
+    }
 }

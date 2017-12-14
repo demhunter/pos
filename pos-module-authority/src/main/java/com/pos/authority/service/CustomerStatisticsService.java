@@ -62,4 +62,12 @@ public interface CustomerStatisticsService {
      * @param brokerage 佣金提现金额
      */
     void incrementWithdrawalBrokerage(Long userId, BigDecimal brokerage);
+
+    /**
+     * 累计总佣金
+     *
+     * @param userId    用户id
+     * @param brokerage 佣金金额
+     */
+    void incrementBrokerage(Long userId, BigDecimal brokerage);
 }

@@ -70,4 +70,14 @@ public interface CustomerStatisticsDao {
     void incrementWithdrawalBrokerage(
             @Param("userId") Long userId,
             @Param("withdrawalBrokerage") BigDecimal withdrawalBrokerage);
+
+    /**
+     * 以原子形式累计用户总佣金
+     *
+     * @param userId    用户id
+     * @param brokerage 佣金金额
+     */
+    void incrementBrokerage(
+            @Param("userId") Long userId,
+            @Param("brokerage") BigDecimal brokerage);
 }

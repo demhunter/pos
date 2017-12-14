@@ -636,31 +636,38 @@ public class PosServiceImpl implements PosService {
 
         UserPosTransactionRecord transaction = posUserTransactionRecordDao.get(recordId);
 
-        Queue<CustomerRelationDto> participatorQueue = customerRelationService.generateBrokerageParticipatorQueue(transaction.getUserId());
-        if (!CollectionUtils.isEmpty(participatorQueue) && participatorQueue.size() > 2) {
-            // 有需要参与分佣的用户
-            List<TransactionCustomerBrokerage> brokerages = Lists.newArrayList();
-            CustomerRelationDto current = participatorQueue.poll();
-            CustomerRelationDto nextParticipator = participatorQueue.poll();
-            do {
-                // 生成佣金
-                TransactionCustomerBrokerage brokerage = new TransactionCustomerBrokerage();
-                brokerage.setTransactionId(recordId);
-                brokerage.setAncestorUserId(nextParticipator.getUserId());
-                brokerage.setLevel(nextParticipator.getLevel());
-                brokerage.setWithdrawRate(nextParticipator.getWithdrawRate());
-                BigDecimal brokerageRate = nextParticipator.getWithdrawRate().subtract(current.getWithdrawRate());
-                brokerageRate = brokerageRate.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : brokerageRate;
-                brokerage.setBrokerageRate(brokerageRate);
-                brokerage.setBrokerage(transaction.getAmount().multiply(brokerageRate).setScale(2, BigDecimal.ROUND_DOWN));
+        // 只有普通收款交易才生成交易佣金
+        if (transaction != null &&
+                TransactionType.NORMAL_WITHDRAW.equals(TransactionType.getEnum(transaction.getTransactionType()))) {
+            Queue<CustomerRelationDto> participatorQueue = customerRelationService.generateBrokerageParticipatorQueue(transaction.getUserId());
+            if (!CollectionUtils.isEmpty(participatorQueue) && participatorQueue.size() > 2) {
+                // 有需要参与分佣的用户
+                List<TransactionCustomerBrokerage> brokerages = Lists.newArrayList();
+                CustomerRelationDto current = participatorQueue.poll();
+                CustomerRelationDto nextParticipator = participatorQueue.poll();
+                do {
+                    // 生成佣金
+                    TransactionCustomerBrokerage brokerage = new TransactionCustomerBrokerage();
+                    brokerage.setTransactionId(recordId);
+                    brokerage.setAncestorUserId(nextParticipator.getUserId());
+                    brokerage.setLevel(nextParticipator.getLevel());
+                    brokerage.setWithdrawRate(nextParticipator.getWithdrawRate());
+                    BigDecimal brokerageRate = nextParticipator.getWithdrawRate().subtract(current.getWithdrawRate());
+                    brokerageRate = brokerageRate.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : brokerageRate;
+                    brokerage.setBrokerageRate(brokerageRate);
+                    brokerage.setBrokerage(transaction.getAmount().multiply(brokerageRate).setScale(2, BigDecimal.ROUND_DOWN));
 
-                brokerages.add(brokerage);
+                    brokerages.add(brokerage);
 
-                current = nextParticipator.copy();
-                nextParticipator = participatorQueue.poll();
-            } while (nextParticipator != null);
+                    current = nextParticipator.copy();
+                    nextParticipator = participatorQueue.poll();
+                } while (nextParticipator != null);
 
-            customerBrokerageDao.saveBrokerages(brokerages);
+                customerBrokerageDao.saveBrokerages(brokerages);
+                for (TransactionCustomerBrokerage brokerage : brokerages) {
+                    customerStatisticsService.incrementBrokerage(brokerage.getAncestorUserId(), brokerage.getBrokerage());
+                }
+            }
         }
         return true;
     }

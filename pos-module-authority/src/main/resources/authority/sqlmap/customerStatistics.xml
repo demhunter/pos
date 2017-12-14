@@ -74,4 +74,11 @@
         update_time = NOW()
         WHERE user_id = #{userId}
     </update>
+
+    <update id="incrementBrokerage">
+        UPDATE customer_statistics
+        SET total_brokerage = total_brokerage + #{brokerage}
+        update_time = NOW()
+        WHERE user_id = #{userId}
+    </update>
 </mapper>
