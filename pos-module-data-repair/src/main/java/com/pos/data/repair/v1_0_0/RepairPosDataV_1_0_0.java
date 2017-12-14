@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2016 ywmj.com. All Rights Reserved.
  */
-package com.pos.transaction.service.support;
+package com.pos.data.repair.v1_0_0;
 
 /**
  * 清洗POS交易数据
@@ -12,9 +12,9 @@ package com.pos.transaction.service.support;
  * @author wangbing
  * @version 1.0, 2017/10/25
  */
-public class RepairPosData {
+public class RepairPosDataV_1_0_0 {
 
-    /*private final static Logger logger = LoggerFactory.getLogger(RepairPosData.class);
+    /*private final static Logger logger = LoggerFactory.getLogger(RepairPosDataV_1_0_0.class);
 
     @Resource
     private PosUserTransactionRecordDao posUserTransactionRecordDao;

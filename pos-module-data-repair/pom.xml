@@ -14,7 +14,10 @@
 
     <dependencies>
         <!-- module start -->
-
+        <dependency>
+            <groupId>com.pos</groupId>
+            <artifactId>pos-module-transaction</artifactId>
+        </dependency>
         <!-- module end -->
 
         <!-- ssh start -->

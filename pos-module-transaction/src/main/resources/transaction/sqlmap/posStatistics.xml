@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.transaction.dao.PosStatisticsDao">
+
+    <select id="queryDailyCount" resultType="int">
+        SELECT
+        COUNT(*)
+        FROM transaction_daily_statistics
+        <where>
+            <if test="beginTime != null">
+                `date` &gt;= #{beginTime}
+            </if>
+            <if test="endTime != null">
+                AND `date` &lt;= #{endTime}
+            </if>
+        </where>
+    </select>
+
+    <select id="queryDailyStatistics" resultType="com.pos.transaction.dto.statistics.TransactionDailyStatisticsDto">
+        SELECT
+        `id` AS `id`,
+        `date` AS dateKey,
+        pos_customer_count AS posCustomerCount,
+        pos_transaction_count AS posTransactionCount,
+        pos_amount AS posAmount,
+        gross_profit AS grossProfit,
+        brokerage_customer_count AS brokerageCustomerCount,
+        brokerage_withdraw_times AS brokerageWithdrawTimes,
+        brokerage_service_charge AS brokerServiceCharge
+        FROM transaction_daily_statistics
+        <where>
+            <if test="beginTime != null">
+                `date` &gt;= #{beginTime}
+            </if>
+            <if test="endTime != null">
+                AND `date` &lt;= #{endTime}
+            </if>
+        </where>
+        ORDER BY dateKey DESC
+        LIMIT #{limitHelper.offset}, #{limitHelper.pageSize}
+    </select>
+
+    <select id="queryLevelDistribution" resultType="com.pos.basic.dto.CommonEnumDto">
+        SELECT
+        `level` AS `code`,
+        COUNT(user_id) AS `count`
+        FROM customer_permission
+        GROUP BY `level`
+    </select>
+
+    <select id="queryAuditDistribution" resultType="com.pos.basic.dto.CommonEnumDto">
+        SELECT
+        audit_status AS `code`,
+        COUNT(user_id) AS `count`
+        FROM customer_permission
+        GROUP BY audit_status
+    </select>
+
+    <select id="queryPosStatistics" resultType="com.pos.transaction.dto.statistics.PosGeneralStatisticsDto">
+        SELECT
+            COUNT(DISTINCT user_id) AS posCustomerCount,
+            COUNT(*) AS posTransactionCount,
+            SUM(amount) AS totalPosAmount,
+            SUM(service_charge) - SUM(pay_charge) - SUM(pos_charge) AS grossProfit
+        FROM user_pos_transaction_record
+        WHERE transaction_type = 1
+        AND status IN (1, 2, 3)
+    </select>
+
+    <select id="queryPosStatisticsByDaily" resultType="com.pos.transaction.dto.statistics.TransactionDailyStatisticsDto">
+        SELECT
+            DATE_FORMAT(create_date, '%Y-%m-%d') AS dateKey,
+            COUNT(DISTINCT user_id) AS posCustomerCount,
+            COUNT(*) AS posTransactionCount,
+            SUM(amount) AS posAmount,
+            SUM(service_charge) - SUM(pay_charge) - SUM(pos_charge) AS grossProfit
+        FROM user_pos_transaction_record
+        WHERE transaction_type = 1
+        AND status IN (1, 2, 3)
+        GROUP BY dateKey
+    </select>
+
+    <select id="queryBrokerageWithdrawalStatistics"
+            resultType="com.pos.transaction.dto.statistics.PosGeneralStatisticsDto">
+        SELECT
+            COUNT(DISTINCT user_id) AS brokerageCustomerCount,
+            COUNT(*) AS brokerageWithdrawalTimes,
+            SUM(pos_charge) AS brokerageServiceCharge
+        FROM user_pos_transaction_record
+        WHERE transaction_type = 2
+        AND status IN (1, 2, 3)
+    </select>
+
+    <select id="queryBrokerageWithdrawalStatisticsByDaily"
+            resultType="com.pos.transaction.dto.statistics.TransactionDailyStatisticsDto">
+        SELECT
+        DATE_FORMAT(create_date, '%Y-%m-%d') AS dateKey,
+        COUNT(DISTINCT user_id) AS brokerageCustomerCount,
+        COUNT(*) AS brokerageWithdrawalTimes,
+        SUM(pos_charge) AS brokerageServiceCharge
+        FROM user_pos_transaction_record
+        WHERE transaction_type = 2
+        AND status IN (1, 2, 3)
+        GROUP BY dateKey
+    </select>
+
+    <select id="queryBrokerageStatistics"
+            resultType="com.pos.transaction.dto.statistics.PosGeneralStatisticsDto">
+        SELECT
+            SUM(brokerage) AS totalBrokerage,
+            SUM(IF(status == 0, brokerage, NULL)) AS noWithdrawalBrokerage,
+            SUM(IF(status != 0, brokerage, NULL)) AS withdrawalBrokerage
+        FROM transaction_customer_brokerage
+    </select>
+
+    <select id="getLatest" resultType="com.pos.transaction.dto.statistics.TransactionDailyStatisticsDto">
+        SELECT
+            `id` AS `id`,
+            `date` AS dateKey,
+            pos_customer_count AS posCustomerCount,
+            pos_transaction_count AS posTransactionCount,
+            pos_amount AS posAmount,
+            gross_profit AS grossProfit,
+            brokerage_customer_count AS brokerageCustomerCount,
+            brokerage_withdraw_times AS brokerageWithdrawTimes,
+            brokerage_service_charge AS brokerServiceCharge
+        FROM transaction_daily_statistics
+        ORDER BY dateKey DESC
+        LIMIT 0, 1
+    </select>
+
+    <insert id="saveAll">
+        INSERT INTO transaction_daily_statistics
+        (
+            `date`,
+            pos_customer_count,
+            pos_transaction_count,
+            pos_amount,
+            gross_profit,
+            brokerage_customer_count,
+            brokerage_withdraw_times,
+            brokerage_service_charge
+        ) VALUES
+        <foreach collection="dailies" index="index" item="item" open="" separator="," close="">
+        (
+            #{item.date},
+            #{item.posCustomerCount},
+            #{item.posTransactionCount},
+            #{item.posAmount},
+            #{item.grossProfit},
+            #{item.brokerageCustomerCount},
+            #{item.brokerageWithdrawalTimes},
+            #{item.brokerageServiceCharge}
+        )
+        </foreach>
+    </insert>
+</mapper>

@@ -38,6 +38,11 @@
             <groupId>com.pos</groupId>
             <artifactId>pos-module-authority</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.pos</groupId>
+            <artifactId>pos-module-data-repair</artifactId>
+        </dependency>
         <!-- module end -->
 
         <!-- Swagger start -->

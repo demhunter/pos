@@ -3,23 +3,35 @@
  */
 package com.pos.web.console.controller.repair;
 
+import com.pos.common.util.mvc.support.ApiResult;
+import com.pos.common.util.mvc.support.NullObject;
+import com.pos.transaction.service.PosStatisticsService;
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.annotation.Resource;
+
 /**
  * POS 数据修复Controller
  *
  * @author wangbing
  * @version 1.0, 2017/10/25
  */
-/*@RestController
+@RestController
 @RequestMapping("/repair")
-@Api(value = "/repair", description = "v1.0.0 * POS数据修复相关接口")*/
+@Api(value = "/repair", description = "v2.0.0 * POS数据修复相关接口")
 public class PosRepairController {
 
-    /*@Resource
-    private RepairPosData repairPosData;*/
+    @Resource
+    private PosStatisticsService posStatisticsService;
 
-    /*@RequestMapping(value = "transaction/out-card-info", method = RequestMethod.GET)
-    @ApiOperation(value = "* 清洗交易数据的付款银行卡信息，主要作用为解密SQL变更的付款银行卡信息数据", notes = "清洗交易数据的付款银行卡信息，主要作用为解密SQL变更的付款银行卡信息数据")
+    @RequestMapping(value = "statistics/daily", method = RequestMethod.GET)
+    @ApiOperation(value = "v2.0.0 * 初始化每日数据统计", notes = "初始化每日数据统计")
     public ApiResult<NullObject> repairPosTransactionOutCardInfo() {
-        return repairPosData.repairPosTransactionOutCardInfo();
-    }*/
+        posStatisticsService.initializeDailyStatistics();
+        return ApiResult.succ();
+    }
 }
