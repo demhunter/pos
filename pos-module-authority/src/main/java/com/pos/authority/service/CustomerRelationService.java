@@ -3,7 +3,13 @@
  */
 package com.pos.authority.service;
 
+import com.pos.authority.condition.query.ChildrenCondition;
+import com.pos.authority.dto.relation.ChildInfoDto;
 import com.pos.authority.dto.relation.CustomerRelationDto;
+import com.pos.common.util.mvc.support.ApiResult;
+import com.pos.common.util.mvc.support.LimitHelper;
+import com.pos.common.util.mvc.support.NullObject;
+import com.pos.common.util.mvc.support.Pagination;
 import com.pos.user.dto.customer.CustomerDto;
 
 import java.util.Queue;
@@ -40,4 +46,23 @@ public interface CustomerRelationService {
      * @return 参与分佣队列
      */
     Queue<CustomerRelationDto> generateBrokerageParticipatorQueue(Long userId);
+
+    /**
+     * 保存下级客户备注
+     *
+     * @param userId      上级用户id
+     * @param childUserId 下级用户id
+     * @param remark      备注信息
+     * @return 操作结果
+     */
+    ApiResult<NullObject> saveChildRemark(Long userId, Long childUserId, String remark);
+
+    /**
+     * 查询用户的直接下级信息
+     *
+     * @param condition   查询条件
+     * @param limitHelper 分页参数
+     * @return 查询结果
+     */
+    ApiResult<Pagination<ChildInfoDto>> queryChildren(ChildrenCondition condition, LimitHelper limitHelper);
 }

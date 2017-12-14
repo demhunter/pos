@@ -1,8 +1,9 @@
 /*
  * Copyright (c) 2016 ywmj.com. All Rights Reserved.
  */
-package com.pos.web.pos.vo.descendant;
+package com.pos.authority.dto.relation;
 
+import com.pos.authority.constant.CustomerAuditStatus;
 import com.pos.authority.dto.statistics.DescendantStatisticsDto;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 
@@ -13,11 +14,12 @@ import java.util.Date;
  * 直接下级信息
  *
  * @author wangbing
- * @version 1.0, 2017/11/30
+ * @version 1.0, 2017/12/14
  */
-public class ChildInfoVo implements Serializable {
+public class ChildInfoDto implements Serializable {
 
-    private static final long serialVersionUID = 3146725497200520714L;
+    private static final long serialVersionUID = -4516527418382711068L;
+
     @ApiModelProperty("下级用户id")
     private Long userId;
 
@@ -34,7 +36,9 @@ public class ChildInfoVo implements Serializable {
     private Integer auditStatus;
 
     @ApiModelProperty("下架用户身份认证状态描述")
-    private String auditStatusDesc;
+    public String getAuditStatusDesc() {
+        return auditStatus == null ? null : CustomerAuditStatus.getEnum(auditStatus).getDesc();
+    }
 
     @ApiModelProperty("上级对下级的备注")
     private String remark;
@@ -83,14 +87,6 @@ public class ChildInfoVo implements Serializable {
 
     public void setAuditStatus(Integer auditStatus) {
         this.auditStatus = auditStatus;
-    }
-
-    public String getAuditStatusDesc() {
-        return auditStatusDesc;
-    }
-
-    public void setAuditStatusDesc(String auditStatusDesc) {
-        this.auditStatusDesc = auditStatusDesc;
     }
 
     public String getRemark() {

@@ -54,4 +54,55 @@
         INNER JOIN customer_permission cp ON cr.user_id = cp.user_id
         WHERE cr.user_id = #{childUserId}
     </select>
+
+    <update id="updateChildRemark" parameterType="com.pos.authority.dto.relation.CustomerRelationDto">
+        UPDATE customer_relation
+        SET remark = #{relation.remark},
+        update_user_id = #{relation.updateUserId},
+        update_time = NOW()
+        WHERE `id` = #{relation.id}
+    </update>
+
+    <select id="queryChildrenCount" resultType="int">
+        SELECT
+        COUNT(*)
+        FROM customer_relation cr
+        INNER JOIN `user` AS u ON u.id = cr.user_id
+        INNER JOIN customer_permission cp ON cp.user_id = u.id
+        <include refid="childrenConditionColumns"/>
+    </select>
+
+    <select id="queryChildren" resultType="com.pos.authority.dto.relation.ChildInfoDto">
+        SELECT
+            cr.user_id AS userId,
+            u.`name` AS `name`,
+            u.user_phone AS phone,
+            cp.level AS level,
+            cp.audit_status AS auditStatus,
+            cr.remark AS remark,
+            cr.create_time AS relationTime
+        FROM customer_relation cr
+        INNER JOIN `user` AS u ON u.id = cr.user_id
+        INNER JOIN customer_permission cp ON cp.user_id = u.id
+        <include refid="childrenConditionColumns"/>
+        ORDER BY cr.create_time DESC
+        LIMIT #{limitHelper.offset}, #{limitHelper.pageSize}
+    </select>
+
+    <sql id="childrenConditionColumns">
+        <where>
+            <if test="condition.parentUserId != null">
+                cr.parent_user_id = #{condition.parentUserId}
+            </if>
+            <if test="condition.level != null">
+                AND cp.level = #{condition.level}
+            </if>
+            <if test="condition.searchKey != null">
+                AND (
+                u.name LIKE CONCAT('%', #{condition.serachKey}, '%')
+                OR cr.remark LIKE CONCAT('%', #{condition.serachKey}, '%')
+                )
+            </if>
+        </where>
+    </sql>
 </mapper>

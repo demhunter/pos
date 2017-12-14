@@ -3,10 +3,14 @@
  */
 package com.pos.web.pos.controller.descendant;
 
+import com.pos.authority.condition.query.ChildrenCondition;
+import com.pos.authority.dto.relation.ChildInfoDto;
 import com.pos.authority.dto.statistics.DescendantStatisticsDto;
+import com.pos.authority.service.CustomerRelationService;
 import com.pos.authority.service.CustomerStatisticsService;
 import com.pos.common.util.mvc.resolver.FromSession;
 import com.pos.common.util.mvc.support.ApiResult;
+import com.pos.common.util.mvc.support.LimitHelper;
 import com.pos.common.util.mvc.support.NullObject;
 import com.pos.common.util.mvc.support.Pagination;
 import com.pos.user.session.UserInfo;
@@ -33,6 +37,9 @@ public class DescendantController {
     @Resource
     private CustomerStatisticsService customerStatisticsService;
 
+    @Resource
+    private CustomerRelationService customerRelationService;
+
     @RequestMapping(value = "general", method = RequestMethod.GET)
     @ApiOperation(value = "v2.0.0 * 下级概要统计", notes = "下级概要统计")
     public ApiResult<DescendantStatisticsDto> getGeneralStatistics(
@@ -42,7 +49,7 @@ public class DescendantController {
 
     @RequestMapping(value = "children", method = RequestMethod.GET)
     @ApiOperation(value = "v2.0.0 * 获取直接下级", notes = "获取直接下级")
-    public ApiResult<Pagination<ChildInfoVo>> getChildren(
+    public ApiResult<Pagination<ChildInfoDto>> getChildren(
             @ApiParam(name = "childLevel", value = "直接下级等级")
             @RequestParam(name = "childLevel", required = false) Integer childLevel,
             @ApiParam(name = "searchKey", value = "搜索关键字（姓名或备注）")
@@ -52,7 +59,14 @@ public class DescendantController {
             @ApiParam(name = "pageSize", value = "每页大小")
             @RequestParam("pageSize") int pageSize,
             @FromSession UserInfo userInfo) {
-        return null;
+        LimitHelper limitHelper = LimitHelper.create(pageNum, pageSize);
+
+        ChildrenCondition condition = new ChildrenCondition();
+        condition.setParentUserId(userInfo.getId());
+        condition.setLevel(childLevel);
+        condition.setSearchKey(searchKey);
+
+        return customerRelationService.queryChildren(condition, limitHelper);
     }
 
     @RequestMapping(value = "children/{childUserId}/remark", method = RequestMethod.POST)
@@ -63,6 +77,6 @@ public class DescendantController {
             @ApiParam(name = "remark", value = "备注信息")
             @RequestParam("remark") String remark,
             @FromSession UserInfo userInfo) {
-        return null;
+        return customerRelationService.saveChildRemark(userInfo.getId(), childUserId, remark);
     }
 }
