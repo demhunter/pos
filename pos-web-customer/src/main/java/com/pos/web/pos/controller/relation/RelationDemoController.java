@@ -76,4 +76,42 @@ public class RelationDemoController {
 
         return ApiResult.succ();
     }
+
+    public static void main(String[] args) {
+        try {
+            first();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public static void first() throws Exception {
+        try {
+            second();
+        } catch (Exception e) {
+            System.out.println("在调用第二步时发生异常");
+            e.printStackTrace();
+        }
+    }
+    public static void second() throws Exception {
+        try {
+            third();
+        } catch (Exception e) {
+            System.out.println("在调用第三步时发生异常");
+            e.printStackTrace();
+        }
+    }
+    public static void third() throws Exception {
+        try {
+            forth();
+        } catch (Exception e) {
+            System.out.println("在调用第四步时发生异常");
+            e.printStackTrace();
+        }
+
+    }
+    public static void forth() throws Exception {
+        throw new Exception("第四步--发生异常！");
+    }
 }

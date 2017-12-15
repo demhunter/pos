@@ -18,6 +18,11 @@
             <groupId>com.pos</groupId>
             <artifactId>pos-module-transaction</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.pos</groupId>
+            <artifactId>pos-module-authority</artifactId>
+        </dependency>
         <!-- module end -->
 
         <!-- ssh start -->

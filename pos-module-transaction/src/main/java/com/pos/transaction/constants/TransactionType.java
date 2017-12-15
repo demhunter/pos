@@ -39,6 +39,15 @@ public enum TransactionType implements CommonIntEnum {
         throw new IllegalParamException("非法的交易类型code值");
     }
 
+    /**
+     * 是否获取支付验证码
+     *
+     * @return true：可以；false：不可以
+     */
+    public boolean canGetPaySmsCode() {
+        return this.equals(NORMAL_WITHDRAW) || this.equals(LEVEL_UPGRADE);
+    }
+
     @Override
     public int getCode() {
         return code;

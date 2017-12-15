@@ -335,11 +335,11 @@ public class PosController {
         return result;
     }
 
-    @RequestMapping(value = "level/upgrade/confirm", method = RequestMethod.POST)
+    @RequestMapping(value = "level/upgrade/confirm/{recordId}", method = RequestMethod.POST)
     @ApiOperation(value = "v2.0.0 * 客户支付晋升服务费晋升到指定等级--确认支付等级晋升服务费", notes = "客户支付晋升服务费晋升到指定等级--确认支付等级晋升服务费")
     public ApiResult<NullObject> confirmUpgradeLevel(
             @ApiParam(name = "recordId", value = "记录ID")
-            @RequestParam("recordId") Long recordId,
+            @PathVariable("recordId") Long recordId,
             @ApiParam(name = "smsCode", value = "短信验证码")
             @RequestParam("smsCode") String smsCode,
             @FromSession UserInfo userInfo, HttpServletRequest request) {

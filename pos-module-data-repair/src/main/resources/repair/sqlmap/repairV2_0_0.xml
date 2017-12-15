@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.data.repair.dao.RepairV2_0_0Dao">
+
+    <select id="queryAllRecords" resultType="com.pos.transaction.dto.PosUserGetBrokerageRecordDto">
+        SELECT
+        <include refid="getBrokerageRecordColumns"/>
+        FROM user_pos_get_brokerage_record upgbr
+    </select>
+
+    <sql id="getBrokerageRecordColumns">
+        upgbr.`id` AS `id`,
+        upgbr.user_id AS userId,
+        upgbr.amount AS amount,
+        upgbr.pay_mode AS payMode,
+        upgbr.voucher AS voucher,
+        upgbr.pay_date AS payDate,
+        upgbr.remark AS remark
+    </sql>
+
+    <insert id="saveBrokerageTransaction" parameterType="com.pos.transaction.domain.UserPosTransactionRecord"
+            useGeneratedKeys="true" keyProperty="transaction.id">
+        INSERT INTO user_pos_transaction_record
+        (
+        record_num,
+        transaction_type,
+        in_card,
+        user_id,
+        amount,
+        arrival_amount,
+        pos_charge,
+        status,
+        create_date,
+        complate_date
+        ) VALUE
+        (
+        #{transaction.recordNum},
+        #{transaction.transactionType},
+        #{transaction.inCardId},
+        #{transaction.userId},
+        #{transaction.amount},
+        #{transaction.arrivalAmount},
+        #{transaction.posCharge},
+        #{transaction.status},
+        #{transaction.createDate},
+        #{transaction.completeDate}
+        )
+    </insert>
+
+    <select id="getPermission" resultType="com.pos.authority.domain.CustomerPermission">
+        SELECT
+        `id`,
+        user_id AS userId,
+        `level` AS `level`,
+        withdraw_rate AS withdrawRate,
+        extra_service_charge AS extraServiceCharge,
+        audit_status AS auditStatus,
+        reject_reason AS rejectReason,
+        id_card_name AS idCardName,
+        id_card_no AS idCardNo,
+        id_image_a AS idImageA,
+        id_image_b AS idImageB,
+        pos_card_id AS posCardId,
+        pos_card_image AS posCardImage,
+        update_user_id AS updateUserId,
+        update_time AS updateTime,
+        create_time AS createTime
+        FROM customer_permission
+        WHERE user_id = #{userId}
+    </select>
+
+    <select id="getPermissions" resultType="com.pos.authority.domain.CustomerPermission">
+        SELECT
+        `id`,
+        user_id AS userId,
+        `level` AS `level`,
+        withdraw_rate AS withdrawRate,
+        extra_service_charge AS extraServiceCharge,
+        audit_status AS auditStatus,
+        reject_reason AS rejectReason,
+        id_card_name AS idCardName,
+        id_card_no AS idCardNo,
+        id_image_a AS idImageA,
+        id_image_b AS idImageB,
+        pos_card_id AS posCardId,
+        pos_card_image AS posCardImage,
+        update_user_id AS updateUserId,
+        update_time AS updateTime,
+        create_time AS createTime
+        FROM customer_permission
+        WHERE user_id IN
+        <foreach collection="userIds" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <insert id="saveTransactionHandled" parameterType="com.pos.transaction.domain.UserPosTransactionHandledInfo">
+        INSERT INTO user_pos_transaction_handled_info (
+        record_id,
+        amount,
+        pay_mode,
+        voucher,
+        remark,
+        create_user_id,
+        create_date
+        ) VALUE (
+        #{handledInfo.recordId},
+        #{handledInfo.amount},
+        #{handledInfo.payMode},
+        #{handledInfo.voucher},
+        #{handledInfo.remark},
+        #{handledInfo.createUserId},
+        #{handledInfo.createDate}
+        )
+    </insert>
+</mapper>

@@ -30,6 +30,12 @@
         LIMIT #{limitHelper.offset}, #{limitHelper.pageSize}
     </select>
 
+    <select id="queryAllRecords" resultType="com.pos.transaction.dto.PosUserGetBrokerageRecordDto">
+        SELECT
+        <include refid="recordDtoColumns"/>
+        FROM user_pos_get_brokerage_record upgbr
+    </select>
+
     <sql id="recordDtoColumns">
         upgbr.`id` AS `id`,
         upgbr.user_id AS userId,

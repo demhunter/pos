@@ -110,6 +110,9 @@ public class UserController {
         loginInfoDto.setRecommendType(registerRequestDto.getType());
         ApiResult<CustomerDto> apiResult = registerService.addCustomer(loginInfoDto, true, CustomerType.NATURE);
 
+        if (!apiResult.isSucc()) {
+            return apiResult;
+        }
         CustomerDto customerDto = apiResult.getData();
         // 发送注册推荐人消息
         sendCustomerRegisterMessage(customerDto.getId(), customerDto.getUserPhone(), loginInfoDto.getRecommendId(), loginInfoDto.getRecommendType());

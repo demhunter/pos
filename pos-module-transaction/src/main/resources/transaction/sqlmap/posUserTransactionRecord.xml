@@ -28,7 +28,7 @@
         ) VALUE
         (
             #{transaction.recordNum},
-            #{transaction.transactionType}
+            #{transaction.transactionType},
             #{transaction.inCardId},
             #{transaction.userId},
             #{transaction.amount},
@@ -54,7 +54,7 @@
         ) VALUE
         (
             #{transaction.recordNum},
-            #{transaction.transactionType}
+            #{transaction.transactionType},
             #{transaction.inCardId},
             #{transaction.userId},
             #{transaction.amount},
@@ -81,7 +81,7 @@
         ) VALUE
         (
             #{transaction.recordNum},
-            #{transaction.transactionType}
+            #{transaction.transactionType},
             #{transaction.inCardId},
             #{transaction.userId},
             #{transaction.amount},

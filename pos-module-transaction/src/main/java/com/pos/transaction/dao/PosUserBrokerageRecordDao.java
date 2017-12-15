@@ -37,4 +37,11 @@ public interface PosUserBrokerageRecordDao {
     List<PosUserGetBrokerageRecordDto> queryRecords(
             @Param("user") UserIdentifier user,
             @Param("limitHelper") LimitHelper limitHelper);
+
+    /**
+     * 获取所有提现记录（PS：仅做数据修复查询）
+     *
+     * @return 提现记录
+     */
+    List<PosUserGetBrokerageRecordDto> queryAllRecords();
 }

@@ -61,6 +61,7 @@
                 <value>classpath:user/sqlmap/*.xml</value>
                 <value>classpath:transaction/sqlmap/*.xml</value>
                 <value>classpath:authority/sqlmap/*.xml</value>
+                <value>classpath:repair/sqlmap/*.xml</value>
             </list>
         </property>
         <property name="configLocation" value="classpath:mybatis/mybatis-config.xml"/>

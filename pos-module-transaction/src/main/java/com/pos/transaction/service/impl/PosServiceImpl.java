@@ -426,7 +426,7 @@ public class PosServiceImpl implements PosService {
         UserPosTransactionRecord transaction = posUserTransactionRecordDao.get(recordId);
         if (transaction == null
                 || !transaction.getUserId().equals(userId)
-                || !TransactionType.NORMAL_WITHDRAW.equals(TransactionType.getEnum(transaction.getTransactionType()))) {
+                || !TransactionType.getEnum(transaction.getTransactionType()).canGetPaySmsCode()) {
             return ApiResult.fail(TransactionErrorCode.POS_ERROR_TRANSACTION_NOT_EXISTED);
         }
         if (!TransactionStatusType.PREDICT_TRANSACTION.equals(
@@ -1215,6 +1215,7 @@ public class PosServiceImpl implements PosService {
         // 下单填入CVV2和有效期信息
         outCard.setValidInfo(buildCardValidInfo(levelUpgradeInfo.getCvv2(), levelUpgradeInfo.getValidDate()));
 
+        posCardService.decryptPosCardInfo(outCard);
         return createUpgradeTransaction(permission, outCard, levelUpgradeInfo.getAmount(), ip);
     }
 
