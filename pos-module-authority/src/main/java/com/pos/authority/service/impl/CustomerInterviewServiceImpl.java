@@ -4,8 +4,10 @@
 package com.pos.authority.service.impl;
 
 import com.pos.authority.dao.CustomerInterviewDao;
+import com.pos.authority.domain.CustomerStatistics;
 import com.pos.authority.dto.interview.CustomerInterviewDto;
 import com.pos.authority.service.CustomerInterviewService;
+import com.pos.authority.service.CustomerStatisticsService;
 import com.pos.basic.dto.UserIdentifier;
 import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.common.util.mvc.support.NullObject;
@@ -29,6 +31,9 @@ public class CustomerInterviewServiceImpl implements CustomerInterviewService {
     @Resource
     private CustomerInterviewDao customerInterviewDao;
 
+    @Resource
+    private CustomerStatisticsService customerStatisticsService;
+
     @Override
     public ApiResult<NullObject> addInterview(CustomerInterviewDto interview, UserIdentifier operator) {
         FieldChecker.checkEmpty(interview, "interview");
@@ -39,6 +44,7 @@ public class CustomerInterviewServiceImpl implements CustomerInterviewService {
         interview.setCreateUserId(operator.getUserId());
 
         customerInterviewDao.save(interview);
+        customerStatisticsService.incrementInterviewTimes(interview.getUserId());
 
         return ApiResult.succ();
     }

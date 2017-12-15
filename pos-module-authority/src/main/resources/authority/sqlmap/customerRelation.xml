@@ -99,8 +99,8 @@
             </if>
             <if test="condition.searchKey != null">
                 AND (
-                u.name LIKE CONCAT('%', #{condition.serachKey}, '%')
-                OR cr.remark LIKE CONCAT('%', #{condition.serachKey}, '%')
+                u.name LIKE CONCAT('%', #{condition.searchKey}, '%')
+                OR cr.remark LIKE CONCAT('%', #{condition.searchKey}, '%')
                 )
             </if>
         </where>

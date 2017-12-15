@@ -5,6 +5,7 @@ package com.pos.basic.dto.popularization;
 
 import com.pos.common.util.validation.FieldChecker;
 import com.wordnik.swagger.annotations.ApiModelProperty;
+import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -39,7 +40,9 @@ public class PopularizationDocumentDto implements Serializable {
      */
     public void check() {
         FieldChecker.checkMaxLength(document, 700, "document");
-        FieldChecker.checkMaxSize(images, 9, "图片", "张数");
+        if (!CollectionUtils.isEmpty(images)) {
+            FieldChecker.checkMaxSize(images, 9, "图片", "张数");
+        }
     }
 
     public Long getId() {

@@ -77,7 +77,14 @@
 
     <update id="incrementBrokerage">
         UPDATE customer_statistics
-        SET total_brokerage = total_brokerage + #{brokerage}
+        SET total_brokerage = total_brokerage + #{brokerage},
+        update_time = NOW()
+        WHERE user_id = #{userId}
+    </update>
+
+    <update id="incrementInterViewTimes">
+        UPDATE customer_statistics
+        SET interview_times = interview_times + 1,
         update_time = NOW()
         WHERE user_id = #{userId}
     </update>

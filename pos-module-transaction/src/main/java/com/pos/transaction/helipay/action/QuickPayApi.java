@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @Component
-public class QuickPayApi extends DemoBase {
+public class QuickPayApi {
 
     private static final Log log = LogFactory.getLog(QuickPayApi.class);
 
@@ -28,7 +28,7 @@ public class QuickPayApi extends DemoBase {
 
     @Resource
     private PosConstants posConstants;
-    
+
     public ApiResult<CreateOrderResponseVo> createOrder(CreateOrderVo orderVo) {
         log.info("--------进入创建订单接口----------");
         try {

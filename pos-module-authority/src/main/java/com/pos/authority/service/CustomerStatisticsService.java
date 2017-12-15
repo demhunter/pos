@@ -70,4 +70,11 @@ public interface CustomerStatisticsService {
      * @param brokerage 佣金金额
      */
     void incrementBrokerage(Long userId, BigDecimal brokerage);
+
+    /**
+     * 累计回访次数
+     *
+     * @param userId 用户id
+     */
+    void incrementInterviewTimes(Long userId);
 }

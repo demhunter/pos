@@ -75,7 +75,7 @@
                     AND available = #{condition.available}
                 </if>
                 <if test="condition.searchKey != null">
-                    AND content LIKE CONCAT('%', #{condition.searchKey, '%'})
+                    AND document LIKE CONCAT('%', #{condition.searchKey}, '%')
                 </if>
             </where>
         </if>

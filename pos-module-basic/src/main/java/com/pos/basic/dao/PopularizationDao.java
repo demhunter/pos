@@ -51,7 +51,10 @@ public interface PopularizationDao {
      * @param available    true：启用；false：禁用
      * @param updateUserId 更新操作人
      */
-    void updateDocumentAvailable(Long documentId, boolean available, Long updateUserId);
+    void updateDocumentAvailable(
+            @Param("documentId") Long documentId,
+            @Param("available") boolean available,
+            @Param("updateUserId") Long updateUserId);
 
     /**
      * 查询符合条件的推广文案数量

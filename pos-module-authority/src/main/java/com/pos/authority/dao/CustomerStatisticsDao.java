@@ -80,4 +80,11 @@ public interface CustomerStatisticsDao {
     void incrementBrokerage(
             @Param("userId") Long userId,
             @Param("brokerage") BigDecimal brokerage);
+
+    /**
+     * 以原子形式
+     *
+     * @param userId 用户id
+     */
+    void incrementInterViewTimes(@Param("userId") Long userId);
 }

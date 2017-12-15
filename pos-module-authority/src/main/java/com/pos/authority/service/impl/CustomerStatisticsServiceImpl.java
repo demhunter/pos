@@ -191,4 +191,11 @@ public class CustomerStatisticsServiceImpl implements CustomerStatisticsService 
 
         customerStatisticsDao.incrementBrokerage(userId, brokerage);
     }
+
+    @Override
+    public void incrementInterviewTimes(Long userId) {
+        FieldChecker.checkEmpty(userId, "userId");
+
+        customerStatisticsDao.incrementInterViewTimes(userId);
+    }
 }
