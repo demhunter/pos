@@ -43,6 +43,18 @@ public class CustomerPermissionBasicDto implements Serializable {
         FieldChecker.checkEmpty(extraServiceCharge, fieldPrefix + "extraServiceCharge");
     }
 
+    public void hundredPercentRate() {
+        if (this.withdrawRate != null) {
+            this.withdrawRate = this.withdrawRate.multiply(new BigDecimal("100"));
+        }
+    }
+
+    public void tenThousandPercentRate() {
+        if (this.withdrawRate != null) {
+            this.withdrawRate = this.withdrawRate.divide(new BigDecimal("100"), 4, BigDecimal.ROUND_DOWN);
+        }
+    }
+
     public Long getId() {
         return id;
     }

@@ -359,7 +359,7 @@ public class PosCardServiceImpl implements PosCardService {
         Map<Long, PosCardDto> result = new HashMap<>();
 
         List<PosCardDto> list = posCardDao.queryByCardIds(cardIds);
-        if (!CollectionUtils.isEmpty(result)) {
+        if (!CollectionUtils.isEmpty(list)) {
             list.forEach(card -> {
                 if (decrypted) {
                     decryptPosCardInfo(card);

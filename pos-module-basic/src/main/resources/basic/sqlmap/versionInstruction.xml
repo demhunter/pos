@@ -24,8 +24,8 @@
             version,
             instruction,
             available,
-            create_user_id AS createUserId,
-            create_time AS createTime
+            create_user_id,
+            create_time
         ) VALUE
         (
             #{instruction.version},
@@ -47,7 +47,7 @@
 
     <update id="updateAvailable">
         UPDATE version_instruction
-        SET available = #{available}
+        SET available = #{available},
         update_user_id = #{updateUserId},
         update_time = NOW()
         WHERE `id` = #{instructionId}

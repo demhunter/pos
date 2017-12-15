@@ -22,6 +22,7 @@ import com.pos.common.util.basic.JsonUtils;
 import com.pos.common.util.basic.SHAUtils;
 import com.pos.common.util.basic.UUIDUnsigned32;
 import com.pos.common.util.constans.GlobalConstants;
+import com.pos.common.util.exception.ErrorCode;
 import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.common.util.mvc.support.NullObject;
 import com.pos.common.util.validation.FieldChecker;
@@ -52,6 +53,7 @@ import com.pos.transaction.service.PosService;
 import com.pos.user.dao.UserDao;
 import com.pos.user.exception.UserErrorCode;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpException;
 import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -838,7 +840,23 @@ public class PosServiceImpl implements PosService {
         UserPosTransactionRecord originTransaction = buildAndSaveOriginNormalTransaction(permission, amount, outCard);
 
         CreateOrderVo createOrderVo = buildCreateOrderVo(originTransaction, outCard, ip);
-        ApiResult apiResult = quickPayApi.createOrder(createOrderVo);
+        ApiResult apiResult;
+        try {
+            apiResult = quickPayApi.createOrder(createOrderVo);
+        } catch (Exception e) {
+            apiResult = ApiResult.fail(new ErrorCode() {
+                @Override
+                public int getCode() {
+                    return -1;
+                }
+
+                @Override
+                public String getMessage() {
+                    return "网络异常";
+                }
+            });
+        }
+
         if (apiResult.isSucc()) {
             // 状态机变更
             TransactionStatusType statusType = TransactionStatusType.getEnum(originTransaction.getStatus());

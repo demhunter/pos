@@ -47,7 +47,7 @@
     <select id="getDocumentCount" resultType="int">
         SELECT
         COUNT(*)
-        FOMR popularization_document
+        FROM popularization_document
         <include refid="documentConditionColumns"/>
     </select>
 

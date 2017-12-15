@@ -212,6 +212,10 @@ public class CustomerAuthorityServiceImpl implements CustomerAuthorityService {
         if (basicPermission.getExtraServiceCharge().compareTo(authorityConstants.getPosExtraServiceChargeDownLimit()) < 0) {
             return ApiResult.fail(AuthorityErrorCode.UPGRADE_ERROR_EXTRA_LESS_THAN_LIMIT);
         }
+        permission.setLevel(basicPermission.getLevel());
+        permission.setWithdrawRate(basicPermission.getWithdrawRate());
+        permission.setExtraServiceCharge(basicPermission.getExtraServiceCharge());
+        permission.setUpdateUserId(operator.getUserId());
 
         customerPermissionDao.updateLevelConfig(permission);
         customerRelationPoolSupport.updateLevelConfig(permission);

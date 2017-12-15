@@ -127,6 +127,7 @@ public class StatisticsController {
                 daily.getPosCustomerCount(),
                 daily.getPosTransactionCount(),
                 daily.getPosAmount(),
+                daily.getGrossProfit(),
                 daily.getBrokerageCustomerCount(),
                 daily.getBrokerageWithdrawalTimes(),
                 daily.getBrokerageServiceCharge()

@@ -57,6 +57,20 @@ public class PosGeneralStatisticsDto implements Serializable {
     @ApiModelProperty("佣金提现手续费支出（BigDecimal）")
     private BigDecimal brokerageServiceCharge;
 
+    public PosGeneralStatisticsDto() {
+        customerCount = 0L;
+        posCustomerCount = 0L;
+        posTransactionCount = 0L;
+        totalPosAmount = BigDecimal.ZERO;
+        grossProfit = BigDecimal.ZERO;
+        totalBrokerage = BigDecimal.ZERO;
+        withdrawalBrokerage = BigDecimal.ZERO;
+        noWithdrawalBrokerage = BigDecimal.ZERO;
+        brokerageCustomerCount = 0L;
+        brokerageWithdrawalTimes = 0L;
+        brokerageServiceCharge = BigDecimal.ZERO;
+    }
+
     public Long getCustomerCount() {
         return customerCount;
     }

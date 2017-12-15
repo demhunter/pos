@@ -27,8 +27,8 @@
         pos_amount AS posAmount,
         gross_profit AS grossProfit,
         brokerage_customer_count AS brokerageCustomerCount,
-        brokerage_withdraw_times AS brokerageWithdrawTimes,
-        brokerage_service_charge AS brokerServiceCharge
+        brokerage_withdraw_times AS brokerageWithdrawalTimes,
+        brokerage_service_charge AS brokerageServiceCharge
         FROM transaction_daily_statistics
         <where>
             <if test="beginTime != null">
@@ -110,7 +110,7 @@
             resultType="com.pos.transaction.dto.statistics.PosGeneralStatisticsDto">
         SELECT
             SUM(brokerage) AS totalBrokerage,
-            SUM(IF(status == 0, brokerage, NULL)) AS noWithdrawalBrokerage,
+            SUM(IF(status = 0, brokerage, NULL)) AS noWithdrawalBrokerage,
             SUM(IF(status != 0, brokerage, NULL)) AS withdrawalBrokerage
         FROM transaction_customer_brokerage
     </select>

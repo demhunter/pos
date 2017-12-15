@@ -185,7 +185,9 @@ public class CustomerController {
     public ApiResult<CustomerPermissionBasicDto> getPosUserPermission(
             @ApiParam(name = "userId", value = "用户id")
             @PathVariable("userId") Long userId) {
-        return ApiResult.succ(customerAuthorityService.getPermissionBasicInfo(userId));
+        CustomerPermissionBasicDto result = customerAuthorityService.getPermissionBasicInfo(userId);
+        result.hundredPercentRate();
+        return ApiResult.succ(result);
     }
 
     @RequestMapping(value = "{userId}/permission", method = RequestMethod.POST)
@@ -196,6 +198,7 @@ public class CustomerController {
             @ApiParam(name = "permissionInfo", value = "新权限信息")
             @RequestBody CustomerPermissionBasicDto permissionInfo,
             @FromSession UserInfo userInfo) {
+        permissionInfo.tenThousandPercentRate();
         boolean hasLock = false;
         ReentrantLock lock = SEG_LOCKS.getLock(userId);
         try {
@@ -406,5 +409,10 @@ public class CustomerController {
                 });
             }
         }
+
+        posUsers.forEach(e -> {
+            DescendantStatisticsDto descendantStatistics = customerStatisticsService.getDescendantStatistics(e.getUserId());
+            e.setDescendantCount(descendantStatistics.getDescendantCount());
+        });
     }
 }

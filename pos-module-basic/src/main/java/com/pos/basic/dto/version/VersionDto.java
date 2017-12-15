@@ -107,7 +107,7 @@ public class VersionDto implements Serializable {
     @Override
     public String toString() {
         String point = ".";
-        return firstVersion + point + secondVersion + point + thirdVersion + point;
+        return firstVersion + point + secondVersion + point + thirdVersion;
     }
 
     public Integer getFirstVersion() {
