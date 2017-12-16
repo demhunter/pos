@@ -97,7 +97,7 @@
             <if test="condition.level != null">
                 AND cp.level = #{condition.level}
             </if>
-            <if test="condition.searchKey != null">
+            <if test="condition.searchKey != null and condition.searchKey != ''">
                 AND (
                 u.name LIKE CONCAT('%', #{condition.searchKey}, '%')
                 OR cr.remark LIKE CONCAT('%', #{condition.searchKey}, '%')

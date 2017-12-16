@@ -33,7 +33,7 @@
         pos_charge,
         status,
         create_date,
-        complate_date
+        complete_date
         ) VALUE
         (
         #{transaction.recordNum},
@@ -114,5 +114,50 @@
         #{handledInfo.createUserId},
         #{handledInfo.createDate}
         )
+    </insert>
+
+    <select id="queryAllTwitterBrokerage" resultType="com.pos.transaction.domain.UserPosTwitterBrokerage">
+        SELECT
+            `id` AS `id`,
+            record_id AS recordId,
+            base_rate AS baseRate,
+            agent_user_id AS agentUserId,
+            agent_rate AS agentRate,
+            agent_charge AS agentCharge,
+            get_agent AS getAgent,
+            get_agent_date AS getAgentDate,
+            parent_agent_user_id AS parentAgentUserId,
+            parent_agent_rate AS parentAgentRate,
+            parent_agent_charge AS parentAgentCharge,
+            get_parent_agent AS getParentAgent,
+            get_parent_agent_date AS getParentDate,
+            create_date AS createDate
+        FROM user_pos_twitter_brokerage
+    </select>
+
+    <insert id="saveCustomerBrokerages" parameterType="com.pos.transaction.domain.TransactionCustomerBrokerage">
+        INSERT INTO transaction_customer_brokerage
+        (
+            transaction_id,
+            ancestor_user_id,
+            `level`,
+            withdraw_rate,
+            brokerage_rate,
+            brokerage,
+            status_time,
+            create_time
+        ) VALUES
+        <foreach collection="brokerages" item="item" index="index" open="" separator="," close="">
+            (
+            #{item.transactionId},
+            #{item.ancestorUserId},
+            #{item.level},
+            #{item.withdrawRate},
+            #{item.brokerageRate},
+            #{item.brokerage},
+            NOW(),
+            NOW()
+            )
+        </foreach>
     </insert>
 </mapper>

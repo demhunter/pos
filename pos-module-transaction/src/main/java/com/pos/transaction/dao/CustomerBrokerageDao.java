@@ -27,7 +27,7 @@ public interface CustomerBrokerageDao {
      *
      * @param brokerages 佣金列表
      */
-    void saveBrokerages(List<TransactionCustomerBrokerage> brokerages);
+    void saveBrokerages(@Param("brokerage") List<TransactionCustomerBrokerage> brokerages);
 
     /**
      * 获取指定时间范围内的用户总佣金

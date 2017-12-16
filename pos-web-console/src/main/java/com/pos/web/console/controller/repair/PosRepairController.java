@@ -46,4 +46,11 @@ public class PosRepairController {
     public ApiResult<List<Long>> repairBrokerageTransaction() {
         return dataRepairV2_0_0.repairBrokerageTransaction();
     }
+
+    @RequestMapping(value = "brokerage/record", method = RequestMethod.GET)
+    @ApiOperation(value = "v2.0.0 * 修复交易分佣记录", notes = "修复交易分佣记录")
+    public ApiResult<NullObject> repairCustomerBrokerage() {
+         dataRepairV2_0_0.repairTransactionCustomerBrokerage();
+         return ApiResult.succ();
+    }
 }

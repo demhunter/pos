@@ -4,8 +4,10 @@
 package com.pos.data.repair.dao;
 
 import com.pos.authority.domain.CustomerPermission;
+import com.pos.transaction.domain.TransactionCustomerBrokerage;
 import com.pos.transaction.domain.UserPosTransactionHandledInfo;
 import com.pos.transaction.domain.UserPosTransactionRecord;
+import com.pos.transaction.domain.UserPosTwitterBrokerage;
 import com.pos.transaction.dto.PosUserGetBrokerageRecordDto;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -58,5 +60,19 @@ public interface RepairV2_0_0Dao {
      * @param handledInfo 处理信息
      */
     void saveTransactionHandled(@Param("handledInfo") UserPosTransactionHandledInfo handledInfo);
+
+    /**
+     * 查询所有的推客分佣记录
+     *
+     * @return 分佣记录
+     */
+    List<UserPosTwitterBrokerage> queryAllTwitterBrokerage();
+
+    /**
+     * 批量保存生成的交易佣金信息
+     *
+     * @param brokerages 佣金列表
+     */
+    void saveCustomerBrokerages(@Param("brokerages") List<TransactionCustomerBrokerage> brokerages);
 
 }

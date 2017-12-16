@@ -19,7 +19,6 @@ import com.pos.user.constant.UserType;
 import com.pos.user.dto.IdentityInfoDto;
 import com.pos.user.dto.LoginInfoDto;
 import com.pos.user.dto.UserLoginDto;
-import com.pos.user.dto.UserRegConfirmDto;
 import com.pos.user.dto.customer.CustomerDto;
 import com.pos.user.dto.mq.CustomerInfoMsg;
 import com.pos.user.exception.UserErrorCode;
@@ -29,7 +28,6 @@ import com.pos.user.service.RegisterService;
 import com.pos.user.service.UserService;
 import com.pos.user.session.UserInfo;
 import com.pos.user.session.UserSessionComponent;
-import com.pos.user.session.UserSessionPosComponent;
 import com.pos.web.pos.vo.request.LoginRequestDto;
 import com.pos.web.pos.vo.request.RegisterRequestDto;
 import com.pos.web.pos.vo.user.UserUpdatePasswordVo;
@@ -108,7 +106,8 @@ public class UserController {
         loginInfoDto.setIp(HttpRequestUtils.getRealRemoteAddr(request));
         loginInfoDto.setRecommendId(registerRequestDto.getLeaderId());
         loginInfoDto.setRecommendType(registerRequestDto.getType());
-        ApiResult<CustomerDto> apiResult = registerService.addCustomer(loginInfoDto, true, CustomerType.NATURE);
+        boolean autoLogin = registerRequestDto.autoLogin();
+        ApiResult<CustomerDto> apiResult = registerService.addCustomer(loginInfoDto, autoLogin, CustomerType.NATURE);
 
         if (!apiResult.isSucc()) {
             return apiResult;
@@ -117,7 +116,9 @@ public class UserController {
         // 发送注册推荐人消息
         sendCustomerRegisterMessage(customerDto.getId(), customerDto.getUserPhone(), loginInfoDto.getRecommendId(), loginInfoDto.getRecommendType());
         // 自动登录
-        customerDto.setUserSession(userSessionComponent.add(session, new UserInfo(customerDto)));
+        if (autoLogin) {
+            customerDto.setUserSession(userSessionComponent.add(session, new UserInfo(customerDto)));
+        }
 
         apiResult.setMessage("客户注册成功！");
         return apiResult;

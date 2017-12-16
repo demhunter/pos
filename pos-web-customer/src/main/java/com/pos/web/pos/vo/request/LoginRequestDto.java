@@ -3,6 +3,7 @@
  */
 package com.pos.web.pos.vo.request;
 
+import com.pos.user.dto.UserExtensionInfoDto;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 
 import java.io.Serializable;
@@ -27,6 +28,9 @@ public class LoginRequestDto implements Serializable {
 
     @ApiModelProperty("上一级的userId")
     private Long leaderId;
+
+    @ApiModelProperty("用户登录拓展信息")
+    private UserExtensionInfoDto userExtensionInfo;
 
     public String getPhone() {
         return phone;
@@ -58,5 +62,13 @@ public class LoginRequestDto implements Serializable {
 
     public void setLeaderId(Long leaderId) {
         this.leaderId = leaderId;
+    }
+
+    public UserExtensionInfoDto getUserExtensionInfo() {
+        return userExtensionInfo;
+    }
+
+    public void setUserExtensionInfo(UserExtensionInfoDto userExtensionInfo) {
+        this.userExtensionInfo = userExtensionInfo;
     }
 }

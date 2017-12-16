@@ -3,6 +3,7 @@
  */
 package com.pos.web.pos.vo.request;
 
+import com.pos.user.dto.UserExtensionInfoDto;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 
 import java.io.Serializable;
@@ -23,11 +24,23 @@ public class RegisterRequestDto implements Serializable {
     @ApiModelProperty("密码")
     private String password;
 
-    @ApiModelProperty("选填，登录的类型（int，1 = 推广发展客户的链接，2 = 推广发展渠推客的链接）")
-    private Byte type;
+    @ApiModelProperty("注册类型（int，1 = APP注册（自动登录），2 = 分享注册（不自动登录），默认APP注册）")
+    private Byte type = 1;
 
     @ApiModelProperty("选填，上一级的userId")
     private Long leaderId;
+
+    @ApiModelProperty("用户注册拓展信息")
+    private UserExtensionInfoDto userExtensionInfo;
+
+    /**
+     * 注册时是否自动登录和保存登录信息
+     *
+     * @return true：记录登录信息并自动登录；false：不记录登录信息且不登录
+     */
+    public boolean autoLogin() {
+        return type != null && type == 1;
+    }
 
     public Byte getType() {
         return type;
@@ -69,4 +82,11 @@ public class RegisterRequestDto implements Serializable {
         this.password = password;
     }
 
+    public UserExtensionInfoDto getUserExtensionInfo() {
+        return userExtensionInfo;
+    }
+
+    public void setUserExtensionInfo(UserExtensionInfoDto userExtensionInfo) {
+        this.userExtensionInfo = userExtensionInfo;
+    }
 }
