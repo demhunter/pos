@@ -160,4 +160,42 @@
             )
         </foreach>
     </insert>
+
+    <select id="queryAllCustomerStatistics" resultType="com.pos.authority.domain.CustomerStatistics">
+        SELECT * FROM customer_statistics
+    </select>
+
+    <select id="queryAllRelation" resultType="com.pos.authority.domain.CustomerRelation">
+        SELECT * FROM customer_relation
+    </select>
+
+    <select id="queryNormalTransaction" resultType="com.pos.transaction.domain.UserPosTransactionRecord">
+        SELECT *
+        FROM user_pos_transaction_record
+        WHERE transaction_type = 1
+        AND (status = 3 OR status = 4)
+    </select>
+
+    <select id="queryAllCustomerBrokerage" resultType="com.pos.transaction.domain.TransactionCustomerBrokerage">
+        SELECT * FROM transaction_customer_brokerage
+    </select>
+
+    <select id="queryBrokerageTransaction" resultType="com.pos.transaction.domain.UserPosTransactionRecord">
+        SELECT *
+        FROM user_pos_transaction_record
+        WHERE transaction_type = 2
+        AND (status = 3 OR status = 4)
+    </select>
+
+    <update id="updateCustomerStatistics" parameterType="com.pos.authority.domain.CustomerStatistics">
+        UPDATE customer_statistics
+        SET children_count = #{statistics.childrenCount},
+        withdraw_amount = #{statistics.withdrawAmount},
+        withdraw_amount_times = #{statistics.withdrawAmountTimes},
+        total_brokerage = #{statistics.totalBrokerage},
+        withdrawal_brokerage = #{statistics.withdrawalBrokerage},
+        withdrawal_brokerage_times = #{statistics.withdrawalBrokerageTimes},
+        update_time = NOW()
+        WHERE user_id = #{statistics.userId}
+    </update>
 </mapper>

@@ -5,6 +5,8 @@ package com.pos.data.repair.v2_0_0;
 
 import com.google.common.collect.Lists;
 import com.pos.authority.domain.CustomerPermission;
+import com.pos.authority.domain.CustomerRelation;
+import com.pos.authority.domain.CustomerStatistics;
 import com.pos.common.util.basic.UUIDUnsigned32;
 import com.pos.common.util.exception.ErrorCode;
 import com.pos.common.util.mvc.support.ApiResult;
@@ -45,6 +47,138 @@ public class DataRepairV2_0_0 {
     @Resource
     private PosConstants posConstants;
 
+    // 修复用户统计数据
+    public void repairCustomerStatistics() {
+        LOG.info("开始修复用户统计数据......");
+
+        LOG.info("获取用户统计数据......");
+        List<CustomerStatistics> statisticsList = repairV2_0_0Dao.queryAllCustomerStatistics();
+        if (CollectionUtils.isEmpty(statisticsList)) {
+            LOG.info("没有用户统计数据");
+            LOG.info("用户统计数据修复结束......");
+            return;
+        }
+
+        Map<Long, CustomerStatistics> statisticsMap = new HashMap<>();
+        statisticsList.forEach(e -> statisticsMap.put(e.getUserId(), e));
+
+        LOG.info("修复用户直接下级统计数据......");
+        List<CustomerRelation> relations = repairV2_0_0Dao.queryAllRelation();
+        if (CollectionUtils.isEmpty(relations)) {
+            LOG.info("没有用户关系数据");
+        } else {
+            LOG.info("共查询到{}条关系数据", relations.size());
+            Map<Long, Integer> childCountMap = new HashMap<>();
+            relations.forEach(e -> {
+                if (e.getParentUserId() != 0) {
+                    Integer count = childCountMap.get(e.getParentUserId());
+                    if (count == null) {
+                        count = 0;
+                    }
+                    childCountMap.put(e.getParentUserId(), count + 1);
+                }
+            });
+            if (!CollectionUtils.isEmpty(childCountMap)) {
+                childCountMap.forEach((userId, childCount) -> {
+                    statisticsMap.get(userId).setChildrenCount(childCount);
+                });
+            }
+            LOG.info("共修复{}条直接下级统计数据", childCountMap.size());
+        }
+        LOG.info("修复用户直接下级统计数据结束");
+
+        LOG.info("修复用户收款统计数据......");
+        List<UserPosTransactionRecord> normalTransactions = repairV2_0_0Dao.queryNormalTransaction();
+        if (CollectionUtils.isEmpty(normalTransactions)) {
+            LOG.info("没有用户收款数据");
+        } else {
+            LOG.info("共查询到{}条收款数据", normalTransactions.size());
+            Map<Long, Integer> posCountMap = new HashMap<>();
+            Map<Long, BigDecimal> posAmountMap = new HashMap<>();
+            normalTransactions.forEach(e -> {
+                Integer count = posCountMap.get(e.getUserId());
+                if (count == null) {
+                    count = 0;
+                }
+                posCountMap.put(e.getUserId(), count + 1);
+
+                BigDecimal amount = posAmountMap.get(e.getUserId());
+                if (amount == null) {
+                    amount = BigDecimal.ZERO;
+                }
+                posAmountMap.put(e.getUserId(), amount.add(e.getAmount()));
+            });
+            if (!CollectionUtils.isEmpty(posCountMap)) {
+                posCountMap.forEach((userId, count) -> {
+                    CustomerStatistics statistics = statisticsMap.get(userId);
+                    statistics.setWithdrawAmountTimes(count);
+                    statistics.setWithdrawAmount(posAmountMap.get(userId));
+                });
+            }
+            LOG.info("共修复{}条收款统计数据", posCountMap.size());
+        }
+        LOG.info("修复用户收款统计数据结束");
+
+        LOG.info("修复用户总佣金统计数据......");
+        List<TransactionCustomerBrokerage> brokerages = repairV2_0_0Dao.queryAllCustomerBrokerage();
+        if (CollectionUtils.isEmpty(brokerages)) {
+            LOG.info("没有交易分佣数据");
+        } else {
+            LOG.info("共查询到{}条交易分佣数据", brokerages.size());
+            Map<Long, BigDecimal> brokerageMap = new HashMap<>();
+            brokerages.forEach(e -> {
+                BigDecimal brokerage = brokerageMap.get(e.getAncestorUserId());
+                if (brokerage == null) {
+                    brokerage = BigDecimal.ZERO;
+                }
+                brokerageMap.put(e.getAncestorUserId(), brokerage.add(e.getBrokerage()));
+            });
+            if (!CollectionUtils.isEmpty(brokerageMap)) {
+                brokerageMap.forEach((userId, brokerage) -> {
+                    statisticsMap.get(userId).setTotalBrokerage(brokerage);
+                });
+            }
+            LOG.info("共修复{}条总佣金统计数据", brokerageMap.size());
+        }
+        LOG.info("修复用户总佣金统计数据结束");
+
+        LOG.info("修复用户佣金提取统计数据......");
+        List<UserPosTransactionRecord> brokerageTransactions = repairV2_0_0Dao.queryBrokerageTransaction();
+        if (CollectionUtils.isEmpty(brokerageTransactions)) {
+            LOG.info("没有佣金提取数据");
+        } else {
+            LOG.info("共查询到{}条佣金提取数据", brokerageTransactions.size());
+            Map<Long, Integer> withdrawalTimesMap = new HashMap<>();
+            Map<Long, BigDecimal> withdrawalBrokerageMap = new HashMap<>();
+            brokerageTransactions.forEach(e -> {
+                Integer times = withdrawalTimesMap.get(e.getUserId());
+                if (times == null) {
+                    times = 0;
+                }
+                withdrawalTimesMap.put(e.getUserId(), times + 1);
+                BigDecimal brokerage = withdrawalBrokerageMap.get(e.getUserId());
+                if (brokerage == null) {
+                    brokerage = BigDecimal.ZERO;
+                }
+                withdrawalBrokerageMap.put(e.getUserId(), brokerage.add(e.getAmount()));
+            });
+            if (!CollectionUtils.isEmpty(withdrawalTimesMap)) {
+                withdrawalTimesMap.forEach((userId, count) -> {
+                    CustomerStatistics statistics = statisticsMap.get(userId);
+                    statistics.setWithdrawalBrokerageTimes(count);
+                    statistics.setWithdrawalBrokerage(withdrawalBrokerageMap.get(userId));
+                });
+            }
+            LOG.info("共修复{}条佣金提取统计数据", withdrawalTimesMap.size());
+        }
+        LOG.info("修复用户佣金提取统计数据结束");
+
+        statisticsList.forEach(e -> {
+            repairV2_0_0Dao.updateCustomerStatistics(e);
+        });
+        LOG.info("用户统计数据修复结束......");
+    }
+
     // 修复交易分佣记录
     public void repairTransactionCustomerBrokerage() {
         LOG.info("开始修复交易分佣记录......");
@@ -66,7 +200,7 @@ public class DataRepairV2_0_0 {
         if (permissions.size() != userIdSet.size()) {
             LOG.error("交易分佣记录中有不存在于系统中的用户");
             LOG.error("交易分佣记录修复异常结束");
-            return ;
+            return;
         }
         Map<Long, CustomerPermission> permissionMap = new HashMap<>();
         permissions.forEach(e -> permissionMap.put(e.getUserId(), e));

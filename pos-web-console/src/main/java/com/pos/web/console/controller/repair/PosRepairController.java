@@ -53,4 +53,11 @@ public class PosRepairController {
          dataRepairV2_0_0.repairTransactionCustomerBrokerage();
          return ApiResult.succ();
     }
+
+    @RequestMapping(value = "statistics/customer", method = RequestMethod.GET)
+    @ApiOperation(value = "v2.0.0 * 修复用户统计数据", notes = "修复用户统计数据")
+    public ApiResult<NullObject> repairCustomerStatistics() {
+        dataRepairV2_0_0.repairCustomerStatistics();
+        return ApiResult.succ();
+    }
 }

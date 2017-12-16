@@ -26,6 +26,8 @@ public class CustomerStatistics implements Serializable {
 
     private BigDecimal withdrawAmount; // 收款总金额
 
+    private Integer withdrawAmountTimes; // 收款次数
+
     private BigDecimal totalBrokerage; // 总佣金
 
     private BigDecimal withdrawalBrokerage; // 已提现佣金
@@ -44,10 +46,19 @@ public class CustomerStatistics implements Serializable {
         this.paidCharge = BigDecimal.ZERO;
         this.childrenCount = 0;
         this.withdrawAmount = BigDecimal.ZERO;
+        this.withdrawAmountTimes = 0;
         this.totalBrokerage = BigDecimal.ZERO;
         this.withdrawalBrokerage = BigDecimal.ZERO;
         this.withdrawalBrokerageTimes = 0;
         this.interviewTimes = 0;
+    }
+
+    public Integer getWithdrawAmountTimes() {
+        return withdrawAmountTimes;
+    }
+
+    public void setWithdrawAmountTimes(Integer withdrawAmountTimes) {
+        this.withdrawAmountTimes = withdrawAmountTimes;
     }
 
     public Long getId() {

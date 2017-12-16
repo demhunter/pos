@@ -4,6 +4,8 @@
 package com.pos.data.repair.dao;
 
 import com.pos.authority.domain.CustomerPermission;
+import com.pos.authority.domain.CustomerRelation;
+import com.pos.authority.domain.CustomerStatistics;
 import com.pos.transaction.domain.TransactionCustomerBrokerage;
 import com.pos.transaction.domain.UserPosTransactionHandledInfo;
 import com.pos.transaction.domain.UserPosTransactionRecord;
@@ -75,4 +77,45 @@ public interface RepairV2_0_0Dao {
      */
     void saveCustomerBrokerages(@Param("brokerages") List<TransactionCustomerBrokerage> brokerages);
 
+    /**
+     * 获取所有用户的统计数据
+     *
+     * @return 用户的统计数据
+     */
+    List<CustomerStatistics> queryAllCustomerStatistics();
+
+    /**
+     * 获取所有的用户关系数据
+     *
+     * @return 用户关系数据
+     */
+    List<CustomerRelation> queryAllRelation();
+
+    /**
+     * 获取所有成功的普通收款交易
+     *
+     * @return 普通收款交易
+     */
+    List<UserPosTransactionRecord> queryNormalTransaction();
+
+    /**
+     * 获取所有用户分佣记录
+     *
+     * @return 分佣记录
+     */
+    List<TransactionCustomerBrokerage> queryAllCustomerBrokerage();
+
+    /**
+     * 获取所有成功的佣金提取交易
+     *
+     * @return 佣金提取交易
+     */
+    List<UserPosTransactionRecord> queryBrokerageTransaction();
+
+    /**
+     * 更新用户统计数据
+     *
+     * @param statistics 统计信息
+     */
+    void updateCustomerStatistics(@Param("statistics") CustomerStatistics statistics);
 }
