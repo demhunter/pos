@@ -36,7 +36,7 @@ public class AppVersionConfigServiceImpl implements AppVersionConfigService {
             dto.setId(appVersionConfig.getId());
             dto.setCurrentVersion(appVersionConfig.getCurrentVersion());
             dto.setMinVersion(appVersionConfig.getMinVersion());
-            dto.setCurrentUrl(appVersionConfig.getCurUrl());
+            dto.setCurrentUrl(appVersionConfig.getCurrentUrl());
             dto.setLatestUrl(appVersionConfig.getLatestUrl());
             dto.setLatestAndroidUrl(appVersionConfig.getLatestAndroidUrl());
             dto.setLatestAndroidMd5(appVersionConfig.getLatestAndroidMd5());

@@ -21,7 +21,7 @@ public class AppVersionConfig implements Serializable {
 
     private String minVersion; // 支持的最小版本号，低于该版本号必须升级APP
 
-    private String curUrl; // 当前生产环境的访问地址
+    private String currentUrl; // 当前生产环境的访问地址
 
     private String latestUrl; // 最新版本的访问地址（一般情况下，该值不为空，表示有新版本处于审核/测试中）
 
@@ -53,12 +53,12 @@ public class AppVersionConfig implements Serializable {
         this.minVersion = minVersion;
     }
 
-    public String getCurUrl() {
-        return curUrl;
+    public String getCurrentUrl() {
+        return currentUrl;
     }
 
-    public void setCurUrl(String curUrl) {
-        this.curUrl = curUrl;
+    public void setCurrentUrl(String currentUrl) {
+        this.currentUrl = currentUrl;
     }
 
     public String getLatestUrl() {
