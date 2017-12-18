@@ -33,7 +33,7 @@
         FROM
         customer_relation cr
         INNER JOIN customer_permission cp ON cr.user_id = cp.user_id
-        LIMIT #{limitHelper.offset} #{limitHelper.pageSize}
+        LIMIT #{limitHelper.offset}, #{limitHelper.pageSize}
     </select>
 
     <select id="getByChildUserId" resultType="com.pos.authority.dto.relation.CustomerRelationDto">

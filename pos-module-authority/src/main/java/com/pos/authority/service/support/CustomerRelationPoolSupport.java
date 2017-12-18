@@ -150,9 +150,11 @@ public class CustomerRelationPoolSupport {
 
         // 保存直接子节点信息
         if (!CollectionUtils.isEmpty(node.getChildren())) {
-            redisTemplate.opsForSet().add(
-                    RedisConstants.POS_CUSTOMER_RELATION_NODE_CHILDREN + node.getUserId(),
-                    node.getChildren().toArray());
+            node.getChildren().forEach(e -> {
+                redisTemplate.opsForSet().add(
+                        RedisConstants.POS_CUSTOMER_RELATION_NODE_CHILDREN + node.getUserId(),
+                        e.toString());
+            });
         }
     }
 

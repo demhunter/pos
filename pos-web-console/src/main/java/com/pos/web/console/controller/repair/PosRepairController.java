@@ -3,6 +3,7 @@
  */
 package com.pos.web.console.controller.repair;
 
+import com.pos.authority.service.support.CustomerRelationPoolSupport;
 import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.common.util.mvc.support.NullObject;
 import com.pos.data.repair.dao.RepairV2_0_0Dao;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import javax.annotation.Resources;
 import java.util.List;
 
 /**
@@ -33,6 +35,16 @@ public class PosRepairController {
 
     @Resource
     private DataRepairV2_0_0 dataRepairV2_0_0;
+
+    @Resource
+    private CustomerRelationPoolSupport customerRelationPoolSupport;
+
+    @RequestMapping(value = "relation/tree", method = RequestMethod.GET)
+    @ApiOperation(value = "v2.0.0 * 初始化用户关系树", notes = "初始化用户关系树")
+    public ApiResult<NullObject> repairRelationTree() {
+        customerRelationPoolSupport.initialize();
+        return ApiResult.succ();
+    }
 
     @RequestMapping(value = "statistics/daily", method = RequestMethod.GET)
     @ApiOperation(value = "v2.0.0 * 初始化每日数据统计", notes = "初始化每日数据统计")
