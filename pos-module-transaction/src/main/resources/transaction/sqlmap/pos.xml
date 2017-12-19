@@ -55,8 +55,6 @@
             arrival_amount AS arrivalAmount,
             pay_charge AS payCharge,
             pos_charge AS posCharge,
-            company_id AS companyId,
-            cost_type AS costType,
             status AS status,
             create_date AS createDate,
             complete_date AS completeDate,
