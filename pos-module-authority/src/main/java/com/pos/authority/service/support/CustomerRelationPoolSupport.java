@@ -138,7 +138,7 @@ public class CustomerRelationPoolSupport {
         Map<String, Object> nodeInfo = new HashMap<>();
         nodeInfo.put("level", String.valueOf(node.getLevel()));
         nodeInfo.put("withdrawRate", node.getWithdrawRate().toPlainString());
-        nodeInfo.put("extraServiceCharge", node.getWithdrawRate().toPlainString());
+        nodeInfo.put("extraServiceCharge", node.getExtraServiceCharge().toPlainString());
         nodeInfo.put("auditStatus", node.getAuditStatus().toString());
         if (node.getParentUserId() != null) {
             nodeInfo.put("parentUserId", node.getParentUserId().toString());
