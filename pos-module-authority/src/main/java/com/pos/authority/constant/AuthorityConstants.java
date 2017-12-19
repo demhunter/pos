@@ -30,6 +30,24 @@ public class AuthorityConstants {
     @Value("${pos.extra.service.charge.down.limit}")
     private String posExtraServiceChargeDownLimit; // 提现额外手续费下限
 
+    @Value("${pos.register.msg.template}")
+    private String posRegisterMsgTemplate; // 用户注册成功通知短信
+
+    @Value("${pos.register.msg.to.parent.template}")
+    private String posRegisterMsgToParentTemplate; // 用户注册成功给上级用户的通知短信
+
+    @Value("${pos.audit.submit-all.msg.template}")
+    private String posAuditSubmitAllMsgTemplate; // 用户提交实名认证资料通知短信
+
+    @Value("${pos.audit.rejected.msg.template}")
+    private String posAuditRejectedMsgTemplate; // 实名认证审核不通过通知短信
+
+    @Value("${pos.level.upgrade.msg.template}")
+    private String posLevelUpgradeMsgTemplate; // 等级晋升通知短信
+
+    @Value("${pos.withdraw.rate.msg.template}")
+    private String posWithdrawRateMsgTemplate; // 费率变更通知短信
+
     public BigDecimal getPosWithdrawBasicRate() {
         return StringUtils.isEmpty(posWithdrawBasicRate) ? BigDecimal.ZERO : new BigDecimal(posWithdrawBasicRate);
     }
@@ -44,5 +62,29 @@ public class AuthorityConstants {
 
     public BigDecimal getPosExtraServiceChargeDownLimit() {
         return StringUtils.isEmpty(posExtraServiceChargeDownLimit) ? BigDecimal.ZERO : new BigDecimal(posExtraServiceChargeDownLimit);
+    }
+
+    public String getPosRegisterMsgTemplate() {
+        return posRegisterMsgTemplate;
+    }
+
+    public String getPosRegisterMsgToParentTemplate() {
+        return posRegisterMsgToParentTemplate;
+    }
+
+    public String getPosAuditSubmitAllMsgTemplate() {
+        return posAuditSubmitAllMsgTemplate;
+    }
+
+    public String getPosAuditRejectedMsgTemplate() {
+        return posAuditRejectedMsgTemplate;
+    }
+
+    public String getPosLevelUpgradeMsgTemplate() {
+        return posLevelUpgradeMsgTemplate;
+    }
+
+    public String getPosWithdrawRateMsgTemplate() {
+        return posWithdrawRateMsgTemplate;
     }
 }

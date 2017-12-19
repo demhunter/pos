@@ -4,6 +4,7 @@
 package com.pos.transaction.service.impl;
 
 import com.google.common.collect.Lists;
+import com.pos.authority.constant.AuthorityConstants;
 import com.pos.authority.constant.CustomerAuditStatus;
 import com.pos.authority.dto.permission.CustomerPermissionDto;
 import com.pos.authority.fsm.AuthorityFSMFactory;
@@ -11,6 +12,7 @@ import com.pos.authority.fsm.context.AuditStatusTransferContext;
 import com.pos.authority.service.CustomerAuthorityService;
 import com.pos.basic.service.SecurityService;
 import com.pos.basic.sm.fsm.FSM;
+import com.pos.common.sms.service.SmsService;
 import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.common.util.mvc.support.LimitHelper;
 import com.pos.common.util.mvc.support.NullObject;
@@ -66,10 +68,16 @@ public class PosCardServiceImpl implements PosCardService {
     private SecurityService securityService;
 
     @Resource
+    private SmsService smsService;
+
+    @Resource
     private QuickPayApi quickPayApi;
 
     @Resource
     private PosConstants posConstants;
+
+    @Resource
+    private AuthorityConstants authorityConstants;
 
     @Resource
     private PosUserTransactionRecordDao posUserTransactionRecordDao;
@@ -255,6 +263,9 @@ public class PosCardServiceImpl implements PosCardService {
                 user.setName(decryptName);
                 userDao.update(user);
             }
+            // 发送实名认证提交短信通知
+            String submitMsg = authorityConstants.getPosAuditSubmitAllMsgTemplate();
+            smsService.sendMessage(user.getUserPhone(), submitMsg);
             return ApiResult.succ();
         } else {
             return ApiResult.fail(apiResult.getError(), apiResult.getMessage());

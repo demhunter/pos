@@ -119,6 +119,7 @@ public class CustomerStatisticsServiceImpl implements CustomerStatisticsService 
                     customerAuthorityService.upgradeLevel(permission, nextLevelConfig, parentUserId);
                 }
             }
+            customerStatisticsDao.incrementChildrenCount(parentUserId);
         }
     }
 

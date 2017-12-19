@@ -39,6 +39,7 @@ import com.pos.basic.dto.CommonEnumDto;
 import com.pos.basic.dto.UserIdentifier;
 import com.pos.basic.service.SecurityService;
 import com.pos.basic.sm.fsm.FSM;
+import com.pos.common.sms.service.SmsService;
 import com.pos.common.util.mvc.support.*;
 import com.pos.common.util.validation.FieldChecker;
 import com.pos.user.constant.UserType;
@@ -47,6 +48,7 @@ import com.pos.user.exception.UserErrorCode;
 import com.pos.user.service.CustomerService;
 import com.pos.user.session.UserInfo;
 import com.pos.user.session.UserSessionComponent;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -54,6 +56,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -72,6 +75,9 @@ import java.util.stream.Stream;
 public class CustomerAuthorityServiceImpl implements CustomerAuthorityService {
 
     private final static Logger LOG = LoggerFactory.getLogger(CustomerAuthorityServiceImpl.class);
+
+    @Resource
+    private SmsService smsService;
 
     @Resource
     private CustomerService customerService;
@@ -144,6 +150,19 @@ public class CustomerAuthorityServiceImpl implements CustomerAuthorityService {
 
             // 更新父客户的直接下级客户数量统计
             customerStatisticsService.incrementChildrenCount(parentUserId);
+
+            // 发送注册成功短信
+            sendRegisterSmsMessage(newCustomer, parentCustomer);
+        }
+    }
+
+    private void sendRegisterSmsMessage(CustomerDto child, CustomerDto parent) {
+        smsService.sendMessage(child.getUserPhone(), authorityConstants.getPosRegisterMsgTemplate());
+        if (parent != null) {
+            String parentMsg = String.format(
+                    authorityConstants.getPosRegisterMsgToParentTemplate(),
+                    child.getUserPhone());
+            smsService.sendMessage(parent.getUserPhone(), parentMsg);
         }
     }
 
@@ -219,6 +238,15 @@ public class CustomerAuthorityServiceImpl implements CustomerAuthorityService {
 
         customerPermissionDao.updateLevelConfig(permission);
         customerRelationPoolSupport.updateLevelConfig(permission);
+        CustomerDto customer = customerService.findById(permission.getUserId(), true, false);
+        if (customer != null) {
+            String rate = permission.getWithdrawRate().multiply(new BigDecimal("100")).toPlainString()
+                    + "%+"
+                    + permission.getExtraServiceCharge().toPlainString()
+                    + "元";
+            String rateMsg = String.format(authorityConstants.getPosWithdrawRateMsgTemplate(), rate);
+            smsService.sendMessage(customer.getUserPhone(), rateMsg);
+        }
 
         return ApiResult.succ();
     }
@@ -367,6 +395,19 @@ public class CustomerAuthorityServiceImpl implements CustomerAuthorityService {
 
         customerPermissionDao.updateLevelConfig(permission);
         customerRelationPoolSupport.updateLevelConfig(permission);
+
+        CustomerDto customer = customerService.findById(permission.getUserId(), true, false);
+        if (customer != null) {
+            String rate = permission.getWithdrawRate().multiply(new BigDecimal("100")).toPlainString()
+                    + "%+"
+                    + permission.getExtraServiceCharge().toPlainString()
+                    + "元";
+            String lvName = "Lv" + permission.getLevel();
+            String upgradeMsg = String.format(
+                    authorityConstants.getPosLevelUpgradeMsgTemplate(),
+                    lvName, rate);
+            smsService.sendMessage(customer.getUserPhone(), upgradeMsg);
+        }
     }
 
     @Override
@@ -460,6 +501,13 @@ public class CustomerAuthorityServiceImpl implements CustomerAuthorityService {
             fsm.processFSM("platAudited");
         } else {
             fsm.processFSM("platRejected");
+            CustomerDto customer = customerService.findById(permission.getUserId(), true, false);
+            if (customer != null) {
+                String rejectedMsg = String.format(
+                        authorityConstants.getPosAuditRejectedMsgTemplate(),
+                        identifyInfo.getRejectReason());
+                smsService.sendMessage(customer.getUserPhone(), rejectedMsg);
+            }
         }
 
         return ApiResult.succ();
