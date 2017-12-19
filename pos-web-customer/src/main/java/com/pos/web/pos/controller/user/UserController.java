@@ -106,6 +106,7 @@ public class UserController {
         loginInfoDto.setIp(HttpRequestUtils.getRealRemoteAddr(request));
         loginInfoDto.setRecommendId(registerRequestDto.getLeaderId());
         loginInfoDto.setRecommendType(registerRequestDto.getType());
+        loginInfoDto.setUserExtensionInfo(registerRequestDto.getUserExtensionInfo());
         boolean autoLogin = registerRequestDto.autoLogin();
         ApiResult<CustomerDto> apiResult = registerService.addCustomer(loginInfoDto, autoLogin, CustomerType.NATURE);
 
@@ -210,6 +211,7 @@ public class UserController {
         identityInfoDto.setPassword(password);
         loginInfoDto.setIdentityInfoDto(identityInfoDto);
         loginInfoDto.setIp(HttpRequestUtils.getRealRemoteAddr(request));
+        loginInfoDto.setUserExtensionInfo(loginRequestDto.getUserExtensionInfo());
 
         UserLoginDto userLoginDto = new UserLoginDto();
         userLoginDto.setLoginName(identityInfoDto.getLoginName());
