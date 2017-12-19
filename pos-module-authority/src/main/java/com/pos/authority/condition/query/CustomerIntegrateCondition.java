@@ -40,7 +40,7 @@ public class CustomerIntegrateCondition {
     private Date endTime;
 
     @ApiModelProperty("用户id列表类型：1 = 用户自身信息，2 = 用户的直接下级信息，默认为1")
-    private Integer includeUserIdsType = 1;
+    private Integer includeUserIdsType;
 
     @ApiModelProperty("包含在内的用户id列表")
     private List<Long> includeUserIds;

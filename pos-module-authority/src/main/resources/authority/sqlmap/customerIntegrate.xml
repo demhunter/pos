@@ -100,9 +100,6 @@
             <if test="condition.includeUserIds != null">
                 AND
                 <choose>
-                    <when test="condition.includeUserIdsType = 1">
-                        cp.user_id
-                    </when>
                     <when test="condition.includeUserIdsType = 2">
                         cr.parent_user_id
                     </when>
