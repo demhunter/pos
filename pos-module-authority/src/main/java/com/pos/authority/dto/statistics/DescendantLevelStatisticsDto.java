@@ -41,9 +41,9 @@ public class DescendantLevelStatisticsDto implements Serializable, Comparable<De
             return 0;
         }
         if (this.level > o.getLevel()) {
-            return 1;
-        } else if (this.level < o.getLevel()) {
             return -1;
+        } else if (this.level < o.getLevel()) {
+            return 1;
         }
         return 0;
     }
