@@ -27,6 +27,6 @@
         <!-- 管理员对已审核通过的用户身份认证信息进行复审时，不通过用户身份认证信息审核 -->
         <MESSAGE action="platRejected" toState="REJECTED" handler="auditPlatRejectedHandler"/>
         <!-- 客户更换绑定收款银行卡 -->
-        <MESSAGE action="alterSettlement" toState="REJECTED" handler="auditAlterSettlementHandler"/>
+        <MESSAGE action="alterSettlement" toState="NOT_AUDIT" handler="auditAlterSettlementHandler"/>
     </STATE>
 </FSM>
