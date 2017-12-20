@@ -23,7 +23,7 @@ public class ChildInfoDto implements Serializable {
     @ApiModelProperty("下级用户id")
     private Long userId;
 
-    @ApiModelProperty("下级用户姓名")
+    @ApiModelProperty("下级用户姓名(当没有提交实名认证时，为电话号码)")
     private String name;
 
     @ApiModelProperty("下级用户电话")
@@ -58,7 +58,7 @@ public class ChildInfoDto implements Serializable {
     }
 
     public String getName() {
-        return name;
+        return name == null ? phone : name;
     }
 
     public void setName(String name) {
