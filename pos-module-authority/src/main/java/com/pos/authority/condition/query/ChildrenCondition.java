@@ -19,6 +19,9 @@ public class ChildrenCondition {
     @ApiModelProperty("直接下级等级")
     private Integer level;
 
+    @ApiModelProperty("直接下级实名认证状态")
+    private Integer auditStatus;
+
     @ApiModelProperty("搜索关键字（姓名或备注）")
     private String searchKey;
 
@@ -36,6 +39,14 @@ public class ChildrenCondition {
 
     public void setLevel(Integer level) {
         this.level = level;
+    }
+
+    public Integer getAuditStatus() {
+        return auditStatus;
+    }
+
+    public void setAuditStatus(Integer auditStatus) {
+        this.auditStatus = auditStatus;
     }
 
     public String getSearchKey() {

@@ -102,23 +102,6 @@ public class CustomerStatisticsServiceImpl implements CustomerStatisticsService 
         FieldChecker.checkEmpty(parentUserId, "parentUserId");
 
         if (parentUserId != 0) {
-            CustomerStatisticsDto statistics = customerStatisticsDao.getByUserId(parentUserId);
-            CustomerPermissionDto permission = customerAuthorityService.getPermission(parentUserId);
-
-            statistics.setChildrenCount(statistics.getChildrenCount() + 1);
-
-            Integer maxLevel = customerLevelSupport.getMaxLevel();
-            CustomerLevelConfig nextLevelConfig = null;
-            if (permission.getLevel() < maxLevel) {
-                nextLevelConfig = customerLevelSupport.getLevelConfig(permission.getLevel() + 1);
-            }
-            if (nextLevelConfig != null) {
-                if (statistics.getChildrenCount() >= nextLevelConfig.getChildrenLimit()
-                        && nextLevelConfig.getChildrenLimit() > 0) {
-                    // 已支付等级晋升服务费达到限额，晋升等级
-                    customerAuthorityService.upgradeLevel(permission, nextLevelConfig, parentUserId);
-                }
-            }
             customerStatisticsDao.incrementChildrenCount(parentUserId);
         }
     }
@@ -138,9 +121,8 @@ public class CustomerStatisticsServiceImpl implements CustomerStatisticsService 
         if (permission.getLevel() < maxLevel) {
             nextLevelConfig = customerLevelSupport.getLevelConfig(permission.getLevel() + 1);
         }
-        if (nextLevelConfig != null) {
-            if (statistics.getPaidCharge().compareTo(nextLevelConfig.getChargeLimit()) >= 0
-                    && nextLevelConfig.getChargeLimit().compareTo(BigDecimal.ZERO) > 0) {
+        if (nextLevelConfig != null && nextLevelConfig.getChargeLimit().compareTo(BigDecimal.ZERO) > 0) {
+            if (statistics.getPaidCharge().compareTo(nextLevelConfig.getChargeLimit()) >= 0) {
                 // 已支付等级晋升服务费达到限额，晋升等级
                 customerAuthorityService.upgradeLevel(permission, nextLevelConfig, userId);
             }
@@ -166,9 +148,8 @@ public class CustomerStatisticsServiceImpl implements CustomerStatisticsService 
             nextLevelConfig = customerLevelSupport.getLevelConfig(permission.getLevel() + 1);
         }
 
-        if (nextLevelConfig != null) {
-            if (statistics.getWithdrawAmount().compareTo(nextLevelConfig.getWithdrawAmountLimit()) >= 0
-                    && nextLevelConfig.getWithdrawAmountLimit().compareTo(BigDecimal.ZERO) > 0) {
+        if (nextLevelConfig != null && nextLevelConfig.getWithdrawAmountLimit().compareTo(BigDecimal.ZERO) > 0) {
+            if (statistics.getWithdrawAmount().compareTo(nextLevelConfig.getWithdrawAmountLimit()) >= 0) {
                 // 已支付等级晋升服务费达到限额，晋升等级
                 customerAuthorityService.upgradeLevel(permission, nextLevelConfig, userId);
             }

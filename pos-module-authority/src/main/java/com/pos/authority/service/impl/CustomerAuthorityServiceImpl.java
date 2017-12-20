@@ -5,6 +5,7 @@ package com.pos.authority.service.impl;
 
 import com.google.common.collect.Lists;
 import com.pos.authority.condition.oerderby.CustomerIntegrateOrderField;
+import com.pos.authority.condition.query.ChildrenCondition;
 import com.pos.authority.condition.query.CustomerIntegrateCondition;
 import com.pos.authority.constant.AuthorityConstants;
 import com.pos.authority.constant.CustomerAuditStatus;
@@ -389,6 +390,33 @@ public class CustomerAuthorityServiceImpl implements CustomerAuthorityService {
                 transferContext.getRejectReason(), transferContext.getOperatorUserId());
 
         customerRelationPoolSupport.updateAuditStatus(transferContext.getUserId(), auditStatus);
+
+        // 审核通过，统计父级用户有效下级数量，达到晋升限制则升级
+        if (CustomerAuditStatus.AUDITED.equals(auditStatus)) {
+            CustomerRelationDto relationDto = customerRelationPoolSupport.getCustomerRelation(transferContext.getUserId());
+            if (relationDto != null && relationDto.getParentUserId() != null && relationDto.getParentUserId() != 0) {
+                // 存在有效的上级
+                CustomerPermissionDto parentPermission = getPermission(relationDto.getParentUserId());
+                if (parentPermission != null) {
+                    Integer maxLevel = customerLevelSupport.getMaxLevel();
+                    CustomerLevelConfig nextLevelConfig = null;
+                    if (parentPermission.getLevel() < maxLevel) {
+                        nextLevelConfig = customerLevelSupport.getLevelConfig(parentPermission.getLevel() + 1);
+                    }
+                    // 存在下一等级，且可以通过发展下级达到
+                    if (nextLevelConfig != null && nextLevelConfig.getChildrenLimit() > 0) {
+                        ChildrenCondition condition = new ChildrenCondition();
+                        condition.setParentUserId(parentPermission.getUserId());
+                        condition.setAuditStatus(CustomerAuditStatus.AUDITED.getCode());
+                        int totalCount = customerRelationDao.queryChildrenCount(condition);
+                        if (totalCount >= nextLevelConfig.getChildrenLimit()) {
+                            // 已通过实名认证审核的下级用户数达到限额，晋升等级
+                            upgradeLevel(parentPermission, nextLevelConfig, parentPermission.getUserId());
+                        }
+                    }
+                }
+            }
+        }
 
         return true;
     }
