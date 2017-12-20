@@ -654,7 +654,7 @@ public class PosServiceImpl implements PosService {
                     brokerage.setAncestorUserId(nextParticipator.getUserId());
                     brokerage.setLevel(nextParticipator.getLevel());
                     brokerage.setWithdrawRate(nextParticipator.getWithdrawRate());
-                    BigDecimal brokerageRate = nextParticipator.getWithdrawRate().subtract(current.getWithdrawRate());
+                    BigDecimal brokerageRate = current.getWithdrawRate().subtract(nextParticipator.getWithdrawRate());
                     brokerageRate = brokerageRate.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : brokerageRate;
                     brokerage.setBrokerageRate(brokerageRate);
                     brokerage.setBrokerage(transaction.getAmount().multiply(brokerageRate).setScale(2, BigDecimal.ROUND_DOWN));
