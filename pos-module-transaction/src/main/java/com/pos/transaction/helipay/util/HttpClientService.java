@@ -9,6 +9,7 @@ import org.apache.commons.httpclient.params.HttpMethodParams;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.SocketTimeoutException;
 import java.util.*;
 
 public class HttpClientService {
@@ -40,6 +41,8 @@ public class HttpClientService {
                 System.out.println("response:" + response);
                 mp.put("response", response);
             }
+        } catch (SocketTimeoutException e) {
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

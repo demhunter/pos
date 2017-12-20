@@ -12,7 +12,7 @@ import com.pos.transaction.helipay.util.HttpClientService;
 import com.pos.transaction.helipay.util.MyBeanUtils;
 import com.pos.transaction.helipay.util.PosErrorCode;
 import com.pos.transaction.helipay.vo.SettlementCardBindResponseVo;
-import com.pos.transaction.helipay.vo.SettlementCardBindVo;
+import com.pos.transaction.service.support.helipay.dto.settlement.card.bind.SettlementCardBindDto;
 import org.apache.commons.httpclient.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +29,7 @@ import java.util.Map;
  * @version 1.0, 2017/12/15
  */
 @Component
+@SuppressWarnings("all")
 public class QuickPaySupport {
 
     private static final Logger LOG = LoggerFactory.getLogger(QuickPaySupport.class);
@@ -42,11 +43,11 @@ public class QuickPaySupport {
     private GlobalConstants globalConstants;
 
 
-    public ApiResult<SettlementCardBindResponseVo> settlementCardBind(SettlementCardBindVo settlementCardBindVo) {
+    public ApiResult<SettlementCardBindResponseVo> settlementCardBind(SettlementCardBindDto bindDto) {
         LOG.info("--------进入绑结算卡接口----------");
         try {
             String [] signExcludes = {"P11_operateType"};
-            Map<String, String> map = MyBeanUtils.convertBean(settlementCardBindVo, new LinkedHashMap());
+            Map<String, String> map = MyBeanUtils.convertBean(bindDto, new LinkedHashMap());
             String oriMessage = MyBeanUtils.getSigned(map, signExcludes,SPLIT,globalConstants.helibaoSameSignKey);
             LOG.info("签名原文串：" + oriMessage);
             String sign = Disguiser.disguiseMD5(oriMessage.trim());

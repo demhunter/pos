@@ -86,9 +86,9 @@ public class RelationDemoController {
 
     }
 
-    public static void first() throws Exception {
+    public static void first() {
         try {
-            second();
+
         } catch (Exception e) {
             System.out.println("在调用第二步时发生异常");
             e.printStackTrace();
@@ -103,15 +103,7 @@ public class RelationDemoController {
         }
     }
     public static void third() throws Exception {
-        try {
-            forth();
-        } catch (Exception e) {
-            System.out.println("在调用第四步时发生异常");
-            e.printStackTrace();
-        }
+        throw new Exception("第三步--发生异常！");
 
-    }
-    public static void forth() throws Exception {
-        throw new Exception("第四步--发生异常！");
     }
 }

@@ -240,7 +240,7 @@ public class CustomerAuthorityServiceImpl implements CustomerAuthorityService {
         customerRelationPoolSupport.updateLevelConfig(permission);
         CustomerDto customer = customerService.findById(permission.getUserId(), true, false);
         if (customer != null) {
-            String rate = permission.getWithdrawRate().multiply(new BigDecimal("100")).toPlainString()
+            String rate = permission.getWithdrawRate().multiply(new BigDecimal("100")).setScale(2, BigDecimal.ROUND_DOWN).toPlainString()
                     + "%+"
                     + permission.getExtraServiceCharge().toPlainString()
                     + "元";
@@ -249,6 +249,13 @@ public class CustomerAuthorityServiceImpl implements CustomerAuthorityService {
         }
 
         return ApiResult.succ();
+    }
+
+    public static void main(String[] args) {
+        BigDecimal rate = new BigDecimal("0.0058");
+        System.out.println(rate);
+        System.out.println(rate.multiply(new BigDecimal("100")));
+        System.out.println(rate.multiply(new BigDecimal("100")));
     }
 
     @Override
@@ -398,7 +405,7 @@ public class CustomerAuthorityServiceImpl implements CustomerAuthorityService {
 
         CustomerDto customer = customerService.findById(permission.getUserId(), true, false);
         if (customer != null) {
-            String rate = permission.getWithdrawRate().multiply(new BigDecimal("100")).toPlainString()
+            String rate = permission.getWithdrawRate().multiply(new BigDecimal("100")).setScale(2, BigDecimal.ROUND_DOWN).toPlainString()
                     + "%+"
                     + permission.getExtraServiceCharge().toPlainString()
                     + "元";
