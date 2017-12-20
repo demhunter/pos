@@ -6,6 +6,7 @@ package com.pos.transaction.service.support.helipay.action;
 import com.alibaba.fastjson.JSONObject;
 import com.pos.common.util.constans.GlobalConstants;
 import com.pos.common.util.mvc.support.ApiResult;
+import com.pos.common.util.validation.FieldChecker;
 import com.pos.transaction.constants.PosConstants;
 import com.pos.transaction.helipay.util.Disguiser;
 import com.pos.transaction.helipay.util.HttpClientService;
@@ -43,7 +44,14 @@ public class QuickPaySupport {
     private GlobalConstants globalConstants;
 
 
+    /**
+     * 绑定结算银行卡
+     *
+     * @param bindDto 绑定信息
+     * @return 绑定结果
+     */
     public ApiResult<SettlementCardBindResponseVo> settlementCardBind(SettlementCardBindDto bindDto) {
+        FieldChecker.checkEmpty(bindDto, "bindDto");
         LOG.info("--------进入绑结算卡接口----------");
         try {
             String [] signExcludes = {"P11_operateType"};

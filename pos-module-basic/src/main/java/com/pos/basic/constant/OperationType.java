@@ -21,7 +21,7 @@ public enum OperationType implements CommonIntEnum, Serializable {
     }),
 
     快捷收款(2, new SubOperationType[]{
-            EPOS.填卡下单, EPOS.填卡下单, EPOS.获取支付验证码, EPOS.确认支付, EPOS.提现到用户,
+            EPOS.填卡下单, EPOS.选卡下单, EPOS.获取支付验证码, EPOS.确认支付, EPOS.提现到用户,
             EPOS.失败交易重发, EPOS.失败交易手动处理, EPOS.其它
     }),
 
