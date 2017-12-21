@@ -232,6 +232,11 @@ public class CustomerAuthorityServiceImpl implements CustomerAuthorityService {
         if (basicPermission.getExtraServiceCharge().compareTo(authorityConstants.getPosExtraServiceChargeDownLimit()) < 0) {
             return ApiResult.fail(AuthorityErrorCode.UPGRADE_ERROR_EXTRA_LESS_THAN_LIMIT);
         }
+        // 等级和费率是否有变更
+        boolean levelChanged = permission.getLevel().equals(basicPermission.getLevel());
+        boolean rateChanged = permission.getWithdrawRate().equals(basicPermission.getWithdrawRate())
+                || permission.getExtraServiceCharge().equals(basicPermission.getExtraServiceCharge());
+
         permission.setLevel(basicPermission.getLevel());
         permission.setWithdrawRate(basicPermission.getWithdrawRate());
         permission.setExtraServiceCharge(basicPermission.getExtraServiceCharge());
@@ -239,24 +244,32 @@ public class CustomerAuthorityServiceImpl implements CustomerAuthorityService {
 
         customerPermissionDao.updateLevelConfig(permission);
         customerRelationPoolSupport.updateLevelConfig(permission);
-        CustomerDto customer = customerService.findById(permission.getUserId(), true, false);
-        if (customer != null) {
-            String rate = permission.getWithdrawRate().multiply(new BigDecimal("100")).setScale(2, BigDecimal.ROUND_DOWN).toPlainString()
-                    + "%+"
-                    + permission.getExtraServiceCharge().toPlainString()
-                    + "元";
-            String rateMsg = String.format(authorityConstants.getPosWithdrawRateMsgTemplate(), rate);
-            smsService.sendMessage(customer.getUserPhone(), rateMsg);
+        if (levelChanged || rateChanged) {
+            CustomerDto customer = customerService.findById(permission.getUserId(), true, false);
+            if (customer != null) {
+                String msg;
+                if (levelChanged) {
+                    String rate = permission.getWithdrawRate().multiply(new BigDecimal("100")).setScale(2, BigDecimal.ROUND_DOWN).toPlainString()
+                            + "%+"
+                            + permission.getExtraServiceCharge().toPlainString()
+                            + "元";
+                    String lvName = "Lv" + permission.getLevel();
+                    msg = String.format(
+                            authorityConstants.getPosLevelUpgradeMsgTemplate(),
+                            lvName, rate);
+                } else {
+                    String rate = permission.getWithdrawRate().multiply(new BigDecimal("100")).setScale(2, BigDecimal.ROUND_DOWN).toPlainString()
+                            + "%+"
+                            + permission.getExtraServiceCharge().toPlainString()
+                            + "元";
+                    msg = String.format(authorityConstants.getPosWithdrawRateMsgTemplate(), rate);
+
+                }
+                smsService.sendMessage(customer.getUserPhone(), msg);
+            }
         }
 
         return ApiResult.succ();
-    }
-
-    public static void main(String[] args) {
-        BigDecimal rate = new BigDecimal("0.0058");
-        System.out.println(rate);
-        System.out.println(rate.multiply(new BigDecimal("100")));
-        System.out.println(rate.multiply(new BigDecimal("100")));
     }
 
     @Override
@@ -502,7 +515,7 @@ public class CustomerAuthorityServiceImpl implements CustomerAuthorityService {
 
         if (!available) {
             // 禁用用户，把在线的用户踢下线
-            UserInfo kickedUser =  new UserInfo();
+            UserInfo kickedUser = new UserInfo();
             kickedUser.setId(userId);
             kickedUser.setUserType(UserType.CUSTOMER.getValue());
             userSessionComponent.kickUser(kickedUser);
@@ -511,7 +524,7 @@ public class CustomerAuthorityServiceImpl implements CustomerAuthorityService {
         if (!available.equals(customer.isAvailable())) {
             CustomerDto afterCustomer = customer.copy();
             afterCustomer.setAvailable(available);
-             customerService.update(customer, afterCustomer);
+            customerService.update(customer, afterCustomer);
         }
 
         return ApiResult.succ();
