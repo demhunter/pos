@@ -63,7 +63,7 @@
         SET
             status = #{toStatus},
             status_time = NOW()
-        WHERE user_id = #{userId}
+        WHERE ancestor_user_id = #{userId}
         AND status = #{fromStatus}
         <if test="deadline != null">
             AND create_time &lt; #{deadline}
