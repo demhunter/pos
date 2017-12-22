@@ -232,10 +232,10 @@ public class CustomerAuthorityServiceImpl implements CustomerAuthorityService {
         if (basicPermission.getExtraServiceCharge().compareTo(authorityConstants.getPosExtraServiceChargeDownLimit()) < 0) {
             return ApiResult.fail(AuthorityErrorCode.UPGRADE_ERROR_EXTRA_LESS_THAN_LIMIT);
         }
-        // 等级和费率是否有变更[PS：统一精度后再做比较，rate为5位小数，extra为2位小数]
+        // 等级和费率是否有变更
         boolean levelChanged = !permission.getLevel().equals(basicPermission.getLevel());
-        boolean rateChanged = !permission.getWithdrawRate().equals(basicPermission.getWithdrawRate().setScale(5, BigDecimal.ROUND_UP))
-                || !permission.getExtraServiceCharge().equals(basicPermission.getExtraServiceCharge().setScale(2, BigDecimal.ROUND_UP));
+        boolean rateChanged = !(permission.getWithdrawRate().compareTo(basicPermission.getWithdrawRate()) == 0)
+                || !(permission.getExtraServiceCharge().compareTo(basicPermission.getExtraServiceCharge()) == 0);
 
         permission.setLevel(basicPermission.getLevel());
         permission.setWithdrawRate(basicPermission.getWithdrawRate());
