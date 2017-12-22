@@ -1106,7 +1106,14 @@ public class PosServiceImpl implements PosService {
      * @return 佣金金额
      */
     private ApiResult<BigDecimal> payBrokerageToUser(UserPosTransactionRecord transaction) {
-        SettlementCardWithdrawVo settlement = buildSettlementCardWithdrawVo(transaction);
+        SettlementCardWithdrawVo settlement = new SettlementCardWithdrawVo();
+
+        settlement.setP1_bizType("SettlementCardWithdraw");
+        settlement.setP2_customerNumber(posConstants.getHelibaoMerchantNO());
+        settlement.setP3_userId(String.valueOf(transaction.getUserId()));
+        settlement.setP4_orderId(transaction.getRecordNum());
+        settlement.setP5_amount(transaction.getArrivalAmount().toString());
+        settlement.setP6_feeType("RECEIVER"); // 平台支付手续费
 
         ApiResult<SettlementCardWithdrawResponseVo> withdrawResult = quickPayApi.settlementCardWithdraw(settlement);
         if (withdrawResult.isSucc()) {
