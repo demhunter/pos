@@ -611,8 +611,6 @@ public class PosServiceImpl implements PosService {
                     customerStatisticsService.incrementUpgradeCharge(transactionRecord.getUserId(), transactionRecord.getAmount());
                 } else if (TransactionType.NORMAL_WITHDRAW.equals(transactionType)) {
                     customerStatisticsService.incrementWithdrawAmount(transactionRecord.getUserId(), transactionRecord.getAmount());
-                } else if (TransactionType.BROKERAGE_WITHDRAW.equals(transactionType)) {
-                    customerStatisticsService.incrementWithdrawalBrokerage(transactionRecord.getUserId(), transactionRecord.getAmount());
                 }
                 break;
             case TRANSACTION_HANDLED_SUCCESS:

@@ -16,6 +16,7 @@ import com.pos.common.util.mvc.support.Pagination;
 import com.pos.common.util.validation.FieldChecker;
 import com.pos.transaction.constants.BrokerageStatusType;
 import com.pos.transaction.constants.PosConstants;
+import com.pos.transaction.constants.TransactionType;
 import com.pos.transaction.dao.CustomerBrokerageDao;
 import com.pos.transaction.dto.brokerage.BrokerageDailyStatisticsDto;
 import com.pos.transaction.dto.brokerage.BrokerageGeneralInfoDto;
@@ -167,6 +168,8 @@ public class CustomerBrokerageServiceImpl implements CustomerBrokerageService {
                 BrokerageStatusType.NOT_WITHDRAW.getCode(),
                 BrokerageStatusType.WITHDRAWING.getCode(),
                 deadline);
+        // 累计已提现佣金
+        customerStatisticsService.incrementWithdrawalBrokerage(userId, brokerage);
         // 发起佣金提现交易
         return posService.withdrawBrokerage(permission, brokerage);
     }
