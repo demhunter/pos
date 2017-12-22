@@ -3,7 +3,6 @@
  */
 package com.pos.web.pos.vo.response;
 
-import com.wordnik.swagger.annotations.ApiModel;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 
 import java.io.Serializable;

@@ -8,6 +8,7 @@ import com.pos.authority.dto.statistics.CustomerStatisticsDto;
 import com.pos.authority.service.CustomerAuthorityService;
 import com.pos.authority.service.CustomerRelationService;
 import com.pos.authority.service.CustomerStatisticsService;
+import com.pos.common.util.basic.SimpleRegexUtils;
 import com.pos.common.util.mvc.resolver.FromSession;
 import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.transaction.dto.brokerage.BrokerageGeneralInfoDto;
@@ -88,7 +89,7 @@ public class CustomerController {
             RecommendSimpleVo recommendInfo = new RecommendSimpleVo();
             recommendInfo.setUserId(referrer.getId());
             recommendInfo.setName(referrer.getName());
-            recommendInfo.setPhone(referrer.getUserPhone());
+            recommendInfo.setPhone(SimpleRegexUtils.hiddenMobile(referrer.getUserPhone()));
 
             result.setRecommendInfo(recommendInfo);
         }
