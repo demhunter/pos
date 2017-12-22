@@ -53,7 +53,6 @@ import com.pos.transaction.service.PosService;
 import com.pos.user.dao.UserDao;
 import com.pos.user.exception.UserErrorCode;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpException;
 import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -638,7 +637,8 @@ public class PosServiceImpl implements PosService {
         if (transaction != null &&
                 TransactionType.NORMAL_WITHDRAW.equals(TransactionType.getEnum(transaction.getTransactionType()))) {
             Queue<CustomerRelationDto> participatorQueue = customerRelationService.generateBrokerageParticipatorQueue(transaction.getUserId());
-            if (!CollectionUtils.isEmpty(participatorQueue) && participatorQueue.size() > 2) {
+            log.info("参与分佣信息：" + JsonUtils.objectToJson(participatorQueue));
+            if (!CollectionUtils.isEmpty(participatorQueue) && participatorQueue.size() > 1) {
                 // 有需要参与分佣的用户
                 List<TransactionCustomerBrokerage> brokerages = Lists.newArrayList();
                 CustomerRelationDto current = participatorQueue.poll();
