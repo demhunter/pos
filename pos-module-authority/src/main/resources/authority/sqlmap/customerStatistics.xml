@@ -65,6 +65,7 @@
     <update id="incrementWithdrawAmount">
         UPDATE customer_statistics
         SET withdraw_amount = withdraw_amount + #{withdrawAmount},
+        withdraw_amount_times = withdraw_amount_times + 1,
         update_time = NOW()
         WHERE user_id = #{userId}
     </update>

@@ -66,7 +66,7 @@
             SUM(service_charge) - SUM(pay_charge) - SUM(pos_charge) AS grossProfit
         FROM user_pos_transaction_record
         WHERE transaction_type = 1
-        AND status IN (1, 2, 3)
+        AND status IN (1, 2, 3, 4)
     </select>
 
     <select id="queryPosStatisticsByDaily" resultType="com.pos.transaction.dto.statistics.TransactionDailyStatisticsDto">
@@ -78,7 +78,7 @@
             SUM(service_charge) - SUM(pay_charge) - SUM(pos_charge) AS grossProfit
         FROM user_pos_transaction_record
         WHERE transaction_type = 1
-        AND status IN (1, 2, 3)
+        AND status IN (1, 2, 3, 4)
         GROUP BY dateKey
     </select>
 
@@ -90,7 +90,7 @@
             SUM(pos_charge) AS brokerageServiceCharge
         FROM user_pos_transaction_record
         WHERE transaction_type = 2
-        AND status IN (1, 2, 3)
+        AND status IN (1, 2, 3, 4)
     </select>
 
     <select id="queryBrokerageWithdrawalStatisticsByDaily"
@@ -102,7 +102,7 @@
         SUM(pos_charge) AS brokerageServiceCharge
         FROM user_pos_transaction_record
         WHERE transaction_type = 2
-        AND status IN (1, 2, 3)
+        AND status IN (1, 2, 3, 4)
         GROUP BY dateKey
     </select>
 
