@@ -56,6 +56,7 @@
         FROM transaction_customer_brokerage
         WHERE ancestor_user_id = #{userId}
         AND create_time &lt; #{deadline}
+        AND status = 0
     </select>
 
     <update id="markBrokerageStatus">
