@@ -41,7 +41,7 @@ public class PosConverter {
 
         // 权限及等级信息
         vo.setLevel(dto.getLevel());
-        vo.setWithdrawRate(dto.getWithdrawRate().multiply(new BigDecimal("100")));
+        vo.setWithdrawRate(dto.getWithdrawRate().multiply(new BigDecimal("100")).setScale(2, BigDecimal.ROUND_DOWN));
         vo.setExtraServiceCharge(dto.getExtraServiceCharge());
 
         // 统计信息

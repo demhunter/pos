@@ -375,7 +375,7 @@ public class CustomerController {
                 posUser.getBindingCard() ? posUser.getBankName() : "-",
                 posUser.getBindingCard() ? posUser.getCardNo() : "-",
                 "Lv" + posUser.getLevel(),
-                posUser.getWithdrawRate().multiply(new BigDecimal(100)) + "% + " + posUser.getExtraServiceCharge() + "元",
+                posUser.getWithdrawRate() + "% + " + posUser.getExtraServiceCharge() + "元",
                 posUser.getUserPosCount(),
                 posUser.getUserPosAmount(),
                 posUser.getChildrenCount(),
