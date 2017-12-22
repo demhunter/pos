@@ -388,7 +388,7 @@ public class QuickPayApi {
             log.info("签名串：" + sign);
             map.put("sign", sign);
             log.info("发送参数：" + map);
-            Map<String, Object> resultMap = HttpClientService.getHttpResp(map, "http://transfer.trx.helipay.com/trx/transfer/interface.action");
+            Map<String, Object> resultMap = HttpClientUtil.getHttpResp(map, "http://transfer.trx.helipay.com/trx/transfer/interface.action");
             log.info("响应结果：" + resultMap);
             if ((Integer) resultMap.get("statusCode") == HttpStatus.SC_OK) {
                 String resultMsg = (String) resultMap.get("response");

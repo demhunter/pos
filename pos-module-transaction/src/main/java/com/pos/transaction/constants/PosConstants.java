@@ -102,6 +102,14 @@ public class PosConstants {
     @Value("${pos.brokerage.withdraw.down.limit}")
     private String brokerageWithdrawDownLimit; // 推客佣金提现金额下限
 
+    /* ------------------------------- 合利宝配置 start -------------------------------------- */
+
+    @Value("${pos.helibao.same.person.url}")
+    public String helibaoSamePersonUrl; //合利宝的同人的请求URL
+
+
+    /* ------------------------------- 合利宝配置 end ---------------------------------------- */
+
     public BigDecimal getBrokerageWithdrawDownLimit() {
         return StringUtils.isEmpty(brokerageWithdrawDownLimit) ? BigDecimal.ZERO : new BigDecimal(brokerageWithdrawDownLimit);
     }
@@ -204,5 +212,9 @@ public class PosConstants {
 
     public String getQiniuBucketImageAddress() {
         return qiniuBucketImageAddress;
+    }
+
+    public String getHelibaoSamePersonUrl() {
+        return helibaoSamePersonUrl;
     }
 }

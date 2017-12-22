@@ -240,18 +240,14 @@ public class SimpleDateUtils {
      * 常用的日期模式定义.
      */
     public enum DatePattern {
-        /**
-         * yyyyMMdd
-         */
+
         YYYYMMDD("yyyyMMdd"),
-        /**
-         * yyyy-MM-dd
-         */
+
         YYYY_MM_DD("yyyy-MM-dd"),
-        /**
-         * yyyy-MM-dd HH:mm:ss
-         */
-        STANDARD_PATTERN("yyyy-MM-dd HH:mm:ss");
+
+        STANDARD_PATTERN("yyyy-MM-dd HH:mm:ss"),
+
+        YYYYMMDDHHMMSS("yyyyMMddHHmmss");
 
         private final String value;
 

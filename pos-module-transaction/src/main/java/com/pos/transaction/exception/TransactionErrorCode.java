@@ -25,7 +25,7 @@ public enum TransactionErrorCode implements ErrorCode {
 
     POS_ERROR_TRANSACTION_STATUS_ERROR(1105, "交易状态错误，不能执行此操作"),
 
-    POS_ERROR_STATUS_FOR_SMS_CODE(1105, "交易已处理，请勿重新获取短信验证码"),
+    POS_ERROR_STATUS_FOR_SMS_CODE(1106, "交易已处理，请勿重新获取短信验证码"),
 
     BIND_CARD_ERROR_AUTHORITY_AUDIT_STATUS_AUDITED(1110, "身份认证已通过，不能重复绑定收款银行卡！"),
 
@@ -37,7 +37,7 @@ public enum TransactionErrorCode implements ErrorCode {
 
     ALTER_BIND_CARD_ERROR_NORMAL_TRANSACTION(1114, "您还存在未完成的收款交易，请稍后再试"),
 
-    ALTER_BIND_CARD_ERROR_BROKERAGE_TRANSACTION(1114, "您还存在未完成的提现交易，请稍后再试"),
+    ALTER_BIND_CARD_ERROR_BROKERAGE_TRANSACTION(1115, "您还存在未完成的提现交易，请稍后再试"),
 
     BROKERAGE_ERROR_AUTHORITY_AUDIT_STATUS(1120, "没有通过实名认证，不能申请佣金提现！"),
 

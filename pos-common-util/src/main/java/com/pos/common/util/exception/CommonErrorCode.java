@@ -37,7 +37,9 @@ public enum CommonErrorCode implements ErrorCode {
     ILLEGAL_STATE(46, "状态错误"),
     DATA_ERROR(47, "数据错误"),
     URL_ERROR(48, "URL资源定位错误"),
-    PHONE_NUMBER_ERROR(49, "电话号码格式错误");
+    PHONE_NUMBER_ERROR(49, "电话号码格式错误"),
+    HTTP_REQUEST_TIMEOUT(51, "请求超时"),
+    HTTP_RESPONSE_TIMEOUT(52, "请求响应超时");
 
     private final int code;
 
