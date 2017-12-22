@@ -159,7 +159,7 @@ public class BrokerageController {
         condition.setTransactionType(TransactionType.BROKERAGE_WITHDRAW.getCode());
 
         Pagination<TransactionRecordDto> pagination = posUserTransactionRecordService.queryUserTransactionRecord(
-                condition, PosTransactionOrderField.getPayTimeOrderHelper(), limitHelper).getData();
+                condition, PosTransactionOrderField.getDefaultOrderHelper(), limitHelper).getData();
         Pagination<BrokerageAppliedRecordVo> result = Pagination.newInstance(limitHelper, pagination.getTotalCount());
 
         if (pagination.getTotalCount() > 0 && !CollectionUtils.isEmpty(pagination.getResult())) {
