@@ -10,7 +10,7 @@
         FROM version_instruction
         WHERE version = #{version}
         <if test="available != null">
-            available = #{available}
+            AND available = #{available}
         </if>
     </select>
 
