@@ -618,8 +618,6 @@ public class PosServiceImpl implements PosService {
                 transactionRecord.setCompleteDate(currentTime);
                 if (TransactionType.NORMAL_WITHDRAW.equals(transactionType)) {
                     customerStatisticsService.incrementWithdrawAmount(transactionRecord.getUserId(), transactionRecord.getAmount());
-                } else if (TransactionType.BROKERAGE_WITHDRAW.equals(transactionType)) {
-                    customerStatisticsService.incrementWithdrawalBrokerage(transactionRecord.getUserId(), transactionRecord.getAmount());
                 }
                 break;
             default:
