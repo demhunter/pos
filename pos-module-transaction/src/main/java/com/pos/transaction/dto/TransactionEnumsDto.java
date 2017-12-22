@@ -37,6 +37,7 @@ public class TransactionEnumsDto implements Serializable {
 
     private TransactionEnumsDto() {
         payToolTypes = Stream.of(PayModeEnum.values())
+                .filter(e -> !PayModeEnum.OFFLINE.equals(e))
                 .map(e -> new CommonEnumDto(e.getCode(), e.getDesc()))
                 .collect(Collectors.toList());
         transactionStatusTypes = Stream.of(TransactionStatusType.values())
