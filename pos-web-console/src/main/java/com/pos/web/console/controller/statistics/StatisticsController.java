@@ -69,7 +69,7 @@ public class StatisticsController {
         if (StringUtils.isNotEmpty(endTime)) {
             endDate = SimpleDateUtils.parseDate(
                     endTime, SimpleDateUtils.DatePattern.YYYY_MM_DD.toString());
-            endDate = SimpleDateUtils.getDateOfMidNight(endDate);
+            endDate = SimpleDateUtils.getDateOfTodayEnd(endDate);
         }
         return posStatisticsService.queryDailyStatistics(beginDate, endDate, LimitHelper.create(pageNum, pageSize));
     }
