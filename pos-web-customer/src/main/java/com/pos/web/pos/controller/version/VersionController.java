@@ -62,7 +62,7 @@ public class VersionController {
             result.setLatestAndroidUrl(versionConfig.getLatestAndroidUrl());
             result.setLatestAndroidMD5(versionConfig.getLatestAndroidMd5());
 
-            VersionInstructionDto instruction = versionInstructionService.findInstruction(latest);
+            VersionInstructionDto instruction = versionInstructionService.findInstruction(latest, true);
             if (instruction != null) {
                 result.setUpdateInstruction(instruction.getInstruction());
             }

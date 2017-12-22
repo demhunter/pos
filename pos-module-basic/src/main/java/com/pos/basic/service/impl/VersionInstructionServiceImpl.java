@@ -53,7 +53,7 @@ public class VersionInstructionServiceImpl implements VersionInstructionService 
 
         if (instruction.getId() == null) {
             // 新增版本说明介绍
-            VersionInstruction existedVersion = versionInstructionDao.findByVersion(newVersion.toString());
+            VersionInstruction existedVersion = versionInstructionDao.findByVersion(newVersion.toString(), null);
             if (existedVersion != null) {
                 return ApiResult.fail(BasicErrorCode.VERSION_INSTRUCTION_ERROR_DUPLICATE_VERSION);
             }
@@ -78,7 +78,7 @@ public class VersionInstructionServiceImpl implements VersionInstructionService 
             boolean isUpdateVersion = existedVersion.compare(newVersion, false) != 0;
             if (isUpdateVersion) {
                 // 更新有改变版本号
-                VersionInstruction existedVersionByStr = versionInstructionDao.findByVersion(newVersion.toString());
+                VersionInstruction existedVersionByStr = versionInstructionDao.findByVersion(newVersion.toString(), null);
                 if (existedVersionByStr != null) {
                     return ApiResult.fail(BasicErrorCode.VERSION_INSTRUCTION_ERROR_DUPLICATE_VERSION);
                 }
@@ -113,11 +113,11 @@ public class VersionInstructionServiceImpl implements VersionInstructionService 
     }
 
     @Override
-    public VersionInstructionDto findInstruction(VersionDto version) {
+    public VersionInstructionDto findInstruction(VersionDto version, Boolean available) {
         FieldChecker.checkEmpty(version, "version");
         version.check("version");
 
-        VersionInstruction instruction = versionInstructionDao.findByVersion(version.toString());
+        VersionInstruction instruction = versionInstructionDao.findByVersion(version.toString(), available);
         if (instruction == null) {
             return null;
         }

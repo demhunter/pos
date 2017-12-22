@@ -39,10 +39,11 @@ public interface VersionInstructionService {
     /**
      * 获取指定版本的版本更新说明
      *
-     * @param version 版本信息
+     * @param version   版本信息
+     * @param available true：有效；false：无效；null：不限
      * @return 版本更新说明
      */
-    VersionInstructionDto findInstruction(VersionDto version);
+    VersionInstructionDto findInstruction(VersionDto version, Boolean available);
 
     /**
      * 启用、禁用版本更新说明

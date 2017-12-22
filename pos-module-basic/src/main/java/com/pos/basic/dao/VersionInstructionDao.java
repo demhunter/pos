@@ -22,10 +22,13 @@ public interface VersionInstructionDao {
     /**
      * 根据版本号获取版本介绍
      *
-     * @param version 点分三位版本号
+     * @param version   点分三位版本号
+     * @param available true：有效；false：无效；null：不限
      * @return 版本介绍
      */
-    VersionInstruction findByVersion(@Param("version") String version);
+    VersionInstruction findByVersion(
+            @Param("version") String version,
+            @Param("available") Boolean available);
 
     /**
      * 根据版本介绍id获取版本介绍
@@ -64,7 +67,7 @@ public interface VersionInstructionDao {
     /**
      * 查询版本更新说明数量
      *
-     * @param available   true：只查询启用状态；false：只查询禁用状态；null：不限
+     * @param available true：只查询启用状态；false：只查询禁用状态；null：不限
      * @return 版本更新说明数量
      */
     int queryCount(@Param("available") Boolean available);

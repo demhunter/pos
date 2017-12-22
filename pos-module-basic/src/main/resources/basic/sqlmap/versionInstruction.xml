@@ -9,6 +9,9 @@
         <include refid="instructionColumns"/>
         FROM version_instruction
         WHERE version = #{version}
+        <if test="available != null">
+            available = #{available}
+        </if>
     </select>
 
     <select id="findById" resultType="com.pos.basic.domain.VersionInstruction">
