@@ -203,7 +203,14 @@ public class CustomerRelationPoolSupport {
         FieldChecker.checkEmpty(userId, "userId");
         Map<Object, Object> data = redisTemplate.opsForHash().entries(RedisConstants.POS_CUSTOMER_RELATION_NODE + userId);
         if (CollectionUtils.isEmpty(data)) {
-            LOG.error("用户{}在关系池中不存在", userId);
+            LOG.error("用户{}在关系池中不存在，查询数据库...", userId);
+            CustomerRelationDto relationDto = customerRelationDao.getByChildUserId(userId);
+            if (relationDto != null) {
+                LOG.error("查找到用户{}的信息，加入关系池中");
+                addCustomerRelation(relationDto);
+                return relationDto;
+            }
+            LOG.error("用户{}不存在", userId);
             return null;
         }
         CustomerRelationDto customerRelation = new CustomerRelationDto();
