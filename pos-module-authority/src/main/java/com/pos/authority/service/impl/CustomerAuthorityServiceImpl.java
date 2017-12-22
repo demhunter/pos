@@ -233,9 +233,9 @@ public class CustomerAuthorityServiceImpl implements CustomerAuthorityService {
             return ApiResult.fail(AuthorityErrorCode.UPGRADE_ERROR_EXTRA_LESS_THAN_LIMIT);
         }
         // 等级和费率是否有变更
-        boolean levelChanged = permission.getLevel().equals(basicPermission.getLevel());
-        boolean rateChanged = permission.getWithdrawRate().equals(basicPermission.getWithdrawRate())
-                || permission.getExtraServiceCharge().equals(basicPermission.getExtraServiceCharge());
+        boolean levelChanged = !permission.getLevel().equals(basicPermission.getLevel());
+        boolean rateChanged = !permission.getWithdrawRate().equals(basicPermission.getWithdrawRate())
+                || !permission.getExtraServiceCharge().equals(basicPermission.getExtraServiceCharge());
 
         permission.setLevel(basicPermission.getLevel());
         permission.setWithdrawRate(basicPermission.getWithdrawRate());
