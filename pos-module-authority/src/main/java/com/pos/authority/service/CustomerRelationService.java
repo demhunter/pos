@@ -40,7 +40,7 @@ public interface CustomerRelationService {
 
     /**
      * 生成参与分佣队列，队列头为交易用户信息<br>
-     * PS：当队列长度大于2时，才有相应参与分佣的上级客户<br>
+     * PS：当队列长度大于1时，才有相应参与分佣的上级客户<br>
      *
      * @param userId 交易产生用户id
      * @return 参与分佣队列
