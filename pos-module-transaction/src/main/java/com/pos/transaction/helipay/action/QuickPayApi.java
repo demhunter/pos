@@ -64,7 +64,6 @@ public class QuickPayApi {
                 return ApiResult.fail(PosErrorCode.REQUEST_FAIL, "请求失败");
             }
         } catch (Exception e) {
-            e.printStackTrace();
             return ApiResult.fail(PosErrorCode.PAY_EXCEPTION, "交易异常：" + e.getMessage());
         }
     }
@@ -103,7 +102,6 @@ public class QuickPayApi {
                 return ApiResult.fail(PosErrorCode.REQUEST_FAIL, "请求失败");
             }
         } catch (Exception e) {
-            e.printStackTrace();
             return ApiResult.fail(PosErrorCode.PAY_EXCEPTION, "请求异常：" + e.getMessage());
         }
     }
@@ -141,7 +139,6 @@ public class QuickPayApi {
                 return ApiResult.fail(PosErrorCode.REQUEST_FAIL, "请求失败");
             }
         } catch (Exception e) {
-            e.printStackTrace();
             return ApiResult.fail(PosErrorCode.PAY_EXCEPTION, "交易异常：" + e.getMessage());
         }
     }
@@ -180,7 +177,6 @@ public class QuickPayApi {
                 return ApiResult.fail(PosErrorCode.REQUEST_FAIL, "请求失败");
             }
         } catch (Exception e) {
-            e.printStackTrace();
             return ApiResult.fail(PosErrorCode.PAY_EXCEPTION, "交易异常：" + e.getMessage());
         }
     }
@@ -218,7 +214,6 @@ public class QuickPayApi {
                 return ApiResult.fail(PosErrorCode.REQUEST_FAIL, "请求失败");
             }
         } catch (Exception e) {
-            e.printStackTrace();
             return ApiResult.fail(PosErrorCode.PAY_EXCEPTION, "交易异常：" + e.getMessage());
         }
     }
@@ -259,7 +254,6 @@ public class QuickPayApi {
                 return ApiResult.fail(PosErrorCode.REQUEST_FAIL, "请求失败");
             }
         } catch (Exception e) {
-            e.printStackTrace();
             return ApiResult.fail(PosErrorCode.PAY_EXCEPTION, "交易异常：" + e.getMessage());
         }
     }
@@ -303,7 +297,6 @@ public class QuickPayApi {
                 return ApiResult.fail(PosErrorCode.REQUEST_FAIL, "请求失败");
             }
         } catch (Exception e) {
-            e.printStackTrace();
             return ApiResult.fail(PosErrorCode.PAY_EXCEPTION, "交易异常：" + e.getMessage());
         }
     }
@@ -346,7 +339,6 @@ public class QuickPayApi {
                 return ApiResult.fail(PosErrorCode.REQUEST_FAIL, "请求失败");
             }
         } catch (Exception e) {
-            e.printStackTrace();
             return ApiResult.fail(PosErrorCode.PAY_EXCEPTION, "交易异常：" + e.getMessage());
         }
     }
