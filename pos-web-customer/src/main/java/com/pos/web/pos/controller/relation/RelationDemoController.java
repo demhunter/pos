@@ -78,32 +78,22 @@ public class RelationDemoController {
     }
 
     public static void main(String[] args) {
-        try {
-            first();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        first();
     }
 
     public static void first() {
-        try {
-
-        } catch (Exception e) {
-            System.out.println("在调用第二步时发生异常");
-            e.printStackTrace();
-        }
+        second();
     }
-    public static void second() throws Exception {
+    public static void second() {
         try {
             third();
         } catch (Exception e) {
+            // e.printStackTrace();
+            System.out.println(e.toString());
             System.out.println("在调用第三步时发生异常");
-            e.printStackTrace();
         }
     }
     public static void third() throws Exception {
         throw new Exception("第三步--发生异常！");
-
     }
 }

@@ -25,7 +25,13 @@ public enum HelibaoErrorCode implements ErrorCode {
 
     ORDER_QUERY_EXCEPTION(1205, "订单信息查询异常"),
 
-    VALIDATE_CODE_SEND_EXCEPTION(1206, "支付验证码发送异常");
+    VALIDATE_CODE_SEND_EXCEPTION(1206, "支付验证码发送异常"),
+
+    ORDER_CONFIRM_PAY_EXCEPTION(1207, "确认支付异常"),
+
+    SETTLEMENT_WITHDRAW_EXCEPTION(1208, "结算提现异常"),
+
+    SETTLEMENT_WITHDRAW_QUERY_EXCEPTION(1209, "结算提现查询异常");
 
     HelibaoErrorCode(int code, String message) {
         this.code = code;

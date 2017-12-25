@@ -58,12 +58,6 @@ public class PosConstants {
     @Value("${pos.helibao.poundage.rate}")
     private String helibaoPoundageRate; // 提现时合利宝收取的手续费比例
 
-    @Value("${pos.helibao.same.person.signkey}")
-    private String helibaoSameSignKey; // 请求参数签名时的MD5的密钥  即快捷产品的密钥
-
-    @Value("${pos.helibao.transfer.url}")
-    private String helibaoTransferUrl; // 合利宝支付的请求地址
-
     @Value("${pos.helibao.tixian.rate}")
     private String helibaoTixianRate; // 公司支付钱给用户时合利宝收取的手续费比例
 
@@ -104,10 +98,20 @@ public class PosConstants {
 
     /* ------------------------------- 合利宝配置 start -------------------------------------- */
 
+    @Value("${pos.helibao.same.person.signkey}")
+    private String helibaoSameSignKey; // 请求参数签名时的MD5的密钥  即快捷产品的密钥
+
     @Value("${pos.helibao.same.person.url}")
     public String helibaoSamePersonUrl; //合利宝的同人的请求URL
 
+    @Value("${pos.helibao.transfer.url}")
+    private String helibaoTransferUrl; // 合利宝支付的请求地址（提现相关请求地址）
 
+    @Value("${pos.helibao.transfer.sign}")
+    private String helibaoTransferSign; // 合利宝支付请求的MD5的签名密钥 即代付产品的密钥
+
+    @Value("${pos.helibao.transfer.key}")
+    private String helibaoTransferKey; //合利宝支付请求的私钥 RSA算法使用
     /* ------------------------------- 合利宝配置 end ---------------------------------------- */
 
     public BigDecimal getBrokerageWithdrawDownLimit() {
@@ -216,5 +220,13 @@ public class PosConstants {
 
     public String getHelibaoSamePersonUrl() {
         return helibaoSamePersonUrl;
+    }
+
+    public String getHelibaoTransferSign() {
+        return helibaoTransferSign;
+    }
+
+    public String getHelibaoTransferKey() {
+        return helibaoTransferKey;
     }
 }
