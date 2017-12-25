@@ -26,7 +26,7 @@ public class MyBeanUtils extends BeanUtils{
             Object value = f.get(bean);
             if(value == null)
                 value = "";
-            retMap.put(key, value);
+            retMap.put(key, value.toString());
         }
         return retMap;
     }
