@@ -12,6 +12,34 @@ package com.pos.transaction.service.support.helipay.dto;
 public abstract class HelibaoBasicResponse {
 
     /**
+     * 获取交易类型
+     *
+     * @return 交易类型
+     */
+    public abstract String getRt1_bizType();
+
+    /**
+     * 获取返回码
+     *
+     * @return 返回状态码
+     */
+    public abstract String getRt2_retCode();
+
+    /**
+     * 获取返回信息
+     *
+     * @return 返回信息
+     */
+    public abstract String getRt3_retMsg();
+
+    /**
+     * 获取商户编号
+     *
+     * @return 商户编号
+     */
+    public abstract String getRt4_customerNumber();
+
+    /**
      * 获取返回数据签名
      *
      * @return 数据签名

@@ -23,7 +23,9 @@ public enum HelibaoErrorCode implements ErrorCode {
 
     SETTLEMENT_CARD_BIND_EXCEPTION(1204, "结算卡绑定异常"),
 
-    ORDER_QUERY_EXCEPTION(1205, "订单信息查询异常");
+    ORDER_QUERY_EXCEPTION(1205, "订单信息查询异常"),
+
+    VALIDATE_CODE_SEND_EXCEPTION(1206, "支付验证码发送异常");
 
     HelibaoErrorCode(int code, String message) {
         this.code = code;

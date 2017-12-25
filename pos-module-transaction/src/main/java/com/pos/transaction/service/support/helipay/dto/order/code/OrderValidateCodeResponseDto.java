@@ -1,30 +1,32 @@
 /*
  * Copyright (c) 2016 ywmj.com. All Rights Reserved.
  */
-package com.pos.transaction.service.support.helipay.dto.order.create;
+package com.pos.transaction.service.support.helipay.dto.order.code;
 
 import com.pos.transaction.service.support.helipay.dto.HelibaoBasicResponse;
 
 import java.io.Serializable;
 
 /**
- * 支付下单响应信息Dto
+ * 发送支付验证码请求响应信息Dto
  *
  * @author wangbing
- * @version 1.0, 2017/12/21
+ * @version 1.0, 2017/12/22
  */
-public class OrderCreateResponseDto extends HelibaoBasicResponse implements Serializable {
-    private static final long serialVersionUID = -4634760057216022363L;
+public class OrderValidateCodeResponseDto extends HelibaoBasicResponse implements Serializable {
+    private static final long serialVersionUID = 1055962858397468337L;
 
-    private String rt1_bizType; // 交易类型，固定值为：[QuickPayBankCardPay]
+    private String rt1_bizType; // 交易类型，固定值为：QuickPaySendValidateCode
 
     private String rt2_retCode; // 返回码
 
-    private String rt3_retMsg; // 返回信息
+    private String rt3_retMsg; // 返回信息，返回0000即成功
 
     private String rt4_customerNumber; // 商户编号
 
     private String rt5_orderId; // 商户订单号
+
+    private String rt6_phone; // 手机号码
 
     private String sign; // 签名
 
@@ -72,12 +74,20 @@ public class OrderCreateResponseDto extends HelibaoBasicResponse implements Seri
         this.rt5_orderId = rt5_orderId;
     }
 
-    public void setSign(String sign) {
-        this.sign = sign;
+    public String getRt6_phone() {
+        return rt6_phone;
+    }
+
+    public void setRt6_phone(String rt6_phone) {
+        this.rt6_phone = rt6_phone;
     }
 
     @Override
     public String getSign() {
         return sign;
+    }
+
+    public void setSign(String sign) {
+        this.sign = sign;
     }
 }

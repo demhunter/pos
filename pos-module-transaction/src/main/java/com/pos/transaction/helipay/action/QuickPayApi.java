@@ -33,19 +33,19 @@ public class QuickPayApi {
         log.info("--------进入创建订单接口----------");
         try {
             Map<String, String> map = MyBeanUtils.convertBean(orderVo, new LinkedHashMap());
-            String oriMessage = MyBeanUtils.getSigned(map, null,SPLIT,globalConstants.helibaoSameSignKey);
+            String oriMessage = MyBeanUtils.getSigned(map, null, SPLIT, globalConstants.helibaoSameSignKey);
             log.info("签名原文串：" + oriMessage);
             String sign = Disguiser.disguiseMD5(oriMessage.trim());
             log.info("签名串：" + sign);
             map.put("sign", sign);
             log.info("发送参数：" + map);
-            Map<String, Object> resultMap = HttpClientService.getHttpResp(map,globalConstants.helibaoSameUrl);
+            Map<String, Object> resultMap = HttpClientService.getHttpResp(map, globalConstants.helibaoSameUrl);
             log.info("响应结果：" + resultMap);
             if ((Integer) resultMap.get("statusCode") == HttpStatus.SC_OK) {
                 String resultMsg = (String) resultMap.get("response");
                 CreateOrderResponseVo orderResponseVo = JSONObject.parseObject(resultMsg, CreateOrderResponseVo.class);
                 String[] excludes = {"rt3_retMsg"};
-                String assemblyRespOriSign = MyBeanUtils.getSigned(orderResponseVo, excludes,SPLIT,globalConstants.helibaoSameSignKey);
+                String assemblyRespOriSign = MyBeanUtils.getSigned(orderResponseVo, excludes, SPLIT, globalConstants.helibaoSameSignKey);
                 log.info("组装返回结果签名串：" + assemblyRespOriSign);
                 String responseSign = orderResponseVo.getSign();
                 log.info("响应签名：" + responseSign);
@@ -74,7 +74,7 @@ public class QuickPayApi {
         try {
             String[] requestExcludes = {"P6_smsSignature"};
             Map<String, String> map = MyBeanUtils.convertBean(sendVo, new LinkedHashMap());
-            String oriMessage = MyBeanUtils.getSigned(map, requestExcludes, SPLIT,globalConstants.helibaoSameSignKey);
+            String oriMessage = MyBeanUtils.getSigned(map, requestExcludes, SPLIT, globalConstants.helibaoSameSignKey);
             log.info("签名原文串：" + oriMessage);
             String sign = Disguiser.disguiseMD5(oriMessage.trim());
             log.info("签名串：" + sign);
@@ -85,7 +85,7 @@ public class QuickPayApi {
             if ((Integer) (resultMap.get("statusCode")) == HttpStatus.SC_OK) {
                 String resultMsg = (String) resultMap.get("response");
                 SendValidateCodeResponseVo sendResponseVo = JSONObject.parseObject(resultMsg, SendValidateCodeResponseVo.class);
-                String assemblyRespOriSign = MyBeanUtils.getSigned(sendResponseVo, null,SPLIT,globalConstants.helibaoSameSignKey);
+                String assemblyRespOriSign = MyBeanUtils.getSigned(sendResponseVo, null, SPLIT, globalConstants.helibaoSameSignKey);
                 log.info("组装返回结果签名串：" + assemblyRespOriSign);
                 String responseSign = sendResponseVo.getSign();
                 log.info("响应签名：" + responseSign);
@@ -94,7 +94,7 @@ public class QuickPayApi {
                     if ("0000".equals(sendResponseVo.getRt2_retCode())) {
                         return ApiResult.succ(sendResponseVo);
                     } else {
-                        return ApiResult.failFormatMsg(PosErrorCode.POS_NORMAL_FAIL,sendResponseVo.getRt3_retMsg());
+                        return ApiResult.failFormatMsg(PosErrorCode.POS_NORMAL_FAIL, sendResponseVo.getRt3_retMsg());
                     }
                 } else {
                     return ApiResult.fail(PosErrorCode.CHECK_SIGN_FAIL, "验签失败");
@@ -112,7 +112,7 @@ public class QuickPayApi {
         log.info("--------进入确认支付接口----------");
         try {
             Map<String, String> map = MyBeanUtils.convertBean(confirmPayVo, new LinkedHashMap());
-            String oriMessage = MyBeanUtils.getSigned(map, null,SPLIT,globalConstants.helibaoSameSignKey);
+            String oriMessage = MyBeanUtils.getSigned(map, null, SPLIT, globalConstants.helibaoSameSignKey);
             log.info("签名原文串：" + oriMessage);
             String sign = Disguiser.disguiseMD5(oriMessage.trim());
             log.info("签名串：" + sign);
@@ -123,7 +123,7 @@ public class QuickPayApi {
             if ((Integer) (resultMap.get("statusCode")) == HttpStatus.SC_OK) {
                 String resultMsg = (String) resultMap.get("response");
                 ConfirmPayResponseVo confirmPayResponseVo = JSONObject.parseObject(resultMsg, ConfirmPayResponseVo.class);
-                String assemblyRespOriSign = MyBeanUtils.getSigned(confirmPayResponseVo, null,SPLIT,globalConstants.helibaoSameSignKey);
+                String assemblyRespOriSign = MyBeanUtils.getSigned(confirmPayResponseVo, null, SPLIT, globalConstants.helibaoSameSignKey);
                 log.info("组装返回结果签名串：" + assemblyRespOriSign);
                 String responseSign = confirmPayResponseVo.getSign();
                 log.info("响应签名：" + responseSign);
@@ -151,7 +151,7 @@ public class QuickPayApi {
         try {
             Map<String, String> map = MyBeanUtils.convertBean(bindCardPayVo, new LinkedHashMap());
             String[] requestExcludes = {"P17_validateCode"};
-            String oriMessage = MyBeanUtils.getSigned(map, requestExcludes,SPLIT,globalConstants.helibaoSameSignKey);
+            String oriMessage = MyBeanUtils.getSigned(map, requestExcludes, SPLIT, globalConstants.helibaoSameSignKey);
             log.info("签名原文串：" + oriMessage);
             String sign = Disguiser.disguiseMD5(oriMessage.trim());
             log.info("签名串：" + sign);
@@ -162,7 +162,7 @@ public class QuickPayApi {
             if ((Integer) resultMap.get("statusCode") == HttpStatus.SC_OK) {
                 String resultMsg = (String) resultMap.get("response");
                 BindCardPayResponseVo bindCardPayResponseVo = JSONObject.parseObject(resultMsg, BindCardPayResponseVo.class);
-                String assemblyRespOriSign = MyBeanUtils.getSigned(bindCardPayResponseVo, null,SPLIT,globalConstants.helibaoSameSignKey);
+                String assemblyRespOriSign = MyBeanUtils.getSigned(bindCardPayResponseVo, null, SPLIT, globalConstants.helibaoSameSignKey);
                 log.info("组装返回结果签名串：" + assemblyRespOriSign);
                 String responseSign = bindCardPayResponseVo.getSign();
                 log.info("响应签名：" + responseSign);
@@ -171,17 +171,17 @@ public class QuickPayApi {
                     if ("0000".equals(bindCardPayResponseVo.getRt2_retCode())) {
                         return ApiResult.succ(bindCardPayResponseVo);
                     } else {
-                        return ApiResult.failFormatMsg(PosErrorCode.POS_NORMAL_FAIL,bindCardPayResponseVo.getRt3_retMsg());
+                        return ApiResult.failFormatMsg(PosErrorCode.POS_NORMAL_FAIL, bindCardPayResponseVo.getRt3_retMsg());
                     }
                 } else {
-                    return ApiResult.fail(PosErrorCode.CHECK_SIGN_FAIL,"验签失败");
+                    return ApiResult.fail(PosErrorCode.CHECK_SIGN_FAIL, "验签失败");
                 }
             } else {
                 return ApiResult.fail(PosErrorCode.REQUEST_FAIL, "请求失败");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return ApiResult.fail(PosErrorCode.PAY_EXCEPTION,"交易异常：" + e.getMessage());
+            return ApiResult.fail(PosErrorCode.PAY_EXCEPTION, "交易异常：" + e.getMessage());
         }
     }
 
@@ -189,7 +189,7 @@ public class QuickPayApi {
         log.info("--------进入订单查询接口----------");
         try {
             Map<String, String> map = MyBeanUtils.convertBean(queryOrderVo, new LinkedHashMap());
-            String oriMessage = MyBeanUtils.getSigned(map, null,SPLIT,globalConstants.helibaoSameSignKey);
+            String oriMessage = MyBeanUtils.getSigned(map, null, SPLIT, globalConstants.helibaoSameSignKey);
             log.info("签名原文串：" + oriMessage);
             String sign = Disguiser.disguiseMD5(oriMessage.trim());
             log.info("签名串：" + sign);
@@ -200,7 +200,7 @@ public class QuickPayApi {
             if ((Integer) resultMap.get("statusCode") == HttpStatus.SC_OK) {
                 String resultMsg = (String) resultMap.get("response");
                 QueryOrderResponseVo queryOrderResponseVo = JSONObject.parseObject(resultMsg, QueryOrderResponseVo.class);
-                String assemblyRespOriSign = MyBeanUtils.getSigned(queryOrderResponseVo, null,SPLIT,globalConstants.helibaoSameSignKey);
+                String assemblyRespOriSign = MyBeanUtils.getSigned(queryOrderResponseVo, null, SPLIT, globalConstants.helibaoSameSignKey);
                 log.info("组装返回结果签名串：" + assemblyRespOriSign);
                 String responseSign = queryOrderResponseVo.getSign();
                 log.info("响应签名：" + responseSign);
@@ -209,7 +209,7 @@ public class QuickPayApi {
                     if ("0000".equals(queryOrderResponseVo.getRt2_retCode())) {
                         return ApiResult.succ(queryOrderResponseVo);
                     } else {
-                        return ApiResult.failFormatMsg(PosErrorCode.POS_NORMAL_FAIL,queryOrderResponseVo.getRt3_retMsg());
+                        return ApiResult.failFormatMsg(PosErrorCode.POS_NORMAL_FAIL, queryOrderResponseVo.getRt3_retMsg());
                     }
                 } else {
                     return ApiResult.fail(PosErrorCode.CHECK_SIGN_FAIL, "验签失败");
@@ -227,9 +227,9 @@ public class QuickPayApi {
     public ApiResult<SettlementCardBindResponseVo> settlementCardBind(SettlementCardBindVo settlementCardBindVo) {
         log.info("--------进入绑结算卡接口----------");
         try {
-            String [] signExcludes = {"P11_operateType"};
+            String[] signExcludes = {"P11_operateType"};
             Map<String, String> map = MyBeanUtils.convertBean(settlementCardBindVo, new LinkedHashMap());
-            String oriMessage = MyBeanUtils.getSigned(map, signExcludes,SPLIT,globalConstants.helibaoSameSignKey);
+            String oriMessage = MyBeanUtils.getSigned(map, signExcludes, SPLIT, globalConstants.helibaoSameSignKey);
             log.info("签名原文串：" + oriMessage);
             String sign = Disguiser.disguiseMD5(oriMessage.trim());
             log.info("签名串：" + sign);
@@ -241,7 +241,7 @@ public class QuickPayApi {
                 String resultMsg = (String) resultMap.get("response");
                 SettlementCardBindResponseVo responseVo = JSONObject.parseObject(resultMsg, SettlementCardBindResponseVo.class);
                 String[] excludes = {"rt3_retMsg"};
-                String assemblyRespOriSign = MyBeanUtils.getSigned(responseVo, excludes,SPLIT,globalConstants.helibaoSameSignKey);
+                String assemblyRespOriSign = MyBeanUtils.getSigned(responseVo, excludes, SPLIT, globalConstants.helibaoSameSignKey);
                 log.info("组装返回结果签名串：" + assemblyRespOriSign);
                 String responseSign = responseVo.getSign();
                 log.info("响应签名：" + responseSign);
@@ -269,7 +269,7 @@ public class QuickPayApi {
         log.info("--------进入结算卡提现接口----------");
         try {
             Map<String, String> map = MyBeanUtils.convertBean(settlementCardWithdrawVo, new LinkedHashMap());
-            String oriMessage = MyBeanUtils.getSigned(settlementCardWithdrawVo, null,SPLIT,globalConstants.helibaoSameSignKey);
+            String oriMessage = MyBeanUtils.getSigned(settlementCardWithdrawVo, null, SPLIT, globalConstants.helibaoSameSignKey);
             oriMessage = oriMessage.substring(0, oriMessage.lastIndexOf(SPLIT));
             log.info("签名原文串：" + oriMessage);
             String sign = RSA.sign(oriMessage, RSA.getPrivateKey(globalConstants.helibaoTransferKey));
@@ -282,7 +282,7 @@ public class QuickPayApi {
                 String resultMsg = (String) resultMap.get("response");
                 SettlementCardWithdrawResponseVo responseVo = JSONObject.parseObject(resultMsg, SettlementCardWithdrawResponseVo.class);
                 String[] excludes = {"rt3_retMsg"};
-                String assemblyRespOriSign = MyBeanUtils.getSigned(responseVo, excludes,SPLIT,globalConstants.helibaoSameSignKey);
+                String assemblyRespOriSign = MyBeanUtils.getSigned(responseVo, excludes, SPLIT, globalConstants.helibaoSameSignKey);
                 assemblyRespOriSign = assemblyRespOriSign.substring(0, assemblyRespOriSign.lastIndexOf(SPLIT) + 1);
                 assemblyRespOriSign += globalConstants.helibaoTransferSign;
                 log.info("组装返回结果签名串：" + assemblyRespOriSign);
@@ -297,7 +297,7 @@ public class QuickPayApi {
                         return ApiResult.failFormatMsg(PosErrorCode.POS_NORMAL_FAIL, responseVo.getRt3_retMsg());
                     }
                 } else {
-                    return ApiResult.fail(PosErrorCode.CHECK_SIGN_FAIL,"验签失败");
+                    return ApiResult.fail(PosErrorCode.CHECK_SIGN_FAIL, "验签失败");
                 }
             } else {
                 return ApiResult.fail(PosErrorCode.REQUEST_FAIL, "请求失败");
@@ -312,7 +312,7 @@ public class QuickPayApi {
         log.info("--------进入结算卡提现查询接口----------");
         try {
             Map<String, String> map = MyBeanUtils.convertBean(queryOrderVo, new LinkedHashMap());
-            String oriMessage = MyBeanUtils.getSigned(queryOrderVo, null,SPLIT,globalConstants.helibaoSameSignKey);
+            String oriMessage = MyBeanUtils.getSigned(queryOrderVo, null, SPLIT, globalConstants.helibaoSameSignKey);
             oriMessage = oriMessage.substring(0, oriMessage.lastIndexOf(SPLIT));
             log.info("签名原文串：" + oriMessage);
             String sign = RSA.sign(oriMessage, RSA.getPrivateKey(globalConstants.helibaoTransferKey));
@@ -325,7 +325,7 @@ public class QuickPayApi {
                 String resultMsg = (String) resultMap.get("response");
                 QuerySettlementCardVo querySettlementVo = JSONObject.parseObject(resultMsg, QuerySettlementCardVo.class);
                 String[] excludes = {"rt3_retMsg"};
-                String assemblyRespOriSign = MyBeanUtils.getSigned(querySettlementVo, excludes, SPLIT,posConstants.getHelibaoSameSignKey());
+                String assemblyRespOriSign = MyBeanUtils.getSigned(querySettlementVo, excludes, SPLIT, posConstants.getHelibaoSameSignKey());
                 assemblyRespOriSign = assemblyRespOriSign.substring(0, assemblyRespOriSign.lastIndexOf(SPLIT) + 1);
                 assemblyRespOriSign += globalConstants.helibaoTransferSign;
                 log.info("组装返回结果签名串：" + assemblyRespOriSign);
@@ -337,7 +337,7 @@ public class QuickPayApi {
                     if ("0000".equals(querySettlementVo.getRt2_retCode())) {
                         return ApiResult.succ(querySettlementVo);
                     } else {
-                        return ApiResult.failFormatMsg(PosErrorCode.POS_NORMAL_FAIL,querySettlementVo.getRt3_retMsg());
+                        return ApiResult.failFormatMsg(PosErrorCode.POS_NORMAL_FAIL, querySettlementVo.getRt3_retMsg());
                     }
                 } else {
                     return ApiResult.fail(PosErrorCode.CHECK_SIGN_FAIL, "验签失败");
@@ -351,10 +351,51 @@ public class QuickPayApi {
         }
     }
 
+    public ApiResult<MerchantWithdrawResponseVo> merchantWithdraw(MerchantWithdrawVo merchantWithdrawVo) {
+        log.info("--------进入商户提现接口----------");
+        try {
+            Map<String, String> map = MyBeanUtils.convertBean(merchantWithdrawVo, new LinkedHashMap());
+            String oriMessage = MyBeanUtils.getSigned(merchantWithdrawVo, null, SPLIT, globalConstants.helibaoSameSignKey);
+            oriMessage = oriMessage.substring(0, oriMessage.lastIndexOf(SPLIT));
+            log.info("签名原文串：" + oriMessage);
+            String sign = RSA.sign(oriMessage, RSA.getPrivateKey(globalConstants.helibaoTransferKey));
+            log.info("签名串：" + sign);
+            map.put("sign", sign);
+            log.info("发送参数：" + map);
+            Map<String, Object> resultMap = HttpClientService.getHttpResp(map, globalConstants.helibaoTransferUrl);
+            log.info("响应结果：" + resultMap);
+            if ((Integer) resultMap.get("statusCode") == HttpStatus.SC_OK) {
+                String resultMsg = (String) resultMap.get("response");
+                MerchantWithdrawResponseVo responseVo = JSONObject.parseObject(resultMsg, MerchantWithdrawResponseVo.class);
+                String assemblyRespOriSign = MyBeanUtils.getSigned(responseVo, null, SPLIT, globalConstants.helibaoSameSignKey);
+                assemblyRespOriSign = assemblyRespOriSign.substring(0, assemblyRespOriSign.lastIndexOf(SPLIT) + 1);
+                assemblyRespOriSign += globalConstants.helibaoTransferSign;
+                log.info("组装返回结果签名串：" + assemblyRespOriSign);
+                String responseSign = responseVo.getSign();
+                log.info("响应签名：" + responseSign);
+                String checkSign = Disguiser.disguiseMD5(assemblyRespOriSign.trim());
+                log.info("验证签名串：" + checkSign);
+                if (checkSign.equals(responseSign)) {
+                    if ("0000".equals(responseVo.getRt2_retCode())) {
+                        return ApiResult.succ(responseVo);
+                    } else {
+                        return ApiResult.failFormatMsg(PosErrorCode.POS_NORMAL_FAIL, responseVo.getRt3_retMsg());
+                    }
+                } else {
+                    return ApiResult.fail(PosErrorCode.CHECK_SIGN_FAIL, "验签失败");
+                }
+            } else {
+                return ApiResult.fail(PosErrorCode.REQUEST_FAIL, "请求失败");
+            }
+        } catch (Exception e) {
+            return ApiResult.fail(PosErrorCode.PAY_EXCEPTION, "交易异常：" + e.getMessage());
+        }
+    }
+
 
     public static void main(String[] args) {
         String orderId = UUID.randomUUID().toString();
-        System.out.println("orderId ========== "+orderId);
+        System.out.println("orderId ========== " + orderId);
 //        SettlementCardBindVo settlementCardBindVo = new SettlementCardBindVo();
 //        settlementCardBindVo.setP1_bizType("SettlementCardBind");
 //        settlementCardBindVo.setP2_customerNumber(MERCHANT_NO);

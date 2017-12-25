@@ -47,6 +47,7 @@ import com.pos.transaction.exception.TransactionErrorCode;
 import com.pos.transaction.fsm.PosFSMFactory;
 import com.pos.transaction.fsm.context.TransactionStatusTransferContext;
 import com.pos.transaction.helipay.action.QuickPayApi;
+import com.pos.transaction.helipay.util.PosErrorCode;
 import com.pos.transaction.helipay.vo.*;
 import com.pos.transaction.service.PosCardService;
 import com.pos.transaction.service.PosService;
@@ -1070,18 +1071,35 @@ public class PosServiceImpl implements PosService {
             return ApiResult.fail(TransactionErrorCode.POS_ERROR_TRANSACTION_STATUS_ERROR);
         }
         TransactionType type = TransactionType.getEnum(record.getTransactionType());
+        ApiResult result;
         // 重发提现请求
-        SettlementCardWithdrawVo settlement;
         if (TransactionType.BROKERAGE_WITHDRAW.equals(type)) {
-            settlement = buildSettlementCardWithdrawVo(record);
+            PosCardDto inCard = posCardDao.getUserPosCard(record.getInCardId());
+            posCardService.decryptPosCardInfo(inCard); // 解密数据
+            if (inCard == null) {
+                return ApiResult.fail(TransactionErrorCode.POS_ERROR_IN_BANK_CARD_NOT_EXISTED);
+            }
+            MerchantWithdrawVo merchantWithdrawVo = new MerchantWithdrawVo();
+
+            merchantWithdrawVo.setP1_bizType("MerchantWithdraw");
+            merchantWithdrawVo.setP2_customerNumber(posConstants.getHelibaoMerchantNO());
+            merchantWithdrawVo.setP3_orderId(record.getRecordNum());
+            merchantWithdrawVo.setP4_amount(record.getArrivalAmount().toString());
+            merchantWithdrawVo.setP5_bankCode(inCard.getBankCode());
+            merchantWithdrawVo.setP6_bankAccountNo(inCard.getCardNO());
+            merchantWithdrawVo.setP7_bankAccountName(inCard.getName());
+            merchantWithdrawVo.setP8_biz("B2C");
+            merchantWithdrawVo.setP10_feeType("PAYER");
+            merchantWithdrawVo.setP11_summary("佣金提现");
+
+            result = quickPayApi.merchantWithdraw(merchantWithdrawVo);
         } else if (TransactionType.NORMAL_WITHDRAW.equals(type)) {
-            settlement = buildSettlementCardWithdrawVo(record);
+            SettlementCardWithdrawVo settlement = buildSettlementCardWithdrawVo(record);
+            result = quickPayApi.settlementCardWithdraw(settlement);
         } else {
             return ApiResult.fail(TransactionErrorCode.POS_ERROR_TRANSACTION_TYPE_ERROR);
         }
-
-        ApiResult<SettlementCardWithdrawResponseVo> withdrawResult = quickPayApi.settlementCardWithdraw(settlement);
-        if (withdrawResult.isSucc()) {
+        if (result.isSucc()) {
             // 状态变更
             TransactionStatusTransferContext context = new TransactionStatusTransferContext();
             context.setRecordId(recordId);
@@ -1091,8 +1109,8 @@ public class PosServiceImpl implements PosService {
             redisTemplate.opsForList().rightPush(RedisConstants.POS_TRANSACTION_WITHDRAW_QUEUE, recordId.toString());
         } else {
             // 发起提现失败，更新交易状态-交易失败，累计失败次数、保存失败信息
-            recordTransactionFailureInfo(record, withdrawResult.getMessage());
-            return ApiResult.fail(withdrawResult.getError(), withdrawResult.getMessage());
+            recordTransactionFailureInfo(record, result.getMessage());
+            return ApiResult.fail(result.getError(), result.getMessage());
         }
 
         return ApiResult.succ();
@@ -1104,27 +1122,34 @@ public class PosServiceImpl implements PosService {
         FieldChecker.checkMinValue(brokerage, BigDecimal.ZERO, "brokerage");
 
         UserPosTransactionRecord transaction = buildAndSaveOriginBrokerageTransaction(permission, brokerage);
+        PosCardDto inCard = posCardDao.getUserPosCard(permission.getPosCardId());
+        posCardService.decryptPosCardInfo(inCard);
 
-        return payBrokerageToUser(transaction);
+        return payBrokerageToUser(transaction, inCard);
     }
 
     /**
      * 支付佣金到用户收款银行卡
      *
      * @param transaction 佣金交易
+     * @param inCard      收款银行卡信息
      * @return 佣金金额
      */
-    private ApiResult<BigDecimal> payBrokerageToUser(UserPosTransactionRecord transaction) {
-        SettlementCardWithdrawVo settlement = new SettlementCardWithdrawVo();
+    private ApiResult<BigDecimal> payBrokerageToUser(UserPosTransactionRecord transaction, PosCardDto inCard) {
+        MerchantWithdrawVo merchantWithdrawVo = new MerchantWithdrawVo();
 
-        settlement.setP1_bizType("SettlementCardWithdraw");
-        settlement.setP2_customerNumber(posConstants.getHelibaoMerchantNO());
-        settlement.setP3_userId(String.valueOf(transaction.getUserId()));
-        settlement.setP4_orderId(transaction.getRecordNum());
-        settlement.setP5_amount(transaction.getArrivalAmount().toString());
-        settlement.setP6_feeType("PAYER"); // 平台支付手续费
+        merchantWithdrawVo.setP1_bizType("MerchantWithdraw");
+        merchantWithdrawVo.setP2_customerNumber(posConstants.getHelibaoMerchantNO());
+        merchantWithdrawVo.setP3_orderId(transaction.getRecordNum());
+        merchantWithdrawVo.setP4_amount(transaction.getArrivalAmount().toString());
+        merchantWithdrawVo.setP5_bankCode(inCard.getBankCode());
+        merchantWithdrawVo.setP6_bankAccountNo(inCard.getCardNO());
+        merchantWithdrawVo.setP7_bankAccountName(inCard.getName());
+        merchantWithdrawVo.setP8_biz("B2C");
+        merchantWithdrawVo.setP10_feeType("PAYER");
+        merchantWithdrawVo.setP11_summary("佣金提现");
 
-        ApiResult<SettlementCardWithdrawResponseVo> withdrawResult = quickPayApi.settlementCardWithdraw(settlement);
+        ApiResult<MerchantWithdrawResponseVo> withdrawResult = quickPayApi.merchantWithdraw(merchantWithdrawVo);
         if (withdrawResult.isSucc()) {
             // 发起提现成功，加入交易轮询队列，由定时任务轮询处理交易状态
             redisTemplate.opsForList().rightPush(RedisConstants.POS_TRANSACTION_WITHDRAW_QUEUE, transaction.getId().toString());

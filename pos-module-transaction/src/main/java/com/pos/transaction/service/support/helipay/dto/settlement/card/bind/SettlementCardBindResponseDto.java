@@ -37,6 +37,7 @@ public class SettlementCardBindResponseDto extends HelibaoBasicResponse implemen
 
     private String sign; // 签名
 
+    @Override
     public String getRt1_bizType() {
         return rt1_bizType;
     }
@@ -45,6 +46,7 @@ public class SettlementCardBindResponseDto extends HelibaoBasicResponse implemen
         this.rt1_bizType = rt1_bizType;
     }
 
+    @Override
     public String getRt2_retCode() {
         return rt2_retCode;
     }
@@ -53,6 +55,7 @@ public class SettlementCardBindResponseDto extends HelibaoBasicResponse implemen
         this.rt2_retCode = rt2_retCode;
     }
 
+    @Override
     public String getRt3_retMsg() {
         return rt3_retMsg;
     }
@@ -61,6 +64,7 @@ public class SettlementCardBindResponseDto extends HelibaoBasicResponse implemen
         this.rt3_retMsg = rt3_retMsg;
     }
 
+    @Override
     public String getRt4_customerNumber() {
         return rt4_customerNumber;
     }
