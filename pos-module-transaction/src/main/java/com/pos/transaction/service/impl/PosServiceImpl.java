@@ -1073,13 +1073,7 @@ public class PosServiceImpl implements PosService {
         // 重发提现请求
         SettlementCardWithdrawVo settlement;
         if (TransactionType.BROKERAGE_WITHDRAW.equals(type)) {
-            settlement = new SettlementCardWithdrawVo();
-            settlement.setP1_bizType("SettlementCardWithdraw");
-            settlement.setP2_customerNumber(posConstants.getHelibaoMerchantNO());
-            settlement.setP3_userId(String.valueOf(record.getUserId()));
-            settlement.setP4_orderId(record.getRecordNum());
-            settlement.setP5_amount(record.getArrivalAmount().toString());
-            settlement.setP6_feeType("RECEIVER");
+            settlement = buildSettlementCardWithdrawVo(record);
         } else if (TransactionType.NORMAL_WITHDRAW.equals(type)) {
             settlement = buildSettlementCardWithdrawVo(record);
         } else {
