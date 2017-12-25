@@ -341,21 +341,19 @@ public class PosUserChannelInfoServiceImpl implements PosUserChannelInfoService 
     public ApiResult<ReferrerSimpleDto> findReferrerSimpleInfo(Long referrerUserId) {
         FieldChecker.checkEmpty(referrerUserId, "referrerUserId");
 
-        PosUserAuthDto userAuth = posAuthDao.findAuth(referrerUserId);
         CustomerDto customer = customerService.findById(referrerUserId, true, true);
-        if (userAuth == null || customer == null) {
+        if (customer == null) {
             return ApiResult.fail(UserErrorCode.USER_NOT_EXISTED);
         }
 
         ReferrerSimpleDto referrer = new ReferrerSimpleDto();
         referrer.setUserId(referrerUserId);
-        referrer.setReferrerName(userAuth.getIdCardName());
+        referrer.setReferrerName(customer.getName());
         referrer.setReferrerPhone(customer.getUserPhone());
 
         // 解密并隐藏推荐人部分姓名信息
         if (!StringUtils.isEmpty(referrer.getReferrerName())) {
-            String name = securityService.decryptData(referrer.getReferrerName());
-            referrer.setReferrerName(SimpleRegexUtils.hiddenName(name));
+            referrer.setReferrerName(SimpleRegexUtils.hiddenName(referrer.getReferrerName()));
         }
         // 隐藏电话号码中间四位
         if (!StringUtils.isEmpty(referrer.getReferrerPhone())) {
