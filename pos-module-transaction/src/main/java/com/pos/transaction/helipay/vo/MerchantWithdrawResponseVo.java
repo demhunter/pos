@@ -3,16 +3,13 @@
  */
 package com.pos.transaction.helipay.vo;
 
-import java.io.Serializable;
-
 /**
  * 商户提现请求响应信息
  *
  * @author wangbing
  * @version 1.0, 2017/12/25
  */
-public class MerchantWithdrawResponseVo implements Serializable {
-    private static final long serialVersionUID = -1154125025622563538L;
+public class MerchantWithdrawResponseVo {
 
     private String rt1_bizType; // 交易类型，固定值为：SettlementCardWithdraw
 

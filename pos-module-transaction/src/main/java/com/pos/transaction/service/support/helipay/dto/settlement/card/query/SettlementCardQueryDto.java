@@ -5,7 +5,6 @@ package com.pos.transaction.service.support.helipay.dto.settlement.card.query;
 
 import com.pos.common.util.date.SimpleDateUtils;
 
-import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -14,8 +13,7 @@ import java.util.Date;
  * @author wangbing
  * @version 1.0, 2017/12/21
  */
-public class SettlementCardQueryDto implements Serializable {
-    private static final long serialVersionUID = 4792712816836675894L;
+public class SettlementCardQueryDto {
 
     private String P1_bizType; // 交易类型，固定值为：SettlementCardQuery
 

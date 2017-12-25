@@ -5,17 +5,13 @@ package com.pos.transaction.service.support.helipay.dto.settlement.card.bind;
 
 import com.pos.transaction.service.support.helipay.dto.HelibaoBasicResponse;
 
-import java.io.Serializable;
-
 /**
  * 结算绑定返回信息Dto
  *
  * @author wangbing
  * @version 1.0, 2017/12/19
  */
-public class SettlementCardBindResponseDto extends HelibaoBasicResponse implements Serializable {
-
-    private static final long serialVersionUID = 8908682614762145037L;
+public class SettlementCardBindResponseDto extends HelibaoBasicResponse {
 
     private String rt1_bizType; // 交易类型，固定值为：[SettlementCardWithdraw]
 

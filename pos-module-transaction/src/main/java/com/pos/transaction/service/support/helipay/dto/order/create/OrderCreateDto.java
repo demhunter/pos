@@ -3,16 +3,13 @@
  */
 package com.pos.transaction.service.support.helipay.dto.order.create;
 
-import java.io.Serializable;
-
 /**
  * 支付下单信息Dto
  *
  * @author wangbing
  * @version 1.0, 2017/12/21
  */
-public class OrderCreateDto implements Serializable {
-    private static final long serialVersionUID = 2868333258693453974L;
+public class OrderCreateDto {
 
     private String P1_bizType; // 交易类型，固定值为：[QuickPayBankCardPay]
 

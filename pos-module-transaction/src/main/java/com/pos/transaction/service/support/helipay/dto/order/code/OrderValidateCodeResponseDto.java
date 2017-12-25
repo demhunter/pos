@@ -13,8 +13,7 @@ import java.io.Serializable;
  * @author wangbing
  * @version 1.0, 2017/12/22
  */
-public class OrderValidateCodeResponseDto extends HelibaoBasicResponse implements Serializable {
-    private static final long serialVersionUID = 1055962858397468337L;
+public class OrderValidateCodeResponseDto extends HelibaoBasicResponse {
 
     private String rt1_bizType; // 交易类型，固定值为：QuickPaySendValidateCode
 

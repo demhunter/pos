@@ -5,17 +5,13 @@ package com.pos.transaction.service.support.helipay.dto.order.query;
 
 import com.pos.transaction.service.support.helipay.dto.HelibaoBasicResponse;
 
-import java.io.Serializable;
-
 /**
  * 订单查询返回信息Dto
  *
  * @author wangbing
  * @version 1.0, 2017/12/21
  */
-public class OrderQueryResponseDto extends HelibaoBasicResponse implements Serializable {
-
-    private static final long serialVersionUID = -7666797586696654735L;
+public class OrderQueryResponseDto extends HelibaoBasicResponse {
 
     private String rt1_bizType; // 交易类型，固定值为：[QuickPayQuery]
 

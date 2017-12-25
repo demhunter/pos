@@ -3,16 +3,13 @@
  */
 package com.pos.transaction.service.support.helipay.dto.order.pay;
 
-import java.io.Serializable;
-
 /**
  * 订单确认支付信息Dto
  *
  * @author wangbing
  * @version 1.0, 2017/12/22
  */
-public class OrderConfirmPayDto implements Serializable {
-    private static final long serialVersionUID = 9222625274225940813L;
+public class OrderConfirmPayDto {
 
     private String P1_bizType; // 交易类型，固定值为：QuickPayConfirmPay
 

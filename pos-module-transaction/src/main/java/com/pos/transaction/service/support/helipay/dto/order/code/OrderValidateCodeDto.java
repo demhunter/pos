@@ -3,16 +3,13 @@
  */
 package com.pos.transaction.service.support.helipay.dto.order.code;
 
-import java.io.Serializable;
-
 /**
  * 发送支付验证码请求Dto
  *
  * @author wangbing
  * @version 1.0, 2017/12/22
  */
-public class OrderValidateCodeDto implements Serializable {
-    private static final long serialVersionUID = 2054648354362848167L;
+public class OrderValidateCodeDto {
 
     private String P1_bizType; // 交易类型，固定值为：QuickPaySendValidateCode
 

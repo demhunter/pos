@@ -3,16 +3,13 @@
  */
 package com.pos.transaction.service.support.helipay.dto.order.query;
 
-import java.io.Serializable;
-
 /**
  * 订单查询信息Dto
  *
  * @author wangbing
  * @version 1.0, 2017/12/21
  */
-public class OrderQueryDto implements Serializable {
-    private static final long serialVersionUID = -6567511439671790581L;
+public class OrderQueryDto {
 
     private String P1_bizType; // 交易类型，固定值为：[QuickPayQuery]
 

@@ -5,16 +5,13 @@ package com.pos.transaction.service.support.helipay.dto.settlement.card.query;
 
 import com.pos.transaction.service.support.helipay.dto.HelibaoBasicResponse;
 
-import java.io.Serializable;
-
 /**
  * 结算卡查询返回结果Dto
  *
  * @author wangbing
  * @version 1.0, 2017/12/21
  */
-public class SettlementCardQueryResponseDto extends HelibaoBasicResponse implements Serializable {
-    private static final long serialVersionUID = -6630371587438558350L;
+public class SettlementCardQueryResponseDto extends HelibaoBasicResponse {
 
     private String rt1_bizType; // 交易类型，固定值为：SettlementCardQuery
 

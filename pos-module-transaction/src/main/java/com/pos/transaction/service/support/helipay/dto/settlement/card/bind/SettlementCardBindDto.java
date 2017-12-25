@@ -3,16 +3,13 @@
  */
 package com.pos.transaction.service.support.helipay.dto.settlement.card.bind;
 
-import java.io.Serializable;
-
 /**
  * 结算卡绑定请求DTO
  *
  * @author wangbing
  * @version 1.0, 2017/12/19
  */
-public class SettlementCardBindDto implements Serializable {
-    private static final long serialVersionUID = -3090135640346119898L;
+public class SettlementCardBindDto {
 
     private String P1_bizType; // 交易类型，固定值为：SettlementCardBind
 
