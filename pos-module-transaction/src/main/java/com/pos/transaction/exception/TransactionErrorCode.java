@@ -27,6 +27,8 @@ public enum TransactionErrorCode implements ErrorCode {
 
     POS_ERROR_STATUS_FOR_SMS_CODE(1106, "交易已处理，请勿重新获取短信验证码"),
 
+    POS_ERROR_TRANSACTION_TYPE_ERROR(1107, "交易类型错误"),
+
     BIND_CARD_ERROR_AUTHORITY_AUDIT_STATUS_AUDITED(1110, "身份认证已通过，不能重复绑定收款银行卡！"),
 
     BIND_CARD_ERROR_AUTHORITY_AUDIT_STATUS_NOT_AUDIT(1111, "身份认证审核中，不能重复绑定收款银行卡！"),

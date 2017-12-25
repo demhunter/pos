@@ -1069,8 +1069,23 @@ public class PosServiceImpl implements PosService {
         if (!TransactionStatusType.TRANSACTION_FAILED.equals(statusType)) {
             return ApiResult.fail(TransactionErrorCode.POS_ERROR_TRANSACTION_STATUS_ERROR);
         }
+        TransactionType type = TransactionType.getEnum(record.getTransactionType());
         // 重发提现请求
-        SettlementCardWithdrawVo settlement = buildSettlementCardWithdrawVo(record);
+        SettlementCardWithdrawVo settlement;
+        if (TransactionType.BROKERAGE_WITHDRAW.equals(type)) {
+            settlement = new SettlementCardWithdrawVo();
+            settlement.setP1_bizType("SettlementCardWithdraw");
+            settlement.setP2_customerNumber(posConstants.getHelibaoMerchantNO());
+            settlement.setP3_userId(String.valueOf(record.getUserId()));
+            settlement.setP4_orderId(record.getRecordNum());
+            settlement.setP5_amount(record.getArrivalAmount().toString());
+            settlement.setP6_feeType("RECEIVER");
+        } else if (TransactionType.NORMAL_WITHDRAW.equals(type)) {
+            settlement = buildSettlementCardWithdrawVo(record);
+        } else {
+            return ApiResult.fail(TransactionErrorCode.POS_ERROR_TRANSACTION_TYPE_ERROR);
+        }
+
         ApiResult<SettlementCardWithdrawResponseVo> withdrawResult = quickPayApi.settlementCardWithdraw(settlement);
         if (withdrawResult.isSucc()) {
             // 状态变更
