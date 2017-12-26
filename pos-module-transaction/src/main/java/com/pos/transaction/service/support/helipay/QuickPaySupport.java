@@ -3,18 +3,13 @@
  */
 package com.pos.transaction.service.support.helipay;
 
-import com.alibaba.fastjson.JSONObject;
 import com.pos.common.util.basic.JsonUtils;
-import com.pos.common.util.constans.GlobalConstants;
 import com.pos.common.util.exception.CommonErrorCode;
 import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.common.util.validation.FieldChecker;
 import com.pos.transaction.constants.PosConstants;
-import com.pos.transaction.helipay.util.HttpClientService;
 import com.pos.transaction.helipay.util.PosErrorCode;
 import com.pos.transaction.helipay.util.RSA;
-import com.pos.transaction.helipay.vo.QueryOrderVo;
-import com.pos.transaction.helipay.vo.QuerySettlementCardVo;
 import com.pos.transaction.service.support.helipay.dto.HelibaoBasicResponse;
 import com.pos.transaction.service.support.helipay.dto.order.code.OrderValidateCodeDto;
 import com.pos.transaction.service.support.helipay.dto.order.code.OrderValidateCodeResponseDto;
@@ -30,6 +25,8 @@ import com.pos.transaction.service.support.helipay.dto.settlement.card.query.Set
 import com.pos.transaction.service.support.helipay.dto.settlement.card.query.SettlementCardQueryResponseDto;
 import com.pos.transaction.service.support.helipay.dto.settlement.withdraw.SettlementWithdrawDto;
 import com.pos.transaction.service.support.helipay.dto.settlement.withdraw.SettlementWithdrawResponseDto;
+import com.pos.transaction.service.support.helipay.dto.settlement.withdraw.merchant.MerchantWithdrawDto;
+import com.pos.transaction.service.support.helipay.dto.settlement.withdraw.merchant.MerchantWithdrawResponseDto;
 import com.pos.transaction.service.support.helipay.dto.settlement.withdraw.query.SettlementWithdrawQueryDto;
 import com.pos.transaction.service.support.helipay.dto.settlement.withdraw.query.SettlementWithdrawQueryResponseDto;
 import com.pos.transaction.service.support.helipay.util.Disguiser;
@@ -41,6 +38,7 @@ import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.beans.IntrospectionException;
@@ -55,9 +53,9 @@ import java.util.Map;
  * @author wangbing
  * @version 1.0, 2017/12/15
  */
-public class QuickPayApi {
+public class QuickPaySupport {
 
-    private static final Logger LOG = LoggerFactory.getLogger(QuickPayApi.class);
+    private static final Logger LOG = LoggerFactory.getLogger(QuickPaySupport.class);
 
     private static final String SPLIT = "&";
 
@@ -65,10 +63,6 @@ public class QuickPayApi {
 
     @Resource
     private PosConstants posConstants;
-
-    @Resource
-    private GlobalConstants globalConstants;
-
 
     /**
      * 绑定结算银行卡
@@ -413,6 +407,40 @@ public class QuickPayApi {
         } catch (Exception e) {
             LOG.error("结算提现查询异常，exception = {}", e);
             return ApiResult.fail(HelibaoErrorCode.SETTLEMENT_WITHDRAW_QUERY_EXCEPTION);
+        }
+    }
+
+    /**
+     * 商户提现<br>
+     * 注意：此接口是从商户总账上面直接提取到指定用户银行卡上
+     *
+     * @param merchantWithdrawDto 商户提现信息
+     * @return 提现结果
+     */
+    public ApiResult<MerchantWithdrawResponseDto> merchantWithdraw(MerchantWithdrawDto merchantWithdrawDto) {
+        LOG.info("--------进入商户提现接口----------");
+        try {
+            Map<String, String> map = buildTransferRequestData(merchantWithdrawDto, null);
+            LOG.info("发送参数：" + map);
+            Map<String, Object> resultMap = HttpClientUtil.getHttpRes(map, posConstants.getHelibaoTransferUrl());
+            LOG.info("响应结果：" + resultMap);
+            if ((Integer) resultMap.get("statusCode") == HttpStatus.SC_OK) {
+                String resultMsg = (String) resultMap.get("response");
+                return (ApiResult<MerchantWithdrawResponseDto>) extractTransferResponse(
+                        resultMsg, new TypeReference<HelibaoBasicResponse>() {
+                        }, null);
+            } else {
+                return ApiResult.fail(HelibaoErrorCode.REQUEST_FAIL);
+            }
+        } catch (ConnectTimeoutException cTimeout) {
+            LOG.error("商户提现异常-请求超时，exception = {}", cTimeout);
+            return ApiResult.fail(CommonErrorCode.HTTP_REQUEST_TIMEOUT);
+        } catch (SocketTimeoutException sTimeout) {
+            LOG.error("商户提现异常-请求响应超时，exception = {}", sTimeout);
+            return ApiResult.fail(CommonErrorCode.HTTP_RESPONSE_TIMEOUT);
+        } catch (Exception e) {
+            LOG.error("商户提现异常，exception = {}", e);
+            return ApiResult.fail(HelibaoErrorCode.SETTLEMENT_MERCHANT_WITHDRAW_EXCEPTION);
         }
     }
 

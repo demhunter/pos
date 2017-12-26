@@ -31,7 +31,9 @@ public enum HelibaoErrorCode implements ErrorCode {
 
     SETTLEMENT_WITHDRAW_EXCEPTION(1208, "结算提现异常"),
 
-    SETTLEMENT_WITHDRAW_QUERY_EXCEPTION(1209, "结算提现查询异常");
+    SETTLEMENT_WITHDRAW_QUERY_EXCEPTION(1209, "结算提现查询异常"),
+
+    SETTLEMENT_MERCHANT_WITHDRAW_EXCEPTION(1210, "商家提现异常");
 
     HelibaoErrorCode(int code, String message) {
         this.code = code;
