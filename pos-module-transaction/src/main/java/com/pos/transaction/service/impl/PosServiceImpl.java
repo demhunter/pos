@@ -1070,6 +1070,24 @@ public class PosServiceImpl implements PosService {
         if (!TransactionStatusType.TRANSACTION_FAILED.equals(statusType)) {
             return ApiResult.fail(TransactionErrorCode.POS_ERROR_TRANSACTION_STATUS_ERROR);
         }
+
+        // 数据一致性查询，检查自身与合利宝数据是否一致
+        QueryOrderVo queryOrderVo = new QueryOrderVo();
+        queryOrderVo.setP1_bizType("TransferQuery");
+        queryOrderVo.setP2_orderId(record.getRecordNum());
+        queryOrderVo.setP3_customerNumber(posConstants.getHelibaoMerchantNO());
+        QuerySettlementCardVo queryResult = quickPayApi.querySettlementCardWithdraw(queryOrderVo).getData();
+        if (queryResult != null && !"FAIL".equals(queryResult.getRt7_orderStatus())) {
+            // 不是失败状态则交易状态异常，请查询合利宝后台做进一步处理
+            return ApiResult.failFormatMsg(TransactionErrorCode.POS_AGAIN_ERROR_STATUS_EXCEPTION, queryResult.getRt7_orderStatus());
+        }
+
+        // 记录交易数据快照
+        saveTransactionSnapshot(record);
+        // 更新并保存新交易编号
+        record.setRecordNum(UUIDUnsigned32.randomUUIDString());
+        posUserTransactionRecordDao.updateTransactionRecordNum(record.getId(), record.getRecordNum());
+
         TransactionType type = TransactionType.getEnum(record.getTransactionType());
         ApiResult result;
         // 重发提现请求
@@ -1114,6 +1132,17 @@ public class PosServiceImpl implements PosService {
         }
 
         return ApiResult.succ();
+    }
+
+    // 往交易失败信息中记录重发时交易数据快照
+    private void saveTransactionSnapshot(UserPosTransactionRecord record) {
+        TransactionFailureRecord oldSnapshot = new TransactionFailureRecord();
+        oldSnapshot.setTransactionId(record.getId());
+        Map<String, String> snapshot = new HashMap<>();
+        snapshot.put("description", "交易重发数据快照");
+        snapshot.put("data", JsonUtils.objectToJson(record));
+        oldSnapshot.setFailureReason(JsonUtils.objectToJson(snapshot));
+        transactionFailureRecordDao.save(oldSnapshot);
     }
 
     @Override

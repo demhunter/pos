@@ -45,7 +45,9 @@ public enum TransactionErrorCode implements ErrorCode {
 
     BROKERAGE_ERROR_AUTHORITY_AUDIT_STATUS(1120, "没有通过实名认证，不能申请佣金提现！"),
 
-    BROKERAGE_ERROR_BROKERAGE_NOT_ENOUGH(1121, "可提现余额达到%s元，才能申请提现！");
+    BROKERAGE_ERROR_BROKERAGE_NOT_ENOUGH(1121, "可提现余额达到%s元，才能申请提现！"),
+
+    POS_AGAIN_ERROR_STATUS_EXCEPTION(1130, "失败交易重发失败：交易状态异常（合利宝订单当前状态为%s），请查询合利宝后台做进一步处理");
 
 
     private final int code;

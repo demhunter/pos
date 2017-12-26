@@ -116,4 +116,14 @@ public interface PosUserTransactionRecordDao {
      * @param record 交易信息
      */
     void updateTransactionOutCardInfo(@Param("record") UserPosTransactionRecord record);
+
+    /**
+     * v2.0.0 * 仅用于失败交易重发时更新交易编号
+     *
+     * @param transactionId 交易id
+     * @param recordNum     新交易编号
+     */
+    void updateTransactionRecordNum(
+            @Param("transactionId") Long transactionId,
+            @Param("recordNum") String recordNum);
 }

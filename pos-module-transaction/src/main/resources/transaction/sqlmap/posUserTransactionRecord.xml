@@ -192,6 +192,13 @@
         WHERE id = #{record.id}
     </update>
 
+    <update id="updateTransactionRecordNum">
+        UPDATE user_pos_transaction_record
+        SET record_num = #{recordNum},
+        update_time = NOW()
+        WHERE id = #{transactionId}
+    </update>
+
     <sql id="conditionColumns">
         <if test="condition != null">
             <where>
