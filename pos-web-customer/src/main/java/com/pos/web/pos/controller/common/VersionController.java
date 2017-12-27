@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2016 ywmj.com. All Rights Reserved.
  */
-package com.pos.web.pos.controller.version;
+package com.pos.web.pos.controller.common;
 
 import com.pos.basic.dto.version.VersionDto;
 import com.pos.basic.dto.version.VersionInstructionDto;

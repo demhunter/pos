@@ -30,9 +30,10 @@ import javax.annotation.Resource;
  * @author wangbing
  * @version 1.0, 2017/11/24
  */
-@RestController
+/*@RestController
 @RequestMapping("/relation")
-@Api(value = "/relation", description = "v2.0.0 * 关系demo接口")
+@Api(value = "/relation", description = "v2.0.0 * 关系demo接口")*/
+@Deprecated
 public class RelationDemoController {
 
     @Resource
@@ -43,7 +44,7 @@ public class RelationDemoController {
 
     private final static Logger logger = LoggerFactory.getLogger(RelationDemoController.class);
 
-    @RequestMapping(value = "register/message", method = RequestMethod.GET)
+    /*@RequestMapping(value = "register/message", method = RequestMethod.GET)
     @ApiOperation(value = "v2.0.0 * 发送注册MQ消息", notes = "发送注册MQ消息")
     public ApiResult<CustomerRelationTree> explain(
             @RequestParam(name = "userId", required = false) Long userId,
@@ -95,5 +96,5 @@ public class RelationDemoController {
     }
     public static void third() throws Exception {
         throw new Exception("第三步--发生异常！");
-    }
+    }*/
 }
