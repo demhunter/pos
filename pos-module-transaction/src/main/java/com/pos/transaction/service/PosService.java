@@ -4,17 +4,13 @@
 package com.pos.transaction.service;
 
 import com.pos.authority.dto.permission.CustomerPermissionDto;
-import com.pos.authority.fsm.context.AuditStatusTransferContext;
 import com.pos.basic.dto.UserIdentifier;
 import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.common.util.mvc.support.NullObject;
 import com.pos.transaction.constants.TransactionStatusType;
-import com.pos.transaction.constants.UserAuditStatus;
 import com.pos.transaction.dto.CreateOrderDto;
 import com.pos.transaction.dto.GetSignDto;
-import com.pos.transaction.dto.PosUserAuditInfoDto;
 import com.pos.transaction.dto.get.QuickGetMoneyDto;
-import com.pos.transaction.dto.identity.IdentifyInfoDto;
 import com.pos.transaction.dto.request.GetMoneyDto;
 import com.pos.transaction.dto.request.LevelUpgradeDto;
 import com.pos.transaction.dto.transaction.SelectCardRequestDto;
@@ -30,31 +26,6 @@ import java.util.Map;
  * @version 1.0, 2017/8/22
  */
 public interface PosService {
-
-    /**
-     * 更新用户身份认证审核状态
-     *
-     * @param transferContext 状态转换上下文，包含操作信息
-     * @param auditStatus     新身份认证审核状态
-     */
-    boolean updateAuditStatus(AuditStatusTransferContext transferContext, UserAuditStatus auditStatus);
-
-    /**
-     * 获取指定用户的身份认证审核信息
-     *
-     * @param posAuthId user_pos_auth主键id
-     * @param decrypted 是否需要解密（true：需要解密返回，false：不需要解密返回）
-     * @return 用户的身份认证审核信息
-     */
-    ApiResult<PosUserAuditInfoDto> getAuditInfo(Long posAuthId, boolean decrypted);
-
-    /**
-     * 管理员审核用户身份认证信息
-     *
-     * @param identifyInfo 审核操作信息
-     * @return 审核操作结果
-     */
-    ApiResult<NullObject> identifyPosUserInfo(IdentifyInfoDto identifyInfo);
 
     /**
      * 获取用户的快捷收款信息
@@ -105,6 +76,15 @@ public interface PosService {
      */
     ApiResult<NullObject> confirmPay(Long userId, String smsCode, Long recordId, String ip);
 
+    /**
+     * 客户确认支付升级
+     *
+     * @param userId   用户userId
+     * @param smsCode  短信验证码
+     * @param recordId 交易记录id
+     * @param ip       用户IP地址
+     * @return 支付升级结果
+     */
     ApiResult<NullObject> confirmUpgradeLevel(Long userId, String smsCode, Long recordId, String ip);
 
     /**

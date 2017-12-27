@@ -9,8 +9,6 @@ import com.pos.authority.dto.level.CustomerUpgradeLevelDto;
 import com.pos.authority.dto.permission.CustomerPermissionDto;
 import com.pos.authority.dto.relation.CustomerRelationDto;
 import com.pos.authority.exception.AuthorityErrorCode;
-import com.pos.authority.fsm.AuthorityFSMFactory;
-import com.pos.authority.fsm.context.AuditStatusTransferContext;
 import com.pos.authority.service.CustomerAuthorityService;
 import com.pos.authority.service.CustomerRelationService;
 import com.pos.authority.service.CustomerStatisticsService;
@@ -37,7 +35,6 @@ import com.pos.transaction.dto.auth.PosUserAuthDto;
 import com.pos.transaction.dto.card.PosCardDto;
 import com.pos.transaction.dto.card.PosCardValidInfoDto;
 import com.pos.transaction.dto.get.QuickGetMoneyDto;
-import com.pos.transaction.dto.identity.IdentifyInfoDto;
 import com.pos.transaction.dto.request.GetMoneyDto;
 import com.pos.transaction.dto.request.LevelUpgradeDto;
 import com.pos.transaction.dto.transaction.SelectCardRequestDto;
@@ -47,11 +44,9 @@ import com.pos.transaction.exception.TransactionErrorCode;
 import com.pos.transaction.fsm.PosFSMFactory;
 import com.pos.transaction.fsm.context.TransactionStatusTransferContext;
 import com.pos.transaction.helipay.action.QuickPayApi;
-import com.pos.transaction.helipay.util.PosErrorCode;
 import com.pos.transaction.helipay.vo.*;
 import com.pos.transaction.service.PosCardService;
 import com.pos.transaction.service.PosService;
-import com.pos.user.dao.UserDao;
 import com.pos.user.exception.UserErrorCode;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.type.TypeReference;
@@ -87,9 +82,6 @@ public class PosServiceImpl implements PosService {
     private PosDao posDao;
 
     @Resource
-    private UserDao userDao;
-
-    @Resource
     private GlobalConstants globalConstants;
 
     @Resource
@@ -114,19 +106,10 @@ public class PosServiceImpl implements PosService {
     private RedisTemplate<String, PosCardDto> redisOutCardTemplate;
 
     @Resource
-    private PosTwitterBrokerageDao posTwitterBrokerageDao;
-
-    @Resource
     private PosUserTransactionHandledDao posUserTransactionHandledDao;
 
     @Resource
     private PosUserTransactionRecordDao posUserTransactionRecordDao;
-
-    @Resource
-    private PosUserJuniorDao posUserJuniorDao;
-
-    @Resource
-    private PosUserChannelDao posUserChannelDao;
 
     @Resource
     private TransactionFailureRecordDao transactionFailureRecordDao;
@@ -145,68 +128,6 @@ public class PosServiceImpl implements PosService {
 
     @Resource
     private PosCardService posCardService;
-
-    @Override
-    public boolean updateAuditStatus(AuditStatusTransferContext transferContext, UserAuditStatus auditStatus) {
-        // 参数校验
-        FieldChecker.checkEmpty(transferContext, "transferContext");
-        FieldChecker.checkEmpty(auditStatus, "auditStatus");
-        FieldChecker.checkEmpty(transferContext.getUserId(), "userId");
-        FieldChecker.checkEmpty(transferContext.getOperatorUserId(), "operatorUserId");
-        if (UserAuditStatus.REJECTED.equals(auditStatus)) {
-            FieldChecker.checkEmpty(transferContext.getRejectReason(), "rejectReason");
-        }
-
-        posAuthDao.updateAuditStatus(transferContext.getUserId(), auditStatus.getCode(),
-                transferContext.getRejectReason(), transferContext.getOperatorUserId());
-        return true;
-    }
-
-    @Override
-    public ApiResult<PosUserAuditInfoDto> getAuditInfo(Long posAuthId, boolean decrypted) {
-        FieldChecker.checkEmpty(posAuthId, "posAuthId");
-
-        PosUserAuthDetailDto authDetail = posAuthDao.findAuthDetailById(posAuthId);
-        if (authDetail == null) {
-            return ApiResult.fail(UserErrorCode.USER_NOT_EXISTED);
-        }
-        if (UserAuditStatus.NOT_SUBMIT.equals(authDetail.parseAuditStatus())) {
-            return ApiResult.fail(PosUserErrorCode.NOT_SUBMIT_STATUS_ERROR);
-        }
-        PosUserAuditInfoDto auditInfo = new PosUserAuditInfoDto();
-        auditInfo.setIdentityInfo(authDetail.buildPosUserIdentity(decrypted, securityService));
-        auditInfo.setBindCardInfo(authDetail.buildBindCardInfo(decrypted, securityService));
-        auditInfo.setUpdateKey(authDetail.getUpdateDate());
-
-        return ApiResult.succ(auditInfo);
-    }
-
-    @Override
-    public ApiResult<NullObject> identifyPosUserInfo(IdentifyInfoDto identifyInfo) {
-        FieldChecker.checkEmpty(identifyInfo, "posAuthId");
-        identifyInfo.check("identifyInfo");
-
-        PosUserAuthDetailDto authDetail = posAuthDao.findAuthDetailById(identifyInfo.getPosAuthId());
-        if (authDetail == null) {
-            return ApiResult.fail(UserErrorCode.USER_NOT_EXISTED);
-        }
-        if (!identifyInfo.getUpdateKey().equals(authDetail.getUpdateDate())) {
-            return ApiResult.fail(PosUserErrorCode.IDENTITY_INFO_REFRESHED_ERROR);
-        }
-        if (UserAuditStatus.NOT_SUBMIT.equals(authDetail.parseAuditStatus())) {
-            return ApiResult.fail(PosUserErrorCode.NOT_SUBMIT_STATUS_ERROR);
-        }
-        // FSM 状态机变更
-        AuditStatusTransferContext transferContext = identifyInfo.buildStatusTransferContext();
-        FSM fsm = AuthorityFSMFactory.newAuditInstance(authDetail.parseAuditStatus().toString(), transferContext);
-        if (identifyInfo.isAllowed()) {
-            fsm.processFSM("platAudited");
-        } else {
-            fsm.processFSM("platRejected");
-        }
-
-        return ApiResult.succ();
-    }
 
     @Override
     public ApiResult<QuickGetMoneyDto> getQuickInfo(Long userId) {

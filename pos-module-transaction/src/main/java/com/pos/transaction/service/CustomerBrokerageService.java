@@ -3,7 +3,6 @@
  */
 package com.pos.transaction.service;
 
-import com.pos.basic.dto.UserIdentifier;
 import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.common.util.mvc.support.LimitHelper;
 import com.pos.transaction.dto.brokerage.BrokerageDailyStatisticsDto;

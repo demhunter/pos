@@ -7,13 +7,13 @@ import com.pos.basic.mq.MQMessage;
 import com.pos.basic.mq.MQReceiverType;
 import com.pos.basic.mq.MQTemplate;
 import com.pos.basic.service.SecurityService;
+import com.pos.common.util.basic.SimpleRegexUtils;
 import com.pos.common.util.constans.GlobalConstants;
 import com.pos.common.util.mvc.resolver.FromSession;
 import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.common.util.mvc.support.NullObject;
 import com.pos.common.util.web.http.HttpRequestUtils;
 import com.pos.transaction.dto.twitter.ReferrerSimpleDto;
-import com.pos.transaction.service.PosUserChannelInfoService;
 import com.pos.user.constant.CustomerType;
 import com.pos.user.constant.UserType;
 import com.pos.user.dto.IdentityInfoDto;
@@ -75,9 +75,6 @@ public class UserController {
     private UserSessionComponent userSessionComponent;
 
     @Resource
-    private PosUserChannelInfoService posUserChannelInfoService;
-
-    @Resource
     private MQTemplate mqTemplate;
 
     @RequestMapping(value = "referrer/{referrerUserId}", method = RequestMethod.GET)
@@ -85,7 +82,26 @@ public class UserController {
     public ApiResult<ReferrerSimpleDto> getReferrerInfo(
             @ApiParam(name = "referrerUserId", value = "推荐人userId")
             @PathVariable("referrerUserId") Long referrerUserId) {
-        return posUserChannelInfoService.findReferrerSimpleInfo(referrerUserId);
+        CustomerDto customer = customerService.findById(referrerUserId, true, true);
+        if (customer == null) {
+            return ApiResult.fail(UserErrorCode.USER_NOT_EXISTED);
+        }
+
+        ReferrerSimpleDto referrer = new ReferrerSimpleDto();
+        referrer.setUserId(referrerUserId);
+        referrer.setReferrerName(customer.getName());
+        referrer.setReferrerPhone(customer.getUserPhone());
+
+        // 解密并隐藏推荐人部分姓名信息
+        if (!org.springframework.util.StringUtils.isEmpty(referrer.getReferrerName())) {
+            referrer.setReferrerName(SimpleRegexUtils.hiddenName(referrer.getReferrerName()));
+        }
+        // 隐藏电话号码中间四位
+        if (!org.springframework.util.StringUtils.isEmpty(referrer.getReferrerPhone())) {
+            referrer.setReferrerPhone(SimpleRegexUtils.hiddenMobile(referrer.getReferrerPhone()));
+        }
+
+        return ApiResult.succ(referrer);
     }
 
     @RequestMapping(value = "register", method = RequestMethod.POST)
