@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2016 ywmj.com. All Rights Reserved.
  */
-package com.pos.web.console.controller.popularization;
+package com.pos.web.console.controller.common;
 
 import com.pos.basic.condition.orderby.PopularizationOrderField;
 import com.pos.basic.condition.query.PopularizationCondition;
