@@ -3,13 +3,11 @@
  */
 package com.pos.transaction.service;
 
-import com.pos.basic.dto.UserIdentifier;
 import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.common.util.mvc.support.LimitHelper;
 import com.pos.common.util.mvc.support.OrderHelper;
 import com.pos.common.util.mvc.support.Pagination;
 import com.pos.transaction.condition.query.PosTransactionCondition;
-import com.pos.transaction.dto.brokerage.BrokerageDailyStatisticsDto;
 import com.pos.transaction.dto.failure.TransactionFailureRecordDto;
 import com.pos.transaction.dto.transaction.TransactionRecordDto;
 
@@ -22,15 +20,6 @@ import java.util.List;
  * @version 1.0, 2017/8/26
  */
 public interface PosUserTransactionRecordService {
-
-    /**
-     * 查询每日记录数据统计
-     *
-     * @param user        用户标识
-     * @param limitHelper 分页参数
-     * @return 每日记录数据统计
-     */
-    List<BrokerageDailyStatisticsDto> queryDailyStatistics(UserIdentifier user, LimitHelper limitHelper);
 
     /**
      * 查询用户的交易数量

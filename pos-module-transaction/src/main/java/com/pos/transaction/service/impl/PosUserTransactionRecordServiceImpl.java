@@ -4,25 +4,23 @@
 package com.pos.transaction.service.impl;
 
 import com.google.common.collect.Lists;
-import com.pos.basic.dto.UserIdentifier;
 import com.pos.basic.service.SecurityService;
 import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.common.util.mvc.support.LimitHelper;
 import com.pos.common.util.mvc.support.OrderHelper;
 import com.pos.common.util.mvc.support.Pagination;
 import com.pos.common.util.validation.FieldChecker;
+import com.pos.transaction.condition.orderby.PosTransactionOrderField;
 import com.pos.transaction.condition.query.PosTransactionCondition;
 import com.pos.transaction.converter.PosConverter;
 import com.pos.transaction.dao.PosCardDao;
+import com.pos.transaction.dao.PosUserTransactionRecordDao;
 import com.pos.transaction.dao.TransactionFailureRecordDao;
 import com.pos.transaction.domain.UserPosTransactionRecord;
 import com.pos.transaction.dto.card.PosCardDto;
 import com.pos.transaction.dto.failure.TransactionFailureRecordDto;
-import com.pos.transaction.service.PosUserTransactionRecordService;
-import com.pos.transaction.condition.orderby.PosTransactionOrderField;
-import com.pos.transaction.dao.PosUserTransactionRecordDao;
-import com.pos.transaction.dto.brokerage.BrokerageDailyStatisticsDto;
 import com.pos.transaction.dto.transaction.TransactionRecordDto;
+import com.pos.transaction.service.PosUserTransactionRecordService;
 import com.pos.user.dto.customer.CustomerDto;
 import com.pos.user.service.CustomerService;
 import org.springframework.stereotype.Service;
@@ -57,14 +55,6 @@ public class PosUserTransactionRecordServiceImpl implements PosUserTransactionRe
 
     @Resource
     private SecurityService securityService;
-
-    @Override
-    public List<BrokerageDailyStatisticsDto> queryDailyStatistics(UserIdentifier user, LimitHelper limitHelper) {
-        FieldChecker.checkEmpty(user, "user");
-        FieldChecker.checkEmpty(limitHelper, "limitHelper");
-
-        return posUserTransactionRecordDao.queryDailyStatistics(user, limitHelper);
-    }
 
     @Override
     public Integer queryUserTransactionCount(Long userId) {

@@ -141,19 +141,6 @@
         WHERE `id` = #{transactionId}
     </update>
 
-    <select id="queryDailyStatistics" resultType="com.pos.transaction.dto.brokerage.BrokerageDailyStatisticsDto">
-        SELECT
-        DATE_FORMAT(uptr.complete_date, '%Y-%m-%d') AS dateKey,
-        COUNT(*) AS orderCount,
-        SUM(uptr.agent_charge) AS brokerage
-        FROM user_pos_transaction_record uptr
-        WHERE uptr.agent_id = #{user.userId}
-        AND uptr.complete_date IS NOT NULL
-        GROUP BY dateKey
-        ORDER BY uptr.complete_date DESC
-        LIMIT #{limitHelper.offset}, #{limitHelper.pageSize}
-    </select>
-
     <select id="queryTransactionRecordCount" resultType="int">
         SELECT COUNT(*)
         FROM user_pos_transaction_record uptr
