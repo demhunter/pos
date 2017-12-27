@@ -3,19 +3,14 @@
  */
 package com.pos.transaction.dao;
 
-import com.pos.basic.dto.UserIdentifier;
 import com.pos.common.util.mvc.support.LimitHelper;
 import com.pos.common.util.mvc.support.OrderHelper;
 import com.pos.transaction.condition.query.PosTransactionCondition;
 import com.pos.transaction.domain.UserPosTransactionRecord;
 import com.pos.transaction.dto.transaction.TransactionSimpleStatisticsDto;
-import com.pos.transaction.dto.brokerage.BrokerageDailyStatisticsDto;
-import com.pos.transaction.dto.spread.SpreadGeneralInfoDto;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
-import java.math.BigDecimal;
-import java.util.Date;
 import java.util.List;
 
 /**

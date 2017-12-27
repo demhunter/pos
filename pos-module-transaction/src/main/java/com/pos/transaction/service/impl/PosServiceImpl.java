@@ -30,8 +30,6 @@ import com.pos.transaction.converter.PosConverter;
 import com.pos.transaction.dao.*;
 import com.pos.transaction.domain.*;
 import com.pos.transaction.dto.*;
-import com.pos.transaction.dto.auth.PosUserAuthDetailDto;
-import com.pos.transaction.dto.auth.PosUserAuthDto;
 import com.pos.transaction.dto.card.PosCardDto;
 import com.pos.transaction.dto.card.PosCardValidInfoDto;
 import com.pos.transaction.dto.get.QuickGetMoneyDto;
@@ -60,7 +58,6 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.security.DigestException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -98,9 +95,6 @@ public class PosServiceImpl implements PosService {
 
     @Resource
     private PosCardDao posCardDao;
-
-    @Resource
-    private PosAuthDao posAuthDao;
 
     @Resource
     private RedisTemplate<String, PosCardDto> redisOutCardTemplate;
@@ -194,30 +188,6 @@ public class PosServiceImpl implements PosService {
         decryptedOutCard.setValidInfo(buildCardValidInfo(selectCardRequestDto.getCvv2(), selectCardRequestDto.getValidDate()));
 
         return createRecord(permission, decryptedOutCard, selectCardRequestDto.getAmount(), ip);
-    }
-
-    /**
-     * 检查用户的快捷收款权限
-     *
-     * @param userId 用户userId
-     * @return 校验通过：返回用户信息；校验失败：返回错误信息
-     */
-    private ApiResult<PosUserAuthDetailDto> checkUserGetAuth(Long userId) {
-        PosUserAuthDetailDto authDetail = posAuthDao.findAuthDetail(userId);
-        if (authDetail == null) {
-            return ApiResult.fail(UserErrorCode.USER_NOT_EXISTED);
-        }
-        if (UserAuditStatus.NOT_SUBMIT.equals(authDetail.parseAuditStatus())) {
-            return ApiResult.fail(PosUserErrorCode.NOT_SUBMIT_ERROR_FOR_GET);
-        }
-        if (UserAuditStatus.REJECTED.equals(authDetail.parseAuditStatus())) {
-            return ApiResult.fail(PosUserErrorCode.REJECTED_ERROR_FOR_GET);
-        }
-        if (!AuthStatusEnum.ENABLE.equals(authDetail.parseGetAuth())) {
-            return ApiResult.fail(PosUserErrorCode.PERMISSION_GET_ERROR);
-        }
-
-        return ApiResult.succ(authDetail);
     }
 
     /**
@@ -590,46 +560,6 @@ public class PosServiceImpl implements PosService {
             }
         }
         return true;
-    }
-
-    /**
-     * 生成交易佣金
-     *
-     * @param transactionRecord 交易记录信息
-     * @param juniorInfo        推客客户关系信息
-     * @param channelInfo       客户推客的推客推客关系信息
-     * @return 交易佣金
-     */
-    private UserPosTwitterBrokerage buildTwitterBrokerage(UserPosTransactionRecord transactionRecord, UserPosJuniorInfo juniorInfo, UserPosChannelInfo channelInfo) {
-        UserPosTwitterBrokerage brokerage = new UserPosTwitterBrokerage();
-
-        brokerage.setRecordId(transactionRecord.getId());
-        brokerage.setBaseRate(posConstants.getPosPoundageRate());
-
-        // 1、计算直接推客应得的佣金信息
-        brokerage.setAgentUserId(juniorInfo.getChannelUserId());
-        PosUserAuthDto auth = posAuthDao.findAuth(juniorInfo.getChannelUserId());
-        BigDecimal agentRate = brokerage.getBaseRate().subtract(auth.getGetRate());
-        // 费率小于0则
-        brokerage.setAgentRate(agentRate.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : agentRate);
-        // 1.1、客户推客佣金 = 交易金额 * (基准费率 - 推客收款费率)
-        BigDecimal agentCharge = transactionRecord.getAmount().multiply(brokerage.getAgentRate(), new MathContext(2));
-        brokerage.setAgentCharge(agentCharge.setScale(2, BigDecimal.ROUND_DOWN));
-        brokerage.setGetAgent(GetAgentEnum.NOT_GET.getCode());
-
-        // 2、计算上级推客应得的佣金信息
-        if (channelInfo != null
-                && Boolean.TRUE.equals(channelInfo.getRelationAvailable())
-                && channelInfo.getParentUserId() != 0) {
-            brokerage.setParentAgentUserId(channelInfo.getParentUserId());
-            brokerage.setParentAgentRate(posConstants.getPosParentTwitterBrokerageRate());
-            // 2.1、父推客佣金 = 交易金额 * 父推客佣金费率
-            BigDecimal parentAgentCharge = transactionRecord.getAmount().multiply(brokerage.getParentAgentRate());
-            brokerage.setParentAgentCharge(parentAgentCharge.setScale(2, BigDecimal.ROUND_DOWN));
-            brokerage.setGetParentAgent(GetAgentEnum.NOT_GET.getCode());
-        }
-
-        return brokerage;
     }
 
     public void payCallback(ConfirmPayResponseVo confirmPayResponseVo) {
