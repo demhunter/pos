@@ -14,8 +14,6 @@ import com.pos.common.util.mvc.support.LimitHelper;
 import com.pos.common.util.mvc.support.NullObject;
 import com.pos.common.util.mvc.support.Pagination;
 import com.pos.user.session.UserInfo;
-import com.pos.web.pos.vo.descendant.ChildInfoVo;
-import com.pos.web.pos.vo.descendant.DescendantStatisticsVo;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
