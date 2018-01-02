@@ -109,5 +109,35 @@ public class PosRepairController {
         return quickPayApi.querySettlementCardWithdraw(queryOrderVo);
     }*/
 
+    /*public static void main(String[] args) {
+        BigDecimal withdrawRate = new BigDecimal("0.0058");
+        BigDecimal extraServiceCharge = new BigDecimal("3");
+        BigDecimal helibaoPoundageRate = new BigDecimal("0.0038");
+        BigDecimal helibaoTixianRate = new BigDecimal("0.0002");
+        BigDecimal helibaoTixianMoney = new BigDecimal("1");
+
+        // 获取订单金额
+        BigDecimal orderAmount = new BigDecimal("8000");
+        // 计算平台收取的服务费：serviceCharge = orderAmount * userWithdrawRate + extraServiceCharge
+        BigDecimal serviceCharge = orderAmount
+                .multiply(withdrawRate)
+                .add(extraServiceCharge)
+                .setScale(2, BigDecimal.ROUND_UP);
+        System.out.println("-------------------------->总的服务费：" + serviceCharge);
+        // 合利宝收取的手续费
+        BigDecimal payCharge = orderAmount
+                .multiply(helibaoPoundageRate)
+                .setScale(2, BigDecimal.ROUND_UP);
+        System.out.println("-------------------------->合利宝收取的手续费：" + payCharge);
+        //提现的到账金额
+        BigDecimal arrivalAmount = orderAmount.subtract(serviceCharge);
+        System.out.println("-------------------------->提现的到账金额：" + arrivalAmount);
+        //公司支付给用户时 合利宝的手续费
+        BigDecimal posCharge = arrivalAmount
+                .multiply(helibaoTixianRate)
+                .add(helibaoTixianMoney)
+                .setScale(2, BigDecimal.ROUND_UP);
+        System.out.println("-------------------------->公司支付给用户时，合利宝的手续费：" + posCharge);
+    }*/
 
 }
