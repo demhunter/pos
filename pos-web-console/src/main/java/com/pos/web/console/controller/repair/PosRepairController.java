@@ -3,21 +3,37 @@
  */
 package com.pos.web.console.controller.repair;
 
+import com.pos.authority.fsm.AuthorityFSMFactory;
+import com.pos.authority.fsm.context.AuditStatusTransferContext;
 import com.pos.authority.service.support.CustomerRelationPoolSupport;
+import com.pos.basic.service.SecurityService;
+import com.pos.basic.sm.fsm.FSM;
 import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.common.util.mvc.support.NullObject;
 import com.pos.data.repair.v2_0_0.DataRepairV2_0_0;
+import com.pos.transaction.constants.BankCodeNameEnum;
+import com.pos.transaction.constants.CardTypeEnum;
+import com.pos.transaction.constants.CardUsageEnum;
 import com.pos.transaction.constants.PosConstants;
+import com.pos.transaction.domain.UserPosCard;
+import com.pos.transaction.exception.TransactionErrorCode;
 import com.pos.transaction.helipay.action.QuickPayApi;
+import com.pos.transaction.helipay.vo.QueryOrderVo;
+import com.pos.transaction.helipay.vo.QuerySettlementCardVo;
+import com.pos.transaction.helipay.vo.SettlementCardBindResponseVo;
+import com.pos.transaction.helipay.vo.SettlementCardBindVo;
 import com.pos.transaction.service.PosStatisticsService;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * POS 数据修复Controller
@@ -138,6 +154,41 @@ public class PosRepairController {
                 .add(helibaoTixianMoney)
                 .setScale(2, BigDecimal.ROUND_UP);
         System.out.println("-------------------------->公司支付给用户时，合利宝的手续费：" + posCharge);
+    }*/
+
+    /*@Resource
+    private SecurityService securityService;
+
+    @RequestMapping(value = "prod/bindCard/update", method = RequestMethod.GET)
+    @ApiOperation(value = "v2.0.0 * 换绑银行卡", notes = "换绑银行卡")
+    public ApiResult<SettlementCardBindResponseVo> updateBindCard() {
+
+        Long userId = 5088L;
+        String encryptedName = "QG7Q9Hs8S/elubA2bZ9wNS2geaasS7VoISjGZaqsJ5WMreVUxbuosYnVSHL0XVgGiVhc05d0mVpfn830EaSDOVC/SDlrkBroPqh0+PPecJPBDDG9KPofDEc0JcWe8CFFjQbDJPezZLG8aB5pfq/vOOJJjdOG28DYivIGV35UFqY=";
+        String encryptedIdCardNo = "apz+aGDz/vZpo0dooIEsid+D7bG7ifal2EwJK4ulEnypU6JWSyarB2Ve1Rqy6JvcDpzRHOPqE/BGOikMphfj09C69fhEvRprsVZEKa6ILxsYRLDo4e9qqImQFe9nOv05FnqOSNEtGBjv0XBik85/mJ1o+8uGUj8Rs6mYEPcAMYg=";
+        String encryptedCardNo = "Jy/vfVfBkyw365YYrwXpteU950cVN8mzDow5pxmPVotu7o/iQ0S8za4asMTHvXEKwNB7j9uHpYxhSbOp1kquPVQ4cbbF9b1SILH2mB9mw5bHXVSH0FV1V/qKgu35CleDoqhFxSwgrERGjdV85pnfpPSyD27supi4CqwQRKNjvc0=";
+        String encryptedPhone = "LJbMZ6KHUXMxGO91WNwj7O0SYmefpLFuQWZ50c5SlGzCJ9z/IyLDYpedXNM4S2Vka8ziWjW0xTOLxDXQv4n7Y5GKWtTWXoPzpvaagkpt4K4tVU6wqWHGt9YHxQe4Pg/vvhLXrammY6w3W8AEMn1wgoFaInOKXkw6gEw0SRQRykw=";
+
+
+        //解密之后的数据 调用接口时需要  数据库存储的是加密了的数据
+        String decryptName = securityService.decryptData(encryptedName);
+        String decryptCardNo = securityService.decryptData(encryptedCardNo);
+        String decryptIdCardNo = securityService.decryptData(encryptedIdCardNo);
+        String decryptPhone = securityService.decryptData(encryptedPhone);
+        String orderId = UUID.randomUUID().toString();
+        SettlementCardBindVo settlementCardBindVo = new SettlementCardBindVo();
+        settlementCardBindVo.setP1_bizType("SettlementCardBind");
+        settlementCardBindVo.setP2_customerNumber(posConstants.getHelibaoMerchantNO());
+        settlementCardBindVo.setP3_userId(String.valueOf(userId));
+        settlementCardBindVo.setP4_orderId(orderId);
+        settlementCardBindVo.setP5_payerName(decryptName);
+        settlementCardBindVo.setP6_idCardType("IDCARD");
+        settlementCardBindVo.setP7_idCardNo(decryptIdCardNo);
+        settlementCardBindVo.setP8_cardNo(decryptCardNo);
+        settlementCardBindVo.setP9_phone(decryptPhone);
+        settlementCardBindVo.setP11_operateType("UPDATE");
+
+        return quickPayApi.settlementCardBind(settlementCardBindVo);
     }*/
 
 }
