@@ -5,14 +5,14 @@ package com.pos.web.console.controller.repair;
 
 import com.pos.authority.service.support.CustomerRelationPoolSupport;
 import com.pos.common.util.basic.JsonUtils;
+import com.pos.common.util.basic.UUIDUnsigned32;
 import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.common.util.mvc.support.NullObject;
 import com.pos.data.repair.v2_0_0.DataRepairV2_0_0;
 import com.pos.transaction.constants.PosConstants;
 import com.pos.transaction.dto.PosOutCardInfoDto;
 import com.pos.transaction.helipay.action.QuickPayApi;
-import com.pos.transaction.helipay.vo.QueryOrderResponseVo;
-import com.pos.transaction.helipay.vo.QueryOrderVo;
+import com.pos.transaction.helipay.vo.*;
 import com.pos.transaction.service.PosStatisticsService;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
@@ -92,21 +92,21 @@ public class PosRepairController {
         SettlementCardWithdrawVo settlementCardWithdrawVo = new SettlementCardWithdrawVo();
         settlementCardWithdrawVo.setP1_bizType("SettlementCardWithdraw");
         settlementCardWithdrawVo.setP2_customerNumber(posConstants.getHelibaoMerchantNO());
-        settlementCardWithdrawVo.setP3_userId("6099");
+        settlementCardWithdrawVo.setP3_userId("5088");
         String orderID = UUIDUnsigned32.randomUUIDString();
         System.out.println("orderID = " + orderID);
         settlementCardWithdrawVo.setP4_orderId(orderID);
-        settlementCardWithdrawVo.setP5_amount("8912.69");
+        settlementCardWithdrawVo.setP5_amount("3132.82");
         settlementCardWithdrawVo.setP6_feeType("PAYER");
 
         return quickPayApi.settlementCardWithdraw(settlementCardWithdrawVo);
-        return null;
     }*/
 
     /*@RequestMapping(value = "prod/data/query", method = RequestMethod.GET)
     @ApiOperation(value = "v2.0.0 * 线上数据修复查询", notes = "线上数据修复查询")
-    public ApiResult<QuerySettlementCardVo> repairProdDataQuery(
+    public ApiResult<QuerySettlementCardVo> repairTransferQuery(
             @RequestParam("orderId") String orderId) {
+        // 2b0fc7f880b34f399e4b0fce30eee24e
         QueryOrderVo queryOrderVo = new QueryOrderVo();
         queryOrderVo.setP1_bizType("TransferQuery");
         queryOrderVo.setP2_orderId(orderId);
@@ -117,7 +117,7 @@ public class PosRepairController {
 
     /*@RequestMapping(value = "prod/data/query/quickPay", method = RequestMethod.GET)
     @ApiOperation(value = "v2.0.0 * 线上数据修复查询", notes = "线上数据修复查询")
-    public ApiResult<QueryOrderResponseVo> repairProdDataQuery(
+    public ApiResult<QueryOrderResponseVo> repairQuickPayQuery(
             @RequestParam("orderId") String orderId) {
         QueryOrderVo queryOrderVo = new QueryOrderVo();
         queryOrderVo.setP1_bizType("QuickPayQuery");
@@ -128,14 +128,14 @@ public class PosRepairController {
     }*/
 
     /*public static void main(String[] args) {
-        BigDecimal withdrawRate = new BigDecimal("0.0058");
+        BigDecimal withdrawRate = new BigDecimal("0.0045");
         BigDecimal extraServiceCharge = new BigDecimal("3");
         BigDecimal helibaoPoundageRate = new BigDecimal("0.0038");
         BigDecimal helibaoTixianRate = new BigDecimal("0.0002");
         BigDecimal helibaoTixianMoney = new BigDecimal("1");
 
         // 获取订单金额
-        BigDecimal orderAmount = new BigDecimal("8888");
+        BigDecimal orderAmount = new BigDecimal("2300");
         // 计算平台收取的服务费：serviceCharge = orderAmount * userWithdrawRate + extraServiceCharge
         BigDecimal serviceCharge = orderAmount
                 .multiply(withdrawRate)
@@ -158,9 +158,9 @@ public class PosRepairController {
         System.out.println("-------------------------->公司支付给用户时，合利宝的手续费posCharge：" + posCharge);
 
         PosOutCardInfoDto outCard = new PosOutCardInfoDto();
-        outCard.setCardNo("5707");
-        outCard.setBankCode("SHB");
-        outCard.setBankName("上海银行");
+        outCard.setCardNo("1558");
+        outCard.setBankCode("CGB");
+        outCard.setBankName("广发银行");
         outCard.setCardType((byte) 2);
         System.out.println("-------------------------->支出银行信息outCardInfo：" + JsonUtils.objectToJson(outCard));
     }*/
