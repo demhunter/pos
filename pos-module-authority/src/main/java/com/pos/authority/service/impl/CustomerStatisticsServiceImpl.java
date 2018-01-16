@@ -120,6 +120,24 @@ public class CustomerStatisticsServiceImpl implements CustomerStatisticsService 
         CustomerLevelConfig nextLevelConfig = null;
         if (permission.getLevel() < maxLevel) {
             nextLevelConfig = customerLevelSupport.getLevelConfig(permission.getLevel() + 1);
+            for (Integer nextLevel = permission.getLevel() + 1; nextLevel < maxLevel; nextLevel++) {
+                if (nextLevelConfig != null && statistics.getPaidCharge().compareTo(nextLevelConfig.getChargeLimit()) > 0) {
+                    // 当前已支付手续费大于下一等级的手续费限制，
+                    CustomerLevelConfig secondNextLevelConfig = customerLevelSupport.getLevelConfig(nextLevel + 1);
+                    if (secondNextLevelConfig != null) {
+                        if (secondNextLevelConfig.getChargeLimit().compareTo(BigDecimal.ZERO) > 0
+                                && statistics.getPaidCharge().compareTo(secondNextLevelConfig.getChargeLimit()) >= 0) {
+                            nextLevelConfig = secondNextLevelConfig;
+                        } else {
+                            break;
+                        }
+                    } else {
+                        break;
+                    }
+                } else {
+                    break;
+                }
+            }
         }
         if (nextLevelConfig != null && nextLevelConfig.getChargeLimit().compareTo(BigDecimal.ZERO) > 0) {
             if (statistics.getPaidCharge().compareTo(nextLevelConfig.getChargeLimit()) >= 0) {
