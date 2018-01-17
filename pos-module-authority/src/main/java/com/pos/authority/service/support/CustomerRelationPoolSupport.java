@@ -255,7 +255,7 @@ public class CustomerRelationPoolSupport {
         Map<String, Object> nodeInfo = new HashMap<>();
         nodeInfo.put("level", permission.getLevel().toString());
         nodeInfo.put("withdrawRate", permission.getWithdrawRate().toPlainString());
-        nodeInfo.put("extraServiceCharge", permission.getWithdrawRate().toPlainString());
+        nodeInfo.put("extraServiceCharge", permission.getExtraServiceCharge().toPlainString());
 
         redisTemplate.opsForHash().putAll(RedisConstants.POS_CUSTOMER_RELATION_NODE + permission.getUserId(), nodeInfo);
 
