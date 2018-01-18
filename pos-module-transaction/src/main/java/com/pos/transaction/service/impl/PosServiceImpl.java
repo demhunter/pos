@@ -16,8 +16,10 @@ import com.pos.basic.constant.RedisConstants;
 import com.pos.basic.dto.UserIdentifier;
 import com.pos.basic.service.SecurityService;
 import com.pos.basic.sm.fsm.FSM;
+import com.pos.common.sms.service.SmsService;
 import com.pos.common.util.basic.JsonUtils;
 import com.pos.common.util.basic.SHAUtils;
+import com.pos.common.util.basic.SimpleRegexUtils;
 import com.pos.common.util.basic.UUIDUnsigned32;
 import com.pos.common.util.constans.GlobalConstants;
 import com.pos.common.util.exception.ErrorCode;
@@ -45,7 +47,9 @@ import com.pos.transaction.helipay.action.QuickPayApi;
 import com.pos.transaction.helipay.vo.*;
 import com.pos.transaction.service.PosCardService;
 import com.pos.transaction.service.PosService;
+import com.pos.user.dto.customer.CustomerDto;
 import com.pos.user.exception.UserErrorCode;
+import com.pos.user.service.CustomerService;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
@@ -122,6 +126,12 @@ public class PosServiceImpl implements PosService {
 
     @Resource
     private PosCardService posCardService;
+
+    @Resource
+    private CustomerService customerService;
+
+    @Resource
+    private SmsService smsService;
 
     @Override
     public ApiResult<QuickGetMoneyDto> getQuickInfo(Long userId) {
@@ -502,6 +512,8 @@ public class PosServiceImpl implements PosService {
                     customerStatisticsService.incrementUpgradeCharge(transactionRecord.getUserId(), transactionRecord.getAmount());
                 } else if (TransactionType.NORMAL_WITHDRAW.equals(transactionType)) {
                     customerStatisticsService.incrementWithdrawAmount(transactionRecord.getUserId(), transactionRecord.getAmount());
+                    // 发送收款成功消息给客户
+                    sendNormalWithdrawSuccessMessage(transactionRecord);
                 }
                 break;
             case TRANSACTION_HANDLED_SUCCESS:
@@ -509,6 +521,8 @@ public class PosServiceImpl implements PosService {
                 transactionRecord.setCompleteDate(currentTime);
                 if (TransactionType.NORMAL_WITHDRAW.equals(transactionType)) {
                     customerStatisticsService.incrementWithdrawAmount(transactionRecord.getUserId(), transactionRecord.getAmount());
+                    // 发送收款成功消息给客户
+                    sendNormalWithdrawSuccessMessage(transactionRecord);
                 }
                 break;
             default:
@@ -517,6 +531,28 @@ public class PosServiceImpl implements PosService {
         posUserTransactionRecordDao.updateTransaction(transactionRecord);
 
         return true;
+    }
+
+    // 发送收款成功消息给客户
+    private void sendNormalWithdrawSuccessMessage(UserPosTransactionRecord transactionRecord) {
+        CustomerDto customer = customerService.findById(transactionRecord.getUserId(), false, false);
+        if (customer != null) {
+            String template = "钱刷刷用户你好，收款已到账（到账金额：%s元），请及时关注收款银行卡的到账信息。如有疑问，请电话咨询客服：18140090832。";
+            String msg = String.format(template, transactionRecord.getArrivalAmount().toPlainString());
+            smsService.sendMessage(customer.getUserPhone(), msg);
+        }
+    }
+
+    // 发送分佣消息给相关参与分佣的客户
+    private void sendBrokerageMessage(String customerName, TransactionCustomerBrokerage brokerage) {
+        if (customerName != null) {
+            CustomerDto brokerageCustomer = customerService.findById(brokerage.getAncestorUserId(), false, false);
+            if (brokerageCustomer != null) {
+                String template = "钱刷刷用户你好，你的下级%s收款为您带来了%s元分润，请登录钱刷刷查询详细收益信息。";
+                String msg = String.format(template, customerName, brokerage.getBrokerage().toPlainString());
+                smsService.sendMessage(brokerageCustomer.getUserPhone(), msg);
+            }
+        }
     }
 
     @Override
@@ -554,8 +590,17 @@ public class PosServiceImpl implements PosService {
                 } while (nextParticipator != null);
 
                 customerBrokerageDao.saveBrokerages(brokerages);
+
+                CustomerDto customer = customerService.findById(transaction.getUserId(), false, false);
+                String customerName = null;
+                if (customer != null) {
+                    customerName = customer.getName();
+                    customerName = SimpleRegexUtils.hiddenName(customerName);
+                }
                 for (TransactionCustomerBrokerage brokerage : brokerages) {
                     customerStatisticsService.incrementBrokerage(brokerage.getAncestorUserId(), brokerage.getBrokerage());
+                    // 发送分佣消息给相关参与分佣的客户
+                    sendBrokerageMessage(customerName, brokerage);
                 }
             }
         }
