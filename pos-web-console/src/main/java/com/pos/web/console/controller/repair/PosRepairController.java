@@ -79,6 +79,12 @@ public class PosRepairController {
         return ApiResult.succ();
     }
 
+    @RequestMapping(value = "clear/redis", method = RequestMethod.GET)
+    @ApiOperation(value = "v2.0.0 * 清楚redis缓存", notes = "清楚redis缓存")
+    public ApiResult<NullObject> clearRedis() {
+        return dataRepairV2_0_0.clearRedisCache();
+    }
+
     /*@RequestMapping(value = "prod/data", method = RequestMethod.GET)
     @ApiOperation(value = "v2.0.0 * 线上数据修复", notes = "线上数据修复")
     public ApiResult<SettlementCardWithdrawResponseVo> repairProdData() {

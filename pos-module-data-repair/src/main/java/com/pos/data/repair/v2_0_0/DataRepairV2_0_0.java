@@ -7,9 +7,11 @@ import com.google.common.collect.Lists;
 import com.pos.authority.domain.CustomerPermission;
 import com.pos.authority.domain.CustomerRelation;
 import com.pos.authority.domain.CustomerStatistics;
+import com.pos.basic.constant.RedisConstants;
 import com.pos.common.util.basic.UUIDUnsigned32;
 import com.pos.common.util.exception.ErrorCode;
 import com.pos.common.util.mvc.support.ApiResult;
+import com.pos.common.util.mvc.support.NullObject;
 import com.pos.data.repair.dao.RepairV2_0_0Dao;
 import com.pos.transaction.constants.PosConstants;
 import com.pos.transaction.constants.TransactionStatusType;
@@ -19,12 +21,15 @@ import com.pos.transaction.domain.UserPosTransactionHandledInfo;
 import com.pos.transaction.domain.UserPosTransactionRecord;
 import com.pos.transaction.domain.UserPosTwitterBrokerage;
 import com.pos.transaction.dto.PosUserGetBrokerageRecordDto;
+import org.bouncycastle.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -46,6 +51,9 @@ public class DataRepairV2_0_0 {
 
     @Resource
     private PosConstants posConstants;
+
+    @Resource
+    private RedisTemplate<Serializable, Serializable> redisTemplate;
 
     // 修复用户统计数据
     public void repairCustomerStatistics() {
@@ -336,5 +344,25 @@ public class DataRepairV2_0_0 {
         transaction.setCompleteDate(record.getPayDate());
 
         return transaction;
+    }
+
+    public ApiResult<NullObject> clearRedisCache() {
+
+        String redisKey = RedisConstants.POS_CUSTOMER_RELATION_NODE;
+        Set<Serializable> keys = redisTemplate.opsForValue().getOperations().keys(redisKey + "*");
+        if (!CollectionUtils.isEmpty(keys)) {
+            System.out.println("keys = " + keys);
+            for (Serializable key : keys) {
+                String keyStr = (String) key;
+                String[] keyModels = Strings.split(keyStr, ':');
+                Long userId = Long.valueOf(keyModels[1]);
+                redisTemplate.opsForValue().getOperations().delete(RedisConstants.POS_CUSTOMER_RELATION_NODE_CHILDREN + userId);
+                if (userId != 0L) {
+                    redisTemplate.opsForValue().getOperations().delete(keyStr);
+                }
+            }
+        }
+
+        return ApiResult.succ();
     }
 }
