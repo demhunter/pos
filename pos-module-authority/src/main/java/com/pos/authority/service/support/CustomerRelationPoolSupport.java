@@ -167,8 +167,12 @@ public class CustomerRelationPoolSupport {
         FieldChecker.checkEmpty(userId, "userId");
         Map<Object, Object> data = redisTemplate.opsForHash().entries(RedisConstants.POS_CUSTOMER_RELATION_NODE + userId);
         if (CollectionUtils.isEmpty(data)) {
-            LOG.error("用户{}在关系池中不存在", userId);
-            return null;
+            CustomerRelationDto relation = getCustomerRelation(userId);
+            if (relation == null) {
+                LOG.error("用户{}在关系池中不存在", userId);
+                return null;
+            }
+            data = redisTemplate.opsForHash().entries(RedisConstants.POS_CUSTOMER_RELATION_NODE + userId);
         }
 
         CustomerRelationNode node = new CustomerRelationNode();
