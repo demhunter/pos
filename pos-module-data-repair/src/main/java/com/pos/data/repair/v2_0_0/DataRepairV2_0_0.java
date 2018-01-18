@@ -359,6 +359,7 @@ public class DataRepairV2_0_0 {
                 redisTemplate.opsForValue().getOperations().delete(RedisConstants.POS_CUSTOMER_RELATION_NODE_CHILDREN + userId);
                 if (userId != 0L) {
                     redisTemplate.opsForValue().getOperations().delete(keyStr);
+                    redisTemplate.opsForValue().getOperations().delete(RedisConstants.POS_CUSTOMER_RELATION_TREE + userId);
                 }
             }
         }
