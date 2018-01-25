@@ -9,14 +9,19 @@ import com.pos.common.util.mvc.support.NullObject;
 import com.pos.data.repair.v2_0_0.DataRepairV2_0_0;
 import com.pos.transaction.constants.PosConstants;
 import com.pos.transaction.helipay.action.QuickPayApi;
+import com.pos.transaction.helipay.vo.QueryOrderResponseVo;
+import com.pos.transaction.helipay.vo.QueryOrderVo;
+import com.pos.transaction.helipay.vo.QuerySettlementCardVo;
 import com.pos.transaction.service.PosStatisticsService;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -102,7 +107,7 @@ public class PosRepairController {
         return quickPayApi.settlementCardWithdraw(settlementCardWithdrawVo);
     }*/
 
-    /*@RequestMapping(value = "prod/data/query", method = RequestMethod.GET)
+    @RequestMapping(value = "prod/data/query", method = RequestMethod.GET)
     @ApiOperation(value = "v2.0.0 * 线上数据修复查询", notes = "线上数据修复查询")
     public ApiResult<QuerySettlementCardVo> repairTransferQuery(
             @RequestParam("orderId") String orderId) {
@@ -113,9 +118,9 @@ public class PosRepairController {
         queryOrderVo.setP3_customerNumber(posConstants.getHelibaoMerchantNO());
 
         return quickPayApi.querySettlementCardWithdraw(queryOrderVo);
-    }*/
+    }
 
-    /*@RequestMapping(value = "prod/data/query/quickPay", method = RequestMethod.GET)
+    @RequestMapping(value = "prod/data/query/quickPay", method = RequestMethod.GET)
     @ApiOperation(value = "v2.0.0 * 线上数据修复查询", notes = "线上数据修复查询")
     public ApiResult<QueryOrderResponseVo> repairQuickPayQuery(
             @RequestParam("orderId") String orderId) {
@@ -125,17 +130,17 @@ public class PosRepairController {
         queryOrderVo.setP3_customerNumber(posConstants.getHelibaoMerchantNO());
 
         return quickPayApi.queryOrder(queryOrderVo);
-    }*/
+    }
 
-    /*public static void main(String[] args) {
+    public static void main(String[] args) {
         BigDecimal withdrawRate = new BigDecimal("0.0045");
         BigDecimal extraServiceCharge = new BigDecimal("3");
-        BigDecimal helibaoPoundageRate = new BigDecimal("0.0038");
+        BigDecimal helibaoPoundageRate = new BigDecimal("0.0040");
         BigDecimal helibaoTixianRate = new BigDecimal("0.0002");
         BigDecimal helibaoTixianMoney = new BigDecimal("1");
 
         // 获取订单金额
-        BigDecimal orderAmount = new BigDecimal("2300");
+        BigDecimal orderAmount = new BigDecimal("9850");
         // 计算平台收取的服务费：serviceCharge = orderAmount * userWithdrawRate + extraServiceCharge
         BigDecimal serviceCharge = orderAmount
                 .multiply(withdrawRate)
@@ -157,13 +162,13 @@ public class PosRepairController {
                 .setScale(2, BigDecimal.ROUND_UP);
         System.out.println("-------------------------->公司支付给用户时，合利宝的手续费posCharge：" + posCharge);
 
-        PosOutCardInfoDto outCard = new PosOutCardInfoDto();
+        /*PosOutCardInfoDto outCard = new PosOutCardInfoDto();
         outCard.setCardNo("1558");
         outCard.setBankCode("CGB");
         outCard.setBankName("广发银行");
         outCard.setCardType((byte) 2);
-        System.out.println("-------------------------->支出银行信息outCardInfo：" + JsonUtils.objectToJson(outCard));
-    }*/
+        System.out.println("-------------------------->支出银行信息outCardInfo：" + JsonUtils.objectToJson(outCard));*/
+    }
 
     /*@Resource
     private SecurityService securityService;
