@@ -70,10 +70,18 @@ public class TransactionScheduleSupport {
                         // 查询成功
                         context.setSerialNumber(data.getRt6_serialNumber());
                         FSM fsm = PosFSMFactory.newPosTransactionInstance(statusType.toString(), context);
+                        // 合利宝总共有6中状态，依次为：
+                        // RECEIVE  已接单（PS：为新加状态）
+                        // INIT     初始化状态
+                        // DOING    处理中
+                        // SUCCESS  成功
+                        // FAIL     失败
+                        // REFUND   退款
                         if ("SUCCESS".equals(data.getRt7_orderStatus())) {
                             // 交易成功
                             fsm.processFSM("withdrawSuccess");
-                        } else if ("INIT".equals(data.getRt7_orderStatus())
+                        } else if ("RECEIVE".equals(data.getRt7_orderStatus())
+                                || "INIT".equals(data.getRt7_orderStatus())
                                 || "DOING".equals(data.getRt7_orderStatus())) {
                             // 交易处理中，重新入队列，待下次查询
                             redisTemplate.opsForList().rightPush(RedisConstants.POS_TRANSACTION_WITHDRAW_QUEUE, recordId.toString());
