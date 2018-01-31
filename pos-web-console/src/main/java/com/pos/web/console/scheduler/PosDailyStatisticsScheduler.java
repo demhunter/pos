@@ -7,6 +7,7 @@ import com.pos.transaction.service.PosStatisticsService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 /**
@@ -20,6 +21,11 @@ public class PosDailyStatisticsScheduler {
 
     @Resource
     private PosStatisticsService posStatisticsService;
+
+    @PostConstruct
+    public void initializeScheduler() {
+        execute();
+    }
 
     @Scheduled(cron = "* * 1 * * ?")
     public void execute() {

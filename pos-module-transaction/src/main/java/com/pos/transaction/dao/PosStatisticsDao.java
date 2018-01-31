@@ -70,7 +70,8 @@ public interface PosStatisticsDao {
      *
      * @return 收款统计
      */
-    List<TransactionDailyStatisticsDto> queryPosStatisticsByDaily();
+    List<TransactionDailyStatisticsDto> queryPosStatisticsByDaily(
+            @Param("begin") Date begin, @Param("end") Date end);
 
     /**
      * 查询佣金提现统计
@@ -84,7 +85,8 @@ public interface PosStatisticsDao {
      *
      * @return 佣金提现统计
      */
-    List<TransactionDailyStatisticsDto> queryBrokerageWithdrawalStatisticsByDaily();
+    List<TransactionDailyStatisticsDto> queryBrokerageWithdrawalStatisticsByDaily(
+            @Param("begin") Date begin, @Param("end") Date end);
 
     /**
      * 查询佣金统计

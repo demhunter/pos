@@ -90,6 +90,13 @@ public class PosRepairController {
         return dataRepairV2_0_0.clearRedisCache();
     }
 
+    @RequestMapping(value = "statistics/daily/special", method = RequestMethod.GET)
+    @ApiOperation(value = "v2.0.0 * 更新每日数据统计", notes = "更新每日数据统计")
+    public ApiResult<NullObject> dailyDailyStatistics() {
+        posStatisticsService.dailyStatisticsSchedule();
+        return ApiResult.succ();
+    }
+
     /*@RequestMapping(value = "prod/data", method = RequestMethod.GET)
     @ApiOperation(value = "v2.0.0 * 线上数据修复", notes = "线上数据修复")
     public ApiResult<SettlementCardWithdrawResponseVo> repairProdData() {

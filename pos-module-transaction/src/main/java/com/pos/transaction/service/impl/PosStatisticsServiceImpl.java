@@ -187,7 +187,7 @@ public class PosStatisticsServiceImpl implements PosStatisticsService {
         String endStr = SimpleDateUtils.formatDate(end, SimpleDateUtils.DatePattern.STANDARD_PATTERN.toString());
         LOG.info("开始统计（" + beginStr + "--" + endStr + "）期间的每日收款数据......");
         HashMap<LocalDate, TransactionDailyStatisticsDto> statisticsMap = initializeDailyStatisticsMap(beginDate, endDate);
-        List<TransactionDailyStatisticsDto> dailyPosStatistics = posStatisticsDao.queryPosStatisticsByDaily();
+        List<TransactionDailyStatisticsDto> dailyPosStatistics = posStatisticsDao.queryPosStatisticsByDaily(begin, end);
         if (!CollectionUtils.isEmpty(dailyPosStatistics)) {
             dailyPosStatistics.forEach(e -> {
                 LocalDate dateKey = e.getLocalDateKey();
@@ -203,7 +203,7 @@ public class PosStatisticsServiceImpl implements PosStatisticsService {
             });
         }
         LOG.info("开始统计（" + beginStr + "--" + endStr + "）期间的每日佣金数据......");
-        List<TransactionDailyStatisticsDto> dailyBrokerageStatistics = posStatisticsDao.queryBrokerageWithdrawalStatisticsByDaily();
+        List<TransactionDailyStatisticsDto> dailyBrokerageStatistics = posStatisticsDao.queryBrokerageWithdrawalStatisticsByDaily(begin, end);
         if (!CollectionUtils.isEmpty(dailyBrokerageStatistics)) {
             dailyBrokerageStatistics.forEach(e -> {
                 LocalDate dateKey = e.getLocalDateKey();

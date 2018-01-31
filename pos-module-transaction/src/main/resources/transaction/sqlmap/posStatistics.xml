@@ -79,6 +79,12 @@
         FROM user_pos_transaction_record
         WHERE transaction_type = 1
         AND status IN (1, 2, 3, 4)
+        <if test="begin != null">
+            AND create_date <![CDATA[>=]]> #{begin}
+        </if>
+        <if test="end != null">
+            AND create_date <![CDATA[<=]]> #{end}
+        </if>
         GROUP BY dateKey
     </select>
 
@@ -103,6 +109,12 @@
         FROM user_pos_transaction_record
         WHERE transaction_type = 2
         AND status IN (1, 2, 3, 4)
+        <if test="begin != null">
+            AND create_date <![CDATA[>=]]> #{begin}
+        </if>
+        <if test="end != null">
+            AND create_date <![CDATA[<=]]> #{end}
+        </if>
         GROUP BY dateKey
     </select>
 
