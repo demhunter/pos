@@ -3,7 +3,9 @@
  */
 package com.pos.web.console.controller.repair;
 
+import com.google.common.collect.Lists;
 import com.pos.authority.service.support.CustomerRelationPoolSupport;
+import com.pos.common.sms.service.SmsService;
 import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.common.util.mvc.support.NullObject;
 import com.pos.data.repair.v2_0_0.DataRepairV2_0_0;
@@ -49,6 +51,9 @@ public class PosRepairController {
 
     @Resource
     private PosConstants posConstants;
+
+    @Resource
+    private SmsService smsService;
 
     @RequestMapping(value = "relation/tree", method = RequestMethod.GET)
     @ApiOperation(value = "v2.0.0 * 初始化用户关系树", notes = "初始化用户关系树")
@@ -137,6 +142,17 @@ public class PosRepairController {
         queryOrderVo.setP3_customerNumber(posConstants.getHelibaoMerchantNO());
 
         return quickPayApi.queryOrder(queryOrderVo);
+    }
+
+    @RequestMapping(value = "prod/spring-festival/notify", method = RequestMethod.GET)
+    @ApiOperation(value = "v2.0.0 * 春节放假停运短信通知", notes = "春节放假停运短信通知")
+    public ApiResult<List<String>> sendSpringFestivalNotify() {
+        String phoneStr = "18581841473,18030701030,13880756056,18611195408,15002382675,15000168361,18181438321,18908069603,18696599440,18140090832,18030893331,13980620293,15213155146,13638326180,13638261311,13890399976,13594076253,13540761221,13880167618,18113173162,15680812222,13883740726,18982263588,13436134947,13508040031,13540498341,15928832523,18203098103,15902367847,15826161626,18725778907,13883739521,13883771446,15802362094,15928709768,13982105642,18680899560,13983924201,13399887784,18980539031,15008212139,13980757570,13880727515,13808086609,15308082018,18600056058,15694005968,18784994408,18128803854,18008022245,13032827168,13121511559,17628286583,15881260238,13608093402,18583381164,13908333305,15002857003,18382210425,18380460598,13540393484,15680626917";
+
+        List<String> phoneNumbers = Lists.newArrayList(phoneStr.split(","));
+
+        String message = "尊敬的钱刷刷用户，快捷收款功能将在春节期间暂停使用，暂停时间为2月11日-2月22日，由此给您带来的不便，我们深表歉意。";
+        return smsService.sendMessageBatch(phoneNumbers, message);
     }
 
     public static void main(String[] args) {
