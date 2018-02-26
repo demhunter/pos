@@ -6,6 +6,7 @@ package com.pos.authority.service;
 import com.pos.authority.condition.query.ChildrenCondition;
 import com.pos.authority.dto.relation.ChildInfoDto;
 import com.pos.authority.dto.relation.CustomerRelationDto;
+import com.pos.basic.dto.UserIdentifier;
 import com.pos.common.util.mvc.support.ApiResult;
 import com.pos.common.util.mvc.support.LimitHelper;
 import com.pos.common.util.mvc.support.NullObject;
@@ -65,4 +66,14 @@ public interface CustomerRelationService {
      * @return 查询结果
      */
     ApiResult<Pagination<ChildInfoDto>> queryChildren(ChildrenCondition condition, LimitHelper limitHelper);
+
+    /**
+     * 更改客户上下级关系
+     *
+     * @param childUserId  下级用户id
+     * @param parentUserId 上级用户id
+     * @param operator     更新操作用户标识
+     * @return 操作结果
+     */
+    ApiResult<NullObject> modifyCustomerRelation(Long childUserId, Long parentUserId, UserIdentifier operator);
 }

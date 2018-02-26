@@ -7,6 +7,7 @@ import com.pos.authority.condition.query.ChildrenCondition;
 import com.pos.authority.domain.CustomerRelation;
 import com.pos.authority.dto.relation.ChildInfoDto;
 import com.pos.authority.dto.relation.CustomerRelationDto;
+import com.pos.basic.dto.UserIdentifier;
 import com.pos.common.util.mvc.support.LimitHelper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -70,4 +71,16 @@ public interface CustomerRelationDao {
     List<ChildInfoDto> queryChildren(
             @Param("condition") ChildrenCondition condition,
             @Param("limitHelper") LimitHelper limitHelper);
+
+    /**
+     * 更新客户上下级关系
+     *
+     * @param childUserId  下级用户id
+     * @param parentUserId 上级用户id
+     * @param operator     更新操作人
+     */
+    void updateCustomerRelation(
+            @Param("childUserId") Long childUserId,
+            @Param("parentUserId") Long parentUserId,
+            @Param("operator") UserIdentifier operator);
 }

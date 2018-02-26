@@ -3,6 +3,7 @@
  */
 package com.pos.authority.service.support;
 
+import com.google.common.collect.Lists;
 import com.pos.authority.constant.CustomerAuditStatus;
 import com.pos.authority.dao.CustomerRelationDao;
 import com.pos.authority.dto.permission.CustomerPermissionDto;
@@ -41,7 +42,7 @@ public class CustomerRelationPoolSupport {
 
     private final static Long CUSTOMER_ROOT_NODE_USER_ID = 0L; // 根节点用户id
 
-    private final static long CUSTOMER_RELATION_TREE_CACHE_TIME = 300L; // 关系树缓存时间
+    private final static long CUSTOMER_RELATION_TREE_CACHE_TIME = 60L; // 关系树缓存时间
 
     @Resource
     private CustomerRelationDao customerRelationDao;
@@ -349,7 +350,7 @@ public class CustomerRelationPoolSupport {
             });
             parentTree.setChildrenTrees(childrenTrees);
         }
-        // 缓存生成的关系树（5 min）
+        // 缓存生成的关系树（1 min）
         relationTreeTemplate.opsForValue().set(
                 RedisConstants.POS_CUSTOMER_RELATION_TREE + userId, parentTree,
                 CUSTOMER_RELATION_TREE_CACHE_TIME, TimeUnit.SECONDS);
@@ -357,171 +358,39 @@ public class CustomerRelationPoolSupport {
         return parentTree;
     }
 
-    /*private void addNodeToTree(CustomerRelationNode node) {
-        Serializable serializable = redisTemplate.opsForValue().get(RedisConstants.POS_CUSTOMER_RELATION_TREE);
-        if (serializable == null) {
-            LOG.error("用户关系添加错误：关系树不存在");
-            throw new IllegalStateException("用户关系添加错误：关系树不存在");
-        }
-        CustomerRelationNode relationTree = (CustomerRelationNode) serializable;
+    /**
+     * 获取指定用户的所有上级
+     *
+     * @param userId 用户id
+     * @return 上级列表（有序，index：0为当前用户，1为直接上级，...，以此类推）
+     */
+    public List<CustomerRelationDto> getCustomerAncestors(Long userId) {
+        List<CustomerRelationDto> ancestors = Lists.newArrayList();
+        CustomerRelationDto current;
+        do {
+            current = getCustomerRelation(userId);
+            if (current != null) {
+                ancestors.add(current);
+                userId = current.getParentUserId();
+            }
+        } while (current != null && userId != null && userId != 0);
 
-        CustomerRelationNode parentNode = getParentNodeByDFS(relationTree, node);
-        if (parentNode == null) {
-            LOG.error("用户关系添加错误：节点[{}]的父节点在关系树中不存在", node);
-            throw new IllegalStateException("用户关系添加错误：节点{" + node.getUserId() + "}的父节点在关系树中不存在");
-        }
-        parentNode.getChildren().add(node.getUserId());
-
-        // 保存完整关系树
-        redisTemplate.opsForValue().set(RedisConstants.POS_CUSTOMER_RELATION_TREE, relationTree);
+        return ancestors;
     }
 
-    private void buildRelationTree(CustomerRelationNode tree, CustomerRelationNode node, Map<Long, CustomerRelationNode> nodeMap) {
-        CustomerRelationNode parentInfo = nodeMap.get(node.getParentUserId());
-        // 父节点是否加入关系树（没有加入，父节点先加入关系树）
-        if (parentInfo != null) {
-            buildRelationTree(tree, parentInfo, nodeMap);
-        }
-        // 查询当前节点是否已经加入关系树，已加入不做任何处理
-        CustomerRelationNode childNode = nodeMap.get(node.getUserId());
-        if (childNode != null) {
-            // 当前节点没有加入关系树，遍历树，查找到父节点
-            CustomerRelationNode parentNode = getParentNodeByDFS(tree, node);
-            if (parentNode == null) {
-                throw new IllegalStateException("关系树初始化错误，用户" + node.getUserId() + "的上级" + node.getParentUserId() + "不再关系树中！");
-            }
-            parentNode.getChildren().add(node.getUserId());
-            nodeMap.remove(node.getUserId());
-        }
-    }*/
-
-    /*public CustomerRelationTree initializeRelationTree() {
-        Map<Long, CustomerRelationNode> relationMap = new HashMap<>();
-        List<CustomerRelationNode> relations = Lists.newArrayList();
-
-        relationNodeMap.clear();
-        CustomerRelationNode rootNode = initializeRootNode(); // 初始化根节点信息
-        relationNodeMap.put(rootNode.getUserId(), rootNode);
-        relationTree = rootNode.copy();
-
-        List<CustomerPermissionDto> permissions = customerPermissionDao.query();
-        if (!CollectionUtils.isEmpty(permissions)) {
-            permissions.forEach(e -> {
-                CustomerRelationNode node = buildCustomerRelation(e);
-                relationNodeMap.put(node.getUserId(), node);
-
-                relationMap.put(node.getUserId(), node.copy());
-                relations.add(node.copy());
-            });
-            // 构建节点信息（节点自身信息和其直接子节点信息）
-            relationNodeMap.forEach((Long key, CustomerRelationNode value) -> {
-                if (value != null && value.getParentUserId() != null) {
-                    CustomerRelationNode child = value.copy();
-                    relationNodeMap.get(value.getParentUserId()).getChildren().put(child.getUserId(), child);
-                }
-            });
-            // 根据节点信息构建关系树
-            for (CustomerRelationNode relation : relations) {
-                buildRelationTree(relation.copy(), relationMap);
-            }
-        }
-
-        CustomerRelationTree result = new CustomerRelationTree();
-        result.setRelationTree(relationTree);
-        result.setTreeNodeMap(relationNodeMap);
-        return result;
+    /**
+     * 更新关系结构
+     *
+     * @param oldRelation 旧关系结构
+     * @param newRelation 新关系结构
+     */
+    public void updateCustomerRelation(CustomerRelationDto oldRelation, CustomerRelationDto newRelation) {
+        // 1、删除旧上下级关系
+        redisTemplate.opsForSet().remove(RedisConstants.POS_CUSTOMER_RELATION_NODE_CHILDREN + oldRelation.getParentUserId(),
+                oldRelation.getUserId().toString());
+        // 2、保存新上下级关系
+        addCustomerRelation(newRelation);
     }
-
-    private void buildRelationTree(CustomerRelationNode relation, Map<Long, CustomerRelationNode> relationMap) {
-        CustomerRelationNode parentInfo = relationMap.get(relation.getParentUserId());
-        // 父节点是否加入关系树（没有加入，父节点先加入关系树）
-        if (parentInfo != null) {
-            buildRelationTree(parentInfo, relationMap);
-        }
-        // 查询当前节点是否已经加入关系树，已加入不做任何处理
-        CustomerRelationNode childNode = relationMap.get(relation.getUserId());
-        if (childNode != null) {
-            // 当前节点没有加入关系树，遍历树，查找到父节点
-            CustomerRelationNode parentNode = getParentNodeByDFS(relationTree, relation);
-            if (parentNode == null) {
-                throw new IllegalStateException("关系树初始化错误，用户" + relation.getUserId() +"的上级" + relation.getParentUserId() + "不再关系树中！");
-            }
-            parentNode.getChildren().put(relation.getUserId(), relation);
-            relationMap.remove(relation.getUserId());
-        }
-    }*/
-
-    /*// 深度优先遍历子树，查找父节点
-    private CustomerRelationNode getParentNodeByDFS(CustomerRelationNode parentTree, CustomerRelationNode childInfo) {
-        if (parentTree.getUserId().equals(childInfo.getParentUserId())) {
-            return parentTree;
-        } else {
-            // 深度优先遍历子树
-            if (!CollectionUtils.isEmpty(parentTree.getChildren())) {
-                *//*for(CustomerRelationNode childTree : parentTree.getChildren().values()) {
-                    CustomerRelationNode parentNode = getParentNodeByDFS(childTree, childInfo);
-                    if (parentNode != null) {
-                        return parentNode;
-                    }
-                }*//*
-            }
-        }
-        return null;
-    }
-
-    // 广度优先搜索叶子节点的父节点
-    private CustomerRelationNode getParentNodeByBFS(CustomerRelationNode leafNode) {
-        LinkedList<CustomerRelationNode> breadthList = Lists.newLinkedList();
-        breadthList.push(relationTree);
-        while (!CollectionUtils.isEmpty(breadthList)) {
-            CustomerRelationNode parentNode = breadthList.pop();
-            if (parentNode.getUserId().equals(leafNode.getParentUserId())) {
-                return parentNode;
-            }
-            if (!CollectionUtils.isEmpty(parentNode.getChildren())) {
-                // parentNode.getChildren().values().forEach(e -> breadthList.push(e.copyContainDescendant(true)));
-            }
-        }
-
-        return null;
-    }
-
-    // 广度优先搜索参与分佣的用户链表，搜索成功则返回一个链表：其中链表头为交易用户信息，链表尾为根节点信息
-    public Stack<CustomerRelationNode> getParticipationForBrokerage(Long userId) {
-        Stack<CustomerRelationNode> participationStack = new Stack<>();
-        // 根节点始终参与结算
-        participationStack.push(relationTree.copyContainDescendant(false));
-        // 广度优先搜索列表（根节点不参与交易，直接从第二层级开始搜索）
-        LinkedList<CustomerRelationNode> breadthList = Lists.newLinkedList();
-        // Queue<CustomerRelationNode> breadthQueue = new LinkedList<>();
-        if (!CollectionUtils.isEmpty(relationTree.getChildren())) {
-            // relationTree.getChildren().values().forEach(e -> breadthList.add(e.copyContainDescendant(true)));
-        }
-        while (!CollectionUtils.isEmpty(breadthList)) {
-            CustomerRelationNode node = breadthList.pop();
-            // 判断是否进入下一层级
-            if (!participationStack.peek().getUserId().equals(node.getParentUserId())) {
-                CustomerRelationNode parentNode = getParentNodeByBFS(node);
-                if (parentNode == null) {
-                    throw new IllegalStateException("用户" + node.getUserId() + "的上级" + node.getParentUserId() + "不再关系树中！");
-                }
-                if (!participationStack.peek().getUserId().equals(parentNode.getParentUserId())) {
-                    participationStack.pop();
-                }
-                participationStack.push(parentNode.copy());
-            }
-            // 判断当前节点信息
-            if (node.getUserId().equals(userId)) {
-                participationStack.push(node.copyContainDescendant(false));
-                break;
-            }
-            if (!CollectionUtils.isEmpty(node.getChildren())) {
-                // node.getChildren().values().forEach(e -> breadthList.add(e.copyContainDescendant(true)));
-            }
-        }
-
-        return participationStack;
-    }*/
 
     private CustomerRelationNode initializeRootNode() {
         CustomerRelationNode rootNode = new CustomerRelationNode();

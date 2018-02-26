@@ -35,7 +35,15 @@ public enum AuthorityErrorCode implements ErrorCode {
 
     AUDIT_STATUS_ERROR_NOU_SUBMIT_FOR_AUTHORIZE(1012, "实名认证信息未提交！"),
 
-    AUDIT_STATUS_ERROR_IDENTITY_DATED(1013, "用户实名认证信息已过时，请刷新过后重新审核！");
+    AUDIT_STATUS_ERROR_IDENTITY_DATED(1013, "用户实名认证信息已过时，请刷新过后重新审核！"),
+
+    CUSTOMER_RELATION_MODIFY_TOKEN_ERROR(1020, "关系更改验证Token错误或失效"),
+
+    CUSTOMER_RELATION_CHILD_NOT_EXISTED(1021, "下级客户不存在"),
+
+    CUSTOMER_RELATION_PARENT_NOT_EXISTED(1021, "上级客户不存在"),
+
+    CUSTOMER_RELATION_MODIFY_ERROR_FOR_CIRCLE(1022, "所选用户是当前用户的下级，操作无效");
 
     private final int code;
 

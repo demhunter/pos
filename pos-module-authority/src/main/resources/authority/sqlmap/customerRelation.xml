@@ -89,6 +89,14 @@
         LIMIT #{limitHelper.offset}, #{limitHelper.pageSize}
     </select>
 
+    <update id="updateCustomerRelation">
+        UPDATE customer_relation
+        SET parent_user_id = #{parentUserId},
+        update_user_id = #{operator.userId},
+        update_time = NOW()
+        WHERE user_id = #{childUserId}
+    </update>
+
     <sql id="childrenConditionColumns">
         <where>
             <if test="condition.parentUserId != null">
