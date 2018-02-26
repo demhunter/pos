@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2016 ywmj.com. All Rights Reserved.
  */
-package com.pos.transaction.service.support.helipay.dto.order.query;
+package com.pos.transaction.service.support.helipay.dto.order.pay.query;
 
 import com.pos.transaction.service.support.helipay.dto.HelibaoBasicResponse;
 

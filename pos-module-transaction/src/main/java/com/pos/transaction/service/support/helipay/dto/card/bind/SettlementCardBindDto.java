@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2016 ywmj.com. All Rights Reserved.
  */
-package com.pos.transaction.service.support.helipay.dto.settlement.card.bind;
+package com.pos.transaction.service.support.helipay.dto.card.bind;
 
 /**
  * 结算卡绑定请求DTO

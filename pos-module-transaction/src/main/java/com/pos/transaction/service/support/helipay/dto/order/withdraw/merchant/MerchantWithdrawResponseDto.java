@@ -1,19 +1,19 @@
 /*
  * Copyright (c) 2016 ywmj.com. All Rights Reserved.
  */
-package com.pos.transaction.service.support.helipay.dto.settlement.withdraw.query;
+package com.pos.transaction.service.support.helipay.dto.order.withdraw.merchant;
 
 import com.pos.transaction.service.support.helipay.dto.HelibaoBasicResponse;
 
 /**
- * 结算提现查询响应信息Dto
+ * 商户提现请求响应信息
  *
  * @author wangbing
- * @version 1.0, 2017/12/25
+ * @version 1.0, 2017/12/26
  */
-public class SettlementWithdrawQueryResponseDto extends HelibaoBasicResponse {
+public class MerchantWithdrawResponseDto extends HelibaoBasicResponse {
 
-    private String rt1_bizType; // 交易类型
+    private String rt1_bizType; // 交易类型，固定值为：SettlementCardWithdraw
 
     private String rt2_retCode; // 返回码
 
@@ -21,11 +21,7 @@ public class SettlementWithdrawQueryResponseDto extends HelibaoBasicResponse {
 
     private String rt4_customerNumber; // 商户编号
 
-    private String rt5_orderId; // 商户订单号
-
-    private String rt6_serialNumber; // 平台流水号
-
-    private String rt7_orderStatus; // 打款状态
+    private String Rt5_orderId; // 商户订单号
 
     private String sign; // 签名
 
@@ -66,27 +62,11 @@ public class SettlementWithdrawQueryResponseDto extends HelibaoBasicResponse {
     }
 
     public String getRt5_orderId() {
-        return rt5_orderId;
+        return Rt5_orderId;
     }
 
     public void setRt5_orderId(String rt5_orderId) {
-        this.rt5_orderId = rt5_orderId;
-    }
-
-    public String getRt6_serialNumber() {
-        return rt6_serialNumber;
-    }
-
-    public void setRt6_serialNumber(String rt6_serialNumber) {
-        this.rt6_serialNumber = rt6_serialNumber;
-    }
-
-    public String getRt7_orderStatus() {
-        return rt7_orderStatus;
-    }
-
-    public void setRt7_orderStatus(String rt7_orderStatus) {
-        this.rt7_orderStatus = rt7_orderStatus;
+        Rt5_orderId = rt5_orderId;
     }
 
     @Override

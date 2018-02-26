@@ -1,27 +1,27 @@
 /*
  * Copyright (c) 2016 ywmj.com. All Rights Reserved.
  */
-package com.pos.transaction.service.support.helipay.dto.order.query;
+package com.pos.transaction.service.support.helipay.dto.order.withdraw.query;
 
 /**
- * 订单查询信息Dto
+ * 结算提现查询信息Dto
  *
  * @author wangbing
- * @version 1.0, 2017/12/21
+ * @version 1.0, 2017/12/25
  */
-public class OrderQueryDto {
+public class SettlementWithdrawQueryDto {
 
-    private String P1_bizType; // 交易类型，固定值为：[QuickPayQuery]
+    private String P1_bizType; // 交易类型，固定值为：TransferQuery
 
     private String P2_orderId; // 商户订单号
 
     private String P3_customerNumber; // 商户编号
 
-    public OrderQueryDto() {
+    public SettlementWithdrawQueryDto() {
     }
 
-    public OrderQueryDto(String p2_orderId) {
-        P1_bizType = "QuickPayQuery";
+    public SettlementWithdrawQueryDto(String p2_orderId) {
+        P1_bizType = "TransferQuery";
         P2_orderId = p2_orderId;
     }
 

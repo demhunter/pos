@@ -1,23 +1,23 @@
 /*
  * Copyright (c) 2016 ywmj.com. All Rights Reserved.
  */
-package com.pos.transaction.service.support.helipay.dto.settlement.withdraw;
+package com.pos.transaction.service.support.helipay.dto.card.bind;
 
 import com.pos.transaction.service.support.helipay.dto.HelibaoBasicResponse;
 
 /**
- * 结算卡提现响应信息Dto
+ * 结算绑定返回信息Dto
  *
  * @author wangbing
- * @version 1.0, 2017/12/25
+ * @version 1.0, 2017/12/19
  */
-public class SettlementWithdrawResponseDto extends HelibaoBasicResponse {
+public class SettlementCardBindResponseDto extends HelibaoBasicResponse {
 
-    private String rt1_bizType; // 交易类型，固定值为：SettlementCardWithdraw
+    private String rt1_bizType; // 交易类型，固定值为：[SettlementCardWithdraw]
 
     private String rt2_retCode; // 返回码
 
-    private String rt3_retMsg; // 返回信息【不参与签名】
+    private String rt3_retMsg; // 返回信息，[不参与签名]
 
     private String rt4_customerNumber; // 商户编号
 
@@ -25,7 +25,11 @@ public class SettlementWithdrawResponseDto extends HelibaoBasicResponse {
 
     private String rt6_orderId; // 商户订单号
 
-    private String rt7_serialNumber; // 平台流水号
+    private String rt7_bindStatus; // 绑卡状态，[INIT:初始化；SUCCESS:成功；FAIL:失败；DOING:处理中；UNBIND:解绑]
+
+    private String rt8_bankId; // 银行编码
+
+    private String rt9_cardAfterFour; // 银行卡后四位数字
 
     private String sign; // 签名
 
@@ -81,20 +85,32 @@ public class SettlementWithdrawResponseDto extends HelibaoBasicResponse {
         this.rt6_orderId = rt6_orderId;
     }
 
-    public String getRt7_serialNumber() {
-        return rt7_serialNumber;
+    public String getRt7_bindStatus() {
+        return rt7_bindStatus;
     }
 
-    public void setRt7_serialNumber(String rt7_serialNumber) {
-        this.rt7_serialNumber = rt7_serialNumber;
+    public void setRt7_bindStatus(String rt7_bindStatus) {
+        this.rt7_bindStatus = rt7_bindStatus;
+    }
+
+    public String getRt8_bankId() {
+        return rt8_bankId;
+    }
+
+    public void setRt8_bankId(String rt8_bankId) {
+        this.rt8_bankId = rt8_bankId;
+    }
+
+    public String getRt9_cardAfterFour() {
+        return rt9_cardAfterFour;
+    }
+
+    public void setRt9_cardAfterFour(String rt9_cardAfterFour) {
+        this.rt9_cardAfterFour = rt9_cardAfterFour;
     }
 
     @Override
     public String getSign() {
         return sign;
-    }
-
-    public void setSign(String sign) {
-        this.sign = sign;
     }
 }

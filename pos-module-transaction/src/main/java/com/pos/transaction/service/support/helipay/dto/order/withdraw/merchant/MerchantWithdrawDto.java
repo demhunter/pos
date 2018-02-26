@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2016 ywmj.com. All Rights Reserved.
  */
-package com.pos.transaction.service.support.helipay.dto.settlement.withdraw.merchant;
+package com.pos.transaction.service.support.helipay.dto.order.withdraw.merchant;
 
 /**
  * 商户提现请求信息
