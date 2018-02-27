@@ -21,7 +21,6 @@ import com.pos.common.util.validation.FieldChecker;
 import com.pos.user.dto.customer.CustomerDto;
 import com.pos.user.exception.UserErrorCode;
 import com.pos.user.service.CustomerService;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -40,8 +39,6 @@ import java.util.Queue;
 @Transactional(rollbackFor = Exception.class)
 public class CustomerRelationServiceImpl implements CustomerRelationService {
 
-    private final static Long MODIFY_TOKEN_EXPIRE_TIME = 1L; // 客户关系更改Token时效(单位：分钟)
-
     @Resource
     private CustomerService customerService;
 
@@ -53,9 +50,6 @@ public class CustomerRelationServiceImpl implements CustomerRelationService {
 
     @Resource
     private CustomerRelationPoolSupport customerRelationPoolSupport;
-
-    @Resource
-    private RedisTemplate<String, String> redisTemplate;
 
     @Override
     public CustomerRelationDto getRelation(Long childUserId) {
