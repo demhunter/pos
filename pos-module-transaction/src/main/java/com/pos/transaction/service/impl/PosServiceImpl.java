@@ -581,7 +581,11 @@ public class PosServiceImpl implements PosService {
                     BigDecimal brokerageRate = current.getWithdrawRate().subtract(nextParticipator.getWithdrawRate());
                     brokerageRate = brokerageRate.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : brokerageRate;
                     brokerage.setBrokerageRate(brokerageRate);
-                    brokerage.setBrokerage(transaction.getAmount().multiply(brokerageRate).setScale(2, BigDecimal.ROUND_DOWN));
+                    BigDecimal brokerageAmount = transaction.getAmount().multiply(brokerageRate).setScale(2, BigDecimal.ROUND_DOWN);
+                    if (nextParticipator.getExtraServiceCharge().compareTo(current.getExtraServiceCharge()) < 0) {
+                        brokerageAmount = brokerageAmount.add(current.getExtraServiceCharge().subtract(nextParticipator.getExtraServiceCharge()));
+                    }
+                    brokerage.setBrokerage(brokerageAmount);
 
                     brokerages.add(brokerage);
 
